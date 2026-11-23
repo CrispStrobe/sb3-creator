@@ -6,42 +6,45 @@
    "kind": "breadboard",
    "params": {},
    "terminals": [],
-   "x": 470,
-   "y": 300,
+   "x": 520,
+   "y": 420,
    "rotation": 0
   },
   {
    "id": "vcc",
    "kind": "vcc",
    "params": {},
-   "x": 43,
-   "y": 255,
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "vcc": "a1"
-    }
-   }
+   "x": 77,
+   "y": 217,
+   "rotation": 0
   },
   {
    "id": "gnd",
    "kind": "gnd",
    "params": {},
-   "x": 43,
-   "y": 345,
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "gnd": "j1"
-    }
-   }
+   "x": 137,
+   "y": 217,
+   "rotation": 0
   },
   {
    "id": "timer",
    "kind": "timer_555",
    "params": {},
-   "x": 60,
-   "y": 60
+   "x": 135,
+   "y": 420,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "gnd": "e3",
+     "trigger": "e4",
+     "output": "e5",
+     "reset": "e6",
+     "control": "f6",
+     "threshold": "f5",
+     "discharge": "f4",
+     "vcc": "f3"
+    }
+   }
   },
   {
    "id": "r_fixed",
@@ -50,13 +53,13 @@
     "ohms": 4700
    },
    "label": "R_fixed",
-   "x": 71,
-   "y": 255,
+   "x": 212,
+   "y": 345,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a3",
-     "b": "a7"
+     "a": "a8",
+     "b": "a12"
     }
    }
   },
@@ -65,13 +68,13 @@
    "kind": "switch",
    "params": {},
    "label": "PROBES (close = something bridges them)",
-   "x": 71,
-   "y": 345,
+   "x": 205,
+   "y": 495,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "j3",
-     "b": "j6"
+     "a": "j8",
+     "b": "j11"
     }
    }
   },
@@ -83,14 +86,14 @@
     "position": 0.047
    },
    "label": "MATERIAL (0 to 1 MΩ)",
-   "x": 141,
+   "x": 296,
    "y": 345,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "j8",
-     "wiper": "j10",
-     "b": "j12"
+     "a": "a14",
+     "wiper": "a16",
+     "b": "a18"
     }
    }
   },
@@ -101,13 +104,13 @@
     "ohms": 10000
    },
    "label": "R2",
-   "x": 155,
-   "y": 255,
+   "x": 282,
+   "y": 495,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a9",
-     "b": "a13"
+     "a": "j13",
+     "b": "j17"
     }
    }
   },
@@ -118,13 +121,13 @@
     "farads": 1e-8
    },
    "label": "C 10 nF",
-   "x": 225,
-   "y": 345,
+   "x": 345,
+   "y": 495,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "j14",
-     "b": "j15"
+     "a": "j19",
+     "b": "j20"
     }
    }
   },
@@ -134,13 +137,13 @@
    "params": {
     "farads": 1e-8
    },
-   "x": 239,
-   "y": 255,
+   "x": 359,
+   "y": 345,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "a15",
-     "b": "a16"
+     "a": "a20",
+     "b": "a21"
     }
    }
   },
@@ -148,8 +151,15 @@
    "id": "speaker",
    "kind": "piezo",
    "params": {},
-   "x": 150,
-   "y": 60
+   "x": 387,
+   "y": 495,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j22",
+     "b": "j23"
+    }
+   }
   },
   {
    "id": "r_led",
@@ -157,13 +167,13 @@
    "params": {
     "ohms": 1000
    },
-   "x": 267,
+   "x": 422,
    "y": 345,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "j17",
-     "b": "j21"
+     "a": "a23",
+     "b": "a27"
     }
    }
   },
@@ -174,137 +184,199 @@
     "color": "yellow",
     "vf": 2
    },
-   "x": 281,
-   "y": 255,
+   "x": 443,
+   "y": 495,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a18",
-     "cathode": "a19"
+     "anode": "j26",
+     "cathode": "j27"
     }
    }
   }
  ],
  "wires": [
   {
-   "from": "vcc",
-   "fromTerminal": "vcc",
-   "to": "timer",
-   "toTerminal": "vcc"
+   "id": "w_9",
+   "netId": "net_9",
+   "from": {
+    "part": "gnd",
+    "terminal": "gnd"
+   },
+   "to": {
+    "board": "bb1",
+    "hole": "t-5"
+   },
+   "color": "black"
   },
   {
-   "from": "timer",
-   "fromTerminal": "vcc",
-   "to": "timer",
-   "toTerminal": "reset"
+   "id": "w_22",
+   "netId": "net_22",
+   "from": {
+    "part": "vcc",
+    "terminal": "vcc"
+   },
+   "to": {
+    "board": "bb1",
+    "hole": "t+2"
+   },
+   "color": "red"
+  }
+ ],
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:bbw_1",
+   "boardId": "bb1",
+   "a": "t+1",
+   "b": "b+1",
+   "color": "red"
   },
   {
-   "from": "timer",
-   "fromTerminal": "reset",
-   "to": "r_fixed",
-   "toTerminal": "a"
+   "ref": "bbw:bb1:bbw_2",
+   "boardId": "bb1",
+   "a": "t-2",
+   "b": "b-2",
+   "color": "black"
   },
   {
-   "from": "gnd",
-   "fromTerminal": "gnd",
-   "to": "timer",
-   "toTerminal": "gnd"
+   "ref": "bbw:bb1:bbw_3",
+   "boardId": "bb1",
+   "a": "g6",
+   "b": "e20",
+   "color": "blue"
   },
   {
-   "from": "timer",
-   "fromTerminal": "gnd",
-   "to": "c_t",
-   "toTerminal": "b"
+   "ref": "bbw:bb1:bbw_4",
+   "boardId": "bb1",
+   "a": "b3",
+   "b": "t-3",
+   "color": "black"
   },
   {
-   "from": "c_t",
-   "fromTerminal": "b",
-   "to": "c_ctl",
-   "toTerminal": "b"
+   "ref": "bbw:bb1:bbw_5",
+   "boardId": "bb1",
+   "a": "i20",
+   "b": "b-20",
+   "color": "black"
   },
   {
-   "from": "c_ctl",
-   "fromTerminal": "b",
-   "to": "speaker",
-   "toTerminal": "b"
+   "ref": "bbw:bb1:bbw_6",
+   "boardId": "bb1",
+   "a": "b21",
+   "b": "t-21",
+   "color": "black"
   },
   {
-   "from": "speaker",
-   "fromTerminal": "b",
-   "to": "led",
-   "toTerminal": "cathode"
+   "ref": "bbw:bb1:bbw_7",
+   "boardId": "bb1",
+   "a": "i23",
+   "b": "b-23",
+   "color": "black"
   },
   {
-   "from": "r_fixed",
-   "fromTerminal": "b",
-   "to": "probes",
-   "toTerminal": "a"
+   "ref": "bbw:bb1:bbw_8",
+   "boardId": "bb1",
+   "a": "i27",
+   "b": "b-27",
+   "color": "black"
   },
   {
-   "from": "probes",
-   "fromTerminal": "b",
-   "to": "material",
-   "toTerminal": "a"
+   "ref": "bbw:bb1:bbw_10",
+   "boardId": "bb1",
+   "a": "d4",
+   "b": "g5",
+   "color": "green"
   },
   {
-   "from": "material",
-   "fromTerminal": "a",
-   "to": "material",
-   "toTerminal": "wiper"
+   "ref": "bbw:bb1:bbw_11",
+   "boardId": "bb1",
+   "a": "h5",
+   "b": "f17",
+   "color": "green"
   },
   {
-   "from": "material",
-   "fromTerminal": "b",
-   "to": "timer",
-   "toTerminal": "discharge"
+   "ref": "bbw:bb1:bbw_12",
+   "boardId": "bb1",
+   "a": "g17",
+   "b": "f19",
+   "color": "green"
   },
   {
-   "from": "timer",
-   "fromTerminal": "discharge",
-   "to": "r2",
-   "toTerminal": "a"
+   "ref": "bbw:bb1:bbw_13",
+   "boardId": "bb1",
+   "a": "f26",
+   "b": "e27",
+   "color": "yellow"
   },
   {
-   "from": "r2",
-   "fromTerminal": "b",
-   "to": "timer",
-   "toTerminal": "threshold"
+   "ref": "bbw:bb1:bbw_14",
+   "boardId": "bb1",
+   "a": "f11",
+   "b": "e14",
+   "color": "orange"
   },
   {
-   "from": "timer",
-   "fromTerminal": "threshold",
-   "to": "timer",
-   "toTerminal": "trigger"
+   "ref": "bbw:bb1:bbw_15",
+   "boardId": "bb1",
+   "a": "d14",
+   "b": "e16",
+   "color": "orange"
   },
   {
-   "from": "timer",
-   "fromTerminal": "trigger",
-   "to": "c_t",
-   "toTerminal": "a"
+   "ref": "bbw:bb1:bbw_16",
+   "boardId": "bb1",
+   "a": "g4",
+   "b": "f13",
+   "color": "purple"
   },
   {
-   "from": "timer",
-   "fromTerminal": "control",
-   "to": "c_ctl",
-   "toTerminal": "a"
+   "ref": "bbw:bb1:bbw_17",
+   "boardId": "bb1",
+   "a": "g13",
+   "b": "e18",
+   "color": "purple"
   },
   {
-   "from": "timer",
-   "fromTerminal": "output",
-   "to": "speaker",
-   "toTerminal": "a"
+   "ref": "bbw:bb1:bbw_18",
+   "boardId": "bb1",
+   "a": "f8",
+   "b": "e12",
+   "color": "white"
   },
   {
-   "from": "speaker",
-   "fromTerminal": "a",
-   "to": "r_led",
-   "toTerminal": "a"
+   "ref": "bbw:bb1:bbw_19",
+   "boardId": "bb1",
+   "a": "i3",
+   "b": "b+3",
+   "color": "red"
   },
   {
-   "from": "r_led",
-   "fromTerminal": "b",
-   "to": "led",
-   "toTerminal": "anode"
+   "ref": "bbw:bb1:bbw_20",
+   "boardId": "bb1",
+   "a": "b6",
+   "b": "t+6",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:bbw_21",
+   "boardId": "bb1",
+   "a": "b8",
+   "b": "t+8",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:bbw_23",
+   "boardId": "bb1",
+   "a": "d5",
+   "b": "f22",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:bbw_24",
+   "boardId": "bb1",
+   "a": "g22",
+   "b": "e23",
+   "color": "blue"
   }
  ]
 }

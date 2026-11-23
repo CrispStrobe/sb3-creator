@@ -6,22 +6,17 @@
    "kind": "breadboard",
    "params": {},
    "terminals": [],
-   "x": 470,
-   "y": 300,
+   "x": 520,
+   "y": 420,
    "rotation": 0
   },
   {
    "id": "gnd",
    "kind": "gnd",
    "params": {},
-   "x": 43,
-   "y": 255,
-   "seat": {
-    "boardId": "bb1",
-    "leadMap": {
-     "gnd": "a1"
-    }
-   }
+   "x": 149,
+   "y": 217,
+   "rotation": 0
   },
   {
    "id": "nudge",
@@ -44,8 +39,9 @@
     ]
    },
    "label": "start-up nudge (stands in for noise)",
-   "x": 60,
-   "y": 60
+   "x": 83,
+   "y": 209,
+   "rotation": 0
   },
   {
    "id": "amp",
@@ -56,8 +52,8 @@
     "railLow": -9
    },
    "label": "inverting amplifier (rails ±9 V)",
-   "x": 71,
-   "y": 311,
+   "x": 118.67,
+   "y": 413.67,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -74,8 +70,8 @@
     "farads": 1e-8
    },
    "label": "C1 10 nF",
-   "x": 113,
-   "y": 255,
+   "x": 163,
+   "y": 345,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -91,8 +87,8 @@
     "farads": 1e-8
    },
    "label": "C2 10 nF",
-   "x": 113,
-   "y": 345,
+   "x": 163,
+   "y": 495,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -108,8 +104,8 @@
     "farads": 1e-8
    },
    "label": "C3 10 nF",
-   "x": 155,
-   "y": 255,
+   "x": 205,
+   "y": 345,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -125,8 +121,8 @@
     "ohms": 10000
    },
    "label": "R1",
-   "x": 155,
-   "y": 345,
+   "x": 226,
+   "y": 495,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -142,8 +138,8 @@
     "ohms": 10000
    },
    "label": "R2",
-   "x": 197,
-   "y": 255,
+   "x": 268,
+   "y": 345,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -159,8 +155,8 @@
     "ohms": 10000
    },
    "label": "R3",
-   "x": 239,
-   "y": 345,
+   "x": 310,
+   "y": 495,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -176,8 +172,8 @@
     "ohms": 270000
    },
    "label": "R_f",
-   "x": 281,
-   "y": 255,
+   "x": 352,
+   "y": 345,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
@@ -194,14 +190,14 @@
     "position": 0.5
    },
    "label": "GAIN",
-   "x": 323,
+   "x": 436,
    "y": 345,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a": "j21",
-     "wiper": "j23",
-     "b": "j25"
+     "a": "a24",
+     "wiper": "a26",
+     "b": "a28"
     }
    }
   },
@@ -209,112 +205,177 @@
    "id": "speaker",
    "kind": "piezo",
    "params": {},
-   "x": 150,
-   "y": 60
+   "x": 373,
+   "y": 495,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "j21",
+     "b": "j22"
+    }
+   }
   }
  ],
  "wires": [
   {
-   "from": "gnd",
-   "fromTerminal": "gnd",
-   "to": "nudge",
-   "toTerminal": "neg"
+   "id": "w_5",
+   "netId": "net_5",
+   "from": {
+    "part": "nudge",
+    "terminal": "pos"
+   },
+   "to": {
+    "board": "bb1",
+    "hole": "t+1"
+   },
+   "color": "red"
   },
   {
-   "from": "nudge",
-   "fromTerminal": "neg",
-   "to": "r1",
-   "toTerminal": "b"
+   "id": "w_19",
+   "netId": "net_19",
+   "from": {
+    "part": "gnd",
+    "terminal": "gnd"
+   },
+   "to": {
+    "board": "bb1",
+    "hole": "t-6"
+   },
+   "color": "black"
   },
   {
-   "from": "r1",
-   "fromTerminal": "b",
-   "to": "r2",
-   "toTerminal": "b"
+   "id": "w_20",
+   "netId": "net_20",
+   "from": {
+    "part": "nudge",
+    "terminal": "neg"
+   },
+   "to": {
+    "board": "bb1",
+    "hole": "t-1"
+   },
+   "color": "black"
+  }
+ ],
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:bbw_1",
+   "boardId": "bb1",
+   "a": "t-2",
+   "b": "b-2",
+   "color": "black"
   },
   {
-   "from": "r2",
-   "fromTerminal": "b",
-   "to": "speaker",
-   "toTerminal": "b"
+   "ref": "bbw:bb1:bbw_2",
+   "boardId": "bb1",
+   "a": "d3",
+   "b": "f19",
+   "color": "blue"
   },
   {
-   "from": "nudge",
-   "fromTerminal": "pos",
-   "to": "amp",
-   "toTerminal": "inp"
+   "ref": "bbw:bb1:bbw_3",
+   "boardId": "bb1",
+   "a": "g19",
+   "b": "e28",
+   "color": "blue"
   },
   {
-   "from": "amp",
-   "fromTerminal": "out",
-   "to": "c1",
-   "toTerminal": "a"
+   "ref": "bbw:bb1:bbw_4",
+   "boardId": "bb1",
+   "a": "b4",
+   "b": "t+4",
+   "color": "red"
   },
   {
-   "from": "c1",
-   "fromTerminal": "a",
-   "to": "r_f",
-   "toTerminal": "a"
+   "ref": "bbw:bb1:bbw_6",
+   "boardId": "bb1",
+   "a": "g3",
+   "b": "e6",
+   "color": "green"
   },
   {
-   "from": "r_f",
-   "fromTerminal": "a",
-   "to": "speaker",
-   "toTerminal": "a"
+   "ref": "bbw:bb1:bbw_7",
+   "boardId": "bb1",
+   "a": "d6",
+   "b": "e18",
+   "color": "green"
   },
   {
-   "from": "c1",
-   "fromTerminal": "b",
-   "to": "r1",
-   "toTerminal": "a"
+   "ref": "bbw:bb1:bbw_8",
+   "boardId": "bb1",
+   "a": "d18",
+   "b": "f21",
+   "color": "green"
   },
   {
-   "from": "r1",
-   "fromTerminal": "a",
-   "to": "c2",
-   "toTerminal": "a"
+   "ref": "bbw:bb1:bbw_9",
+   "boardId": "bb1",
+   "a": "f6",
+   "b": "e7",
+   "color": "yellow"
   },
   {
-   "from": "c2",
-   "fromTerminal": "b",
-   "to": "r2",
-   "toTerminal": "a"
+   "ref": "bbw:bb1:bbw_10",
+   "boardId": "bb1",
+   "a": "d7",
+   "b": "f9",
+   "color": "yellow"
   },
   {
-   "from": "r2",
-   "fromTerminal": "a",
-   "to": "c3",
-   "toTerminal": "a"
+   "ref": "bbw:bb1:bbw_11",
+   "boardId": "bb1",
+   "a": "f7",
+   "b": "e9",
+   "color": "orange"
   },
   {
-   "from": "c3",
-   "fromTerminal": "b",
-   "to": "r3",
-   "toTerminal": "a"
+   "ref": "bbw:bb1:bbw_12",
+   "boardId": "bb1",
+   "a": "d9",
+   "b": "e12",
+   "color": "orange"
   },
   {
-   "from": "r3",
-   "fromTerminal": "b",
-   "to": "amp",
-   "toTerminal": "inn"
+   "ref": "bbw:bb1:bbw_13",
+   "boardId": "bb1",
+   "a": "e10",
+   "b": "f15",
+   "color": "purple"
   },
   {
-   "from": "amp",
-   "fromTerminal": "inn",
-   "to": "gain",
-   "toTerminal": "b"
+   "ref": "bbw:bb1:bbw_14",
+   "boardId": "bb1",
+   "a": "e22",
+   "b": "e24",
+   "color": "white"
   },
   {
-   "from": "r_f",
-   "fromTerminal": "b",
-   "to": "gain",
-   "toTerminal": "a"
+   "ref": "bbw:bb1:bbw_15",
+   "boardId": "bb1",
+   "a": "d24",
+   "b": "e26",
+   "color": "white"
   },
   {
-   "from": "gain",
-   "fromTerminal": "a",
-   "to": "gain",
-   "toTerminal": "wiper"
+   "ref": "bbw:bb1:bbw_16",
+   "boardId": "bb1",
+   "a": "i13",
+   "b": "b-13",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:bbw_17",
+   "boardId": "bb1",
+   "a": "b16",
+   "b": "t-16",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:bbw_18",
+   "boardId": "bb1",
+   "a": "i22",
+   "b": "b-22",
+   "color": "black"
   }
  ]
 }

@@ -29,6 +29,10 @@ export const BENCHES = {
             rc1: R(470), l1: LED('red'), rc2: R(470), l2: LED('green'),
             rmin: R(10000), pot: ['potentiometer', { ohms: 100000, position: 0.42 }], rb2: R(68000),
             c1: ELKO(10e-6), c2: ELKO(10e-6) },
+        // Which transistor wins the power-on race follows the engine's node
+        // order, and that follows the layout. Seating the electrolytics first
+        // keeps Q1 the winner, as EXPECTED.md's t = 1 ms block says.
+        layoutOrder: ['c1', 'c2'],
         nets: [
             ['bat.pos', 'rc1.a', 'rc2.a', 'rmin.a', 'rb2.a'],
             ['rc1.b', 'l1.anode'], ['l1.cathode', 'q1.collector', 'c1.pos'],
