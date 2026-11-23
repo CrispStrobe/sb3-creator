@@ -151,9 +151,9 @@
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "a": "f11",
-          "wiper": "f13",
-          "b": "f15"
+          "a": "a15",
+          "wiper": "a17",
+          "b": "a19"
         }
       }
     },
@@ -191,8 +191,8 @@
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "a": "a14",
-          "b": "a18"
+          "a": "f11",
+          "b": "f15"
         }
       }
     },
@@ -235,9 +235,9 @@
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "a": "a20",
-          "wiper": "a22",
-          "b": "a24"
+          "a": "a23",
+          "wiper": "a25",
+          "b": "a27"
         }
       }
     },
@@ -279,9 +279,9 @@
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "emitter": "a26",
-          "base": "a27",
-          "collector": "a28"
+          "emitter": "f26",
+          "base": "f27",
+          "collector": "f28"
         }
       }
     },
@@ -303,8 +303,8 @@
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "a": "f26",
-          "b": "f28"
+          "a": "a30",
+          "b": "a32"
         }
       }
     },
@@ -322,8 +322,8 @@
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "anode": "a30",
-          "cathode": "a32"
+          "anode": "f30",
+          "cathode": "f32"
         }
       }
     }
@@ -410,7 +410,7 @@
       },
       "to": {
         "board": "breadboard_1",
-        "hole": "g13"
+        "hole": "b17"
       }
     },
     {
@@ -422,7 +422,7 @@
       },
       "to": {
         "board": "breadboard_1",
-        "hole": "b14"
+        "hole": "g11"
       }
     },
     {
@@ -434,7 +434,7 @@
       },
       "to": {
         "board": "breadboard_1",
-        "hole": "b22"
+        "hole": "b25"
       }
     },
     {
@@ -513,22 +513,22 @@
     {
       "ref": "bbw:breadboard_1:bbw_22",
       "boardId": "breadboard_1",
-      "a": "g11",
-      "b": "b+11",
+      "a": "b15",
+      "b": "t+15",
       "color": "red"
     },
     {
       "ref": "bbw:breadboard_1:bbw_23",
       "boardId": "breadboard_1",
-      "a": "b20",
-      "b": "t+20",
+      "a": "b23",
+      "b": "t+23",
       "color": "red"
     },
     {
       "ref": "bbw:breadboard_1:bbw_24",
       "boardId": "breadboard_1",
-      "a": "b28",
-      "b": "t+28",
+      "a": "g28",
+      "b": "b+28",
       "color": "red"
     },
     {
@@ -541,7 +541,7 @@
     {
       "ref": "bbw:breadboard_1:bbw_42",
       "boardId": "breadboard_1",
-      "a": "b18",
+      "a": "g15",
       "b": "g17",
       "color": "blue"
     },
@@ -549,21 +549,21 @@
       "ref": "bbw:breadboard_1:bbw_47",
       "boardId": "breadboard_1",
       "a": "g24",
-      "b": "b27",
+      "b": "g27",
       "color": "blue"
     },
     {
       "ref": "bbw:breadboard_1:bbw_48",
       "boardId": "breadboard_1",
-      "a": "b26",
-      "b": "g26",
+      "a": "g26",
+      "b": "b30",
       "color": "blue"
     },
     {
       "ref": "bbw:breadboard_1:bbw_49",
       "boardId": "breadboard_1",
-      "a": "h26",
-      "b": "b32",
+      "a": "c30",
+      "b": "g32",
       "color": "blue"
     },
     {
@@ -590,15 +590,15 @@
     {
       "ref": "bbw:breadboard_1:bbw_53",
       "boardId": "breadboard_1",
-      "a": "g15",
-      "b": "b-15",
+      "a": "b19",
+      "b": "t-19",
       "color": "black"
     },
     {
       "ref": "bbw:breadboard_1:bbw_54",
       "boardId": "breadboard_1",
-      "a": "b24",
-      "b": "t-24",
+      "a": "b27",
+      "b": "t-27",
       "color": "black"
     },
     {
@@ -611,15 +611,15 @@
     {
       "ref": "bbw:breadboard_1:bbw_56",
       "boardId": "breadboard_1",
-      "a": "g28",
-      "b": "b-28",
+      "a": "b32",
+      "b": "t-32",
       "color": "black"
     },
     {
       "ref": "bbw:breadboard_1:bbw_57",
       "boardId": "breadboard_1",
-      "a": "b30",
-      "b": "t-30",
+      "a": "g30",
+      "b": "b-30",
       "color": "black"
     }
   ]
