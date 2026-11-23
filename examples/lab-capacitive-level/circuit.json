@@ -1,0 +1,541 @@
+{
+ "vcc": 9,
+ "parts": [
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  },
+  {
+   "id": "osc",
+   "kind": "timer_555",
+   "params": {},
+   "terminals": [
+    "gnd",
+    "trigger",
+    "output",
+    "reset",
+    "vcc",
+    "discharge",
+    "threshold",
+    "control"
+   ],
+   "x": 151,
+   "y": 300,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "gnd": "e2",
+     "trigger": "e3",
+     "output": "e4",
+     "reset": "e5",
+     "control": "f5",
+     "threshold": "f4",
+     "discharge": "f3",
+     "vcc": "f2"
+    }
+   }
+  },
+  {
+   "id": "vcc1",
+   "kind": "vcc",
+   "params": {
+    "volts": 9
+   },
+   "terminals": [
+    "vcc"
+   ],
+   "x": 60,
+   "y": 60,
+   "rotation": 0
+  },
+  {
+   "id": "gnd1",
+   "kind": "gnd",
+   "params": {},
+   "terminals": [
+    "gnd"
+   ],
+   "x": 170,
+   "y": 60,
+   "rotation": 0
+  },
+  {
+   "id": "r1",
+   "kind": "resistor",
+   "params": {
+    "ohms": 10000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 193,
+   "y": 300,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a6",
+     "b": "a10"
+    }
+   }
+  },
+  {
+   "id": "r2",
+   "kind": "resistor",
+   "params": {
+    "ohms": 47000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 245,
+   "y": 300,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a11",
+     "b": "a15"
+    }
+   }
+  },
+  {
+   "id": "cdry",
+   "kind": "capacitor",
+   "params": {
+    "farads": 0.000001
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "label": "jar electrodes, empty",
+   "x": 298,
+   "y": 300,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a16",
+     "b": "a17"
+    }
+   }
+  },
+  {
+   "id": "cv",
+   "kind": "capacitor",
+   "params": {
+    "farads": 1e-8
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 319,
+   "y": 300,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a18",
+     "b": "a19"
+    }
+   }
+  },
+  {
+   "id": "level1",
+   "kind": "slide_switch",
+   "params": {
+    "position": 0
+   },
+   "terminals": [
+    "a",
+    "com",
+    "b"
+   ],
+   "label": "water reaches band 1",
+   "x": 340,
+   "y": 300,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a20",
+     "com": "a21",
+     "b": "a22"
+    }
+   }
+  },
+  {
+   "id": "cw1",
+   "kind": "capacitor",
+   "params": {
+    "farads": 0.000001
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 371,
+   "y": 300,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a23",
+     "b": "a24"
+    }
+   }
+  },
+  {
+   "id": "level2",
+   "kind": "slide_switch",
+   "params": {
+    "position": 0
+   },
+   "terminals": [
+    "a",
+    "com",
+    "b"
+   ],
+   "label": "water reaches band 2",
+   "x": 392,
+   "y": 300,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a25",
+     "com": "a26",
+     "b": "a27"
+    }
+   }
+  },
+  {
+   "id": "cw2",
+   "kind": "capacitor",
+   "params": {
+    "farads": 0.000001
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 424,
+   "y": 300,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a28",
+     "b": "a29"
+    }
+   }
+  },
+  {
+   "id": "level3",
+   "kind": "slide_switch",
+   "params": {
+    "position": 0
+   },
+   "terminals": [
+    "a",
+    "com",
+    "b"
+   ],
+   "label": "water reaches band 3",
+   "x": 445,
+   "y": 300,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a30",
+     "com": "a31",
+     "b": "a32"
+    }
+   }
+  },
+  {
+   "id": "cw3",
+   "kind": "capacitor",
+   "params": {
+    "farads": 0.000001
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 476,
+   "y": 300,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a33",
+     "b": "a34"
+    }
+   }
+  },
+  {
+   "id": "rl",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 497,
+   "y": 300,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a35",
+     "b": "a39"
+    }
+   }
+  },
+  {
+   "id": "led",
+   "kind": "led",
+   "params": {
+    "color": "blue"
+   },
+   "terminals": [
+    "anode",
+    "cathode"
+   ],
+   "x": 550,
+   "y": 300,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "a40",
+     "cathode": "a41"
+    }
+   }
+  }
+ ],
+ "wires": [
+  {
+   "id": "w1",
+   "from": {
+    "part": "vcc1",
+    "terminal": "vcc"
+   },
+   "to": {
+    "board": "bb1",
+    "hole": "t+1"
+   },
+   "color": "red"
+  },
+  {
+   "id": "w2",
+   "from": {
+    "part": "gnd1",
+    "terminal": "gnd"
+   },
+   "to": {
+    "board": "bb1",
+    "hole": "t-1"
+   },
+   "color": "black"
+  }
+ ],
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:j1",
+   "boardId": "bb1",
+   "a": "g2",
+   "b": "b+2",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:j2",
+   "boardId": "bb1",
+   "a": "d5",
+   "b": "t+5",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:j3",
+   "boardId": "bb1",
+   "a": "e6",
+   "b": "t+6",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:j4",
+   "boardId": "bb1",
+   "a": "d2",
+   "b": "t-2",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:j5",
+   "boardId": "bb1",
+   "a": "e17",
+   "b": "t-17",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:j6",
+   "boardId": "bb1",
+   "a": "e19",
+   "b": "t-19",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:j7",
+   "boardId": "bb1",
+   "a": "e24",
+   "b": "t-24",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:j8",
+   "boardId": "bb1",
+   "a": "e29",
+   "b": "t-29",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:j9",
+   "boardId": "bb1",
+   "a": "e34",
+   "b": "t-34",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:j10",
+   "boardId": "bb1",
+   "a": "e41",
+   "b": "t-41",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:j11",
+   "boardId": "bb1",
+   "a": "e10",
+   "b": "e11",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:j12",
+   "boardId": "bb1",
+   "a": "d11",
+   "b": "g3",
+   "color": "blue"
+  },
+  {
+   "ref": "bbw:bb1:j13",
+   "boardId": "bb1",
+   "a": "e15",
+   "b": "g4",
+   "color": "yellow"
+  },
+  {
+   "ref": "bbw:bb1:j14",
+   "boardId": "bb1",
+   "a": "h4",
+   "b": "d3",
+   "color": "yellow"
+  },
+  {
+   "ref": "bbw:bb1:j15",
+   "boardId": "bb1",
+   "a": "c3",
+   "b": "e16",
+   "color": "yellow"
+  },
+  {
+   "ref": "bbw:bb1:j16",
+   "boardId": "bb1",
+   "a": "d16",
+   "b": "e22",
+   "color": "yellow"
+  },
+  {
+   "ref": "bbw:bb1:j17",
+   "boardId": "bb1",
+   "a": "d22",
+   "b": "e27",
+   "color": "yellow"
+  },
+  {
+   "ref": "bbw:bb1:j18",
+   "boardId": "bb1",
+   "a": "d27",
+   "b": "e32",
+   "color": "yellow"
+  },
+  {
+   "ref": "bbw:bb1:j19",
+   "boardId": "bb1",
+   "a": "g5",
+   "b": "e18",
+   "color": "orange"
+  },
+  {
+   "ref": "bbw:bb1:j20",
+   "boardId": "bb1",
+   "a": "e21",
+   "b": "e23",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:j21",
+   "boardId": "bb1",
+   "a": "e26",
+   "b": "e28",
+   "color": "white"
+  },
+  {
+   "ref": "bbw:bb1:j22",
+   "boardId": "bb1",
+   "a": "e31",
+   "b": "e33",
+   "color": "purple"
+  },
+  {
+   "ref": "bbw:bb1:j23",
+   "boardId": "bb1",
+   "a": "d4",
+   "b": "e35",
+   "color": "brown"
+  },
+  {
+   "ref": "bbw:bb1:j24",
+   "boardId": "bb1",
+   "a": "e39",
+   "b": "e40",
+   "color": "gray"
+  },
+  {
+   "ref": "bbw:bb1:j25",
+   "boardId": "bb1",
+   "a": "t+63",
+   "b": "b+63",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:j26",
+   "boardId": "bb1",
+   "a": "t-63",
+   "b": "b-63",
+   "color": "black"
+  }
+ ]
+}

@@ -1,0 +1,327 @@
+{
+ "vcc": 9,
+ "parts": [
+  {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  },
+  {
+   "id": "gnd",
+   "kind": "gnd",
+   "params": {},
+   "x": 151,
+   "y": 300,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "gnd": "a2"
+    }
+   }
+  },
+  {
+   "id": "carrier",
+   "kind": "vsource",
+   "params": {
+    "volts": 0,
+    "wave": "sine",
+    "freq": 20000,
+    "amplitude": 3
+   },
+   "label": "carrier 20 kHz",
+   "x": 60,
+   "y": 60,
+   "rotation": 0
+  },
+  {
+   "id": "lsb",
+   "kind": "vsource",
+   "params": {
+    "volts": 0,
+    "wave": "sine",
+    "freq": 19500,
+    "amplitude": 0.9
+   },
+   "label": "lower sideband 19.5 kHz",
+   "x": 170,
+   "y": 60,
+   "rotation": 0
+  },
+  {
+   "id": "usb",
+   "kind": "vsource",
+   "params": {
+    "volts": 0,
+    "wave": "sine",
+    "freq": 20500,
+    "amplitude": 0.9
+   },
+   "label": "upper sideband 20.5 kHz",
+   "x": 280,
+   "y": 60,
+   "rotation": 0
+  },
+  {
+   "id": "rsrc",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "x": 172,
+   "y": 300,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a4",
+     "b": "a8"
+    }
+   }
+  },
+  {
+   "id": "det",
+   "kind": "diode",
+   "params": {},
+   "label": "detector diode",
+   "x": 235,
+   "y": 300,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "anode": "a10",
+     "cathode": "a12"
+    }
+   }
+  },
+  {
+   "id": "cs",
+   "kind": "capacitor",
+   "params": {
+    "farads": 1e-8
+   },
+   "label": "smoothing 10nF",
+   "x": 277,
+   "y": 300,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a14",
+     "b": "a15"
+    }
+   }
+  },
+  {
+   "id": "rload",
+   "kind": "resistor",
+   "params": {
+    "ohms": 22000
+   },
+   "x": 308,
+   "y": 300,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a17",
+     "b": "a21"
+    }
+   }
+  },
+  {
+   "id": "cc",
+   "kind": "capacitor",
+   "params": {
+    "farads": 1e-7
+   },
+   "x": 371,
+   "y": 300,
+   "rotation": 0,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "a": "a23",
+     "b": "a24"
+    }
+   }
+  },
+  {
+   "id": "spk",
+   "kind": "piezo",
+   "params": {},
+   "label": "crystal earphone",
+   "x": 390,
+   "y": 60,
+   "rotation": 0
+  }
+ ],
+ "wires": [
+  {
+   "id": "w1",
+   "from": {
+    "part": "carrier",
+    "terminal": "neg"
+   },
+   "to": {
+    "board": "bb1",
+    "hole": "t-1"
+   },
+   "color": "black"
+  },
+  {
+   "id": "w2",
+   "from": {
+    "part": "spk",
+    "terminal": "b"
+   },
+   "to": {
+    "board": "bb1",
+    "hole": "t-3"
+   },
+   "color": "black"
+  },
+  {
+   "id": "w3",
+   "from": {
+    "part": "carrier",
+    "terminal": "pos"
+   },
+   "to": {
+    "board": "bb1",
+    "hole": "e26"
+   },
+   "color": "blue"
+  },
+  {
+   "id": "w4",
+   "from": {
+    "part": "lsb",
+    "terminal": "neg"
+   },
+   "to": {
+    "board": "bb1",
+    "hole": "d26"
+   },
+   "color": "blue"
+  },
+  {
+   "id": "w5",
+   "from": {
+    "part": "lsb",
+    "terminal": "pos"
+   },
+   "to": {
+    "board": "bb1",
+    "hole": "e28"
+   },
+   "color": "yellow"
+  },
+  {
+   "id": "w6",
+   "from": {
+    "part": "usb",
+    "terminal": "neg"
+   },
+   "to": {
+    "board": "bb1",
+    "hole": "d28"
+   },
+   "color": "yellow"
+  },
+  {
+   "id": "w7",
+   "from": {
+    "part": "usb",
+    "terminal": "pos"
+   },
+   "to": {
+    "board": "bb1",
+    "hole": "e4"
+   },
+   "color": "orange"
+  },
+  {
+   "id": "w8",
+   "from": {
+    "part": "spk",
+    "terminal": "a"
+   },
+   "to": {
+    "board": "bb1",
+    "hole": "e24"
+   },
+   "color": "purple"
+  }
+ ],
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:j1",
+   "boardId": "bb1",
+   "a": "e2",
+   "b": "t-2",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:j2",
+   "boardId": "bb1",
+   "a": "e15",
+   "b": "t-15",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:j3",
+   "boardId": "bb1",
+   "a": "e21",
+   "b": "t-21",
+   "color": "black"
+  },
+  {
+   "ref": "bbw:bb1:j4",
+   "boardId": "bb1",
+   "a": "e8",
+   "b": "e10",
+   "color": "green"
+  },
+  {
+   "ref": "bbw:bb1:j5",
+   "boardId": "bb1",
+   "a": "e12",
+   "b": "e14",
+   "color": "white"
+  },
+  {
+   "ref": "bbw:bb1:j6",
+   "boardId": "bb1",
+   "a": "d14",
+   "b": "e17",
+   "color": "white"
+  },
+  {
+   "ref": "bbw:bb1:j7",
+   "boardId": "bb1",
+   "a": "d17",
+   "b": "e23",
+   "color": "white"
+  },
+  {
+   "ref": "bbw:bb1:j8",
+   "boardId": "bb1",
+   "a": "t+63",
+   "b": "b+63",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:j9",
+   "boardId": "bb1",
+   "a": "t-63",
+   "b": "b-63",
+   "color": "black"
+  }
+ ]
+}

@@ -9246,5 +9246,277 @@
    "introDE": "school-led-people-dog/intro.de.md"
   },
   "devices": []
+ },
+ {
+  "id": "lab-touch-darlington",
+  "title": {
+   "en": "Touch switch: one transistor vs. a Darlington pair",
+   "de": "Berührungsschalter: ein Transistor gegen ein Darlington-Paar"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-touch-darlington/program.bw",
+   "circuit": "lab-touch-darlington/circuit.json",
+   "expected": "lab-touch-darlington/EXPECTED.md",
+   "intro": "lab-touch-darlington/intro.md",
+   "introDE": "lab-touch-darlington/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-touch-off",
+  "title": {
+   "en": "Touch to switch off: a Darlington as a shunt",
+   "de": "Berühren zum Ausschalten: ein Darlington als Nebenschluss"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-touch-off/program.bw",
+   "circuit": "lab-touch-off/circuit.json",
+   "expected": "lab-touch-off/EXPECTED.md",
+   "intro": "lab-touch-off/intro.md",
+   "introDE": "lab-touch-off/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-bicolor-polarity",
+  "title": {
+   "en": "Which side is plus? Two-colour polarity tester",
+   "de": "Wo ist Plus? Zweifarbiger Polaritätsprüfer"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 1,
+  "files": {
+   "program": "lab-bicolor-polarity/program.bw",
+   "circuit": "lab-bicolor-polarity/circuit.json",
+   "expected": "lab-bicolor-polarity/EXPECTED.md",
+   "intro": "lab-bicolor-polarity/intro.md",
+   "introDE": "lab-bicolor-polarity/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-shunt-gates",
+  "title": {
+   "en": "NOT, NAND and NOR from buttons that short a lamp",
+   "de": "NICHT, NAND und NOR aus Tastern, die eine Lampe kurzschließen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 1,
+  "files": {
+   "program": "lab-shunt-gates/program.bw",
+   "circuit": "lab-shunt-gates/circuit.json",
+   "expected": "lab-shunt-gates/EXPECTED.md",
+   "intro": "lab-shunt-gates/intro.md",
+   "introDE": "lab-shunt-gates/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-wet-dry-probe",
+  "title": {
+   "en": "Wet or dry? A probe with two opposite indicators",
+   "de": "Nass oder trocken? Ein Fühler mit zwei entgegengesetzten Anzeigen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-wet-dry-probe/program.bw",
+   "circuit": "lab-wet-dry-probe/circuit.json",
+   "expected": "lab-wet-dry-probe/EXPECTED.md",
+   "intro": "lab-wet-dry-probe/intro.md",
+   "introDE": "lab-wet-dry-probe/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-diff-pair",
+  "title": {
+   "en": "The differential pair: two transistors compare two voltages",
+   "de": "Das Differenzpaar: zwei Transistoren vergleichen zwei Spannungen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-diff-pair/program.bw",
+   "circuit": "lab-diff-pair/circuit.json",
+   "expected": "lab-diff-pair/EXPECTED.md",
+   "intro": "lab-diff-pair/intro.md",
+   "introDE": "lab-diff-pair/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-break-loop-alarm",
+  "title": {
+   "en": "Break-the-loop alarm with memory",
+   "de": "Drahtschleifen-Alarm mit Speicher"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-break-loop-alarm/program.bw",
+   "circuit": "lab-break-loop-alarm/circuit.json",
+   "expected": "lab-break-loop-alarm/EXPECTED.md",
+   "intro": "lab-break-loop-alarm/intro.md",
+   "introDE": "lab-break-loop-alarm/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-electronic-fuse",
+  "title": {
+   "en": "Electronic fuse: a latch that trips on overcurrent",
+   "de": "Elektronische Sicherung: ein Speicher, der bei Überstrom auslöst"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-electronic-fuse/program.bw",
+   "circuit": "lab-electronic-fuse/circuit.json",
+   "expected": "lab-electronic-fuse/EXPECTED.md",
+   "intro": "lab-electronic-fuse/intro.md",
+   "introDE": "lab-electronic-fuse/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-schmitt-clap",
+  "title": {
+   "en": "Clap-on light with a two-transistor Schmitt trigger",
+   "de": "Klatschlicht mit einem Schmitt-Trigger aus zwei Transistoren"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-schmitt-clap/program.bw",
+   "circuit": "lab-schmitt-clap/circuit.json",
+   "expected": "lab-schmitt-clap/EXPECTED.md",
+   "intro": "lab-schmitt-clap/intro.md",
+   "introDE": "lab-schmitt-clap/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-am-detector",
+  "title": {
+   "en": "How a radio gets the sound out: AM envelope detector",
+   "de": "Wie ein Radio den Ton herausholt: AM-Hüllkurvendetektor"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-am-detector/program.bw",
+   "circuit": "lab-am-detector/circuit.json",
+   "expected": "lab-am-detector/EXPECTED.md",
+   "intro": "lab-am-detector/intro.md",
+   "introDE": "lab-am-detector/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-applause-meter",
+  "title": {
+   "en": "Applause meter: fast attack, slow release",
+   "de": "Applausmesser: schneller Anstieg, langsames Abklingen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-applause-meter/program.bw",
+   "circuit": "lab-applause-meter/circuit.json",
+   "expected": "lab-applause-meter/EXPECTED.md",
+   "intro": "lab-applause-meter/intro.md",
+   "introDE": "lab-applause-meter/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-coin-toss",
+  "title": {
+   "en": "Electronic coin toss: freezing a fast flip-flop",
+   "de": "Elektronischer Münzwurf: ein schnelles Flipflop anhalten"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-coin-toss/program.bw",
+   "circuit": "lab-coin-toss/circuit.json",
+   "expected": "lab-coin-toss/EXPECTED.md",
+   "intro": "lab-coin-toss/intro.md",
+   "introDE": "lab-coin-toss/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-charge-pump",
+  "title": {
+   "en": "Charge pump: more than 9 V from a 9 V battery",
+   "de": "Ladungspumpe: mehr als 9 V aus einer 9-V-Batterie"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-charge-pump/program.bw",
+   "circuit": "lab-charge-pump/circuit.json",
+   "expected": "lab-charge-pump/EXPECTED.md",
+   "intro": "lab-charge-pump/intro.md",
+   "introDE": "lab-charge-pump/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-counter-timer",
+  "title": {
+   "en": "Binary counter as a timer: count to eight, then stop",
+   "de": "Binärzähler als Timer: bis acht zählen, dann anhalten"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-counter-timer/program.bw",
+   "circuit": "lab-counter-timer/circuit.json",
+   "expected": "lab-counter-timer/EXPECTED.md",
+   "intro": "lab-counter-timer/intro.md",
+   "introDE": "lab-counter-timer/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-beats",
+  "title": {
+   "en": "Beats: two oscillators drifting in and out of step",
+   "de": "Schwebung: zwei Oszillatoren laufen auseinander und wieder zusammen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-beats/program.bw",
+   "circuit": "lab-beats/circuit.json",
+   "expected": "lab-beats/EXPECTED.md",
+   "intro": "lab-beats/intro.md",
+   "introDE": "lab-beats/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-capacitive-level",
+  "title": {
+   "en": "Capacitive fill-level sensor: water slows the blinker",
+   "de": "Kapazitiver Füllstandssensor: Wasser bremst den Blinker"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-capacitive-level/program.bw",
+   "circuit": "lab-capacitive-level/circuit.json",
+   "expected": "lab-capacitive-level/EXPECTED.md",
+   "intro": "lab-capacitive-level/intro.md",
+   "introDE": "lab-capacitive-level/intro.de.md"
+  }
  }
 ]
