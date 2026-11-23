@@ -15,15 +15,15 @@ Measured through the engine (press = `setControl(btn1, 1)`, 20 ms per phase):
 | | step node (btn1.b / ff1.clk) | ff1.q | red LED |
 | --- | --- | --- | --- |
 | at rest | 0 V | 0 V | off |
-| press 1 | 5 V | 4.4107 V | on |
-| release 1 | 0 V | 4.4107 V | **still on** |
+| press 1 | 5 V | 4.4064 V | on |
+| release 1 | 0 V | 4.4064 V | **still on** |
 | press 2 | 5 V | 0 V | off |
 | release 2 | 0 V | 0 V | off |
 
 The Q level follows from the model's own numbers: the output drives 5 V behind
 R_OUT = 50 Ω into 220 Ω and a red LED (1.9 V at 20 mA), and the solve settles at
-11.786 mA, so the drop across R_OUT is 0.5893 V and Q sits at 4.4107 V. LED
-brightness is reported as current over the 20 mA reference, hence 0.5893.
+11.872 mA, so the drop across R_OUT is 0.5936 V and Q sits at 4.4064 V. LED
+brightness is reported as current over the 20 mA reference, hence 0.5936.
 
 Before this revision the step button's net carried `btn1.b` and `r3.a` and
 nothing else, with `r3` going to ground: pressing it moved a node that no part
