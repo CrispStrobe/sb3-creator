@@ -86,10 +86,15 @@ describe('lab RF benches (set rf) behave as documented', { skip: SKIP }, () => {
 
     test('lab-direction-finder: the meter rises with |cos(rod angle − bearing)|, nothing in the sharp nulls', () => {
         // At build time (mean over 5 ms): north (700 kHz, bearing 0°) rod 0°
-        // 0.296 mA, 45° 0.117 mA (the junction rectifies more than in
+        // 0.256 mA, 45° 0.109 mA (the junction rectifies more than in
         // proportion), 90° 0.0001 mA (the null: the divider leaves the
-        // transistor just short of conducting), 180° 0.296 mA; east
-        // (1000 kHz, bearing 70°, knob 0.186) rod 270° 0.632 mA, 160° null.
+        // transistor just short of conducting), 180° 0.256 mA; east
+        // (1000 kHz, bearing 70°, knob 0.186) rod 270° 0.562 mA, 160° null.
+        // (Re-measured 2026-11-24: 0.296 / 0.117 / 0.632 mA before bw-board
+        // gave the transistor's input capacitance its large-signal value —
+        // τF times the transconductance at the swing, not at the DC
+        // current. Driven hard by the station, the base loads the tank with
+        // less capacitance and the tank sits a little further from 700 kHz.)
         const x = bench('lab-direction-finder');
         x.run(60);
         // The collector current carries the station's audio (400 / 800 Hz)
@@ -106,8 +111,8 @@ describe('lab RF benches (set rf) behave as documented', { skip: SKIP }, () => {
         // observed 0.0000023579357750055673.
         assert.ok(x.rf('tc', 'a') < 1e-4, `the tank RF in the null: ${x.rf('tc', 'a')} V`);
         const m180 = at(180);
-        near(m0, 0.296, 0.03, 'north, rod 0° (mA)');
-        near(m45, 0.117, 0.02, 'north, rod 45° (mA)');
+        near(m0, 0.256, 0.03, 'north, rod 0° (mA)');
+        near(m45, 0.109, 0.02, 'north, rod 45° (mA)');
         // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): m90 < 0.005 -> observed
         // 0.00008119055032675959.
         assert.ok(m90 < 0.005, `north, rod 90°: the null, ${m90.toFixed(4)} mA`);
@@ -115,7 +120,7 @@ describe('lab RF benches (set rf) behave as documented', { skip: SKIP }, () => {
         x.set('tc', 0.186);
         x.run(40);    // the tank retunes and the 2.2 MΩ / 10 nF bias settles to the new station
         const e270 = at(270), e160 = at(160);
-        near(e270, 0.632, 0.05, 'east, rod 270° (mA)');
+        near(e270, 0.562, 0.05, 'east, rod 270° (mA)');
         // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): e160 < 0.005 -> observed
         // 0.00012083789002055313.
         assert.ok(e160 < 0.005, `east, rod 160°: its null, ${e160.toFixed(4)} mA`);
@@ -146,9 +151,15 @@ describe('lab RF benches (set rf) behave as documented', { skip: SKIP }, () => {
         // between the oscillation and the station rides on an irregular
         // envelope, so the instantaneous pitch tracker wanders between
         // ~800 Hz and ~1.6 kHz with the smallest change; the spectrum does
-        // not). At build time: pot 0.90 tank 0.24 V mean, no tone; 0.80 tank
-        // 0.60 V, line at 1575 Hz; 0.75 line at 2825 Hz. Without the station
-        // the 0.80 line is a seventh as strong (it is the beat).
+        // not). At build time: pot 0.90 tank 0.21 V mean, no tone; 0.80 tank
+        // 0.61 V, line at 850 Hz (20 mV); 0.75 tank 0.87 V, line at 975 Hz.
+        // Without the station the 0.80 line is a sixth as strong (it is the
+        // beat). Re-measured 2026-11-24: the whistle was 1575 Hz at 0.80 and
+        // rose to 2825 Hz at 0.75, an artefact — the transistor's input
+        // capacitance was taken at its DC current even when its swing had
+        // driven it into class C, and more current pulled the oscillation
+        // further off; with its large-signal value the oscillation stays
+        // about 1 kHz from the station as the regeneration rises.
         const x = bench('lab-regen-receiver');
         const window = (ms, dt) => {
             const tr = []; let rf = 0;
@@ -166,11 +177,42 @@ describe('lab RF benches (set rf) behave as documented', { skip: SKIP }, () => {
         x.run(10);
         const w8 = window(10, 0.02);
         assert.ok(w8.rf > 2 * quiet, `the tank's RF jumps: ${quiet.toFixed(3)} -> ${w8.rf.toFixed(3)} V (means)`);
-        near(w8.hz, 1575, 300, 'the whistle (Hz)');
+        near(w8.hz, 850, 200, 'the whistle (Hz)');
         x.set('rv', 0.75);
         x.run(10);
         const w75 = window(10, 0.02);
-        assert.ok(w75.hz > w8.hz + 500, `more regeneration, a higher whistle: ${w8.hz} -> ${w75.hz} Hz`);
+        assert.ok(w75.rf > w8.rf, `more regeneration, more RF: ${w8.rf.toFixed(3)} -> ${w75.rf.toFixed(3)} V`);
+        near(w75.hz, 975, 250, 'still whistling (Hz)');
+    });
+
+    test('lab-shortwave-regen: the Morse beacon is heard only while the receiver oscillates and the key is down', () => {
+        // The beacon sends "E" at 20 wpm: a 60 ms key-down, then silence.
+        // Read as a listener would: the strongest line of the earphone's
+        // voltage and its rms over a window. At build time (2026-11-24):
+        // pot 0.95 (below the threshold) 8e-6 V rms; 0.75 oscillating, key
+        // down a line at 1850 Hz of 0.40 mV; key up 1.2e-6 V rms (the
+        // oscillation alone is silent).
+        const x = bench('lab-shortwave-regen');
+        const listen = (ms) => {
+            const tr = [];
+            for (let k = 0; k < ms / 0.02; k++) { x.run(0.02); tr.push([x.t, x.v('ep', 'a') - x.v('ep', 'b')]); }
+            const m = tr.reduce((a, p) => a + p[1], 0) / tr.length;
+            for (const p of tr) p[1] -= m;
+            let best = [0, 0];
+            for (let f = 200; f <= 8000; f += 25) { const a = amplitude(tr, f); if (a > best[1]) best = [f, a]; }
+            return { hz: best[0], line: best[1], rms: Math.sqrt(tr.reduce((a, p) => a + p[1] * p[1], 0) / tr.length) };
+        };
+        x.run(5);
+        const below = listen(7);
+        assert.ok(below.rms < 3e-5, `below the threshold the bare carrier is silent: ${below.rms.toExponential(2)} V rms`);
+        x.set('rv', 0.75);
+        x.run(6);
+        const down = listen(22);
+        near(down.hz, 1850, 300, 'key down: the difference frequency (Hz)');
+        assert.ok(down.line > 1e-4, `key down, the beat: ${down.line.toExponential(2)} V`);
+        x.run(30);    // t = 70 ms: the key is up and the last beat has rung out of the earphone
+        const up = listen(16);
+        assert.ok(up.rms < down.line / 30, `key up, silence: ${up.rms.toExponential(2)} V rms against the beat's ${down.line.toExponential(2)} V`);
     });
 
     test('lab-fm-slope: the FM tone appears on the slope of the tank and fades on its top', () => {
@@ -218,18 +260,33 @@ describe('lab RF benches (set rf) behave as documented', { skip: SKIP }, () => {
 
     test('lab-superregen-fm: quench bursts grow from the station or from noise', () => {
         // Over 3 ms after 4 ms: the RF in the tank every 10 µs. At build time
-        // (2026-11-24): station on, bursts 0.107 -> ~3 V; no station, from a
-        // few µV or less. The audio (the station's programme, the hiss going
-        // quiet when it is tuned in) is not asserted: measured with finer and
-        // coarser band steps, both moved with the noise floor's numerical
-        // treatment (a 7x quieting with 1 ns steps, none with 4 ns), so the
-        // engine does not establish them.
+        // (2026-11-24, bw-board with converged band steps: burst peaks within
+        // 0.5 % of 1 ns steps): station on, bursts 0.107 -> ~2.7 V; no
+        // station, from a few µV or less. The audio is not asserted: at the
+        // detector (10 kΩ / 10 nF) the hiss between 300 Hz and 6 kHz is
+        // 1.3e-4 V off the station and 7.6e-5 V on an unmodulated carrier
+        // (2-5x quieter below 2 kHz, above that a ~1e-5 V floor of the
+        // transient solve's tolerance in both), the station's 1 kHz line
+        // 3.2e-4 V — a weak quieting in this circuit, whose bursts grow so
+        // fast (an e-fold in ~0.1 µs) that the noise moves their start by
+        // only ±0.4 µs of a cycle in which they last tens of µs.
         const listen = (station) => {
             const x = bench('lab-superregen-fm', station ? null : (json) => { json.parts.find(p => p.kind === 'antenna').params.stations = []; });
             x.run(4);
             let lo = 99, hi = 0;
             for (let k = 1; k <= 300; k++) { x.run(0.01); const a = x.rf('l', 'a'); lo = Math.min(lo, a); hi = Math.max(hi, a); }
-            return { lo, hi };
+            // When each burst reaches 0.5 V, in µs into its quench cycle
+            // (25 kHz: 40 µs), over ten cycles.
+            const onset = [];
+            let prev = null;
+            for (let k = 1; k <= 800; k++) {
+                x.run(0.0005);
+                const a = x.rf('l', 'a');
+                if (prev && prev[1] < 0.5 && a >= 0.5) onset.push(((prev[0] + (x.t - prev[0]) * (0.5 - prev[1]) / (a - prev[1])) * 1000) % 40);
+                prev = [x.t, a];
+            }
+            const m = onset.reduce((a, b) => a + b, 0) / onset.length;
+            return { lo, hi, onset: m, jitter: Math.sqrt(onset.reduce((a, b) => a + (b - m) ** 2, 0) / onset.length) };
         };
         const on = listen(true), off = listen(false);
         // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): off.hi > 1.5 -> observed
@@ -241,6 +298,14 @@ describe('lab RF benches (set rf) behave as documented', { skip: SKIP }, () => {
         // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): off.lo < 1e-4 -> observed
         // 7.080317548996925e-8.
         assert.ok(off.lo < 1e-4, `without it, from the noise: ${off.lo.toExponential(2)} V`);
+        // The heart of super-regeneration: the burst's start depends on
+        // what the tank holds when the quench lets the stage oscillate. With
+        // the station every burst starts from its carrier, early and at the
+        // same instant of the cycle; from the noise it starts later and
+        // wanders from cycle to cycle with it. At build time (2026-11-24):
+        // station 2.85 µs ± 0.04 µs, noise 4.28 µs ± 0.42 µs.
+        assert.ok(off.onset - on.onset > 0.7, `the station starts each burst earlier: ${on.onset.toFixed(2)} against ${off.onset.toFixed(2)} µs`);
+        assert.ok(off.jitter > 4 * on.jitter, `…and steadily: ±${on.jitter.toFixed(3)} against ±${off.jitter.toFixed(3)} µs`);
     });
 
     test('lab-mosfet-regen: the MOSFET\'s square-law channel detects the station; past the threshold it oscillates', () => {
@@ -265,6 +330,20 @@ describe('lab RF benches (set rf) behave as documented', { skip: SKIP }, () => {
         // 0.004291695903538382.
         assert.ok(tone > 1e-3, `the channel's square law detects the station: ${tone.toExponential(2)} V at 400 Hz`);
         const quiet = x.rf('tc', 'a');
+        // Just past the threshold (0.75) the stage oscillates with the
+        // station's carrier in its tank, ~6 kHz from it: the whistle,
+        // stronger than the programme. At build time: 6000 Hz at 57 mV, the
+        // programme 3.2 mV (no whistle without the station).
+        x.set('rv', 0.75);
+        x.run(6);
+        const tr = [];
+        for (let k = 0; k < 300; k++) { x.run(0.02); tr.push([x.t, x.v('ep', 'a') - x.v('ep', 'b')]); }
+        const m = tr.reduce((a, p) => a + p[1], 0) / tr.length;
+        for (const p of tr) p[1] -= m;
+        let best = [0, 0];
+        for (let f = 200; f <= 8000; f += 25) { const a = amplitude(tr, f); if (a > best[1]) best = [f, a]; }
+        near(best[0], 6000, 500, 'the whistle (Hz)');
+        assert.ok(best[1] > 5 * amplitude(tr, 400), `the whistle ${best[1].toExponential(2)} V over the programme ${amplitude(tr, 400).toExponential(2)} V`);
         x.set('rv', 0.72);
         x.run(3);
         assert.ok(x.rf('tc', 'a') > 10 * quiet, `more gate voltage, more gain: it oscillates, ${quiet.toFixed(3)} -> ${x.rf('tc', 'a').toFixed(2)} V`);

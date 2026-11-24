@@ -6,13 +6,14 @@ Wieder der Rückkopplungsempfänger, diesmal mit einem n-Kanal-MOSFET statt des 
 
 ## Was zu tun ist
 
-Klick auf **Sim** und hör mit dem Knopf auf 0,80 hin. Dreh ihn langsam auf 0,77 und weiter auf 0,72. Miss die Gatespannung und das obere Ende des Schwingkreises.
+Klick auf **Sim** und hör mit dem Knopf auf 0,80 hin. Dreh ihn langsam auf 0,77, dann auf 0,75 und weiter auf 0,72. Miss die Gatespannung und das obere Ende des Schwingkreises.
 
 ## Was du sehen solltest
 
 - Auf 0,80 liegt das Gate unter der Schwelle (etwa 1,8 V gegen 2 V): kein Drainstrom, Stille.
 - Auf 0,77 fließt ein wenig Strom, und der 400-Hz-Ton des Senders ist leise im Ohrhörer: Das quadratische Verhalten des Kanals richtet ihn gleich.
-- Weiter gedreht übersteigt die Verstärkung die Verluste des Schwingkreises, und er schwingt: Die HF am Kreis springt auf einige Volt.
+- Kurz dahinter (0,75) beginnt die Stufe mit dem Träger des Senders zu schwingen, und du hörst ein hohes Pfeifen: die Überlagerung von Sender und eigener Schwingung.
+- Weiter gedreht übersteigt die Verstärkung die Verluste des Schwingkreises bei Weitem, und er schwingt kräftig: Die HF am Kreis springt auf einige Volt.
 
 ## Warum es funktioniert
 

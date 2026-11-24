@@ -6,13 +6,14 @@ The regenerative receiver again, with an n-channel MOSFET in place of the transi
 
 ## What to do
 
-Click **Sim** and listen with the knob at 0.80. Turn it slowly to 0.77, then on to 0.72. Measure the gate voltage and the top of the tuned circuit.
+Click **Sim** and listen with the knob at 0.80. Turn it slowly to 0.77, then to 0.75, then on to 0.72. Measure the gate voltage and the top of the tuned circuit.
 
 ## What you should see
 
 - At 0.80 the gate is below the threshold (about 1.8 V against 2 V): no drain current, silence.
 - At 0.77 a little current flows and the station's 400 Hz tone is in the earphone, quietly: the channel's square law detects it.
-- Further on the gain passes the losses of the tuned circuit and it oscillates: the RF on the tank jumps to volts.
+- Just past that (0.75) the stage starts to oscillate with the station's carrier and you hear a high whistle: the beat between the station and the stage's own oscillation.
+- Further on the gain passes the losses of the tuned circuit by far and it oscillates hard: the RF on the tank jumps to volts.
 
 ## Why it works
 
