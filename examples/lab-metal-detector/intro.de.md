@@ -1,6 +1,6 @@
 # Schwebungs-Metallsuchgerät mit selbstgewickelter Spule
 
-Zwei Oszillatoren summen fast gleich hoch. Gemischt ergeben sie einen dritten, tiefen Ton: ihre Differenz, die Schwebung. Die Spule des einen Oszillators ist eine große, selbstgewickelte Suchspule, und Metall in ihrer Nähe verändert die Spule und damit die Schwebung. Das ist ein Metallsuchgerät.
+Zwei Oszillatoren schwingen fast gleich schnell, bei etwa 96 kHz — weit über dem Hörbaren, wie in einem echten Schwebungs-Metallsuchgerät. Gemischt ergeben sie einen dritten, tiefen Ton: ihre Differenz, die Schwebung. Die Spule des einen Oszillators ist eine große, selbstgewickelte Suchspule, und Metall in ihrer Nähe verändert die Spule und damit die Schwebung. Das ist ein Metallsuchgerät.
 
 **Vermittelt:** Schwebung und Differenzfrequenz, Induktivität, Wirbelströme
 
@@ -10,8 +10,8 @@ Klick auf **Sim** und hör auf den Ohrhörer. Schieb in der Instrumentenspalte d
 
 ## Was du sehen solltest
 
-- Kein Metall: ein tiefes Brummen von etwa 195 Hz.
-- Die Münze kommt näher: Das Brummen wird höher, um etwa 40 Hz, wenn die Münze direkt auf der Spule liegt.
+- Kein Metall: ein Ton von etwa 800 Hz.
+- Die Münze kommt näher: Der Ton steigt, auf etwa 1,1 kHz bei 5 cm und etwa 3,3 kHz, wenn die Münze direkt auf der Spule liegt.
 - Weiter weg als etwa ein Spulenradius ist die Änderung klein.
 
 ## Warum es funktioniert

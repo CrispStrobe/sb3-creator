@@ -10,12 +10,12 @@
 
 ## Observable behaviour
 All of these need the stations, which arrive over tens of milliseconds of simulated time; a DC operating-point solve does not see them, so the readings are stated as fractions of the meter's full scale and checked by `test/lab-circuits-rf.test.mjs` instead.
-- Rod at 0°, tuned to the north station: the needle at about 0.30 of full scale (its mean; the station's tone makes it tremble); with no signal it rests at zero.
-- Turning the rod: at 45° about 0.12 (the base junction rectifies more than in proportion to the RF, so the needle falls faster than |cos|), at 90° back to zero (the null: the RF in the tank falls by five orders of magnitude), at 180° 0.30 again, at 270° the second null.
-- Tuned to the east station (knob about 0.19), the rod at 270° gives about 0.63 (the rod picks up more at 1 MHz than at 700 kHz) and at 160° (90° from the station's bearing) the needle is back at zero.
+- Rod at 0°, tuned to the north station: the needle at about 0.26 of full scale (its mean; the station's tone makes it tremble); with no signal it rests at zero.
+- Turning the rod: at 45° about 0.11 (the base junction rectifies more than in proportion to the RF, so the needle falls faster than |cos|), at 90° back to zero (the null: the RF in the tank falls by five orders of magnitude), at 180° 0.26 again, at 270° the second null.
+- Tuned to the east station (knob about 0.19), the rod at 270° gives about 0.56 (the rod picks up more at 1 MHz than at 700 kHz) and at 160° (90° from the station's bearing) the needle is back at zero.
 
 ## Measured on the engine
-bw-board r4/rf-20261123, `test/lab-circuits-rf.test.mjs` (after 60 ms; each reading the mean over 5 ms, as the needle shows it), as fractions of full scale: north, rod 0° 0.296, 45° 0.117, 90° 0.0001, 180° 0.296; east, rod 270° 0.632, 160° 0.0001. The tank's RF envelope (700 kHz, rod 0°) is about a fifth of a volt; at 90° a few microvolts.
+bw-board r4/rf-20261123, `test/lab-circuits-rf.test.mjs` (after 60 ms; each reading the mean over 5 ms, as the needle shows it), as fractions of full scale: north, rod 0° 0.256, 45° 0.109, 90° 0.0001, 180° 0.256; east, rod 270° 0.562, 160° 0.0001 (re-measured 2026-11-24 when the transistor's input capacitance took its large-signal value; before: 0.296, 0.117, 0.632). The tank's RF envelope (700 kHz, rod 0°) is about three quarters of a volt; at 90° a few microvolts.
 
 ## What this verifies
 1. A ferrite rod is a directional antenna: its pickup follows |cos(angle − bearing)|, broad maxima and sharp nulls 180° apart (the needle, behind a rectifying junction, rises faster than in proportion).
@@ -29,7 +29,7 @@ net tuning_cap_5.a V 0.00 +-0.01
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@489ca7c` and `bw-circuit-ui@7f98562` — the revisions pinned in
+> `bw-board@7e0bf8c` and `bw-circuit-ui@cb8dbb7` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **6 of this page's 19** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;

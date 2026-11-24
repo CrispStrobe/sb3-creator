@@ -168,6 +168,85 @@ export const BENCHES = {
         open: ['lt.tap', 'lr.tap', 'lr.c1', 'lr.c2'],
     },
 
+    // A high-gain amplifier with a bare wire on its input picks up a strong
+    // broadcaster: the wire (30 cm, about 10 pF to its surroundings, no
+    // earth) straight on the LM386's +IN, gain 200 (10 µF across pins 1–8),
+    // the loudspeaker through 220 µF. The LM386's input is the base of a PNP
+    // follower; the station's swing there is rectified by that junction and
+    // its programme comes out amplified. A strong local station (0.1 V/m at
+    // 1 MHz, 80 % AM, a 400 Hz tone).
+    'lab-broadcast-pickup': {
+        vcc: 9, supply: SUP,
+        parts: { bat: BAT9, gnd: ['gnd', {}],
+            ant: ['antenna', { heightM: 0.3, farads: 10e-12, stations: [
+                { id: 'local', name: 'Local transmitter 1 MHz', hz: 1e6, fieldVPerM: 0.1, depth: 0.8, audio: { type: 'tone', hz: 400 } },
+            ] }],
+            u: ['lm386', {}], cg: C(10e-6), cb: C(10e-6), co: C(220e-6), spk: ['speaker', { ohms: 8 }], cs: C(100e-6) },
+        nets: [
+            ['ant.a', 'u.inp'], ['u.gain1', 'cg.a'], ['cg.b', 'u.gain8'], ['u.bypass', 'cb.a'],
+            ['bat.pos', 'u.vs', 'cs.a'], ['u.vout', 'co.a'], ['co.b', 'spk.a'],
+            ['bat.neg', 'gnd.gnd', 'u.gnd', 'u.inn', 'cb.b', 'spk.b', 'cs.b'],
+        ],
+    },
+
+    // MOSFET regenerative receiver: lab-regen-receiver with an n-channel
+    // MOSFET in place of the transistor. The gate draws no current, so there
+    // is no grid-leak detection: the gate sits at the pot's voltage (through
+    // 1 MΩ, coupled to the tank top by 100 pF) and the square-law channel
+    // detects instead, its mean drain current rising with the RF swing on
+    // the gate. The tickler (4 % of the main turns) in the drain lead feeds
+    // the tank; the pot sets the gate voltage and with it the gain and how
+    // much it regenerates. Source 1 kΩ bypassed by 100 nF; earphone in the
+    // drain, 10 nF to ground.
+    'lab-mosfet-regen': {
+        vcc: 9, supply: SUP,
+        parts: { bat: BAT9, gnd: ['gnd', {}],
+            ant: ['antenna', { heightM: 1, stations: [
+                { id: 'local', name: 'Local 612 kHz', hz: 612e3, fieldVPerM: 0.005, depth: 0.5, audio: { type: 'tone', hz: 400 } },
+            ] }], earth: ['earth', {}],
+            l: ['ferrite_coil', { couplingRatio: 0.02 }], tc: TUNE(0.5),
+            cg: C(100e-12), rg: R(1000000), rv: POT(100000, 0.8), q: ['nmos', { vth: 2, k: 0.002 }], rs: R(1000), cs: C(100e-9),
+            ep: EP, cc: C(10e-9) },
+        nets: [
+            ['ant.a', 'l.tap'], ['l.b', 'tc.a', 'cg.a'], ['cg.b', 'rg.b', 'q.gate'], ['rg.a', 'rv.wiper'],
+            ['q.source', 'rs.a', 'cs.a'], ['q.drain', 'l.c1'], ['l.c2', 'ep.a', 'cc.a'],
+            ['bat.pos', 'rv.b', 'ep.b'],
+            ['bat.neg', 'gnd.gnd', 'earth.earth', 'l.a', 'tc.b', 'rv.a', 'rs.b', 'cs.b', 'cc.b'],
+        ],
+    },
+
+    // Short-wave reception and mixing: the regenerative receiver on a
+    // short-wave coil (5 µH: the tuning capacitor reaches about 3–10 MHz).
+    // The antenna couples in through only 20 pF: at 6 MHz the long wire's
+    // 200 pF through the tap loads the tank to Q ≈ 20 and no tickler gets it
+    // past the threshold. A Morse beacon at 6.0585 MHz (a bare carrier keyed
+    // on and off) and an AM station at 5.9 MHz. Tuned near the beacon,
+    // below the threshold its carrier is silent; past it the receiver's own
+    // oscillation and the beacon's carrier meet in the base junction, and
+    // their difference frequency is a tone. The base is fed through a
+    // 100 kΩ grid leak: with 1 MΩ the base's bias recovers so slowly after
+    // each build-up that the oscillation squegs (bursts at ~10 kHz, a loud
+    // buzz of its own) instead of running steadily. The tuning capacitor is
+    // set to a hair past a quarter so the oscillation runs ~2 kHz from the
+    // beacon.
+    'lab-shortwave-regen': {
+        vcc: 9, supply: SUP,
+        parts: { bat: BAT9, gnd: ['gnd', {}],
+            ant: ['antenna', { heightM: 2, farads: 20e-12, stations: [
+                { id: 'cw', name: 'CW beacon 6.0585 MHz', hz: 6.0585e6, fieldVPerM: 0.005, mod: 'cw', audio: { type: 'morse', text: 'E', wpm: 20 } },
+                { id: 'am', name: 'AM 5.9 MHz', hz: 5.9e6, fieldVPerM: 0.005, depth: 0.5, audio: { type: 'tone', hz: 500 } },
+            ] }], earth: ['earth', {}],
+            l: ['ferrite_coil', { henrys: 5e-6, couplingRatio: 0.08, q: 100 }], tc: TUNE(0.2506),
+            cb: C(100e-12), rb: R(100000), rv: POT(100000, 0.95), q: NPN, re: R(1000), ce: C(100e-9),
+            ep: EP, cc: C(10e-9) },
+        nets: [
+            ['ant.a', 'l.tap'], ['l.b', 'tc.a', 'cb.a'], ['cb.b', 'rb.b', 'q.base'], ['rb.a', 'rv.wiper'],
+            ['q.emitter', 're.a', 'ce.a'], ['q.collector', 'l.c1'], ['l.c2', 'ep.a', 'cc.a'],
+            ['bat.pos', 'rv.b', 'ep.b'],
+            ['bat.neg', 'gnd.gnd', 'earth.earth', 'l.a', 'tc.b', 'rv.a', 're.b', 'ce.b', 'cc.b'],
+        ],
+    },
+
     // Super-regenerative VHF receiver, separately quenched. A BF199 Colpitts
     // in common base (base divider 10 kΩ / 10 kΩ held at RF by 100 pF; 3.3 pF
     // collector→emitter, 10 pF emitter→ground; emitter returns through 1 kΩ

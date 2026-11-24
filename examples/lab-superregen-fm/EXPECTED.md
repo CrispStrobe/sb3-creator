@@ -7,12 +7,13 @@
 - The antenna (0.5 m, 2 pF) on the collector; its broadcast: one FM station at 98.0 MHz, 50 mV/m, 75 kHz deviation, 1 kHz tone.
 
 ## Observable behaviour
-- The tank's RF comes in bursts of about 2.6 V at the quench rate; with the station it falls back between bursts only to about 0.11 V, the station's own level, and each burst grows from there.
-- Without the station the bursts fall back to the noise floor (a tenth of a microvolt): each starts from a different random amplitude, so their average wanders and the earphone hisses.
-- With the station the hiss goes quiet (to about a ninth) and the 1 kHz programme stands above what is left of it — faintly: on the slope of its tank a super-regenerator is a poor FM detector, its output following the logarithm of the starting signal.
+- The tank's RF comes in bursts of about 2.7 V at the quench rate; with the station it falls back between bursts only to about 0.11 V, the station's own level, and each burst grows from there.
+- Without the station the bursts fall back to the noise floor (microvolts or less) and grow from there.
+- Each burst starts from what the tank holds when the quench lets the stage oscillate: with the station it reaches 0.5 V about 2.9 µs into the quench cycle, every cycle at the same instant (± 0.04 µs); from the noise it gets there later, about 4.3 µs, and wanders by ± 0.4 µs from cycle to cycle.
+- The audio is weak in this circuit and not claimed: at the detector the hiss (300 Hz–6 kHz) is 1.3e-4 V off the station and 7.6e-5 V on an unmodulated carrier — quieter by 2–5 times below 2 kHz — and the station's 1 kHz programme 3.2e-4 V. Its bursts grow so fast (an e-fold in about 0.1 µs) that the noise moves their start by only a fraction of a microsecond in a cycle where they last tens of microseconds; a slower-growing super-regenerator hisses louder and quiets more.
 
 ## Measured on the engine
-bw-board r4/rf-20261123 (RF envelope front end: the quench in the transient solve, the oscillation in an envelope band whose growth follows the bias), `test/lab-circuits-rf.test.mjs`, 3 ms after 4 ms (RF every 10 µs; audio at the 10 nF, detrended, one-bin DFTs): station on — bursts 0.107 → 2.66 V, 1 kHz 7.9e-5 V, hiss (mean of the 1.33 and 2 kHz bins) 2.6e-5 V; station off — bursts 2e-7 → 2.58 V, hiss 2.3e-4 V (re-measured 2026-11-24 on the bit-reproducible engine: the same on macOS and Linux). About 13 000 solves per simulated millisecond.
+bw-board RF envelope front end (the quench in the transient solve, the oscillation in an envelope band whose growth rate is re-estimated as the quench moves the bias), `test/lab-circuits-rf.test.mjs`, 3 ms after 4 ms (RF every 10 µs): station on — bursts from 0.107 V to about 2.7 V; station off — from a few µV or less to about 2.7 V; burst start (0.5 V) with the station 2.85 ± 0.04 µs into the cycle, without 4.28 ± 0.42 µs. The burst peaks agree within 0.5 % with 1 ns band steps (until 2026-11-24 the adaptive steps overshot them by up to 40 %, and the level was 3 V while the transistor's input capacitance was taken at its DC current). About 10 000 band substeps and 13 000 transient solves per simulated millisecond (≈ 3.5 s of wall time).
 
 ## What this verifies
 1. An oscillator switched past its threshold grows exponentially from whatever signal it starts from.
@@ -25,9 +26,9 @@ net vsource_2.pos V 9.00 +-0.01
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@489ca7c` and `bw-circuit-ui@7f98562` — the revisions pinned in
+> `bw-board@7e0bf8c` and `bw-circuit-ui@cb8dbb7` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
-> **19 of this page's 39** numeric claims against that engine
+> **19 of this page's 54** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs lab-superregen-fm` prints them one by one.
 <!-- engine-provenance -->
