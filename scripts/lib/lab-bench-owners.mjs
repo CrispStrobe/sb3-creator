@@ -9,6 +9,7 @@ import { BENCHES as SET4 } from './lab-benches-4.mjs';
 import { BENCHES as SET5 } from './lab-benches-5.mjs';
 import { BENCHES as SET6 } from './lab-benches-6.mjs';
 import { BENCHES as SET8 } from './lab-benches-8.mjs';
+import { BENCHES as SET_OPTICS } from './lab-benches-optics.mjs';
 
 /** scripts/gen-lab-batch2.mjs — kept in step with its `B[...]` table. */
 export const BATCH2_BENCHES = Object.freeze([
@@ -19,9 +20,9 @@ export const BATCH2_BENCHES = Object.freeze([
     'lab-listening-amp', 'lab-lc-ringing',
 ]);
 
-/** scripts/gen-lab-circuits-4.mjs --set=4|5|6|8 */
+/** scripts/gen-lab-circuits-4.mjs --set=4|5|6|8|optics */
 export const CIRCUITS4_BENCHES = Object.freeze({
-    4: Object.keys(SET4), 5: Object.keys(SET5), 6: Object.keys(SET6), 8: Object.keys(SET8),
+    4: Object.keys(SET4), 5: Object.keys(SET5), 6: Object.keys(SET6), 8: Object.keys(SET8), optics: Object.keys(SET_OPTICS),
 });
 
 export const GENERATED_LAB_BENCHES = new Set([
