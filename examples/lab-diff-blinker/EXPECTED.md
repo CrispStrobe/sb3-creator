@@ -4,7 +4,7 @@
 9 V. A differential pair: two NPN transistors, each with its own 1.2 kΩ emitter resistor into a shared
 4.7 kΩ tail to ground, and 10 kΩ from each collector to +9 V. q2's base is the set point, a 10 kΩ /
 10 kΩ divider at half supply. The collectors drive an LM386 audio power amplifier, the engine's stand-in
-for the TBA820-class amplifier chip such a kit would use: q1's collector through 680 kΩ to the + input,
+for a TBA820-class amplifier chip: q1's collector through 680 kΩ to the + input,
 q2's through 680 kΩ to the − input, which keeps the chip's inputs within a few tenths of a volt of
 ground. The gain pins are joined (gain 200 down to DC); the output rests at half supply and lights a
 green LED through 1 kΩ.

@@ -6,8 +6,8 @@
 1 kΩ "fine" potentiometer that hangs between two 4.7 kΩ limiting resistors, so its whole travel only
 covers about 4.07 V to 4.91 V. A voltmeter reads input minus reference directly.
 
-The two collectors drive an LM386 audio power amplifier, the engine's stand-in for the TBA820-class
-amplifier chip such a kit would use: q1's collector through 1 MΩ to the + input, q2's through 1 MΩ to the
+The two collectors drive an LM386 audio power amplifier, the engine's stand-in for a TBA820-class
+amplifier chip: q1's collector through 1 MΩ to the + input, q2's through 1 MΩ to the
 − input. Together with the chip's own input resistors to ground these keep both inputs near a third of a
 volt, inside the small range an audio amp's inputs accept. The gain pins are joined, so the chip
 amplifies the input difference 200 times down to DC; its output rests at half the supply. The output

@@ -13,7 +13,7 @@
 - Meter behind the follower: about 4.22 V. The follower takes almost nothing from the divider (which stays near 4.45 V); the reading is short of it by the drop of the protection diode, which carries less than half a microamp.
 - ×10 stage with nothing connected: the second meter rests at zero (5 mV, the output's floor).
 - **Probe** pressed: 0.49 V in, about 4.9 V on the second meter.
-- The simulated op-amp has no input bias current. On a real chip that current, flowing through the 1 MΩ input resistor, would show up ×10 on the second meter with nothing connected, and the kit nulls it with a pot; here there is nothing to null, so the bench has no pot.
+- The simulated op-amp has no input bias current. On a real chip that current, flowing through the 1 MΩ input resistor, would show up ×10 on the second meter with nothing connected, and a real circuit nulls it with a pot; here there is nothing to null, so the bench has no pot.
 
 ## What this verifies
 1. A meter is part of the circuit it measures: on a high-resistance divider the plain meter reads far too low.
