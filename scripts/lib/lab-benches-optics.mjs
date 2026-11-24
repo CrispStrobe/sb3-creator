@@ -66,6 +66,22 @@ export const BENCHES = resolveRefs({
         ],
     },
 
+    // The light guide's entrance 9 cm from the LED, with a lens (f = 2 cm,
+    // 3 cm across) 6 cm in front of the LED: it images the LED onto the fibre
+    // face 3 cm behind it. The knob slides the fibre end from 7.5 to 10.5 cm.
+    'lab-fibre-lens': {
+        vcc: 9, supply: SUP,
+        parts: { bat: BAT9, rs: R(470), led: LED('red'), pt: PT, rl: R(470), vm: VM,
+            guide: PATH({ from: '@led', to: '@pt', medium: 'fibre', lengthM: 1, outGapMm: 1,
+                lensFocalCm: 2, lensAtCm: 6, lensRadiusCm: 1.5, fibreAtCm: 9,
+                knob: 'fibreAtCm', knobMin: 7.5, knobMax: 10.5 }) },
+        nets: [
+            ['bat.pos', 'rs.a', 'pt.collector'], ['rs.b', 'led.anode'],
+            ['pt.emitter', 'rl.a', 'vm.a'],
+            ['bat.neg', 'led.cathode', 'rl.b', 'vm.b'],
+        ],
+    },
+
     // A 555 astable whose 47 k charging resistor has a phototransistor in
     // parallel: light from the light guide's far end adds charging current,
     // so the pitch rises. The knob moves the fibre end toward the receiver

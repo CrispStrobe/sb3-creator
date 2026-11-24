@@ -102,6 +102,21 @@ describe('lab optics benches behave as documented', { skip: SKIP }, () => {
         near(sleeved.v('vm', 'a'), 2.15, 0.05, 'sleeved receiver');
     });
 
+    test('lab-fibre-lens: a lens focuses the LED onto the fibre core where 1/f = 1/u + 1/v puts the image', () => {
+        const x = bench('lab-fibre-lens');
+        x.run(1);
+        near(x.v('vm', 'a'), 4.12, 0.1, 'fibre entrance at the image, 9 cm');
+        let best = 0, bestAt = 0;
+        for (let at = 7.5; at <= 10.501; at += 0.25) {
+            x.at('guide', at);
+            if (x.v('vm', 'a') > best) { best = x.v('vm', 'a'); bestAt = at; }
+        }
+        assert.equal(bestAt, 9);
+        x.at('guide', 8.75); near(x.v('vm', 'a'), 1.09, 0.08, 'a quarter centimetre short');
+        const bare = bench('lab-fibre-lens', { guide: { lensFocalCm: 0, inGapMm: 90 } }); bare.run(1);
+        assert.ok(bare.v('vm', 'a') < 0.01, `no lens: ${bare.v('vm', 'a')}`);
+    });
+
     test('lab-fibre-tone: the closer the fibre end, the higher the pitch', () => {
         const x = bench('lab-fibre-tone');
         x.run(15);
