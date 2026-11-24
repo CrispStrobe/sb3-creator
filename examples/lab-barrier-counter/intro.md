@@ -1,22 +1,21 @@
 ---
-level: intermediate
-age: 12+
-prereqs: [lab-counter-timer, sense-light-barrier]
-teaches: [light-barrier, counting, decoding, relay]
+level: advanced
+age: 14+
+prereqs: [lab-counter-timer, lab-ir-beam-alarm]
+teaches: [light-barrier, pulsed-light, counting, decoding, relay]
 ---
 ## What you see
-An infrared light barrier, a counter with three LEDs and a relay with a green lamp. The light path's slider plays the object that walks through the beam.
+A 555 flashes an infrared LED a thousand times a second. On the other side a receiver listens for those flashes, a counter with three LEDs counts every interruption, and after six a relay clicks in and a green lamp lights.
 
 ## Try this
-1. Click **Sim**. Push the light path's `blocked` slider to 1 and back to 0: the counter shows 1.
-2. Do it five more times. At 6 the relay clicks in and the green lamp lights.
+1. Click **Sim** and wait a moment. Push the light path's `blocked` slider to 1 and back: the counter shows 1.
+2. Do it five more times. At 6 the relay pulls in and the lamp lights.
 3. Keep interrupting: the count stays at 6.
-4. Press the reset button: counter and relay start over.
-5. Push the slider only halfway: that does not count.
+4. Press reset: everything starts over.
 
 ## What is going on
-The phototransistor passes current while it sees the infrared beam; blocking the beam drops its output, and that drop is a clock pulse for the counter. Two diodes watch two counter outputs: only when both are high (binary 110, which is 6) can their junction rise and switch on the transistor that drives the relay. One set of relay contacts lights the lamp; the other disconnects the counter's clock, so nothing more is counted until you reset. Such counters count visitors at a door or parts on a conveyor belt and stop the belt when a box is full.
+The receiver does not just measure brightness: a capacitor and two diodes only pass changing light, so only the transmitter's flashes charge up the signal that holds the first transistor on. A dim lamp on the phototransistor gives steady light and does nothing; bright light would blind it. When something breaks the beam, the flashes stop, the second transistor's output falls, and the counter steps on. Two diodes watch two counter outputs; only at 110 in binary (six) are both high, and the relay pulls in. One of its contacts lights the lamp, the other disconnects the counter's clock, so it holds at six until you reset it.
 
 ## Go further
-- [lab-ir-remote-toggle](../lab-ir-remote-toggle) — infrared flashes toggle a relay.
+- [lab-ir-beam-alarm](../lab-ir-beam-alarm) — a steady beam that sounds an alarm when broken.
 - [lab-counter-timer](../lab-counter-timer) — a counter that stops its own clock.

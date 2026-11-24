@@ -10,7 +10,7 @@
  * Every number was measured on the headless engine (bw-board eb3ec0a7) when
  * the bench was built; the bands around them are wide enough for solver noise
  * and narrow enough that a different circuit state cannot pass. Learner edits
- * (a louder sound, another pot setting) are applied to the loaded JSON.
+ * (another signal level, another pot setting) are applied to the loaded JSON.
  */
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -62,6 +62,7 @@ function bench (id, edits = {}) {
             assert.equal(b.transientAnalysisStatus().failure, null, `${id}: solver failed by ${tMs} ms`);
         },
         set (name, value) { b.setControl(ids[name], value); },
+        led (name) { return b.ledBrightness(ids[name]); },
         /** Put a light path's knob at a geometry value (inverse of its knob range). */
         at (name, value) {
             const p = BENCHES[id].parts[name][1];
@@ -96,6 +97,23 @@ describe('lab counting benches behave as documented', { skip: SKIP }, () => {
         assert.ok(reading(1, 0, 0) < 0.01, 'IR sensor, dark');
     });
 
+    test('lab-phototransistor-or-ir-led: only the phototransistor lights its indicator', () => {
+        const x = bench('lab-phototransistor-or-ir-led');
+        x.run(1);
+        near(x.mA('ra'), 2.82, 0.1, 'phototransistor branch (mA)');
+        // MEASURED 2026-11-24 (bw-board eb3ec0a7): x.mA('rb') < 0.05 -> observed 0.015.
+        assert.ok(x.mA('rb') < 0.05, `IR LED branch: microamps only (${x.mA('rb').toFixed(4)} mA)`);
+        // MEASURED 2026-11-24 (bw-board eb3ec0a7): x.led('la') > 0.1 -> observed 0.141.
+        assert.ok(x.led('la') > 0.1, 'indicator A glows');
+        // MEASURED 2026-11-24 (bw-board eb3ec0a7): x.led('lb') < 0.005 -> observed 0.0008.
+        assert.ok(x.led('lb') < 0.005, 'indicator B stays dark');
+        x.at('toA', 10); x.run(1);
+        near(x.mA('ra'), 0.116, 0.02, 'phototransistor at 10 cm: much less');
+        x.at('toA', 2); x.set('sw', 0); x.run(1);
+        // MEASURED 2026-11-24 (bw-board eb3ec0a7): x.mA('ra') < 0.001 -> observed 0.0000.
+        assert.ok(x.mA('ra') < 0.001, 'lamp off: phototransistor dark');
+    });
+
     test('lab-ir-light-meter: the zero pot removes the 1 V offset; then the meter shows the light alone', () => {
         const x = bench('lab-ir-light-meter');
         x.run(1);
@@ -123,49 +141,86 @@ describe('lab counting benches behave as documented', { skip: SKIP }, () => {
         near(m5 / m10, 3.94, 0.3, '5 cm vs 10 cm');
     });
 
-    test('lab-ir-remote-toggle: each flash gives one monoflop pulse, and the lamp toggles', () => {
-        // A held press of 100 ms, then a short one: about 0.3 s of RC timing.
+    test('lab-ir-remote-toggle: each flash gives one LM386 monoflop pulse, and the flip-flop toggles', () => {
         const x = bench('lab-ir-remote-toggle');
-        x.run(60); // the monoflop's own power-on pulse (33 ms) is over
-        // MEASURED 2026-11-24 (bw-board eb3ec0a7): x.v('u', '1_out') > 3 -> observed 3.50.
-        assert.ok(x.v('u', '1_out') > 3, 'monoflop at rest: output high');
-        assert.equal(x.v('cnt', 'qa') < 1 && x.mA('rl') < 0.1, true, 'lamp off at first');
-        // A long press (100 ms): one pulse only.
+        const red = () => x.mA('rc1') > 5 && x.mA('rc2') < 1;
+        const green = () => x.mA('rc2') > 5 && x.mA('rc1') < 1;
+        x.run(1);
+        assert.ok(green(), 'power-on: the flip-flop starts green');
+        // The amplifier starts high and gives one power-on pulse; its end
+        // toggles the flip-flop once. After 0.1 s everything has settled.
+        x.run(100);
+        near(x.v('u', 'vout'), 0.90, 0.05, 'monoflop at rest: output at its low limit');
+        assert.ok(red(), 'power-on pulse has toggled to red');
+        // A held press (50 ms): one pulse only.
         x.set('btn', 1);
-        let fell = null, rose = null, pulses = 0, prev = x.v('u', '1_out');
+        let rose = null, fell = null, pulses = 0, prev = x.v('u', 'vout');
         for (let k = 0; k < 50; k++) {
-            x.run(2);
-            const o = x.v('u', '1_out');
-            if (prev > 2.5 && o <= 2.5) { pulses++; if (fell === null) fell = x.t; }
-            if (fell !== null && rose === null && o > 2.5) rose = x.t;
+            x.run(1);
+            const o = x.v('u', 'vout');
+            if (prev < 4.5 && o >= 4.5) { pulses++; if (rose === null) rose = x.t; }
+            if (rose !== null && fell === null && prev > 4.5 && o <= 4.5) fell = x.t;
             prev = o;
         }
-        near(x.v('qa', 'collector'), 0.09, 0.05, 'receiver pulled low while the IR shines');
+        near(x.v('pt', 'emitter'), 2.55, 0.1, 'receiver lit at 30 cm');
         assert.equal(pulses, 1, 'one pulse for one held press');
-        near(rose - fell, 40, 6, 'monoflop pulse length (ms)');
-        // MEASURED 2026-11-24 (bw-board eb3ec0a7): x.v('cnt', 'qa') > 4.5 -> observed 4.95.
-        assert.ok(x.v('cnt', 'qa') > 4.5, 'toggle stage on');
-        near(x.mA('rl'), 13.1, 0.5, 'relay closed: lamp current');
-        x.set('btn', 0); x.run(60);
-        // MEASURED 2026-11-24 (bw-board eb3ec0a7): x.mA('rl') > 12 -> observed 13.12.
-        assert.ok(x.mA('rl') > 12, 'stays on after release');
-        // A short flash switches it off again.
-        x.set('btn', 1); x.run(20); x.set('btn', 0); x.run(60);
-        // MEASURED 2026-11-24 (bw-board eb3ec0a7): x.v('cnt', 'qa') < 0.5 -> observed 0.00.
-        assert.ok(x.v('cnt', 'qa') < 0.5, 'toggle stage off');
-        // MEASURED 2026-11-24 (bw-board eb3ec0a7): x.mA('rl') < 0.1 -> observed 0.00.
-        assert.ok(x.mA('rl') < 0.1, 'relay open: lamp off');
+        near(fell - rose, 16, 3, 'monoflop pulse length (ms)');
+        assert.ok(green(), 'first press: green');
+        x.set('btn', 0); x.run(50);
+        assert.ok(green(), 'stays green after release');
+        x.set('btn', 1); x.run(20); x.set('btn', 0); x.run(30);
+        assert.ok(red(), 'second press: red');
     });
 
-    test('lab-ir-remote-toggle: out of range at 1 m, the receiver does not react', () => {
-        const near50 = bench('lab-ir-remote-toggle');
-        near50.at('air', 50); near50.set('btn', 1); near50.run(2);
-        // MEASURED 2026-11-24 (bw-board eb3ec0a7): near50.v('qa', 'collector') < 0.5 -> observed 0.14.
-        assert.ok(near50.v('qa', 'collector') < 0.5, `50 cm still switches: ${near50.v('qa', 'collector')}`);
-        const far = bench('lab-ir-remote-toggle');
-        far.at('air', 100); far.set('btn', 1); far.run(2);
-        // MEASURED 2026-11-24 (bw-board eb3ec0a7): far.v('qa', 'collector') > 4.9 -> observed 5.00.
-        assert.ok(far.v('qa', 'collector') > 4.9, `1 m: too little light: ${far.v('qa', 'collector')}`);
+    test('lab-ir-remote-toggle: out of range at 1 m, the monoflop does not fire', () => {
+        // The flash's edge reaches +IN through 220 nF against the 220 nF to
+        // the output: about half the receiver's step. -IN sits at 0.43 V, so
+        // the receiver must rise by more than about 0.86 V to fire it.
+        // The step is the phototransistor's photocurrent into its 100 k load.
+        const step = (cm) => {
+            const y = bench('lab-ir-remote-toggle');
+            y.at('air', cm); y.set('btn', 1); y.run(0.01);
+            return y.b.opticalReport().receivers[y.ids.pt].amps * 100e3;
+        };
+        near(step(30), 2.69, 0.1, 'receiver step at 30 cm');
+        // MEASURED 2026-11-24 (bw-board eb3ec0a7): step(100) < 0.5 -> observed 0.25.
+        assert.ok(step(100) < 0.5, '1 m: the step is too small to fire the monoflop');
+    });
+
+    test('lab-ir-beam-alarm: quiet while the beam is there, a loud tone when it is blocked', () => {
+        const x = bench('lab-ir-beam-alarm');
+        const swing = (ms) => {
+            let lo = 99, hi = -99, prev = x.v('u', 'vout');
+            const rises = [];
+            for (let k = 0; k < ms / 0.1; k++) {
+                x.run(0.1);
+                const v = x.v('u', 'vout');
+                lo = Math.min(lo, v); hi = Math.max(hi, v);
+                if (prev < 4.5 && v >= 4.5) rises.push(x.t);
+                prev = v;
+            }
+            return { lo, hi, rises };
+        };
+        x.run(1);
+        near(x.v('u', 'inn'), 0.507, 0.02, 'beam on -IN: photocurrent x 10 k');
+        x.run(10);
+        const quiet = swing(5);
+        // MEASURED 2026-11-24 (bw-board eb3ec0a7): quiet.hi - quiet.lo < 0.05 -> observed 0.000.
+        assert.ok(quiet.hi - quiet.lo < 0.05, `beam: no oscillation (${quiet.lo.toFixed(2)}..${quiet.hi.toFixed(2)} V)`);
+        near(quiet.hi, 0.90, 0.05, 'beam: output held at its low limit');
+        x.at('beam', 1); x.run(10);
+        near(x.v('u', 'inn'), 0, 0.01, 'blocked: -IN at 0 V');
+        const loud = swing(14);
+        near(loud.lo, 0.91, 0.1, 'blocked: output swings down to its low limit');
+        near(loud.hi, 8.09, 0.1, 'blocked: and up to its high limit');
+        // MEASURED 2026-11-24 (bw-board eb3ec0a7): loud.rises.length >= 2 -> observed 3.
+        assert.ok(loud.rises.length >= 2, 'at least two cycles in 14 ms');
+        const hz = 1000 * (loud.rises.length - 1) / (loud.rises.at(-1) - loud.rises[0]);
+        near(hz, 176, 15, 'alarm tone (Hz)');
+        x.at('beam', 0); x.run(12);
+        const again = swing(5);
+        // MEASURED 2026-11-24 (bw-board eb3ec0a7): again.hi - again.lo < 0.05 -> observed 0.000.
+        assert.ok(again.hi - again.lo < 0.05, 'beam back: quiet again');
     });
 
     test('lab-octave-divider: seven stages, each at half the frequency of the one before', () => {
@@ -201,20 +256,22 @@ describe('lab counting benches behave as documented', { skip: SKIP }, () => {
         assert.ok(ear.on, 'the earphone sounds');
     });
 
-    test('lab-barrier-counter: every interruption counts; at 6 the relay pulls in and the count stops', () => {
+    test('lab-barrier-counter: every interruption of the pulsed beam counts; at 6 the relay pulls in and the count stops', () => {
         const x = bench('lab-barrier-counter');
         const count = () => x.bits('cnt', ['qc', 'qb', 'qa']);
-        x.run(1);
-        near(x.v('pt', 'emitter'), 4.85, 0.05, 'beam clear: follower high');
-        assert.equal(count(), '000');
+        x.run(40);
+        assert.equal(count(), '000', 'nothing counted while the receiver settles');
+        // MEASURED 2026-11-24 (bw-board eb3ec0a7): x.v('q2', 'collector') > 4 -> observed 4.51.
+        assert.ok(x.v('q2', 'collector') > 4, 'beam pulses arrive: receiver output high');
         const seen = [];
-        for (let n = 1; n <= 8; n++) {
-            x.at('beam', 1); x.run(20);
-            near(x.v('pt', 'emitter'), 0, 0.05, `interruption ${n}: follower low`);
-            x.at('beam', 0); x.run(20);
+        // Blocked for 10 ms, clear for 18 ms: the receiver answers a break
+        // within about 4 ms and a returning beam within about 10 ms.
+        for (let n = 1; n <= 7; n++) {
+            x.at('beam', 1); x.run(10);
             seen.push(count());
+            x.at('beam', 0); x.run(18);
         }
-        assert.deepEqual(seen, ['001', '010', '011', '100', '101', '110', '110', '110'], 'counts to 6, then holds');
+        assert.deepEqual(seen, ['001', '010', '011', '100', '101', '110', '110'], 'counts to 6, then holds');
         near(x.mA('k', 'coil_a'), 24.4, 0.5, 'relay coil current');
         near(x.mA('rl'), 13.1, 0.5, 'lamp through the second pole');
         // MEASURED 2026-11-24 (bw-board eb3ec0a7): x.v('cnt', 'clk_a') < 0.1 -> observed 0.00.
@@ -223,38 +280,45 @@ describe('lab counting benches behave as documented', { skip: SKIP }, () => {
         assert.equal(count(), '000', 'cleared');
         // MEASURED 2026-11-24 (bw-board eb3ec0a7): x.mA('k', 'coil_a') < 0.1 -> observed 0.0.
         assert.ok(x.mA('k', 'coil_a') < 0.1, 'relay dropped out');
-        // A half-blocked beam is not an interruption; four fifths is.
-        x.at('beam', 0.5); x.run(10); x.at('beam', 0); x.run(10);
-        assert.equal(count(), '000', 'half blocked: not counted');
-        x.at('beam', 0.8); x.run(10); x.at('beam', 0); x.run(10);
-        assert.equal(count(), '001', 'four fifths blocked: counted');
     });
 
-    test('lab-loud-counter: a loud tone clocks the counter, a quiet one or a low setting does not', () => {
+    test('lab-barrier-counter: weak room light does no harm, strong room light blinds the receiver', () => {
+        // Room light is the phototransistor's own light setting: a steady
+        // photocurrent the diode pump cannot pass.
+        const weak = bench('lab-barrier-counter', { pt: { light: 0.01 } });
+        weak.run(40);
+        // MEASURED 2026-11-24 (bw-board eb3ec0a7): weak.v('q2', 'collector') > 4 -> observed 4.51.
+        assert.ok(weak.v('q2', 'collector') > 4, 'weak room light: the beam is still seen');
+        weak.at('beam', 1); weak.run(10);
+        // MEASURED 2026-11-24 (bw-board eb3ec0a7): weak.v('q2', 'collector') < 0.5 -> observed 0.04.
+        assert.ok(weak.v('q2', 'collector') < 0.5, 'weak room light alone does not hold the receiver');
+        assert.equal(weak.bits('cnt', ['qc', 'qb', 'qa']), '001', 'and the break is counted');
+        const strong = bench('lab-barrier-counter', { pt: { light: 0.1 } });
+        strong.run(40);
+        near(strong.v('pt', 'collector'), 0.06, 0.05, 'strong room light saturates the phototransistor');
+        // MEASURED 2026-11-24 (bw-board eb3ec0a7): strong.v('q2', 'collector') < 0.5 -> observed 0.04.
+        assert.ok(strong.v('q2', 'collector') < 0.5, 'blinded: the flashes no longer get through');
+    });
+
+    test('lab-loud-counter: the counter counts the signal only when its peaks reach the switching level', () => {
         const run = (edits) => {
             const x = bench('lab-loud-counter', edits);
-            let edges = 0, prev = x.v('u', '1_out'), hi = -1;
-            for (let k = 0; k < 160; k++) {
-                x.run(0.25);
-                const o = x.v('u', '1_out');
-                if (prev > 2.5 && o <= 2.5) edges++;
-                hi = Math.max(hi, o);
-                prev = o;
-            }
-            return { edges, hi, count: parseInt(x.bits('cnt', ['qd', 'qc', 'qb', 'qa']), 2), rest: x.v('sens', 'wiper') };
+            x.run(30); // the 100 nF has found its level
+            const c0 = parseInt(x.bits('cnt', ['qd', 'qc', 'qb', 'qa']), 2);
+            let hi = -9, lo = 9;
+            for (let k = 0; k < 320; k++) { x.run(0.25); const v = x.v('cnt', 'clk_a'); hi = Math.max(hi, v); lo = Math.min(lo, v); }
+            const c1 = parseInt(x.bits('cnt', ['qd', 'qc', 'qb', 'qa']), 2);
+            return { counted: (c1 - c0 + 16) % 16, hi, lo, rest: x.v('thr', 'wiper') };
         };
         const loud = run({});
-        near(loud.rest, 2.0, 0.02, 'output rests at the pot voltage');
-        near(loud.hi, 2.89, 0.08, 'peak of the amplified 90 dB tone');
-        // 200 Hz for 40 ms: eight clock edges, and the counter has them all.
-        near(loud.edges, 8, 1, 'clock edges in 40 ms');
-        assert.equal(loud.count, loud.edges % 16, 'the counter counted every edge');
-        const quiet = run({ mic: { soundDb: 80 } });
-        assert.equal(quiet.edges, 0, '80 dB: below the threshold');
-        near(quiet.hi - quiet.rest, 0.28, 0.05, '80 dB: swing above rest');
-        assert.equal(quiet.count, 0);
-        const low = run({ sens: { position: 0.5 } });
-        near(low.rest, 1.25, 0.02, 'pot at half: rest 1.25 V');
-        assert.equal(low.edges, 0, '90 dB with the pot at half: not counted');
+        near(loud.rest, 2.25, 0.02, 'bias from the pot');
+        near(loud.hi, 2.74, 0.05, 'peaks of the 0.5 V signal');
+        assert.equal(loud.counted, 8, '100 Hz for 80 ms: eight counts');
+        const quiet = run({ sig: { amplitude: 0.1 } });
+        near(quiet.hi, 2.35, 0.05, 'quiet signal peaks');
+        assert.equal(quiet.counted, 0, '0.1 V: below the switching level');
+        const low = run({ thr: { position: 0.35 } });
+        near(low.rest, 1.75, 0.02, 'pot lower');
+        assert.equal(low.counted, 0, 'pot lower: the same signal no longer counts');
     });
 });
