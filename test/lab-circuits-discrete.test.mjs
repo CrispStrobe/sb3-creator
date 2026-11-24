@@ -69,6 +69,10 @@ function bench(id) {
 const period = (e) => (e.at(-1) - e[0]) / (e.length - 1);
 // lab-relax-tone, MEASURED (bw-board eb3ec0a7) with the sampling below: 547.9 Hz and 750.0 Hz.
 const MID_HZ = 548, TOP_HZ = 750;
+// lab-diff-blinker, MEASURED (bw-board eb3ec0a7).
+// Period 260 ms; with the Miller capacitor the output settles to 4.45..4.49 V, q1 base 4.481 V
+// against the 4.482 V set point, LED 2.52 mA.
+const BLINK_MS = 255, BLINK_LED_MA = 2.52;
 const near = (got, want, tol, what) =>
     assert.ok(Math.abs(got - want) <= tol, `${what}: ${got.toFixed(3)}, expected ${want} +-${tol}`);
 
@@ -188,38 +192,41 @@ describe('discrete-stage lab benches behave as documented', { skip: SKIP }, () =
         near(top, TOP_HZ, TOP_HZ * 0.12, 'pitch with only the 22 k minimum (Hz)');
     });
 
-    test('lab-diff-comparator: the output flips within a millivolt of the reference', () => {
+    test('lab-diff-comparator: the amp IC swings rail to rail within a millivolt of the reference', () => {
         const x = bench('lab-diff-comparator');
         const diff = () => (x.v('q2', 'base') - x.v('q1', 'base')) * 1000;
-        const high = () => x.v('u', '1_out') > 6;
+        const out = () => x.v('u', 'vout');
         x.run(1);
-        assert.ok(high(), 'authored: input just above the reference, output high');
-        near(x.mA('rg'), 5.26, 0.3, 'green LED (mA)');
-        let flipDown = null, flipUp = null;
-        for (let p = 0.5; p >= 0.45; p -= 0.0025) {
-            x.set('fine', p); x.run(3);
-            if (!high()) { flipDown = diff(); break; }
+        near(out(), 8.10, 0.1, 'authored: input 0.6 mV high, output at its top limit (V)');
+        near(x.mA('rg'), 6.09, 0.3, 'green LED (mA)');
+        // MEASURED (bw-board eb3ec0a7): red 0.000 mA with the output high.
+        assert.ok(x.mA('rr') < 0.05, 'red dark');
+        const sweep = [];
+        for (let k = 0; k <= 16; k++) {
+            x.set('fine', 0.47 + k * 0.0025); x.run(3);
+            sweep.push({ d: diff(), o: out() });
         }
-        assert.ok(flipDown !== null, 'turning down flips it to red');
-        near(x.mA('rr'), 6.92, 0.3, 'red LED (mA)');
-        // MEASURED (bw-board eb3ec0a7): flipped at -0.07 mV (0.4875 of travel).
-        assert.ok(Math.abs(flipDown) < 0.5, `flipped to red ${flipDown.toFixed(3)} mV from the reference`);
-        for (let p = 0.47; p <= 0.52; p += 0.0025) {
-            x.set('fine', p); x.run(3);
-            if (high()) { flipUp = diff(); break; }
-        }
-        assert.ok(flipUp !== null && Math.abs(flipUp) < 0.5, `flipped back to green ${flipUp?.toFixed(3)} mV from the reference`);
+        for (let k = 1; k < sweep.length; k++)
+            assert.ok(sweep[k].o >= sweep[k - 1].o - 0.01, `output never falls as the input rises (step ${k})`);
+        near(sweep[0].o, 0.90, 0.1, 'input 1 mV low: output at its bottom limit (V)');
+        near(sweep.at(-1).o, 8.10, 0.1, 'input 1.5 mV high: output at its top limit (V)');
+        // Every setting that leaves the output between its limits lies within half a millivolt of balance.
+        // MEASURED (bw-board eb3ec0a7): only 0.485 (-0.21 mV, 0.96 V) and 0.49 (+0.06 mV, 5.73 V) are off the limits.
+        const between = sweep.filter(s => s.o > 1.0 && s.o < 8.0);
+        assert.ok(between.length >= 1 && between.length <= 2, `${between.length} settings in the transition`);
+        for (const s of between) assert.ok(Math.abs(s.d) < 0.5, `transition point ${s.d.toFixed(3)} mV from the reference`);
+        x.set('fine', 0.47); x.run(3);
+        near(x.mA('rr'), 6.39, 0.3, 'red LED with the input low (mA)');
         // The limiting resistors: the whole knob travel spans under a volt.
         x.set('fine', 0); x.run(3);
         const bottom = x.v('q2', 'base');
         x.set('fine', 1); x.run(3);
         near(x.v('q2', 'base') - bottom, 0.84, 0.05, 'input range over the full travel (V)');
-        near(x.v('q1', 'collector') - x.v('q2', 'collector'), 4.19, 0.3, 'collector difference with the input 0.4 V high (V)');
     });
 
     test('lab-diff-blinker: delayed feedback blinks, the Miller capacitor calms it', () => {
         const x = bench('lab-diff-blinker');
-        const out = () => x.v('u', '1_out');
+        const out = () => x.v('u', 'vout');
         x.run(300);
         const rises = (total) => {
             const e = [];
@@ -228,25 +235,68 @@ describe('discrete-stage lab benches behave as documented', { skip: SKIP }, () =
                 x.run(20);
                 const o = out();
                 lo = Math.min(lo, o); hi = Math.max(hi, o);
-                if (prev < 3.5 && o >= 3.5) e.push(x.t);
+                if (prev < 4.5 && o >= 4.5) e.push(x.t);
                 prev = o;
             }
             return { e, lo, hi };
         };
         const a = rises(1200);
-        // MEASURED (bw-board eb3ec0a7): 3 rises in 1.2 s, swing 0.02..7.23 V.
+        // MEASURED (bw-board eb3ec0a7): 4 rises in 1.2 s, swing 0.90..8.10 V (LM386 output limits).
         assert.ok(a.e.length >= 3, `${a.e.length} blinks in 1.2 s`);
-        near(period(a.e), 276, 30, 'blink period (ms)');
-        assert.ok(a.lo < 0.5 && a.hi > 6.5, `the output swings rail to rail: ${a.lo.toFixed(2)}..${a.hi.toFixed(2)} V`);
+        near(period(a.e), BLINK_MS, 30, 'blink period (ms)');
+        assert.ok(a.lo < 1.0 && a.hi > 8.0, `the output swings between its limits: ${a.lo.toFixed(2)}..${a.hi.toFixed(2)} V`);
         x.set('sw', 1);
-        x.run(1200);
-        const b = rises(500);
-        // MEASURED (bw-board eb3ec0a7): no rises, output inside 4.28..4.48 V in this window
-        // (with 1 µF instead of 4.7 µF it keeps swinging; with 2.2 µF it still rings here).
+        x.run(3200);
+        const b = rises(400);
+        // MEASURED (bw-board eb3ec0a7): the output first creeps up (the capacitor limits how fast it
+        // can move), overshoots once and settles: 0 rises, 4.45..4.49 V 3.2 s after the switch.
         assert.equal(b.e.length, 0, 'with the Miller capacitor: no more blinks');
-        assert.ok(b.hi - b.lo < 0.4, `output steady: ${b.lo.toFixed(2)}..${b.hi.toFixed(2)} V`);
-        // MEASURED (bw-board eb3ec0a7): q1 base 4.422 V against the 4.497 V set point.
-        near(x.v('q1', 'base'), x.v('q2', 'base'), 0.1, 'the loop holds the two bases together (V)');
-        near(x.mA('rl'), 2.55, 0.3, 'LED at a steady half brightness (mA)');
+        assert.ok(b.hi - b.lo < 0.25, `output steady: ${b.lo.toFixed(2)}..${b.hi.toFixed(2)} V`);
+        near(x.v('q1', 'base'), x.v('q2', 'base'), 0.05, 'the loop holds the delayed base at the set point (V)');
+        near(x.mA('rl'), BLINK_LED_MA, 0.3, 'LED at a steady part brightness (mA)');
+    });
+
+    test('lab-tone-thermometer: silent at balance, a tone when one junction warms, the trimmer moves the null', () => {
+        // Audio is expensive to simulate: a few milliseconds per step. The
+        // bench's thermal time constants are shortened to 3 ms for this.
+        const x = bench('lab-tone-thermometer');
+        const rms = (ms) => {
+            let s2 = 0, n = 0;
+            for (let k = 0; k < ms / 0.02; k++) {
+                x.run(0.02);
+                const d = x.v('q1', 'base') - x.v('q2', 'base');
+                s2 += d * d; n++;
+            }
+            return Math.sqrt(s2 / n) * 1000;
+        };
+        x.run(8);
+        let ups = 0, prev = x.v('u', 'vout');
+        for (let k = 0; k < 100; k++) { x.run(0.04); const o = x.v('u', 'vout'); if (prev < 4.5 && o >= 4.5) ups++; prev = o; }
+        // MEASURED (bw-board eb3ec0a7): 553 Hz, so 2 rising crossings in 4 ms.
+        assert.ok(ups >= 2, `the amp IC oscillates: ${ups} cycles in 4 ms`);
+        const cold = rms(4);
+        // MEASURED (bw-board eb3ec0a7): cold < 0.1 mV -> observed 0.00.
+        assert.ok(cold < 0.1, `both junctions at 25 C, trimmer centred: ${cold.toFixed(3)} mV across the earphone`);
+        x.set('w1', 1);
+        x.run(15);
+        near(x.b.partTemperature(x.ids.q1), 39.5, 1.5, 'heated junction (C)');
+        const warm = rms(4);
+        near(warm, 16.6, 2.5, 'one junction 14 K warmer: tone across the earphone (mV rms)');
+        const tone = x.b.buzzerTone(x.ids.ear);
+        near(tone.hz, 553, 15, 'the earphone hears the oscillator (Hz)');
+        x.set('trim', 0.85);
+        x.run(3);
+        const nulled = rms(4);
+        // MEASURED (bw-board eb3ec0a7): nulled < 2.5 mV -> observed 1.10.
+        assert.ok(nulled < 2.5, `trimmer at 0.85 finds the new null: ${nulled.toFixed(2)} mV`);
+        x.set('w2', 1);
+        x.run(15);
+        const both = rms(4);
+        near(both, 16.9, 2.5, 'second junction warmed too, trimmer still off-centre (mV rms)');
+        x.set('trim', 0.5);
+        x.run(3);
+        const same = rms(4);
+        // MEASURED (bw-board eb3ec0a7): same < 0.5 mV -> observed 0.08: equal warming is no difference.
+        assert.ok(same < 0.5, `both 14 K warm, trimmer centred: ${same.toFixed(3)} mV`);
     });
 });
