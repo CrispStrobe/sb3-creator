@@ -432,17 +432,13 @@ describe('circuit params, tier 2: the key moves a real bench', { skip: SKIP }, (
         : (v && typeof v === 'object') ? { ...v, __zz: 1 }
         : 'ZZ';
 
-    // Keys perturbed DOWN instead of out by 3.7x + 1. ferrite_coil.couplingRatio
-    // is the coupling winding's turns ratio, authored 0.02..0.25 on the radio
-    // benches. Taken past 1 it gives the regenerative stages so much feedback
-    // that bw-board 20c29a7 never finishes the 20 ms solve: MEASURED on
-    // lab-am-transmitter (0.02 -> 1.074) the first millisecond took 24 s and the
-    // heap passed 3 GB, and the whole gate died at the 4 GB heap limit. That is
-    // an engine defect (a runaway solve should end in a refusal, not unbounded
-    // memory); halving the ratio still asks whether the key is read.
-    const PERTURB_BY_KEY = new Map([
-        ['ferrite_coil.couplingRatio', (v) => (typeof v === 'number' && v > 0 ? v / 2 : perturb(v))],
-    ]);
+    // Keys that need their own perturbation (none at present). Until bw-board
+    // clamped ferrite_coil.couplingRatio to the main winding's turns (with a
+    // param-clamped warning) and refused an RF band that runs away, 3.7x + 1
+    // on lab-am-transmitter's 0.02 grew the heap past 3 GB in the first
+    // simulated millisecond, and this gate halved the ratio instead. The
+    // engine now ends that bench in a refusal within ~100 MB.
+    const PERTURB_BY_KEY = new Map();
 
     // The AUTHORED bench first: a retargeted or flat twin often has no firmware
     // driving it, so nothing moves there whatever the key does. Ordering by

@@ -6,11 +6,11 @@
 
 ## Observable behaviour
 - The transmitter oscillates near 796 kHz with a swing of several volts, swelling and shrinking with the 1 kHz audio.
-- At 0.5 m the receiver's tank carries about 0.33 V of RF; the detector output carries the 1 kHz tone (about 16 mV at the fundamental).
+- At 0.5 m the receiver's tank carries about 0.33 V of RF; the detector output carries the 1 kHz tone (about 10 mV at the fundamental).
 - At 1 m: about 0.04 V of RF (an eighth: the near field ∝ 1/d³), the 1 kHz tone about 0.1 mV; at 2 m a few millivolts of RF and no tone.
 
 ## Measured on the engine
-bw-board r4/rf-20261123 (RF envelope front end, near-field rod coupling), `test/lab-circuits-rf.test.mjs` (4 ms of audio after 15 ms): 0.5 m RF 0.331 V, 1 kHz 16.3 mV; 1 m RF 0.041 V, 1 kHz 0.12 mV.
+bw-board r4/rf-20261123 (RF envelope front end, near-field rod coupling), `test/lab-circuits-rf.test.mjs` (12 ms of audio after 15 ms): 0.5 m RF 0.344 V, 1 kHz 9.4–12.7 mV (12 ms window, across 1-ulp changes of the coil; the swing jitters); 1 m RF 0.041 V, 1 kHz 0.1 mV.
 
 ## What this verifies
 1. An LC oscillator whose current is modulated is an AM transmitter.
@@ -23,9 +23,9 @@ net vsource_2.pos V 9.00 +-0.01
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@20c29a7` and `bw-circuit-ui@6ea2239` — the revisions pinned in
+> `bw-board@5c83e54` and `bw-circuit-ui@089ee40` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
-> **13 of this page's 32** numeric claims against that engine
+> **13 of this page's 33** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs lab-am-transmitter` prints them one by one.
 <!-- engine-provenance -->

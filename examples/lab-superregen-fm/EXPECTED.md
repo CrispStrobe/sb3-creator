@@ -9,10 +9,10 @@
 ## Observable behaviour
 - The tank's RF comes in bursts of about 2.6 V at the quench rate; with the station it falls back between bursts only to about 0.11 V, the station's own level, and each burst grows from there.
 - Without the station the bursts fall back to the noise floor (a tenth of a microvolt): each starts from a different random amplitude, so their average wanders and the earphone hisses.
-- With the station the hiss goes quiet (about a seventh) and the 1 kHz programme stands above what is left of it — faintly: on the slope of its tank a super-regenerator is a poor FM detector, its output following the logarithm of the starting signal.
+- With the station the hiss goes quiet (to about a ninth) and the 1 kHz programme stands above what is left of it — faintly: on the slope of its tank a super-regenerator is a poor FM detector, its output following the logarithm of the starting signal.
 
 ## Measured on the engine
-bw-board r4/rf-20261123 (RF envelope front end: the quench in the transient solve, the oscillation in an envelope band whose growth follows the bias), `test/lab-circuits-rf.test.mjs`, 3 ms after 4 ms (RF every 10 µs; audio at the 10 nF, detrended, one-bin DFTs): station on — bursts 0.108 → 2.65 V, 1 kHz 9.5e-5 V, hiss (mean of the 1.33 and 2 kHz bins) 3.5e-5 V; station off — bursts 7e-8 → 2.57 V, hiss 2.5e-4 V. About 13 000 solves per simulated millisecond.
+bw-board r4/rf-20261123 (RF envelope front end: the quench in the transient solve, the oscillation in an envelope band whose growth follows the bias), `test/lab-circuits-rf.test.mjs`, 3 ms after 4 ms (RF every 10 µs; audio at the 10 nF, detrended, one-bin DFTs): station on — bursts 0.107 → 2.66 V, 1 kHz 7.9e-5 V, hiss (mean of the 1.33 and 2 kHz bins) 2.6e-5 V; station off — bursts 2e-7 → 2.58 V, hiss 2.3e-4 V (re-measured 2026-11-24 on the bit-reproducible engine: the same on macOS and Linux). About 13 000 solves per simulated millisecond.
 
 ## What this verifies
 1. An oscillator switched past its threshold grows exponentially from whatever signal it starts from.
@@ -25,7 +25,7 @@ net vsource_2.pos V 9.00 +-0.01
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@20c29a7` and `bw-circuit-ui@6ea2239` — the revisions pinned in
+> `bw-board@5c83e54` and `bw-circuit-ui@089ee40` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **19 of this page's 39** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;

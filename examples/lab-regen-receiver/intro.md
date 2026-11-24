@@ -11,8 +11,8 @@ Click **Sim**. Start with the regeneration knob at 0.9 (little current, little f
 ## What you should see
 
 - At 0.9 the weak station is barely there: the earphone carries no tone.
-- Just past 0.8 the tank's RF jumps up and a whistle starts, about 1 kHz.
-- Turning further, the whistle climbs (about 2 kHz at 0.75, near 4 kHz at 0.7).
+- Just past 0.8 the tank's RF jumps up and a whistle starts, about 1.5 kHz.
+- Turning further, the whistle climbs (about 3 kHz at 0.75).
 - The whistle's pitch is the distance between the station's carrier and the circuit's own oscillation.
 
 ## Why it works
