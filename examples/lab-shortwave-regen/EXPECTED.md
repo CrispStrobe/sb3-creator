@@ -27,9 +27,9 @@ net vsource_2.pos V 9.00 +-0.01
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@20c29a7` and `bw-circuit-ui@6ea2239` — the revisions pinned in
+> `bw-board@d5501af` and `bw-circuit-ui@0efc30a` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
-> **8 of this page's 25** numeric claims against that engine
+> **8 of this page's 31** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs lab-shortwave-regen` prints them one by one.
 <!-- engine-provenance -->
