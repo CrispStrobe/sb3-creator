@@ -168,33 +168,6 @@ export const BENCHES = {
         open: ['lt.tap', 'lr.tap', 'lr.c1', 'lr.c2'],
     },
 
-    // Short-wave reception and mixing: the regenerative receiver on a
-    // short-wave coil (5 µH: the tuning capacitor reaches about 3–10 MHz).
-    // The antenna couples in through only 20 pF: at 6 MHz the long wire's
-    // 200 pF through the tap loads the tank to Q ≈ 20 and no tickler gets it
-    // past the threshold. A Morse beacon at 6.0585 MHz (a bare carrier keyed
-    // on and off) and an AM station at 5.9 MHz. Tuned near the beacon,
-    // below the threshold its carrier is silent; past it the receiver's own
-    // oscillation and the beacon's carrier meet in the base junction, and
-    // their difference frequency is a tone.
-    'lab-shortwave-regen': {
-        vcc: 9, supply: SUP,
-        parts: { bat: BAT9, gnd: ['gnd', {}],
-            ant: ['antenna', { heightM: 2, farads: 20e-12, stations: [
-                { id: 'cw', name: 'CW beacon 6.0585 MHz', hz: 6.0585e6, fieldVPerM: 0.005, mod: 'cw', audio: { type: 'morse', text: 'E', wpm: 20 } },
-                { id: 'am', name: 'AM 5.9 MHz', hz: 5.9e6, fieldVPerM: 0.005, depth: 0.5, audio: { type: 'tone', hz: 500 } },
-            ] }], earth: ['earth', {}],
-            l: ['ferrite_coil', { henrys: 5e-6, couplingRatio: 0.08, q: 100 }], tc: TUNE(0.25),
-            cb: C(100e-12), rb: R(1000000), rv: POT(100000, 0.85), q: NPN, re: R(1000), ce: C(100e-9),
-            ep: EP, cc: C(10e-9) },
-        nets: [
-            ['ant.a', 'l.tap'], ['l.b', 'tc.a', 'cb.a'], ['cb.b', 'rb.b', 'q.base'], ['rb.a', 'rv.wiper'],
-            ['q.emitter', 're.a', 'ce.a'], ['q.collector', 'l.c1'], ['l.c2', 'ep.a', 'cc.a'],
-            ['bat.pos', 'rv.b', 'ep.b'],
-            ['bat.neg', 'gnd.gnd', 'earth.earth', 'l.a', 'tc.b', 'rv.a', 're.b', 'ce.b', 'cc.b'],
-        ],
-    },
-
     // Super-regenerative VHF receiver, separately quenched. A BF199 Colpitts
     // in common base (base divider 10 kΩ / 10 kΩ held at RF by 100 pF; 3.3 pF
     // collector→emitter, 10 pF emitter→ground; emitter returns through 1 kΩ

@@ -11,8 +11,8 @@ Klick auf **Sim**. Beginne mit dem Rückkopplungsknopf auf 0,9 (wenig Strom, wen
 ## Was du sehen solltest
 
 - Auf 0,9 ist der schwache Sender kaum da: Im Ohrhörer ist kein Ton.
-- Kurz hinter 0,8 springt die HF im Kreis hoch und ein Pfeifen beginnt, etwa 1 kHz.
-- Weiter gedreht steigt das Pfeifen (etwa 2 kHz bei 0,75, fast 4 kHz bei 0,7).
+- Kurz hinter 0,8 springt die HF im Kreis hoch und ein Pfeifen beginnt, etwa 1,5 kHz.
+- Weiter gedreht steigt das Pfeifen (etwa 3 kHz bei 0,75).
 - Die Tonhöhe des Pfeifens ist der Abstand zwischen dem Träger des Senders und der eigenen Schwingung der Schaltung.
 
 ## Warum es funktioniert
