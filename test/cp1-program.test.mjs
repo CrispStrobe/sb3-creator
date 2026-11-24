@@ -2,6 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {parseCp1Program, assembleCp1Program, exportCp1Program, CP1_MNEMONICS} from '../src/utils/cp1Program.js';
+import {CP1_EXAMPLES} from '../src/utils/examples.js';
 
 const bytesAt = (result, start, count) => [...result.bytes.slice(start * 2, (start + count) * 2)];
 const errors = (source, options) => {
@@ -117,7 +118,29 @@ test('three original examples assemble and retain the documented blink cell sequ
     for (const name of ['cp1-first-display', 'cp1-switch-input', 'cp1-blink']) {
         const source = readFileSync(new URL(`../examples/${name}/program.cp1`, import.meta.url), 'utf8');
         assert.equal(assembleCp1Program(source).ok, true, name);
+        assert.equal(CP1_EXAMPLES[name], source, 'named CP1 examples retain the canonical source');
     }
     const blink = assembleCp1Program(readFileSync(new URL('../examples/cp1-blink/program.cp1', import.meta.url), 'utf8'));
     assert.deepEqual(bytesAt(blink, 0, 7), [4, 1, 18, 1, 3, 200, 4, 0, 18, 1, 3, 200, 9, 0]);
+});
+
+test('CP1 gallery entries link the actual sources and declared machine terminals without a ROM', () => {
+    const index = JSON.parse(readFileSync(new URL('../examples/index.json', import.meta.url), 'utf8'));
+    for (const name of Object.keys(CP1_EXAMPLES)) {
+        const entry = index.find(item => item.id === name);
+        assert.ok(entry, `${name} is reachable from the gallery`);
+        assert.equal(entry.kind, 'circuit');
+        assert.equal(entry.target, 'kosmos-cp1');
+        assert.equal(entry.files.cp1, `${name}/program.cp1`);
+        assert.equal(entry.files.rom, undefined, 'ROM remains a user import');
+        for (const file of Object.values(entry.files)) readFileSync(new URL(`../examples/${file}`, import.meta.url));
+        const circuit = JSON.parse(readFileSync(new URL(`../examples/${entry.files.circuit}`, import.meta.url), 'utf8'));
+        const machine = circuit.parts.find(part => part.kind === 'kosmos-cp1');
+        assert.ok(machine);
+        assert.equal(machine.params.expansion, false);
+        assert.equal(machine.params.clockHz, 6000000);
+        assert.equal(circuit.parts.some(part => part.kind === 'vsource'), false, 'examples use the CP1 connector supply');
+        if (name === 'cp1-blink') assert.ok(circuit.wires.some(wire => wire.from.part === 'cp1' && wire.from.terminal === 'P2.0'));
+        if (name === 'cp1-switch-input') assert.ok(circuit.wires.some(wire => wire.to.part === 'cp1' && wire.to.terminal === 'P1.0'));
+    }
 });

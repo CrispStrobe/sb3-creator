@@ -1,0 +1,96 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "cp1",
+      "kind": "kosmos-cp1",
+      "params": {
+        "expansion": false,
+        "clockHz": 6000000
+      },
+      "x": 200,
+      "y": 180
+    },
+    {
+      "id": "pullup",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "x": 440,
+      "y": 155
+    },
+    {
+      "id": "switch",
+      "kind": "button",
+      "params": {},
+      "x": 570,
+      "y": 220
+    },
+    {
+      "id": "ground",
+      "kind": "gnd",
+      "params": {},
+      "x": 570,
+      "y": 315
+    }
+  ],
+  "wires": [
+    {
+      "id": "supply-pullup",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "pullup",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "input-pullup",
+      "from": {
+        "part": "pullup",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "cp1",
+        "terminal": "P1.0"
+      }
+    },
+    {
+      "id": "input-switch",
+      "from": {
+        "part": "cp1",
+        "terminal": "P1.0"
+      },
+      "to": {
+        "part": "switch",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "switch-ground",
+      "from": {
+        "part": "switch",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "machine-ground",
+      "from": {
+        "part": "cp1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      }
+    }
+  ],
+  "holeWires": []
+}

@@ -11558,5 +11558,65 @@
    "introDE": "lab-broadcast-pickup/intro.de.md"
   },
   "devices": []
+ },
+{
+  "id": "cp1-first-display",
+  "title": {
+   "en": "CP1: First display",
+   "de": "CP1: Erste Anzeige"
+  },
+  "category": "digital",
+  "difficulty": 1,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-first-display/program.bw",
+   "cp1": "cp1-first-display/program.cp1",
+   "circuit": "cp1-first-display/circuit.json",
+   "intro": "cp1-first-display/intro.md",
+   "introDE": "cp1-first-display/intro.de.md",
+   "expected": "cp1-first-display/EXPECTED.md"
+  },
+  "devices": []
+ },
+{
+  "id": "cp1-switch-input",
+  "title": {
+   "en": "CP1: Read a switch",
+   "de": "CP1: Einen Taster lesen"
+  },
+  "category": "digital",
+  "difficulty": 1,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-switch-input/program.bw",
+   "cp1": "cp1-switch-input/program.cp1",
+   "circuit": "cp1-switch-input/circuit.json",
+   "intro": "cp1-switch-input/intro.md",
+   "introDE": "cp1-switch-input/intro.de.md",
+   "expected": "cp1-switch-input/EXPECTED.md"
+  },
+  "devices": []
+ },
+{
+  "id": "cp1-blink",
+  "title": {
+   "en": "CP1: Blink an LED",
+   "de": "CP1: Eine LED blinkt"
+  },
+  "category": "digital",
+  "difficulty": 1,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-blink/program.bw",
+   "cp1": "cp1-blink/program.cp1",
+   "circuit": "cp1-blink/circuit.json",
+   "intro": "cp1-blink/intro.md",
+   "introDE": "cp1-blink/intro.de.md",
+   "expected": "cp1-blink/EXPECTED.md"
+  },
+  "devices": []
  }
 ]

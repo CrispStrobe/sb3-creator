@@ -2552,3 +2552,10 @@ WHEN flag clicked:
 };
 
 export default examples;
+
+// CP1 source uses its own assembler and stays outside the pseudocode corpus.
+export const CP1_EXAMPLES = Object.freeze({
+    "cp1-first-display": "; Original Brickwright CP1 example: show a constant, then stop.\n; The dot in a listing separates opcode from operand: 04.042.\nVALUE EQU 42\nORG 0\nstart: AKO VALUE\n       ANZ\n       HLT\n",
+    "cp1-switch-input": "; Original Brickwright CP1 example: sample input line 1 repeatedly.\n; CP1 selector 1 corresponds to circuit terminal P1.0.\nORG 0\nsample: P1E 1\n        ANZ\n        VZG 100\n        SPU sample\n",
+    "cp1-blink": "; Original Brickwright CP1 example: alternate output line 1.\n; CP1 P2A selector 1 corresponds to circuit terminal P2.0.\nWAIT EQU 200\nORG 0\nagain: AKO 1\n       P2A 1\n       VZG WAIT\n       AKO 0\n       P2A 1\n       VZG WAIT\n       SPU again\n"
+});
