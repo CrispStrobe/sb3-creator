@@ -10830,6 +10830,150 @@
   "devices": []
  },
  {
+  "id": "lab-direction-finder",
+  "title": {
+   "en": "Finding a station's direction with the ferrite rod",
+   "de": "Mit dem Ferritstab die Richtung eines Senders finden"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-direction-finder/program.bw",
+   "circuit": "lab-direction-finder/circuit.json",
+   "expected": "lab-direction-finder/EXPECTED.md",
+   "intro": "lab-direction-finder/intro.md",
+   "introDE": "lab-direction-finder/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-am-music",
+  "title": {
+   "en": "How AM carries music",
+   "de": "Wie AM Musik überträgt"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-am-music/program.bw",
+   "circuit": "lab-am-music/circuit.json",
+   "expected": "lab-am-music/EXPECTED.md",
+   "intro": "lab-am-music/intro.md",
+   "introDE": "lab-am-music/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-dawn-radio",
+  "title": {
+   "en": "The radio that switches on at dawn",
+   "de": "Das Radio, das bei Tagesanbruch einschaltet"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-dawn-radio/program.bw",
+   "circuit": "lab-dawn-radio/circuit.json",
+   "expected": "lab-dawn-radio/EXPECTED.md",
+   "intro": "lab-dawn-radio/intro.md",
+   "introDE": "lab-dawn-radio/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-regen-receiver",
+  "title": {
+   "en": "Regenerative receiver: feedback until it whistles",
+   "de": "Rückkopplungsempfänger: Rückkopplung bis zum Pfeifen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-regen-receiver/program.bw",
+   "circuit": "lab-regen-receiver/circuit.json",
+   "expected": "lab-regen-receiver/EXPECTED.md",
+   "intro": "lab-regen-receiver/intro.md",
+   "introDE": "lab-regen-receiver/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-fm-slope",
+  "title": {
+   "en": "Hearing FM on the slope of a tuned circuit",
+   "de": "UKW auf der Flanke eines Schwingkreises hören"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-fm-slope/program.bw",
+   "circuit": "lab-fm-slope/circuit.json",
+   "expected": "lab-fm-slope/EXPECTED.md",
+   "intro": "lab-fm-slope/intro.md",
+   "introDE": "lab-fm-slope/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-shortwave-regen",
+  "title": {
+   "en": "Short wave and mixing: hearing Morse with your own oscillator",
+   "de": "Kurzwelle und Mischung: Morsezeichen mit dem eigenen Oszillator hören"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-shortwave-regen/program.bw",
+   "circuit": "lab-shortwave-regen/circuit.json",
+   "expected": "lab-shortwave-regen/EXPECTED.md",
+   "intro": "lab-shortwave-regen/intro.md",
+   "introDE": "lab-shortwave-regen/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-am-transmitter",
+  "title": {
+   "en": "AM test transmitter and a receiver across the room",
+   "de": "AM-Prüfsender und ein Empfänger am anderen Ende des Tisches"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-am-transmitter/program.bw",
+   "circuit": "lab-am-transmitter/circuit.json",
+   "expected": "lab-am-transmitter/EXPECTED.md",
+   "intro": "lab-am-transmitter/intro.md",
+   "introDE": "lab-am-transmitter/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-superregen-fm",
+  "title": {
+   "en": "Super-regenerative VHF receiver",
+   "de": "Pendelempfänger für UKW"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 5,
+  "files": {
+   "program": "lab-superregen-fm/program.bw",
+   "circuit": "lab-superregen-fm/circuit.json",
+   "expected": "lab-superregen-fm/EXPECTED.md",
+   "intro": "lab-superregen-fm/intro.md",
+   "introDE": "lab-superregen-fm/intro.de.md"
+  },
+  "devices": []
+ },
+ {
   "id": "lab-light-guide",
   "title": {
    "en": "Light guide: bends, cuts, colours",
