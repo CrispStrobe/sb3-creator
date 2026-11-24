@@ -79,6 +79,8 @@ describe('lab optics benches behave as documented', { skip: SKIP }, () => {
         x.at('guide', 0.4);
         near(x.v('vm', 'a'), 1.13, 0.05, '4 mm bend: half the light lost');
         x.at('guide', 5);
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): x.v('vm', 'a') > 2.1 -> observed
+        // 2.1705927612932028.
         assert.ok(x.v('vm', 'a') > 2.1, 'gentle bend');
         const rough = bench('lab-light-guide', { guide: { cutQuality: 0 } }); rough.run(1);
         near(rough.v('vm', 'a'), 0.26, 0.05, 'rough cut ends');
@@ -94,6 +96,8 @@ describe('lab optics benches behave as documented', { skip: SKIP }, () => {
         // Room light on the receiver adds to the reading unless the end is sleeved.
         const room = bench('lab-light-guide', { pt: { light: 0.3 } }); room.run(1);
         const sleeved = bench('lab-light-guide', { pt: { light: 0.3 }, guide: { shield: 0.95 } }); sleeved.run(1);
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): room.v('vm', 'a') > 2.6 ->
+        // observed 2.8152653844812185.
         assert.ok(room.v('vm', 'a') > 2.6, `room light ${room.v('vm', 'a')}`);
         near(sleeved.v('vm', 'a'), 2.15, 0.05, 'sleeved receiver');
     });
@@ -103,6 +107,8 @@ describe('lab optics benches behave as documented', { skip: SKIP }, () => {
         x.run(15);
         near(x.tone('spk').hz, 1960, 120, 'authored 2 mm gap');
         x.at('guide', 0); x.run(15);
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): x.tone('spk').hz > 3500 ->
+        // observed 4131.744815176725.
         assert.ok(x.tone('spk').hz > 3500, `touching: ${x.tone('spk').hz}`);
         x.at('guide', 10); x.run(15);
         near(x.tone('spk').hz, 725, 60, '10 mm gap');
@@ -142,6 +148,8 @@ describe('lab optics benches behave as documented', { skip: SKIP }, () => {
         x.at('guide', 0.05); const g05 = x.v('vm', 'a');
         x.at('guide', 0.5); const open = x.v('vm', 'a');
         near(closed, 7.93, 0.1, 'closed joint');
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): closed - g05 > 0.5 -> observed
+        // 0.7704452942886402.
         assert.ok(closed - g05 > 0.5, `0.05 mm: ${closed} -> ${g05}`);
         near(open, 2.83, 0.15, '0.5 mm');
     });
@@ -167,6 +175,8 @@ describe('lab optics benches behave as documented', { skip: SKIP }, () => {
         x.run(5000);
         near(x.v('vm1', 'a'), 0.84, 0.08, 'link A after 5 s of heat');
         near(x.v('vm2', 'a'), 1.83, 0.06, 'link B after 5 s of heat');
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): x.b.partTemperature(x.ids.led1)
+        // > 60 -> observed 69.7752685321766.
         assert.ok(x.b.partTemperature(x.ids.led1) > 60, 'LED 1 is hot');
     });
 
@@ -182,13 +192,19 @@ describe('lab optics benches behave as documented', { skip: SKIP }, () => {
         const x = bench('lab-colour-sensor');
         x.run(1);
         near(x.v('vm', 'a'), 1.858, 0.05, 'red surface');
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): x.led('ind') > 0.2 -> observed
+        // 0.3491286677330537.
         assert.ok(x.led('ind') > 0.2, 'indicator on over red');
         const green = bench('lab-colour-sensor', { surface: { surface: 'green' } }); green.run(1);
         near(green.v('vm', 'a'), 0.38, 0.05, 'green surface');
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): green.led('ind') < 0.01 ->
+        // observed 0.0000018977779357369495.
         assert.ok(green.led('ind') < 0.01, 'indicator off over green');
         const irRed = bench('lab-colour-sensor', { led: { color: 'ir' } }); irRed.run(1);
         const irGreen = bench('lab-colour-sensor', { led: { color: 'ir' }, surface: { surface: 'green' } }); irGreen.run(1);
         near(irGreen.v('vm', 'a') / irRed.v('vm', 'a'), 1, 0.1, 'IR: red and green alike');
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): irGreen.led('ind') > 0.2 ->
+        // observed 0.3508921663616739.
         assert.ok(irGreen.led('ind') > 0.2, 'IR: indicator on over green too');
     });
 
@@ -210,8 +226,14 @@ describe('lab optics benches behave as documented', { skip: SKIP }, () => {
         const x = bench('lab-liquid-level');
         x.run(1);
         near(x.v('q', 'base'), 0.43, 0.05, 'empty');
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): x.led('full') < 0.01 -> observed
+        // 0.0000021472249668109516.
         assert.ok(x.led('full') < 0.01, 'empty: off');
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): x.led('full') < 0.01 -> observed
+        // 0.0000021472249668109516.
         x.at('glass', 0.3); assert.ok(x.led('full') < 0.01, 'below the beam: off');
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): x.led('full') > 0.25 -> observed
+        // 0.29726566464697873.
         x.at('glass', 0.7); assert.ok(x.led('full') > 0.25, `above the beam: ${x.led('full')}`);
     });
 
@@ -230,6 +252,9 @@ describe('lab optics benches behave as documented', { skip: SKIP }, () => {
         assert.deepEqual(peaks(sweep({ led: { color: 'red' } }), 0.3), [36.3], 'red');
         const laser = sweep({ led: { kind: 'laser_diode', params: {} } });
         assert.deepEqual(peaks(laser, 1), [36.3], 'laser: one line');
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): v > 0.3 -> observed
+        // 4.697792037742281e-7…2.3057854013308825 over 17 reaches; v > 0.3 -> observed
+        // 4.697792037742261e-7…9.460266355372827 over 17 reaches.
         assert.ok(laser.filter(([, v]) => v > 0.3).length < sweep({ led: { color: 'red' } }).filter(([, v]) => v > 0.3).length,
             'laser line narrower than the red LED band');
     });
