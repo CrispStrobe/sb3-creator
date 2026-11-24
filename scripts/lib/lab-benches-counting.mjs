@@ -72,6 +72,32 @@ export const BENCHES = resolveRefs({
         open: ['swr.a', 'swi.a', 'u.2_out'],
     },
 
+    // Which of two look-alike clear parts is the phototransistor and which
+    // the IR LED? Each sits in series with 470 Ω and a red indicator LED
+    // across the 9 V battery, the way a phototransistor is wired: its
+    // collector (the IR LED's cathode, in the same position) to plus. A white
+    // lamp LED on a switch shines on both from 2 cm. Lit, the
+    // phototransistor passes milliamps and its indicator glows; the IR LED
+    // is reverse biased there, and the few microamps of photocurrent it
+    // makes cannot light anything. No transistor stage, no amplifier: the
+    // part under test is the only active thing in each branch.
+    'lab-phototransistor-or-ir-led': {
+        vcc: 9, supply: SUP,
+        parts: { bat: BAT9, sw: ['slide_switch', { position: 1 }], rw: R(220), lamp: LED('white'),
+            pt: ['phototransistor', {}], ra: R(470), la: LED('red'),
+            irs: SENSOR('ir', 10e-6), rb: R(470), lb: LED('red'),
+            toA: PATH({ from: '@lamp', to: '@pt', medium: 'air', distanceCm: 2,
+                knob: 'distanceCm', knobMin: 1, knobMax: 20 }),
+            toB: PATH({ from: '@lamp', to: '@irs', medium: 'air', distanceCm: 2 }) },
+        nets: [
+            ['bat.pos', 'sw.com', 'pt.collector', 'irs.cathode'], ['sw.b', 'rw.a'], ['rw.b', 'lamp.anode'],
+            ['pt.emitter', 'ra.a'], ['ra.b', 'la.anode'],
+            ['irs.anode', 'rb.a'], ['rb.b', 'lb.anode'],
+            ['bat.neg', 'lamp.cathode', 'la.cathode', 'lb.cathode'],
+        ],
+        open: ['sw.a'],
+    },
+
     // IR light meter. The sensor is an IR LED used backwards; LM358 half 1
     // turns its photocurrent into volts (4.7 MΩ) above a 1 V reference, which a
     // single-supply amplifier needs to work near zero light. So in the dark
@@ -99,42 +125,64 @@ export const BENCHES = resolveRefs({
         open: ['sw.a'],
     },
     // IR on/off remote. The button keys an IR LED; 30 cm away a
-    // phototransistor feeds its photocurrent into an NPN's base (220 k from
-    // base to emitter keeps it off below a few µA), and the NPN pulls its
-    // 10 k load low while the flash lasts. 220 nF passes only that falling
-    // edge, and a diode lets the dip pull the op-amp's + input down. The
-    // op-amp is a monoflop: its - input sits at half the supply, its + input
-    // is held high by 1 MΩ, so its output rests high; once the + input dips
-    // below half the supply the output falls, and 47 nF from the output
-    // drags the + input further down. It climbs back through 1 MΩ, and about
-    // 40 ms later the output returns high: one clean pulse per flash, short
-    // or held. The pulse's falling edge clocks the counter's first stage,
-    // which is a toggle flip-flop: one flash on, the next off. Its output
-    // drives an NPN that pulls in the relay; the relay's contact switches
-    // the lamp. The light path's knob is the distance (10 .. 150 cm).
+    // phototransistor works as an emitter follower into 47 k, so a flash
+    // lifts its emitter. 470 nF passes that rising edge to +IN of an LM386
+    // (gain 20) used as a monoflop: 1 MΩ from the supply to -IN (with the
+    // chip's own 50 k input resistance there) sets a small offset, so at rest
+    // the output sits at its low limit. The edge lifts +IN past -IN, the
+    // output jumps high and 470 nF from the output to +IN holds +IN up; it
+    // decays through 100 k (and the chip's 50 k) until the output falls back:
+    // one pulse per flash, short or held. The falling end of the pulse
+    // reaches a two-transistor toggle flip-flop through 2.2 nF and a
+    // steering diode on each side; 47 k from each collector biases its
+    // diode so only the conducting transistor's base is pulled down. Each
+    // pulse flips it: red, green, red ...
     'lab-ir-remote-toggle': {
-        vcc: 5, supply: SUP,
-        parts: { bat: BAT5, btn: ['button', {}], re: R(100), ir: ['ir_transmitter', {}],
-            pt: ['phototransistor', {}], rbe: R(220000), qa: NPN, rp: R(10000), cd: C(220e-9), rt: R(10000),
-            dt: ['diode', { part: '1N4148' }], rm: R(1000000), cm: C(47e-9), rr1: R(10000), rr2: R(10000),
-            u: ['lm358', {}], cnt: ['74hc93', {}],
-            rb: R(4700), q: NPN, k: ['relay', { coilR: 200 }], df: ['diode', { part: '1N4148' }],
-            rl: R(220), lamp: LED('green'),
+        vcc: 9, supply: SUP,
+        parts: { bat: BAT9, btn: ['button', {}], re: R(220), ir: ['ir_transmitter', {}],
+            pt: ['phototransistor', {}], rpe: R(100000), ct: C(220e-9),
+            u: ['lm386', {}], rn: R(1000000), cm: C(220e-9), rm: R(47000),
+            q1: NPN, q2: NPN, rc1: R(1000), red: LED('red'), rc2: R(1000), green: LED('green'),
+            x1: R(22000), x2: R(27000),
+            cs1: C(2.2e-9), cs2: C(2.2e-9), rs1: R(47000), rs2: R(47000),
+            d1: ['diode', { part: '1N4148' }], d2: ['diode', { part: '1N4148' }],
             air: PATH({ from: '@ir', to: '@pt', medium: 'air', distanceCm: 30,
                 knob: 'distanceCm', knobMin: 10, knobMax: 150 }) },
         nets: [
-            ['bat.pos', 'btn.a', 'pt.collector', 'rp.a', 'rt.a', 'rm.a', 'rr1.a', 'u.vcc', 'cnt.vcc',
-                'k.coil_a', 'df.cathode', 'k.com'],
+            ['bat.pos', 'btn.a', 'pt.collector', 'u.vs', 'rn.a', 'rc1.a', 'rc2.a'],
             ['btn.b', 're.a'], ['re.b', 'ir.anode'],
-            ['pt.emitter', 'rbe.a', 'qa.base'], ['qa.collector', 'rp.b', 'cd.a'], ['cd.b', 'rt.b', 'dt.cathode'],
-            ['dt.anode', 'rm.b', 'cm.a', 'u.1_pos'], ['rr1.b', 'rr2.a', 'u.1_neg'],
-            ['u.1_out', 'cm.b', 'cnt.clk_a'],
-            ['cnt.qa', 'rb.a'], ['rb.b', 'q.base'],
-            ['q.collector', 'k.coil_b', 'df.anode'], ['k.no', 'rl.a'], ['rl.b', 'lamp.anode'],
-            ['bat.neg', 'ir.cathode', 'rbe.b', 'qa.emitter', 'rr2.b', 'u.gnd', 'u.2_pos', 'u.2_neg',
-                'cnt.gnd', 'cnt.clk_b', 'cnt.r0_1', 'cnt.r0_2', 'q.emitter', 'lamp.cathode'],
+            ['pt.emitter', 'rpe.a', 'ct.a'], ['ct.b', 'u.inp', 'cm.b', 'rm.a'], ['rn.b', 'u.inn'],
+            ['u.vout', 'cm.a', 'cs1.a', 'cs2.a'],
+            ['rc1.b', 'red.anode'], ['red.cathode', 'q1.collector', 'x1.a', 'rs1.a'],
+            ['rc2.b', 'green.anode'], ['green.cathode', 'q2.collector', 'x2.a', 'rs2.a'],
+            ['x1.b', 'q2.base', 'd2.anode'], ['x2.b', 'q1.base', 'd1.anode'],
+            ['cs1.b', 'rs1.b', 'd1.cathode'], ['cs2.b', 'rs2.b', 'd2.cathode'],
+            ['bat.neg', 'ir.cathode', 'rpe.b', 'rm.b', 'u.gnd', 'q1.emitter', 'q2.emitter'],
         ],
-        open: ['u.2_out', 'cnt.qb', 'cnt.qc', 'cnt.qd', 'cnt.nc1', 'cnt.nc2', 'cnt.nc3', 'cnt.nc4', 'k.nc'],
+        open: ['u.gain1', 'u.gain8', 'u.bypass'],
+    },
+
+    // IR beam alarm. An IR LED shines steadily on a phototransistor 20 cm
+    // away (the light path's knob: how much of the beam is blocked). The
+    // phototransistor feeds 10 k on -IN of an LM386 that is wired as an
+    // oscillator: its output kicks +IN through 47 nF and the kick decays
+    // through 22 k (and the chip's own 50 k). While the beam is there, -IN
+    // sits well above anything the kicks can reach and the output stays at
+    // its low limit: silence. Block the beam and -IN drops to 0 V: the
+    // amplifier oscillates and the loudspeaker (through 100 µF) blares.
+    'lab-ir-beam-alarm': {
+        vcc: 9, supply: SUP,
+        parts: { bat: BAT9, re: R(220), ir: ['ir_transmitter', {}], pt: ['phototransistor', {}], rn: R(10000),
+            u: ['lm386', {}], cf: C(47e-9), rb: R(22000), co: EL(100e-6), spk: ['speaker', { ohms: 8 }],
+            beam: PATH({ from: '@ir', to: '@pt', medium: 'air', distanceCm: 20, blocked: 0,
+                knob: 'blocked', knobMin: 0, knobMax: 1 }) },
+        nets: [
+            ['bat.pos', 're.a', 'pt.collector', 'u.vs'], ['re.b', 'ir.anode'],
+            ['pt.emitter', 'rn.a', 'u.inn'],
+            ['u.vout', 'cf.a', 'co.pos'], ['cf.b', 'u.inp', 'rb.a'], ['co.neg', 'spk.a'],
+            ['bat.neg', 'ir.cathode', 'rn.b', 'rb.b', 'u.gnd', 'spk.b'],
+        ],
+        open: ['u.gain1', 'u.gain8', 'u.bypass'],
     },
 
     // Seven octaves from one oscillator. A 555 astable near 4.5 kHz clocks
@@ -161,69 +209,78 @@ export const BENCHES = resolveRefs({
         open: ['c1.nc1', 'c1.nc2', 'c1.nc3', 'c1.nc4', 'c2.nc1', 'c2.nc2', 'c2.nc3', 'c2.nc4', 'c2.qd'],
     },
 
-    // Light barrier counter. An IR LED shines on a phototransistor 5 cm away;
-    // the light path's knob is how much of the beam an object blocks (0 .. 1).
-    // The phototransistor is an emitter follower into 10 k: its emitter is
-    // high while the beam is clear and drops when it is blocked. That signal
-    // goes through the first changeover contact of a two-pole relay (rest
-    // side) to the counter's clock, which steps on a falling edge: every
-    // interruption counts one. Two diodes decode 6 (QB and QC both high):
+    // Light barrier counter with a pulsed beam. Transmitter: a 555 astable
+    // (1 k, 6.8 k, 100 nF: about 1 kHz) flashes an IR LED through 47 Ω.
+    // Receiver, 15 cm away: a phototransistor as emitter follower into
+    // 220 k. Only the flashes count: 100 nF and two diodes pump them into
+    // 220 nF (100 k across it), which holds Q1 on through 10 k while the
+    // flashes arrive. Steady light (a lamp, daylight) pumps nothing. Q1's
+    // collector drives Q2, so Q2's collector is high while the beam is
+    // there and drops when it is broken: a falling edge per interruption.
+    // That signal goes through the first changeover contact of a two-pole
+    // relay (rest side) to the counter's clock (100 k holds the input low
+    // when the contact opens). Two diodes decode 6 (QB and QC both high):
     // only then does 4.7 k lift their junction above the extra diode in the
-    // base lead, and the NPN pulls the relay in. The relay's first pole cuts
-    // the clock (100 k holds the input low), so the count stays at 6; its
-    // second pole lights the lamp. The button clears the counter and the
-    // relay drops out.
+    // base lead, and Q3 pulls the relay in. Pole 1 cuts the clock, so the
+    // count stays at 6; pole 2 lights the lamp. The button clears the
+    // counter and the relay drops out. The light path's knob is how much
+    // of the beam an object blocks (0 .. 1).
     'lab-barrier-counter': {
         vcc: 5, supply: SUP,
-        parts: { bat: BAT5, re: R(150), ir: ['ir_transmitter', {}], pt: ['phototransistor', {}],
-            rp: R(10000), rpd: R(100000), cnt: ['74hc93', {}],
+        parts: { bat: BAT5, osc: ['timer_555', {}], ra: R(1000), rb: R(6800), ct: C(100e-9), cv: C(10e-9),
+            re: R(47), ir: ['ir_transmitter', {}], pt: ['phototransistor', {}], rpc: R(22000),
+            cp: C(10e-9), dp1: ['diode', { part: '1N4148' }], dp2: ['diode', { part: '1N4148' }],
+            ch: C(220e-9), rh: R(470000), rb1: R(10000), q1: NPN, rc1: R(10000), rb2: R(10000), q2: NPN, rc2: R(10000), rfb: R(1000000),
+            rpd: R(100000), cclk: C(1e-9), cnt: ['74hc93', {}],
             clr: ['button', {}], rcl: R(10000),
             r0: R(470), l0: LED('red'), r1: R(470), l1: LED('red'), r2: R(470), l2: LED('red'),
             db: ['diode', { part: '1N4148' }], dc: ['diode', { part: '1N4148' }], rd: R(4700),
-            ds: ['diode', { part: '1N4148' }], rb: R(1000), rbq: R(10000), q: NPN,
+            ds: ['diode', { part: '1N4148' }], rb3: R(1000), rbq: R(10000), q3: NPN,
             k: ['relay_dpdt', { coilR: 200 }], df: ['diode', { part: '1N4148' }],
             rl: R(220), lamp: LED('green'),
-            beam: PATH({ from: '@ir', to: '@pt', medium: 'air', distanceCm: 5, blocked: 0,
+            beam: PATH({ from: '@ir', to: '@pt', medium: 'air', distanceCm: 15, blocked: 0,
                 knob: 'blocked', knobMin: 0, knobMax: 1 }) },
         nets: [
-            ['bat.pos', 're.a', 'pt.collector', 'cnt.vcc', 'clr.a', 'rd.a', 'k.coil_a', 'df.cathode', 'k.com2'],
-            ['re.b', 'ir.anode'], ['pt.emitter', 'rp.a', 'k.com1'], ['k.nc1', 'rpd.a', 'cnt.clk_a'],
+            ['bat.pos', 'osc.vcc', 'osc.reset', 'ra.a', 'rpc.a', 'rc1.a', 'rc2.a', 'cnt.vcc', 'clr.a', 'rd.a',
+                'k.coil_a', 'df.cathode', 'k.com2'],
+            ['ra.b', 'osc.discharge', 'rb.a'], ['rb.b', 'osc.threshold', 'osc.trigger', 'ct.a'], ['osc.control', 'cv.a'],
+            ['osc.output', 're.a'], ['re.b', 'ir.anode'],
+            ['pt.collector', 'rpc.b', 'cp.a'], ['cp.b', 'dp2.cathode', 'dp1.anode'], ['dp1.cathode', 'ch.a', 'rh.a', 'rb1.a'],
+            ['rb1.b', 'q1.base', 'rfb.a'], ['q1.collector', 'rc1.b', 'rb2.a'], ['rb2.b', 'q2.base'],
+            ['q2.collector', 'rc2.b', 'rfb.b', 'k.com1'], ['k.nc1', 'rpd.a', 'cclk.a', 'cnt.clk_a'],
             ['cnt.qa', 'cnt.clk_b', 'r0.a'], ['cnt.qb', 'db.cathode', 'r1.a'], ['cnt.qc', 'dc.cathode', 'r2.a'],
-            ['db.anode', 'dc.anode', 'rd.b', 'ds.anode'], ['ds.cathode', 'rb.a'], ['rb.b', 'rbq.a', 'q.base'],
+            ['db.anode', 'dc.anode', 'rd.b', 'ds.anode'], ['ds.cathode', 'rb3.a'], ['rb3.b', 'rbq.a', 'q3.base'],
             ['clr.b', 'rcl.a', 'cnt.r0_1', 'cnt.r0_2'],
             ['r0.b', 'l0.anode'], ['r1.b', 'l1.anode'], ['r2.b', 'l2.anode'],
-            ['q.collector', 'k.coil_b', 'df.anode'], ['k.no2', 'rl.a'], ['rl.b', 'lamp.anode'],
-            ['bat.neg', 'ir.cathode', 'rp.b', 'rpd.b', 'cnt.gnd', 'rcl.b',
-                'l0.cathode', 'l1.cathode', 'l2.cathode', 'rbq.b', 'q.emitter', 'lamp.cathode'],
+            ['q3.collector', 'k.coil_b', 'df.anode'], ['k.no2', 'rl.a'], ['rl.b', 'lamp.anode'],
+            ['bat.neg', 'osc.gnd', 'ct.b', 'cv.b', 'ir.cathode', 'pt.emitter', 'dp2.anode', 'ch.b', 'rh.b',
+                'q1.emitter', 'q2.emitter', 'rpd.b', 'cclk.b', 'cnt.gnd', 'rcl.b',
+                'l0.cathode', 'l1.cathode', 'l2.cathode', 'rbq.b', 'q3.emitter', 'lamp.cathode'],
         ],
         open: ['cnt.qd', 'cnt.nc1', 'cnt.nc2', 'cnt.nc3', 'cnt.nc4', 'k.no1', 'k.nc2'],
     },
 
-    // A counter that only counts loud sound. A magnetic earphone is the
-    // microphone (a steady 200 Hz tone at 90 dB SPL is reaching it). One
-    // op-amp amplifies its millivolts about 300 times (1 MΩ against 1 k plus
-    // the earphone's own 2 k). Its + input sits on the sensitivity pot, and
-    // since 10 µF blocks DC at the - input, the output rests at the pot's
-    // voltage, below the counter's switching level (half the supply). Only
-    // when the sound swings the output above that level does the 74HC93 get
-    // clock edges; four LEDs show the count. The LM358's second half is not
-    // used (inputs grounded).
+    // A counter clocked by an audio signal, but only when it is loud enough.
+    // The signal (a function generator standing in for an audio source such
+    // as a radio's earphone output: 100 Hz, 0.5 V peak as authored) reaches
+    // the 74HC93's clock input through 100 nF. 100 k from the wiper of the
+    // threshold pot (10 k across the supply) biases that input just below
+    // the counter's own switching level, half the supply. The counter
+    // itself is the threshold: only a signal whose peaks reach that level
+    // makes clock edges. Four LEDs show the count.
     'lab-loud-counter': {
         vcc: 5, supply: SUP,
-        parts: { bat: BAT5, mic: ['earphone', { type: 'magnetic', ohms: 2000, henrys: 0.1, ratedWatts: 0.001,
-            soundDb: 90, soundWave: 'tone', soundHz: 200 }],
-            cin: EL(10e-6), rin: R(1000), rf: R(1000000), u: ['lm358', {}],
-            rt: R(10000), sens: POT(10000, 0.8), cnt: ['74hc93', {}],
+        parts: { bat: BAT5, sig: ['function_gen', { wave: 'sine', freq: 100, amplitude: 0.5, offset: 0 }],
+            cc: C(100e-9), rbias: R(100000), thr: POT(10000, 0.45), cnt: ['74hc93', {}],
             r0: R(470), l0: LED('red'), r1: R(470), l1: LED('red'), r2: R(470), l2: LED('red'), r3: R(470), l3: LED('red') },
         nets: [
-            ['bat.pos', 'u.vcc', 'rt.a', 'cnt.vcc'],
-            ['mic.a', 'cin.neg'], ['cin.pos', 'rin.a'], ['rin.b', 'rf.a', 'u.1_neg'], ['u.1_out', 'rf.b', 'cnt.clk_a'],
-            ['rt.b', 'sens.a'], ['sens.wiper', 'u.1_pos', 'mic.b'],
+            ['bat.pos', 'thr.a', 'cnt.vcc'],
+            ['sig.out', 'cc.a'], ['cc.b', 'rbias.a', 'cnt.clk_a'], ['thr.wiper', 'rbias.b'],
             ['cnt.qa', 'cnt.clk_b', 'r0.a'], ['cnt.qb', 'r1.a'], ['cnt.qc', 'r2.a'], ['cnt.qd', 'r3.a'],
             ['r0.b', 'l0.anode'], ['r1.b', 'l1.anode'], ['r2.b', 'l2.anode'], ['r3.b', 'l3.anode'],
-            ['bat.neg', 'sens.b', 'u.gnd', 'u.2_pos', 'u.2_neg', 'cnt.gnd', 'cnt.r0_1', 'cnt.r0_2',
+            ['bat.neg', 'sig.gnd', 'thr.b', 'cnt.gnd', 'cnt.r0_1', 'cnt.r0_2',
                 'l0.cathode', 'l1.cathode', 'l2.cathode', 'l3.cathode'],
         ],
-        open: ['u.2_out', 'cnt.nc1', 'cnt.nc2', 'cnt.nc3', 'cnt.nc4'],
+        open: ['cnt.nc1', 'cnt.nc2', 'cnt.nc3', 'cnt.nc4'],
     },
 });
