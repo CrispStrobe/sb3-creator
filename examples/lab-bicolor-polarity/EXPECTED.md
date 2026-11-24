@@ -38,7 +38,7 @@ net red.cathode V 0.00 +-0.02
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@d5501af` and `bw-circuit-ui@0efc30a` — the revisions pinned in
+> `bw-board@7e0bf8c` and `bw-circuit-ui@cb8dbb7` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **7 of this page's 13** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;
