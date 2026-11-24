@@ -12,7 +12,7 @@ Click **Sim** and listen. Probe the emitter: the quench shows as a 25 kHz swing.
 
 - The RF in the tank comes in bursts of a few volts, one per quench cycle; between bursts it falls back only to the station's level (a tenth of a volt).
 - Without the station the bursts start from the noise floor, each from a different random amplitude, and the earphone hisses.
-- With the station the hiss goes quiet and the 1 kHz programme of the 98 MHz FM station comes through — faintly, because a super-regenerator follows only the logarithm of its input and hears FM only on the slope of its tank.
+- In a real set the station quiets the hiss and its programme comes through, faintly (a super-regenerator follows only the logarithm of its input and hears FM only on the slope of its tank). The simulation shows the bursts; it does not reproduce that audio reliably.
 
 ## Why it works
 

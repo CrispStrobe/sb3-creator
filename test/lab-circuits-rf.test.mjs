@@ -216,26 +216,20 @@ describe('lab RF benches (set rf) behave as documented', { skip: SKIP }, () => {
         assert.ok(near.tone > 30 * far.tone, `the audio falls faster than the RF: ${near.tone.toExponential(2)} vs ${far.tone.toExponential(2)} V`);
     });
 
-    test('lab-superregen-fm: quench bursts grow from the station or from noise; the station quiets the hiss and brings its programme', () => {
-        // Over 3 ms after 4 ms: the RF in the tank every 10 µs, and the audio
-        // at the 10 nF after the 10 kΩ (detrended; one-bin DFTs). At build
-        // time (bit-reproducible engine, 2026-11-24): station on, bursts
-        // 0.107 -> 2.66 V, 1 kHz 7.9e-5 V against 3.2e-5 / 2.0e-5 V at
-        // 1.33 / 2 kHz; no station, bursts from 2e-7 V, 1.1e-4 / 3.4e-4 V
-        // of hiss.
+    test('lab-superregen-fm: quench bursts grow from the station or from noise', () => {
+        // Over 3 ms after 4 ms: the RF in the tank every 10 µs. At build time
+        // (2026-11-24): station on, bursts 0.107 -> ~3 V; no station, from a
+        // few µV or less. The audio (the station's programme, the hiss going
+        // quiet when it is tuned in) is not asserted: measured with finer and
+        // coarser band steps, both moved with the noise floor's numerical
+        // treatment (a 7x quieting with 1 ns steps, none with 4 ns), so the
+        // engine does not establish them.
         const listen = (station) => {
             const x = bench('lab-superregen-fm', station ? null : (json) => { json.parts.find(p => p.kind === 'antenna').params.stations = []; });
             x.run(4);
-            const tr = []; let lo = 99, hi = 0;
-            for (let k = 1; k <= 300; k++) {
-                x.run(0.01);
-                tr.push([x.t, x.v('ca', 'a')]);
-                const a = x.rf('l', 'a'); lo = Math.min(lo, a); hi = Math.max(hi, a);
-            }
-            const n = tr.length, mt = tr.reduce((a, p) => a + p[0], 0) / n, mv = tr.reduce((a, p) => a + p[1], 0) / n;
-            const sl = tr.reduce((a, p) => a + (p[0] - mt) * (p[1] - mv), 0) / tr.reduce((a, p) => a + (p[0] - mt) ** 2, 0);
-            for (const p of tr) p[1] -= mv + sl * (p[0] - mt);
-            return { lo, hi, tone: amplitude(tr, 1000), hiss: (amplitude(tr, 4000 / 3) + amplitude(tr, 2000)) / 2 };
+            let lo = 99, hi = 0;
+            for (let k = 1; k <= 300; k++) { x.run(0.01); const a = x.rf('l', 'a'); lo = Math.min(lo, a); hi = Math.max(hi, a); }
+            return { lo, hi };
         };
         const on = listen(true), off = listen(false);
         // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): off.hi > 1.5 -> observed
@@ -247,7 +241,49 @@ describe('lab RF benches (set rf) behave as documented', { skip: SKIP }, () => {
         // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): off.lo < 1e-4 -> observed
         // 7.080317548996925e-8.
         assert.ok(off.lo < 1e-4, `without it, from the noise: ${off.lo.toExponential(2)} V`);
-        assert.ok(off.hiss > 3 * on.hiss, `the station quiets the hiss: ${off.hiss.toExponential(2)} vs ${on.hiss.toExponential(2)} V`);
-        assert.ok(on.tone > 2 * on.hiss, `and its 1 kHz programme stands out: ${on.tone.toExponential(2)} vs ${on.hiss.toExponential(2)} V`);
+    });
+
+    test('lab-mosfet-regen: the MOSFET\'s square-law channel detects the station; past the threshold it oscillates', () => {
+        // Gate on the pot (through 1 MΩ, 100 pF to the tank top), tickler in
+        // the drain. At build time: pot 0.80 (gate 1.8 V, below the 2 V
+        // threshold) silent, tank 0.05 V; 0.77 (gate 2.06 V) the 400 Hz
+        // programme at 4.1 mV in the earphone; 0.72 oscillating, tank volts.
+        const x = bench('lab-mosfet-regen');
+        const line = (ms, f) => {
+            const tr = [];
+            for (let k = 0; k < ms / 0.02; k++) { x.run(0.02); tr.push([x.t, x.v('ep', 'a') - x.v('ep', 'b')]); }
+            const m = tr.reduce((a, p) => a + p[1], 0) / tr.length;
+            for (const p of tr) p[1] -= m;
+            return amplitude(tr, f);
+        };
+        x.run(15);
+        assert.equal(x.tone('ep').on, false, 'below the threshold voltage: no drain current, silent');
+        x.set('rv', 0.77);
+        x.run(15);
+        const tone = line(6, 400);
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): tone > 1e-3 -> observed
+        // 0.004291695903538382.
+        assert.ok(tone > 1e-3, `the channel's square law detects the station: ${tone.toExponential(2)} V at 400 Hz`);
+        const quiet = x.rf('tc', 'a');
+        x.set('rv', 0.72);
+        x.run(3);
+        assert.ok(x.rf('tc', 'a') > 10 * quiet, `more gate voltage, more gain: it oscillates, ${quiet.toFixed(3)} -> ${x.rf('tc', 'a').toFixed(2)} V`);
+    });
+
+    test('lab-broadcast-pickup: a bare wire on an LM386 plays a strong local station', () => {
+        // At build time: 0.1 V/m, the 400 Hz tone at ~0.12 A rms in the
+        // loudspeaker; the same station at 0.01 V/m barely (~8 mA, the
+        // amplifier's idle hum level).
+        const loud = bench('lab-broadcast-pickup');
+        loud.run(60);
+        const t = loud.tone('spk');
+        assert.ok(t.on, 'a tone');
+        near(t.hz, 400, 5, 'the station\'s programme (Hz)');
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): t.amps > 0.05 -> observed
+        // 0.12343413743560126.
+        assert.ok(t.amps > 0.05, `loud: ${t.amps.toFixed(3)} A rms`);
+        const weak = bench('lab-broadcast-pickup', (json) => { json.parts.find(p => p.kind === 'antenna').params.stations[0].fieldVPerM = 0.01; });
+        weak.run(60);
+        assert.ok(weak.tone('spk').amps < t.amps / 5, `a tenth of the field: ${weak.tone('spk').amps.toFixed(4)} A rms`);
     });
 });

@@ -159,24 +159,26 @@ export const BENCHES = {
         open: ['pot.b'],
     },
 
-    // Two Colpitts oscillators, each an NPN with its coil from +9 V to the
-    // collector, 100 nF from collector to emitter and 1 µF from emitter to
+    // Two Colpitts oscillators near 100 kHz, as a real beat-frequency metal
+    // detector runs them, each an NPN with its coil from +9 V to the
+    // collector, 22 nF from collector to emitter and 220 nF from emitter to
     // ground (4.7 kΩ emitter resistor; base held by 22 k / 10 k and 1 µF):
-    // one around the hand-wound search coil (1000 turns, 10 cm across,
-    // ≈ 1.5 kHz), the other around a fixed 175 mH coil, about 200 Hz lower.
-    // Each collector reaches a germanium detector through 1 nF and 100 kΩ;
-    // 22 nF and 100 kΩ after the diode keep the difference, the beat, and a
-    // crystal earphone sounds it. Metal at the search coil shifts its
-    // inductance and with it the beat's pitch.
+    // one around the hand-wound search coil (30 turns of 0.5 mm wire, 10 cm
+    // across, ≈ 137 µH, ≈ 96 kHz), the other around a fixed 140 µH coil on a
+    // small ferrite core, about 0.8 kHz lower. Each collector reaches a
+    // germanium detector through 1 nF and 100 kΩ; 1 nF and 100 kΩ after the
+    // diode keep the difference, the beat (they pass a few kHz and stop the
+    // 100 kHz), and a crystal earphone sounds it. Metal at the search coil
+    // shifts its inductance and with it the beat.
     'lab-metal-detector': {
         vcc: 9, supply: SUP,
         parts: { bat: BAT9,
-            ls: ['air_coil', { turns: 1000, radiusM: 0.05, lengthM: 0.03, wireMm: 0.3 }], c1s: C(100e-9), c2s: C(1e-6),
+            ls: ['air_coil', { turns: 30, radiusM: 0.05, lengthM: 0.02, wireMm: 0.5 }], c1s: C(22e-9), c2s: C(220e-9),
             qs: NPN, res: R(4700), ras: R(22000), rbs: R(10000), cbs: C(1e-6),
-            lr: ['inductor', { henries: 0.175 }], c1r: C(100e-9), c2r: C(1e-6),
+            lr: ['ferrite_coil', { henrys: 140e-6, q: 60 }], c1r: C(22e-9), c2r: C(220e-9),
             qr: NPN, rer: R(4700), rar: R(22000), rbr: R(10000), cbr: C(1e-6),
             cks: C(1e-9), rks: R(100000), ckr: C(1e-9), rkr: R(100000), rm: R(100000),
-            d: ['diode', { part: '1N34A' }], cd: C(22e-9), rd: R(100000), ep: ['earphone', { type: 'crystal' }] },
+            d: ['diode', { part: '1N34A' }], cd: C(1e-9), rd: R(100000), ep: ['earphone', { type: 'crystal' }] },
         nets: [
             ['bat.pos', 'ls.a', 'ras.a', 'lr.a', 'rar.a'],
             ['ls.b', 'qs.collector', 'c1s.a', 'cks.a'], ['c1s.b', 'c2s.a', 'qs.emitter', 'res.a'], ['ras.b', 'rbs.a', 'cbs.a', 'qs.base'],
@@ -185,6 +187,7 @@ export const BENCHES = {
             ['d.cathode', 'cd.a', 'rd.a', 'ep.a'],
             ['bat.neg', 'c2s.b', 'res.b', 'rbs.b', 'cbs.b', 'c2r.b', 'rer.b', 'rbr.b', 'cbr.b', 'rm.b', 'cd.b', 'rd.b', 'ep.b'],
         ],
+        open: ['lr.tap', 'lr.c1', 'lr.c2'],
     },
 
     // A battery on the tongue, as a circuit: the electrolyte between the two
