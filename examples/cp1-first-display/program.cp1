@@ -1,0 +1,7 @@
+; Original Brickwright CP1 example: show a constant, then stop.
+; The dot in a listing separates opcode from operand: 04.042.
+VALUE EQU 42
+ORG 0
+start: AKO VALUE
+       ANZ
+       HLT

@@ -1,0 +1,11 @@
+; Original Brickwright CP1 example: alternate output line 1.
+; CP1 P2A selector 1 corresponds to circuit terminal P2.0.
+WAIT EQU 200
+ORG 0
+again: AKO 1
+       P2A 1
+       VZG WAIT
+       AKO 0
+       P2A 1
+       VZG WAIT
+       SPU again

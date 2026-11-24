@@ -1,0 +1,7 @@
+; Original Brickwright CP1 example: sample input line 1 repeatedly.
+; CP1 selector 1 corresponds to circuit terminal P1.0.
+ORG 0
+sample: P1E 1
+        ANZ
+        VZG 100
+        SPU sample
