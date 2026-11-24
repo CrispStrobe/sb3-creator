@@ -204,11 +204,15 @@ describe('lab RF benches (set rf) behave as documented', { skip: SKIP }, () => {
         };
         x.run(5);
         const below = listen(7);
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): below.rms < 3e-5 -> observed
+        // 0.000008133100715238497.
         assert.ok(below.rms < 3e-5, `below the threshold the bare carrier is silent: ${below.rms.toExponential(2)} V rms`);
         x.set('rv', 0.75);
         x.run(6);
         const down = listen(22);
         near(down.hz, 1850, 300, 'key down: the difference frequency (Hz)');
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): down.line > 1e-4 -> observed
+        // 0.00042141834983264.
         assert.ok(down.line > 1e-4, `key down, the beat: ${down.line.toExponential(2)} V`);
         x.run(30);    // t = 70 ms: the key is up and the last beat has rung out of the earphone
         const up = listen(16);
