@@ -89,14 +89,24 @@ describe('lab field and noise benches behave as documented', { skip: SKIP }, () 
         // The astable starts with the noise feed low (about 0.17 s), then
         // high for about 0.16 s, then low again: one chuff.
         x.run(120);
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): x.v('qb', 'collector') < 0.5 ->
+        // observed 0.10947549364186715.
         assert.ok(x.v('qb', 'collector') < 0.5, `first half-period: feed low, ${x.v('qb', 'collector')} V`);
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs):
+        // x.b.fieldReport().junctions[0].amps < 1e-8 -> observed 6.839027131714682e-130.
         assert.equal(x.b.fieldReport().junctions[0].amps < 1e-8, true, 'no breakdown current');
         x.run(110);   // t = 230 ms
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): x.v('qb', 'collector') > 8 ->
+        // observed 8.934167672008005.
         assert.ok(x.v('qb', 'collector') > 8, `then the feed is high: ${x.v('qb', 'collector')} V`);
         const burst = x.tone('ep');
         assert.ok(burst.on && burst.noise, `and the earphone hisses: ${JSON.stringify(burst)}`);
         x.run(240);   // t = 470 ms
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): x.v('qb', 'collector') < 0.5 ->
+        // observed 0.10936326610909841.
         assert.ok(x.v('qb', 'collector') < 0.5, `low again: ${x.v('qb', 'collector')} V`);
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs):
+        // x.b.fieldReport().junctions[0].amps < 1e-8 -> observed 6.809335336808857e-130.
         assert.ok(x.b.fieldReport().junctions[0].amps < 1e-8, 'no breakdown current between chuffs');
         const gap = x.tone('ep');
         // MEASURED 2026-11-23: burst level 0.37 (noise), gap silent.
@@ -111,6 +121,8 @@ describe('lab field and noise benches behave as documented', { skip: SKIP }, () 
         x.set('hit', 1); x.run(10); x.set('hit', 0);
         x.run(30);
         const first = x.tone('ep');
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): first.level > 0.1 -> observed
+        // 0.14285641941702684.
         assert.ok(first.on && first.noise && first.level > 0.1, `hit: a burst of noise, ${JSON.stringify(first)}`);
         x.run(250);
         const later = x.tone('ep');
@@ -147,21 +159,29 @@ describe('lab field and noise benches behave as documented', { skip: SKIP }, () 
         // MEASURED 2026-11-23: level 0.795.
         assert.ok(t.level > 0.4, `and loud: level ${t.level}`);
         const vin = amplitude(x.trace(20, 0.2, () => x.v('pr', 'a')), 50);
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): vin < 0.01 -> observed
+        // 0.002340211727964774; vin > 0.001 -> observed 0.002340211727964774.
         assert.ok(vin > 0.001 && vin < 0.01, `only millivolts at the input: ${vin}`);
     });
 
     test('lab-static-detector: the LED glows only while the ruler moves toward the wire', () => {
         const x = bench('lab-static-detector');
         x.run(20);
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): x.led('led') < 0.001 -> observed
+        // 0.
         assert.ok(x.led('led') < 0.001, 'no ruler: dark');
         x.set('pr', 1);
         x.run(100);   // mid-movement
         // MEASURED 2026-11-23: 0.29 mA halfway through the 0.2 s movement.
         near(x.led('led'), 0.29, 0.06, 'ruler approaching (mA)');
         x.run(250);
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): x.led('led') < 0.01 -> observed
+        // 0.00012841029194960997.
         assert.ok(x.led('led') < 0.01, `ruler held still: ${x.led('led')} mA`);
         x.set('pr', 0);
         x.run(100);
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): x.led('led') < 0.001 -> observed
+        // 8.210385674374017e-9.
         assert.ok(x.led('led') < 0.001, 'ruler moving away: dark');
         assert.ok(x.v('q1', 'base') < -1, `and the base is pushed negative: ${x.v('q1', 'base')} V`);
     });
@@ -169,16 +189,22 @@ describe('lab field and noise benches behave as documented', { skip: SKIP }, () 
     test('lab-mosfet-field: the gate keeps the induced charge', () => {
         const x = bench('lab-mosfet-field');
         x.run(20);
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): x.led('led') < 0.001 -> observed
+        // 8.220323798175298e-9.
         assert.ok(x.led('led') < 0.001, 'no ruler: off');
         x.set('pr', 0.3);
         x.run(300);
         // MEASURED 2026-11-23: gate 2.26 V, LED 7.15 mA at a third of the way.
         near(x.v('m', 'gate'), 2.26, 0.15, 'gate with the ruler a third of the way (V)');
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): x.led('led') > 5 -> observed
+        // 7.141213395504216.
         assert.ok(x.led('led') > 5, `LED on: ${x.led('led')} mA`);
         x.run(1000);
         near(x.v('m', 'gate'), 2.26, 0.15, 'a second later, the gate has kept it (V)');
         x.set('pr', 0);
         x.run(300);
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): x.led('led') < 0.01 -> observed
+        // 8.220323798175298e-9; x.v('m', 'gate') < 0.2 -> observed 0.0030318568605266277.
         assert.ok(x.v('m', 'gate') < 0.2 && x.led('led') < 0.01, `ruler away: gate ${x.v('m', 'gate')} V`);
     });
 
@@ -192,6 +218,8 @@ describe('lab field and noise benches behave as documented', { skip: SKIP }, () 
             x.set('pr', 1);
             x.run(300);
             if (rodVolts > 0) assert.ok(x.led('led') > 2 * preset, `positive ruler: brighter, ${x.led('led')} mA`);
+            // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): x.led('led') < 0.01 ->
+            // observed 8.220323798175298e-9.
             else assert.ok(x.led('led') < 0.01, `negative ruler: dark, ${x.led('led')} mA`);
             x.set('pr', 0);
             x.run(300);
@@ -208,6 +236,8 @@ describe('lab field and noise benches behave as documented', { skip: SKIP }, () 
     test('lab-touch-paper: from a mains adaptor a press on the paper lights the LED; on a battery it does not', () => {
         const x = bench('lab-touch-paper');
         x.run(40);
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): mean(x, 40, () => x.led('led'))
+        // < 0.05 -> observed 3.0742262151793663e-7.
         assert.ok(mean(x, 40, () => x.led('led')) < 0.05, 'finger off: dark');
         x.set('pr', 1);
         x.run(250);
@@ -217,6 +247,8 @@ describe('lab field and noise benches behave as documented', { skip: SKIP }, () 
         y.run(40);
         y.set('pr', 1);
         y.run(250);
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): mean(y, 40, () => y.led('led'))
+        // < 0.05 -> observed 3.0952961131336565e-8.
         assert.ok(mean(y, 40, () => y.led('led')) < 0.05, 'on a battery the press does nothing');
     });
 
@@ -231,11 +263,19 @@ describe('lab field and noise benches behave as documented', { skip: SKIP }, () 
         };
         // MEASURED 2026-11-23: rail 6.20..8.71 V at about 9 Hz.
         const bad = swing(1, 0);
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): bad.hi - bad.lo > 2 -> observed
+        // 2.5052295378415392.
         assert.ok(bad.hi - bad.lo > 2, `weak battery: the rail swings ${bad.lo.toFixed(2)}..${bad.hi.toFixed(2)} V`);
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): bad.tone.hz < 20 -> observed
+        // 9.240875435997786; bad.tone.hz > 4 -> observed 9.240875435997786.
         assert.ok(bad.tone.on && bad.tone.hz > 4 && bad.tone.hz < 20, `putt-putt in the speaker: ${JSON.stringify(bad.tone)}`);
         const fresh = swing(0, 0);
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): fresh.hi - fresh.lo < 0.01 ->
+        // observed 0.00016360048055297227.
         assert.ok(fresh.hi - fresh.lo < 0.01, `fresh battery: steady rail ${fresh.lo}..${fresh.hi}`);
         const decoupled = swing(1, 1);
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): decoupled.hi - decoupled.lo <
+        // 0.2 -> observed 0.09755981644818945.
         assert.ok(decoupled.hi - decoupled.lo < 0.2, `decoupled: ${decoupled.lo.toFixed(3)}..${decoupled.hi.toFixed(3)} V, no oscillation`);
         assert.equal(decoupled.tone.on, false, 'and silent');
     });

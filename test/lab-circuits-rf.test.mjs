@@ -102,16 +102,22 @@ describe('lab RF benches (set rf) behave as documented', { skip: SKIP }, () => {
             return sum / 100 * 1e3;
         };
         const m0 = at(0), m45 = at(45), m90 = at(90);
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): x.rf('tc', 'a') < 1e-4 ->
+        // observed 0.0000023579357750055673.
         assert.ok(x.rf('tc', 'a') < 1e-4, `the tank RF in the null: ${x.rf('tc', 'a')} V`);
         const m180 = at(180);
         near(m0, 0.296, 0.03, 'north, rod 0° (mA)');
         near(m45, 0.117, 0.02, 'north, rod 45° (mA)');
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): m90 < 0.005 -> observed
+        // 0.00008119055032675959.
         assert.ok(m90 < 0.005, `north, rod 90°: the null, ${m90.toFixed(4)} mA`);
         near(m180, m0, 0.01, 'the back of the figure eight (mA)');
         x.set('tc', 0.186);
         x.run(40);    // the tank retunes and the 2.2 MΩ / 10 nF bias settles to the new station
         const e270 = at(270), e160 = at(160);
         near(e270, 0.632, 0.05, 'east, rod 270° (mA)');
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): e160 < 0.005 -> observed
+        // 0.00012083789002055313.
         assert.ok(e160 < 0.005, `east, rod 160°: its null, ${e160.toFixed(4)} mA`);
     });
 
@@ -122,11 +128,15 @@ describe('lab RF benches (set rf) behave as documented', { skip: SKIP }, () => {
         x.set('ldr', 0);
         x.run(30);
         assert.equal(x.tone('ep').on, false, 'dark: silent');
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): x.v('qs', 'base') < 0.6 ->
+        // observed 0.4039932793429354.
         assert.ok(x.v('qs', 'base') < 0.6, `dark: the switch's base is low (${x.v('qs', 'base').toFixed(3)} V)`);
         x.set('ldr', 1);
         x.run(60);
         const t = x.tone('ep');
         near(t.hz, 400, 8, 'lit: the 612 kHz station (Hz)');
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): t.amps * 1e3 > 0.2 -> observed
+        // 0.5264874089451862.
         assert.ok(t.amps * 1e3 > 0.2, `lit: audible, ${(t.amps * 1e3).toFixed(3)} mA rms`);
     });
 
@@ -162,6 +172,8 @@ describe('lab RF benches (set rf) behave as documented', { skip: SKIP }, () => {
         assert.ok(top < 0.6 * t.amps * 1e3, `on the top of the curve it fades: ${top.toFixed(3)} mA`);
         x.set('rv', 0.40);
         x.run(40);
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): x.tone('ep').amps * 1e3 < 0.05
+        // -> observed 0.04916386181231458.
         assert.ok(x.tone('ep').amps * 1e3 < 0.05, `far off: ${(x.tone('ep').amps * 1e3).toFixed(3)} mA`);
     });
 
@@ -174,6 +186,8 @@ describe('lab RF benches (set rf) behave as documented', { skip: SKIP }, () => {
         x.run(25);    // t = 45 ms: oscillating, key down
         const on = x.tone('ep');
         assert.ok(on.on, 'past the threshold: the beacon mixes with the oscillation into a tone');
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): on.hz < 6000 -> observed
+        // 4990.966350904862; on.hz > 500 -> observed 4990.966350904862.
         assert.ok(on.hz > 500 && on.hz < 6000, `the difference frequency is audible: ${on.hz.toFixed(0)} Hz`);
         const onAmps = on.amps;
         x.run(55);    // t = 100 ms: the key is up
@@ -192,6 +206,8 @@ describe('lab RF benches (set rf) behave as documented', { skip: SKIP }, () => {
             return { rf: rf / 400, tone: amplitude(tr, 1000) };
         };
         const near = listen(0.5), far = listen(1);
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): near.tone > 5e-3 -> observed
+        // 0.0267668145263122.
         assert.ok(near.tone > 5e-3, `at 0.5 m the 1 kHz audio is there: ${near.tone.toExponential(2)} V`);
         near1(near.rf / far.rf, 8, 2, 'RF ratio 0.5 m : 1 m (near field ∝ 1/d³)');
         assert.ok(near.tone > 30 * far.tone, `the audio falls faster than the RF: ${near.tone.toExponential(2)} vs ${far.tone.toExponential(2)} V`);
@@ -218,8 +234,14 @@ describe('lab RF benches (set rf) behave as documented', { skip: SKIP }, () => {
             return { lo, hi, tone: amplitude(tr, 1000), hiss: (amplitude(tr, 4000 / 3) + amplitude(tr, 2000)) / 2 };
         };
         const on = listen(true), off = listen(false);
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): off.hi > 1.5 -> observed
+        // 2.6071485736677054; on.hi > 1.5 -> observed 2.686790138376889.
         assert.ok(on.hi > 1.5 && off.hi > 1.5, `quench bursts reach volts: ${on.hi.toFixed(2)} / ${off.hi.toFixed(2)} V`);
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): on.lo > 0.03 -> observed
+        // 0.10810514345242235.
         assert.ok(on.lo > 0.03, `with the station each burst starts from its signal: ${on.lo.toFixed(4)} V`);
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): off.lo < 1e-4 -> observed
+        // 7.080317548996925e-8.
         assert.ok(off.lo < 1e-4, `without it, from the noise: ${off.lo.toExponential(2)} V`);
         assert.ok(off.hiss > 3 * on.hiss, `the station quiets the hiss: ${off.hiss.toExponential(2)} vs ${on.hiss.toExponential(2)} V`);
         assert.ok(on.tone > 2 * on.hiss, `and its 1 kHz programme stands out: ${on.tone.toExponential(2)} vs ${on.hiss.toExponential(2)} V`);
