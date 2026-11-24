@@ -5,7 +5,7 @@ prereqs: [lab-mosfet-vcr, lab-opamp-integrator]
 teaches: [integrator, voltage-controlled-resistor, volume-control, analog-memory]
 ---
 ## Was du siehst
-Ein 555 spielt einen Ton in einen Ohrhörer. Dazwischen leitet ein MOSFET den Ton zu seiner Source ab, und ein Operationsverstärker mit Kondensator hält die Spannung am Gate des MOSFETs fest. Zwei Taster: leiser und lauter.
+Ein Operationsverstärker spielt einen Ton in einen Ohrhörer. Dazwischen leitet ein MOSFET den Ton zu seiner Source ab, und ein zweiter Operationsverstärker mit Kondensator hält die Spannung am Gate des MOSFETs fest. Zwei Taster: leiser und lauter.
 
 ## Probier das
 1. Klick auf **Sim** und hör hin: Der Ton ist kaum zu hören.

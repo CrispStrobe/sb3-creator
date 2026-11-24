@@ -1,30 +1,27 @@
 # lab-mosfet-vcr — expected behaviour
 
 ## Circuit
-9 V. A depletion-mode dual-gate MOSFET forms the lower leg of a divider: 4.7 kΩ from +9 V to the drain,
-the source on a red reference LED (kept lit by 2.2 kΩ from +9 V, so the source sits at about 1.66 V).
-Gate 2 is tied to +9 V and stays out of the way. Gate 1 comes through 100 kΩ from a 10 kΩ potentiometer
-spanning ground to the source, so the knob sets the gate between 1.66 V below the source and the
-source itself. A button ties gate 1 directly to the source. The voltmeter reads drain against source.
+9 V. A depletion-mode dual-gate MOSFET with a green LED and 470 Ω in its drain. Its source sits on a red
+reference LED, kept lit by 2.2 kΩ from +9 V, so the source is about 1.7 V above ground. Gate 2 is tied to
++9 V and stays out of the way. Gate 1 comes through 100 kΩ from a 10 kΩ potentiometer that is fed through
+15 kΩ from +9 V (0 to 3.6 V), so the knob takes the gate from about 1.7 V BELOW the source to about 1.8 V
+above it. A button ties gate 1 directly to the source. The voltmeter reads gate against source.
 
 ## Observable behaviour
-- Knob at the bottom (gate 1.66 V below the source): the channel is pinched off, no current, and the
-  meter shows the whole remaining supply, about 7.35 V.
-- Turning up, the channel opens around a third of the travel and its resistance falls smoothly: at mid
-  travel (as loaded) the meter reads about 3.9 V, so the channel is about 5 kΩ.
-- Knob at the top (gate at the source, zero gate voltage): the channel is about 100 Ω and the meter
-  reads about 0.15 V.
-- Press the button with the knob anywhere: the gate is at the source and the reading drops to the
-  same 0.15 V. A depletion MOSFET conducts at zero gate voltage; it needs a NEGATIVE gate voltage
-  to switch off.
+- Knob at the bottom: gate about 1.6 V below the source, beyond pinch-off: the green LED is dark.
+- Turning up, the LED comes on gradually while the gate is still NEGATIVE (from about −1.2 V) and is
+  already bright at zero gate voltage. As loaded (knob 0.4) the gate is about 0.29 V below the source and
+  the LED carries about 4.4 mA.
+- Further up (gate positive) it gets only a little brighter: the 470 Ω resistor then limits the current.
+- The button (gate on the source, V_GS = 0) lights the LED wherever the knob is.
 
 ## What this verifies
-1. The channel is a resistor whose value the gate voltage sets (voltage-controlled resistor).
-2. Depletion mode: conducting at V_GS = 0, pinched off below about −1.2 V.
+1. Depletion mode: conducting at zero gate voltage, pinched off below about −1.2 V.
+2. The gate voltage, negative or positive, sets the channel smoothly from closed to wide open.
 
 ```assert
-# knob at 0.5: gate 0.83 V below the source, channel near 5 kOhm
-net dual_gate_mosfet_4.source V 1.66 +-0.05
-net dual_gate_mosfet_4.gate1 V 0.83 +-0.03
-net voltmeter_10.a V 5.56 +-0.15
+# knob at 0.4: gate 0.29 V below the source
+net dual_gate_mosfet_5.source V 1.73 +-0.05
+net voltmeter_12.a V 1.44 +-0.04
+net dual_gate_mosfet_5.drain V 4.96 +-0.3
 ```

@@ -7,7 +7,7 @@
  * Every number was measured on the headless engine (bw-board r5 branch
  * 2af27386, which adds `dual_gate_mosfet` and `humidity_comb`) when the
  * benches were built; the tolerances are bands around those measurements.
- * The button-volume bench runs a 555 tone, so it keeps its simulated time to
+ * The button-volume bench runs an op-amp tone oscillator, so it keeps its simulated time to
  * about 70 ms.
  */
 import { describe, test } from 'node:test';
@@ -62,49 +62,72 @@ const near = (got, want, tol, what) =>
     assert.ok(Math.abs(got - want) <= tol, `${what}: ${got.toFixed(4)}, expected ${want} +-${tol}`);
 
 describe('lab MOSFET benches behave as documented', { skip: SKIP }, () => {
-    test('lab-mosfet-vcr: the gate voltage sets the channel resistance; zero gate voltage conducts', () => {
-        const x = bench('lab-mosfet-vcr');
+    test('lab-mosfet-current-source: conducting at zero gate voltage, a near-constant current whatever the battery', () => {
+        const x = bench('lab-mosfet-current-source');
         x.run(1);
-        const meter = () => x.v('vm', 'a') - x.v('vm', 'b');
-        const channel = () => 4700 * meter() / (9 - x.v('q', 'source') - meter());
-        // As loaded (knob 0.5): gate 0.83 V below the source, ~3.9 V across a ~5 kΩ channel.
-        near(meter(), 3.90, 0.15, 'mid travel');
-        near(channel() / 1000, 5.3, 0.6, 'channel kΩ at mid travel');
-        // A sweep: pinched at the bottom, then monotonically less resistance.
-        let last = Infinity;
-        for (const pos of [0, 0.2, 0.4, 0.5, 0.6, 0.8, 1]) {
-            x.set('pot', pos); x.run(0.5);
-            assert.ok(meter() <= last + 1e-6, `falls monotonically: ${meter()} at ${pos}`);
-            last = meter();
-        }
-        x.set('pot', 0); x.run(0.5);
-        near(meter(), 7.35, 0.1, 'pinched: the whole rest of the supply');
-        assert.equal(x.state('q').pinchedBy, 'gate1');
-        x.set('pot', 1); x.run(0.5);
-        near(channel(), 100, 15, 'zero gate voltage: about 100 Ω');
-        // The button: gate on the source, from the pinched position.
-        x.set('pot', 0); x.run(0.5);
-        x.set('zero', 1); x.run(0.5);
-        near(x.state('q').vg1s, 0, 0.01, 'V_G1S with the button');
-        near(meter(), 0.15, 0.03, 'depletion mode: conducting at zero gate voltage');
+        near(x.mA('top', 'anode'), 3.79, 0.2, '9 V: LED current (mA)');
+        near(x.mA('bot', 'anode'), x.mA('top', 'anode'), 1e-6, 'same current in the drain and the source lead');
+        const at = (v) => { x.set('bat', v); x.run(0.5); return x.mA('top', 'anode'); };
+        const i45 = at(4.5), i12 = at(12);
+        near(i45, 3.40, 0.2, '4.5 V (mA)');
+        near(i12, 3.88, 0.2, '12 V (mA)');
+        assert.ok(i12 / i45 < 1.2, `the voltage nearly triples, the current rises by under 20 %: ${i45} -> ${i12}`);
+        assert.ok(at(3) < 0.05, 'below the two LED drops: dark');
     });
 
-    test('lab-dual-gate: either gate pinches the channel; the LED is lit only with both gates high', () => {
+    test('lab-mosfet-vcr: the gate swept from negative to positive takes the LED from dark to full', () => {
+        const x = bench('lab-mosfet-vcr');
+        x.run(1);
+        const vgs = () => x.v('vm', 'a') - x.v('vm', 'b');
+        near(vgs(), -0.29, 0.04, 'as loaded: V_G1S');
+        near(x.mA('sig', 'anode'), 4.4, 0.4, 'as loaded: LED current (mA)');
+        let last = -1;
+        const seen = [];
+        for (const pos of [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1]) {
+            x.set('pot', pos); x.run(0.5);
+            const i = x.mA('sig', 'anode');
+            assert.ok(i >= last - 1e-6, `brighter as the gate rises: ${i} at ${pos}`);
+            last = i; seen.push([vgs(), i]);
+        }
+        assert.ok(seen[0][0] < -1.5 && seen[0][1] < 0.001, `bottom: gate ${seen[0][0]} V below the source, dark`);
+        assert.ok(seen[2][0] < -0.8 && seen[2][1] > 0.2, `already conducting with the gate negative: ${seen[2]}`);
+        assert.ok(seen.at(-1)[0] > 1.5 && seen.at(-1)[1] > 9.5, `top: gate positive, full: ${seen.at(-1)}`);
+        x.set('pot', 0); x.run(0.5);
+        x.set('zero', 1); x.run(0.5);
+        near(vgs(), 0, 0.01, 'button: V_G1S = 0');
+        near(x.mA('sig', 'anode'), 7.4, 0.5, 'depletion mode: conducting at zero gate voltage (mA)');
+    });
+
+    test('lab-dual-gate: either gate pinches the channel, the other then has no effect; gate 2 bites sooner', () => {
         const x = bench('lab-dual-gate');
         x.run(1);
-        const truth = {};
-        for (const [p1, p2] of [[0, 0], [1, 0], [0, 1], [1, 1]]) {
-            x.set('s1', p1); x.set('s2', p2); x.run(1);
-            truth[`${p1}${p2}`] = x.mA('sig', 'anode');
-        }
-        near(truth['00'], 10.3, 0.8, 'both gates high: green LED current (mA)');
-        for (const k of ['10', '01', '11']) assert.ok(truth[k] < 0.01, `gates ${k}: dark (${truth[k]} mA)`);
-        x.set('s1', 1); x.set('s2', 0); x.run(1);
-        assert.equal(x.state('q').pinchedBy, 'gate1');
-        x.set('s1', 0); x.set('s2', 1); x.run(1);
+        near(x.mA('sig', 'anode'), 9.4, 0.6, 'both gates high (mA)');
+        const with_ = (p1, p2) => { x.set('p1', p1); x.set('p2', p2); x.run(0.5); return x.mA('sig', 'anode'); };
+        assert.ok(with_(0, 1) < 0.001, 'gate 1 down: dark');
+        assert.ok(with_(1, 0) < 0.001, 'gate 2 down: dark');
+        assert.ok(with_(0, 0.5) < 0.001 && with_(0, 1) < 0.001, 'gate 1 pinched: gate 2 has no effect');
+        const g1mid = with_(0.5, 1), g2mid = with_(1, 0.5);
+        near(g1mid, 7.6, 0.6, 'gate 1 at mid travel (mA)');
+        near(g2mid, 5.8, 0.6, 'gate 2 at mid travel (mA)');
+        assert.ok(g2mid < g1mid, 'gate 2 controls more strongly');
+        with_(1, 1);
+        x.set('b1', 1); x.run(0.5);
+        assert.ok(x.mA('sig', 'anode') < 0.001, 'button 1 grounds gate 1: dark');
+        x.set('b1', 0); x.set('b2', 1); x.run(0.5);
+        assert.ok(x.mA('sig', 'anode') < 0.001, 'button 2 grounds gate 2: dark');
         assert.equal(x.state('q').pinchedBy, 'gate2');
-        // The source stays lifted on its reference LED either way.
-        near(x.v('q', 'source'), 1.65, 0.1, 'source on the reference LED, channel off');
+    });
+
+    test('lab-mosfet-nand: the LED goes out only with both buttons pressed', () => {
+        const x = bench('lab-mosfet-nand');
+        x.run(1);
+        const truth = {};
+        for (const [a, b] of [[0, 0], [1, 0], [0, 1], [1, 1]]) {
+            x.set('a', a); x.set('b', b); x.run(0.5);
+            truth[`${a}${b}`] = x.mA('out', 'anode');
+        }
+        for (const k of ['00', '10', '01']) near(truth[k], 5.36, 0.3, `inputs ${k}: LED lit (mA)`);
+        assert.ok(truth['11'] < 0.01, `both pressed: dark (${truth['11']} mA)`);
     });
 
     test('lab-humidity-comb: dark in room air, lit above about 60 % RH and by breath', () => {
@@ -120,6 +143,28 @@ describe('lab MOSFET benches behave as documented', { skip: SKIP }, () => {
         near(at(0.9), 10.3, 0.8, 'breath: LED current (mA)');
         assert.ok(x.v('q', 'gate1') > 8, 'breath: the gate near the rail');
         assert.ok(at(0.4) < 0.001, 'dry again: dark');
+        // The response knob lifts the source: 65 % no longer switches it on.
+        assert.ok(at(0.65) > 3, '65 % with the knob at zero: on');
+        x.set('set', 0); x.run(0.5);
+        assert.ok(at(0.65) < 0.01, '65 % with 1 kΩ under the source: still dark');
+        assert.ok(at(0.75) > 1.5, '75 %: on again, dimmer');
+    });
+
+    test('lab-hygrometer: the meter reads the comb as a current, scaled by the gain knob', () => {
+        const x = bench('lab-hygrometer');
+        x.run(1);
+        const meter = () => x.v('meter', 'a') - x.v('meter', 'b');
+        near(meter(), 0.27, 0.03, 'room air, gain at half (V)');
+        const at = (rh) => { x.set('comb', rh); x.run(0.5); return meter(); };
+        near(at(0.55), 0.70, 0.07, '55 %');
+        near(at(0.6), 1.84, 0.15, '60 %');
+        // Conductance x10 per 12 % RH: the reading follows R_f / R_comb.
+        near(at(0.62) / at(0.5), 10, 0.5, 'one decade per 12 % RH');
+        x.set('gain', 0); x.run(0.5);
+        near(at(0.6), 3.37, 0.2, 'full gain, 60 %');
+        x.set('gain', 1); x.run(0.5);
+        near(at(0.6), 0.31, 0.04, 'lowest gain, 60 %');
+        near(at(0.7), 2.09, 0.15, 'lowest gain, 70 %');
     });
 
     test('lab-button-volume: buttons step the integrator, the channel sets the volume, the capacitor holds it', () => {

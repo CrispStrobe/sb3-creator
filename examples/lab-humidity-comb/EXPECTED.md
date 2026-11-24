@@ -3,7 +3,8 @@
 ## Circuit
 9 V. A humidity comb (two interleaved copper combs under a salt film) runs from +9 V to gate 1 of a
 depletion-mode dual-gate MOSFET; 100 kΩ pulls gate 1 to ground. Gate 2 is tied to +9 V. A green LED with
-470 Ω sits in the drain, the source on a red reference LED (2.2 kΩ from +9 V, about 1.65 V).
+470 Ω sits in the drain, the source on a red reference LED (2.2 kΩ from +9 V, about 1.65 V) with a 1 kΩ
+"response" rheostat under it, at zero as loaded.
 The comb's film resistance falls about tenfold for every 12 % of relative humidity: about 10 MΩ in room
 air at 50 %, a few kilohms when breathed on.
 
@@ -14,10 +15,14 @@ air at 50 %, a few kilohms when breathed on.
   to glow; by 70 % it is fully on (about 10 mA).
 - Breath (about 90 %): the comb is a few kilohms, the gate sits close to the battery voltage, the LED is
   fully lit. Let the comb dry (slider back down) and the LED goes out again.
+- Turn up the response rheostat: it lifts the source, so the gate must climb higher before the channel
+  opens. With all of it in, the LED only starts to glow at about 70 % and stays dimmer: the knob sets the
+  humidity the detector responds to.
 
 ## What this verifies
 1. A salt film's resistance falls steeply with humidity.
 2. A MOSFET gate draws no current, so even a sensor of many megohms can drive it.
+3. The source potential sets the switching point.
 
 ```assert
 # room air, 50 % RH: gate held low, channel pinched, nothing through the green LED

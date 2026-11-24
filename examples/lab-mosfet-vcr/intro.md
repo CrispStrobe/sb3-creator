@@ -1,21 +1,21 @@
 ---
 level: advanced
 age: 14+
-prereqs: [lab-ce-vs-follower, pc39-nmos-switch]
-teaches: [mosfet, depletion-mode, voltage-controlled-resistor, pinch-off]
+prereqs: [lab-mosfet-current-source]
+teaches: [mosfet, depletion-mode, pinch-off, voltage-controlled-resistor]
 ---
 ## What you see
-A MOSFET with two gates, a 4.7 kΩ resistor above it, a red LED under its source and a knob on its first gate. The voltmeter shows how much of the battery voltage the transistor's channel takes.
+A MOSFET with a green LED in its drain line and a red LED under its source. A knob sets the voltage of its first gate, and a voltmeter shows that gate voltage measured from the source.
 
 ## Try this
-1. Click **Sim**. With the knob in the middle the meter shows a few volts.
-2. Turn the knob slowly down. The reading climbs and stops at its maximum: the channel no longer conducts at all.
-3. Turn it up to the top. The reading falls almost to zero: now the channel is only about a hundred ohms.
-4. Press the button. It connects the gate to the source, so the gate voltage is zero. Does the transistor conduct?
+1. Click **Sim** and read the meter: the gate is a little negative, and the green LED is already on.
+2. Turn the knob all the way down. The gate goes more and more negative, and the LED fades out.
+3. Turn it up slowly and watch the meter: at what gate voltage does the LED start to glow? At what voltage is it fully on?
+4. Press the button. It connects the gate to the source, so the gate voltage is zero. Does the LED light?
 
 ## What is going on
-Between source and drain lies a thin conducting channel. The gate sits on top of it, insulated by a layer of oxide, and its voltage pushes charge carriers out of the channel or pulls them in. In this kind of MOSFET the channel is already there at zero gate voltage: it is a depletion-mode MOSFET. To pinch it off the gate must go more than about 1.2 V below the source. The red LED lifts the source a little above ground, so the knob can reach those negative gate voltages with only one battery. In between, the channel simply behaves like a resistor whose value you set with a voltage.
+Between source and drain lies a thin conducting channel, and the gate sits on top of it, insulated by a layer of oxide. A negative gate pushes the charge carriers out of the channel and narrows it; at about −1.2 V it is pinched off completely. In a depletion-mode MOSFET the channel is already open at zero gate voltage, and a positive gate opens it even wider. To reach negative gate voltages with only one battery, the red LED lifts the source a little above ground: a gate at 0 V is then below the source. In between, the channel behaves like a resistor whose value you set with a voltage.
 
 ## Go further
 - [lab-dual-gate](../lab-dual-gate) — the second gate can pinch the channel too.
-- [lab-button-volume](../lab-button-volume) — the voltage-controlled resistor as a volume control.
+- [lab-button-volume](../lab-button-volume) — the voltage-controlled channel as a volume control.
