@@ -43,7 +43,7 @@ buzzer_tone_hz: 5.02 +- 0.05
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@a685b22` and `bw-circuit-ui@df78c46` — the revisions pinned in
+> `bw-board@20c29a7` and `bw-circuit-ui@6ea2239` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **11 of this page's 17** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;
