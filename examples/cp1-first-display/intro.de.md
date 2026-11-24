@@ -11,9 +11,9 @@ Dieses neu geschriebene Programm hat drei Zellen: `AKO 42` lädt eine Konstante,
 ## Ausprobieren
 
 1. Vergleiche Quelle und Dezimallisting: `04.042`, `02.000`, `09.001`. Jede Zelle enthält ein Befehlsbyte und ein Operandenbyte. Der Punkt trennt beide Werte; er ist kein Dezimalzeichen.
-2. Lade das Programm ins RAM. Wähle mit der PC-Taste des CP1-Monitors Zelle 0 und starte das Lernprogramm mit RUN. Die Ausführen-Schaltfläche des Arbeitsbereichs lässt den 8049 laufen; sie ersetzt nicht die RUN-Taste des Monitors.
+2. Lass nach dem ROM-Import die CPU mit „CPU ausführen“ bis zur stabilen Bereitschaftsanzeige des Monitors laufen. Pausiere die CPU, lade die Zellen und setze die CPU ohne Zurücksetzen fort. Wähle auf der CP1-Tastatur mit PC die Zelle 0 und starte das Lernprogramm mit RUN.
 3. Lies die sechs Segmentanzeigen ab, nachdem die Firmware sie angesteuert hat. Vergleiche den sichtbaren Wert mit 42. Lässt sich ein Muster nicht als Ziffer lesen, notiere das tatsächliche Muster, statt eine Zahl zu raten.
-4. Halte die Schleife mit der STP-Taste des Monitors an. Ändere `VALUE` auf 73, lade erneut, wähle Zelle 0 und wiederhole den Versuch. Vergleiche die RAM-Zellen vor und nach der Änderung.
+4. Halte die Schleife mit STP auf der Tastatur an und pausiere die CPU. Ändere `VALUE` auf 73, lade erneut und setze die CPU ohne Zurücksetzen fort. Wähle dann mit PC auf der Tastatur Zelle 0 und drücke RUN. Vergleiche die RAM-Zellen vor und nach der Änderung.
 
 ## Weshalb die Anzeige wiederholen?
 

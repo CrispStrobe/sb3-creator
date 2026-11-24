@@ -11,9 +11,9 @@ This original program has three cells: `AKO 42` loads a constant, `ANZ` asks the
 ## Try this
 
 1. Inspect the source and its decimal listing: `04.042`, `02.000`, `09.001`. Each cell stores an opcode byte and an operand byte. The dot is a separator, not a decimal fraction.
-2. Load the program into RAM. Use the CP1 monitor's PC key to select cell 0 and RUN to start the teaching program. The host's Run control advances the 8049; it does not replace the monitor's RUN key.
+2. After importing the ROM, use Run CPU until the monitor reaches its stable ready display. Pause CPU, load the cells, then resume with Run CPU without resetting. On the CP1 keypad, use PC to select cell 0 and RUN to start the teaching program.
 3. Read the six segment displays after the firmware has scanned them. Compare the visible value with 42. If a segment pattern cannot be read as a digit, record the actual pattern instead of guessing a number.
-4. Use the monitor's STP key to stop the loop. Change `VALUE` to 73, load again, select cell 0, and repeat. Compare the RAM cells before and after the change.
+4. Stop the loop with keypad STP and pause the CPU. Change `VALUE` to 73, load again, resume the CPU without resetting, then select cell 0 with keypad PC and press RUN. Compare the RAM cells before and after the change.
 
 ## Why repeat the display?
 
