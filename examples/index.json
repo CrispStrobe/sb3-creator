@@ -10828,5 +10828,681 @@
    "introDE": "lab-radio-whistle/intro.de.md"
   },
   "devices": []
+ },
+ {
+  "id": "lab-direction-finder",
+  "title": {
+   "en": "Finding a station's direction with the ferrite rod",
+   "de": "Mit dem Ferritstab die Richtung eines Senders finden"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-direction-finder/program.bw",
+   "circuit": "lab-direction-finder/circuit.json",
+   "expected": "lab-direction-finder/EXPECTED.md",
+   "intro": "lab-direction-finder/intro.md",
+   "introDE": "lab-direction-finder/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-am-music",
+  "title": {
+   "en": "How AM carries music",
+   "de": "Wie AM Musik überträgt"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-am-music/program.bw",
+   "circuit": "lab-am-music/circuit.json",
+   "expected": "lab-am-music/EXPECTED.md",
+   "intro": "lab-am-music/intro.md",
+   "introDE": "lab-am-music/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-dawn-radio",
+  "title": {
+   "en": "The radio that switches on at dawn",
+   "de": "Das Radio, das bei Tagesanbruch einschaltet"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-dawn-radio/program.bw",
+   "circuit": "lab-dawn-radio/circuit.json",
+   "expected": "lab-dawn-radio/EXPECTED.md",
+   "intro": "lab-dawn-radio/intro.md",
+   "introDE": "lab-dawn-radio/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-regen-receiver",
+  "title": {
+   "en": "Regenerative receiver: feedback until it whistles",
+   "de": "Rückkopplungsempfänger: Rückkopplung bis zum Pfeifen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-regen-receiver/program.bw",
+   "circuit": "lab-regen-receiver/circuit.json",
+   "expected": "lab-regen-receiver/EXPECTED.md",
+   "intro": "lab-regen-receiver/intro.md",
+   "introDE": "lab-regen-receiver/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-fm-slope",
+  "title": {
+   "en": "Hearing FM on the slope of a tuned circuit",
+   "de": "UKW auf der Flanke eines Schwingkreises hören"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-fm-slope/program.bw",
+   "circuit": "lab-fm-slope/circuit.json",
+   "expected": "lab-fm-slope/EXPECTED.md",
+   "intro": "lab-fm-slope/intro.md",
+   "introDE": "lab-fm-slope/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-shortwave-regen",
+  "title": {
+   "en": "Short wave and mixing: hearing Morse with your own oscillator",
+   "de": "Kurzwelle und Mischung: Morsezeichen mit dem eigenen Oszillator hören"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-shortwave-regen/program.bw",
+   "circuit": "lab-shortwave-regen/circuit.json",
+   "expected": "lab-shortwave-regen/EXPECTED.md",
+   "intro": "lab-shortwave-regen/intro.md",
+   "introDE": "lab-shortwave-regen/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-am-transmitter",
+  "title": {
+   "en": "AM test transmitter and a receiver across the room",
+   "de": "AM-Prüfsender und ein Empfänger am anderen Ende des Tisches"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-am-transmitter/program.bw",
+   "circuit": "lab-am-transmitter/circuit.json",
+   "expected": "lab-am-transmitter/EXPECTED.md",
+   "intro": "lab-am-transmitter/intro.md",
+   "introDE": "lab-am-transmitter/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-superregen-fm",
+  "title": {
+   "en": "Super-regenerative VHF receiver",
+   "de": "Pendelempfänger für UKW"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 5,
+  "files": {
+   "program": "lab-superregen-fm/program.bw",
+   "circuit": "lab-superregen-fm/circuit.json",
+   "expected": "lab-superregen-fm/EXPECTED.md",
+   "intro": "lab-superregen-fm/intro.md",
+   "introDE": "lab-superregen-fm/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-light-guide",
+  "title": {
+   "en": "Light guide: bends, cuts, colours",
+   "de": "Lichtleiter: Biegungen, Schnitte, Farben"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-light-guide/program.bw",
+   "circuit": "lab-light-guide/circuit.json",
+   "expected": "lab-light-guide/EXPECTED.md",
+   "intro": "lab-light-guide/intro.md",
+   "introDE": "lab-light-guide/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-fibre-tone",
+  "title": {
+   "en": "Light guide sets the pitch",
+   "de": "Lichtleiter stellt die Tonhöhe ein"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-fibre-tone/program.bw",
+   "circuit": "lab-fibre-tone/circuit.json",
+   "expected": "lab-fibre-tone/EXPECTED.md",
+   "intro": "lab-fibre-tone/intro.md",
+   "introDE": "lab-fibre-tone/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-fibre-audio",
+  "title": {
+   "en": "A tone sent through a light guide",
+   "de": "Ein Ton durch den Lichtleiter"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-fibre-audio/program.bw",
+   "circuit": "lab-fibre-audio/circuit.json",
+   "expected": "lab-fibre-audio/EXPECTED.md",
+   "intro": "lab-fibre-audio/intro.md",
+   "introDE": "lab-fibre-audio/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-fibre-fm",
+  "title": {
+   "en": "FM over a light guide (100 kHz)",
+   "de": "FM über den Lichtleiter (100 kHz)"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-fibre-fm/program.bw",
+   "circuit": "lab-fibre-fm/circuit.json",
+   "expected": "lab-fibre-fm/EXPECTED.md",
+   "intro": "lab-fibre-fm/intro.md",
+   "introDE": "lab-fibre-fm/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-fibre-gap-gauge",
+  "title": {
+   "en": "Measuring hundredths of a millimetre with light",
+   "de": "Hundertstel Millimeter mit Licht messen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-fibre-gap-gauge/program.bw",
+   "circuit": "lab-fibre-gap-gauge/circuit.json",
+   "expected": "lab-fibre-gap-gauge/EXPECTED.md",
+   "intro": "lab-fibre-gap-gauge/intro.md",
+   "introDE": "lab-fibre-gap-gauge/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-optical-bench",
+  "title": {
+   "en": "Optical bench: the inverse-square law",
+   "de": "Optische Bank: das Abstandsquadratgesetz"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-optical-bench/program.bw",
+   "circuit": "lab-optical-bench/circuit.json",
+   "expected": "lab-optical-bench/EXPECTED.md",
+   "intro": "lab-optical-bench/intro.md",
+   "introDE": "lab-optical-bench/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-led-heat-light",
+  "title": {
+   "en": "Heat dims an LED, and sharpens a sensor",
+   "de": "Wärme dimmt die LED und schärft den Sensor"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-led-heat-light/program.bw",
+   "circuit": "lab-led-heat-light/circuit.json",
+   "expected": "lab-led-heat-light/EXPECTED.md",
+   "intro": "lab-led-heat-light/intro.md",
+   "introDE": "lab-led-heat-light/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-light-guitar",
+  "title": {
+   "en": "A guitar string played by light",
+   "de": "Eine Gitarrensaite, mit Licht gespielt"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-light-guitar/program.bw",
+   "circuit": "lab-light-guitar/circuit.json",
+   "expected": "lab-light-guitar/EXPECTED.md",
+   "intro": "lab-light-guitar/intro.md",
+   "introDE": "lab-light-guitar/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-colour-sensor",
+  "title": {
+   "en": "Telling red from green with red light",
+   "de": "Rot und Grün mit rotem Licht unterscheiden"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-colour-sensor/program.bw",
+   "circuit": "lab-colour-sensor/circuit.json",
+   "expected": "lab-colour-sensor/EXPECTED.md",
+   "intro": "lab-colour-sensor/intro.md",
+   "introDE": "lab-colour-sensor/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-lens-focus",
+  "title": {
+   "en": "A lens on the bench: finding the image",
+   "de": "Eine Linse auf der Bank: das Bild finden"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-lens-focus/program.bw",
+   "circuit": "lab-lens-focus/circuit.json",
+   "expected": "lab-lens-focus/EXPECTED.md",
+   "intro": "lab-lens-focus/intro.md",
+   "introDE": "lab-lens-focus/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-liquid-level",
+  "title": {
+   "en": "A light beam that knows when the glass is full",
+   "de": "Ein Lichtstrahl, der weiß, wann das Glas voll ist"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-liquid-level/program.bw",
+   "circuit": "lab-liquid-level/circuit.json",
+   "expected": "lab-liquid-level/EXPECTED.md",
+   "intro": "lab-liquid-level/intro.md",
+   "introDE": "lab-liquid-level/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-prism-spectrum",
+  "title": {
+   "en": "Prism and slit: colours of LEDs and a laser",
+   "de": "Prisma und Spalt: die Farben von LEDs und Laser"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-prism-spectrum/program.bw",
+   "circuit": "lab-prism-spectrum/circuit.json",
+   "expected": "lab-prism-spectrum/EXPECTED.md",
+   "intro": "lab-prism-spectrum/intro.md",
+   "introDE": "lab-prism-spectrum/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-voice-fm",
+  "title": {
+   "en": "Speak into the speaker: your voice bends the tone",
+   "de": "Sprich in den Lautsprecher: deine Stimme verbiegt den Ton"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-voice-fm/program.bw",
+   "circuit": "lab-voice-fm/circuit.json",
+   "expected": "lab-voice-fm/EXPECTED.md",
+   "intro": "lab-voice-fm/intro.md",
+   "introDE": "lab-voice-fm/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-feedback-howl",
+  "title": {
+   "en": "Feedback howl: an earphone held over the speaker",
+   "de": "Rückkopplung: ein Ohrhörer über dem Lautsprecher heult"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-feedback-howl/program.bw",
+   "circuit": "lab-feedback-howl/circuit.json",
+   "expected": "lab-feedback-howl/EXPECTED.md",
+   "intro": "lab-feedback-howl/intro.md",
+   "introDE": "lab-feedback-howl/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-ring-relay",
+  "title": {
+   "en": "The telephone rings, the lamp switches on",
+   "de": "Das Telefon klingelt, die Lampe geht an"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-ring-relay/program.bw",
+   "circuit": "lab-ring-relay/circuit.json",
+   "expected": "lab-ring-relay/EXPECTED.md",
+   "intro": "lab-ring-relay/intro.md",
+   "introDE": "lab-ring-relay/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-thermocouple",
+  "title": {
+   "en": "A thermocouple from two wires: match against lighter",
+   "de": "Ein Thermoelement aus zwei Drähten: Streichholz gegen Feuerzeug"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-thermocouple/program.bw",
+   "circuit": "lab-thermocouple/circuit.json",
+   "expected": "lab-thermocouple/EXPECTED.md",
+   "intro": "lab-thermocouple/intro.md",
+   "introDE": "lab-thermocouple/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-magnet-drop",
+  "title": {
+   "en": "Drop a magnet through a coil: the pulse flips a flip-flop",
+   "de": "Ein Magnet fällt durch eine Spule: der Impuls kippt ein Flipflop"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-magnet-drop/program.bw",
+   "circuit": "lab-magnet-drop/circuit.json",
+   "expected": "lab-magnet-drop/EXPECTED.md",
+   "intro": "lab-magnet-drop/intro.md",
+   "introDE": "lab-magnet-drop/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-coil-compass",
+  "title": {
+   "en": "The magnetic field of a hand-wound coil",
+   "de": "Das Magnetfeld einer selbstgewickelten Spule"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 1,
+  "files": {
+   "program": "lab-coil-compass/program.bw",
+   "circuit": "lab-coil-compass/circuit.json",
+   "expected": "lab-coil-compass/EXPECTED.md",
+   "intro": "lab-coil-compass/intro.md",
+   "introDE": "lab-coil-compass/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-metal-detector",
+  "title": {
+   "en": "Beat-frequency metal detector with a hand-wound coil",
+   "de": "Schwebungs-Metallsuchgerät mit selbstgewickelter Spule"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-metal-detector/program.bw",
+   "circuit": "lab-metal-detector/circuit.json",
+   "expected": "lab-metal-detector/EXPECTED.md",
+   "intro": "lab-metal-detector/intro.md",
+   "introDE": "lab-metal-detector/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-tongue-battery",
+  "title": {
+   "en": "A battery on the tongue: electrolysis you can taste",
+   "de": "Eine Batterie auf der Zunge: Elektrolyse, die man schmeckt"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-tongue-battery/program.bw",
+   "circuit": "lab-tongue-battery/circuit.json",
+   "expected": "lab-tongue-battery/EXPECTED.md",
+   "intro": "lab-tongue-battery/intro.md",
+   "introDE": "lab-tongue-battery/intro.de.md"
+  }
+ },
+ {
+  "id": "lab-noise-hiss",
+  "title": {
+   "en": "Noise from a broken-down junction",
+   "de": "Rauschen aus einem durchgebrochenen Übergang"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-noise-hiss/program.bw",
+   "circuit": "lab-noise-hiss/circuit.json",
+   "expected": "lab-noise-hiss/EXPECTED.md",
+   "intro": "lab-noise-hiss/intro.md",
+   "introDE": "lab-noise-hiss/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-steam-train",
+  "title": {
+   "en": "Steam train: noise switched on and off",
+   "de": "Dampflok: Rauschen an und aus"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-steam-train/program.bw",
+   "circuit": "lab-steam-train/circuit.json",
+   "expected": "lab-steam-train/EXPECTED.md",
+   "intro": "lab-steam-train/intro.md",
+   "introDE": "lab-steam-train/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-noise-drum",
+  "title": {
+   "en": "Brush drum: a burst of noise that fades",
+   "de": "Besentrommel: ein Rauschstoß, der verklingt"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-noise-drum/program.bw",
+   "circuit": "lab-noise-drum/circuit.json",
+   "expected": "lab-noise-drum/EXPECTED.md",
+   "intro": "lab-noise-drum/intro.md",
+   "introDE": "lab-noise-drum/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-hum-finder",
+  "title": {
+   "en": "Hum finder: where is the cable in the wall?",
+   "de": "Brummsucher: wo liegt die Leitung in der Wand?"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-hum-finder/program.bw",
+   "circuit": "lab-hum-finder/circuit.json",
+   "expected": "lab-hum-finder/EXPECTED.md",
+   "intro": "lab-hum-finder/intro.md",
+   "introDE": "lab-hum-finder/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-body-hum",
+  "title": {
+   "en": "Your body hums",
+   "de": "Dein Körper brummt"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-body-hum/program.bw",
+   "circuit": "lab-body-hum/circuit.json",
+   "expected": "lab-body-hum/EXPECTED.md",
+   "intro": "lab-body-hum/intro.md",
+   "introDE": "lab-body-hum/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-static-detector",
+  "title": {
+   "en": "Static charge detector",
+   "de": "Detektor für elektrische Ladung"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-static-detector/program.bw",
+   "circuit": "lab-static-detector/circuit.json",
+   "expected": "lab-static-detector/EXPECTED.md",
+   "intro": "lab-static-detector/intro.md",
+   "introDE": "lab-static-detector/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-mosfet-field",
+  "title": {
+   "en": "MOSFET feels a charge",
+   "de": "Der MOSFET spürt eine Ladung"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-mosfet-field/program.bw",
+   "circuit": "lab-mosfet-field/circuit.json",
+   "expected": "lab-mosfet-field/EXPECTED.md",
+   "intro": "lab-mosfet-field/intro.md",
+   "introDE": "lab-mosfet-field/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-electroscope",
+  "title": {
+   "en": "Electronic electroscope: how much charge, and which sign",
+   "de": "Elektronisches Elektroskop: wie viel Ladung, und welches Vorzeichen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-electroscope/program.bw",
+   "circuit": "lab-electroscope/circuit.json",
+   "expected": "lab-electroscope/EXPECTED.md",
+   "intro": "lab-electroscope/intro.md",
+   "introDE": "lab-electroscope/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-touch-paper",
+  "title": {
+   "en": "Touch through paper",
+   "de": "Berührung durch Papier"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-touch-paper/program.bw",
+   "circuit": "lab-touch-paper/circuit.json",
+   "expected": "lab-touch-paper/EXPECTED.md",
+   "intro": "lab-touch-paper/intro.md",
+   "introDE": "lab-touch-paper/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-motorboat",
+  "title": {
+   "en": "Motor-boating: when the battery makes the amplifier oscillate",
+   "de": "Motorbooten: wenn die Batterie den Verstärker schwingen lässt"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-motorboat/program.bw",
+   "circuit": "lab-motorboat/circuit.json",
+   "expected": "lab-motorboat/EXPECTED.md",
+   "intro": "lab-motorboat/intro.md",
+   "introDE": "lab-motorboat/intro.de.md"
+  },
+  "devices": []
  }
 ]

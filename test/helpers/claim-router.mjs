@@ -392,6 +392,13 @@ export function route (claim) {
 
     const cannot = unsettable(`${prose} ${pre} ${tctx}`);
     if (cannot) return { decline: cannot };
+    // A field probe's knob is a HAND MOVING (bw-board src/fields.js): the
+    // induced current exists only while the source moves over moveSeconds,
+    // and a static charge depends on the path taken. One solve at a control
+    // value is not the state the document describes;
+    // test/lab-circuits-fields.test.mjs scripts those runs.
+    if (claim.section !== 'Circuit' && (bench.parts || []).some(p => p.kind === 'field_probe'))
+        return { decline: 'the operating point is a field-probe stimulus — a hand moving a charged object, a cable or a finger over time — which this gate cannot set with one solve; the bench\'s scenario test drives it' };
 
     // The previous line is context for JUDGING a claim, never for setting the
     // operating point: 73-voltmeter's "Pot at 50 %" bullet follows an "All pots

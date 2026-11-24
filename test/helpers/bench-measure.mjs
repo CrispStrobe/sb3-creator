@@ -50,6 +50,15 @@ const CLOCKED_KIND = /^(timer_555|timer_|crystal|oscillator)/i;
 /** Parts whose output is an input this gate has no channel to supply. */
 const DRIVEN_KIND = /^(sound_module|microphone|function_gen)/i;
 
+/** A transducer whose input is a physical quantity the learner sets (see benchClass). */
+const SENSING_KIND = new Set(['thermocouple', 'air_coil', 'electrolysis_cell']);
+function isSensingTransducer (p) {
+    if (SENSING_KIND.has(p.kind)) return true;
+    if (p.kind !== 'speaker' && p.kind !== 'earphone') return false;
+    const q = p.params || {};
+    return q.listen === true || q.soundDb !== undefined || q.soundWave !== undefined || (typeof q.hears === 'string' && q.hears !== '');
+}
+
 /** Parts whose current out of the named terminal is the bench's supply current. */
 const SUPPLY_TERMINAL = { vcc: 'vcc', vsource: 'pos', battery: 'pos' };
 
@@ -83,6 +92,14 @@ export function benchClass (data) {
         return 'radio bench — the antenna receives a modulated broadcast, so the claim is about RF and audio over time and a solve is an instant';
     if (kinds.some(k => DRIVEN_KIND.test(k)))
         return 'the bench is driven by a module whose output level is an input this gate cannot set';
+    // Sensing transducers (bw-board acoustics.js, sensing-transducers.js): what
+    // such a bench is about is a physical input the learner sets — sound at a
+    // listening speaker or earphone, heat at a thermocouple's junction, a
+    // magnet falling through or metal near a coil, an electrolyte polarising
+    // over milliseconds — and its readouts live on the device state. This gate
+    // has no channel to set those inputs, and a solve at 2 ms is an instant.
+    if ((data.parts || []).some(isSensingTransducer))
+        return 'sensing-transducer bench — sound, heat, a falling magnet, metal or electrolysis is an input this gate cannot set, and its readouts are on the device state';
     if ((data.parts || []).some(p => p.kind === 'vsource' && (p.params?.wave || p.params?.freq)))
         return 'driven bench — the source is a waveform, so a solve is an instant';
     return null;
@@ -424,6 +441,10 @@ export function declaredPool (dir) {
     return pool;
 }
 
+/** bw-board src/fields.js PROBE_DEFAULTS, the values a probe that omits them runs on. */
+const FIELD_PROBE_DEFAULTS = Object.freeze({ maxFarads: 2e-12, strayFarads: 5e-12, paperFarads: 20e-12,
+    commonFarads: 50e-12, adaptorFarads: 0, bodyMainsFarads: 3e-12, bodyEarthFarads: 150e-12, mainsVolts: 230 });
+
 function poolOf (data) {
     const pool = { ohm: new Set(), cap: new Set(), ind: new Set(), vf: new Set(), supply: new Set() };
     for (const p of data.parts || []) {
@@ -436,6 +457,18 @@ function poolOf (data) {
         // A part's default is as much a declaration as an explicit value.
         if (p.kind === 'led' && q.vf === undefined) pool.vf.add(2.0);
         if (p.kind === 'diode' && q.vf === undefined) pool.vf.add(0.7);
+        // Reverse breakdown (bw-board src/fields.js) is a declared voltage too.
+        for (const k of ['bvEbo', 'bv']) if (typeof q[k] === 'number') pool.vf.add(q[k]);
+        // A field probe's room: its couplings and the sources it couples to,
+        // explicit or the engine's defaults (FIELD_PROBE_DEFAULTS).
+        if (p.kind === 'field_probe') {
+            const d = FIELD_PROBE_DEFAULTS;
+            for (const k of ['maxFarads', 'strayFarads', 'paperFarads', 'commonFarads', 'adaptorFarads', 'bodyMainsFarads', 'bodyEarthFarads'])
+                pool.cap.add(typeof q[k] === 'number' ? q[k] : d[k]);
+            pool.supply.add(typeof q.mainsVolts === 'number' ? q.mainsVolts : d.mainsVolts);
+            if (typeof q.rodVolts === 'number') pool.supply.add(Math.abs(q.rodVolts));
+            if (typeof q.skinOhms === 'number') pool.ohm.add(q.skinOhms);
+        }
     }
     if (typeof data.vcc === 'number') pool.supply.add(data.vcc);
     // A `vcc` part with no `volts` is not undeclared: BoardImpl's

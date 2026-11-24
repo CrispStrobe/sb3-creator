@@ -273,6 +273,14 @@ const KNOWN_INERT = new Map([
 
     // Read by the model, but no shipped bench reaches the state that uses it.
     ['zener.vf',    'BLIND SPOT: the zener benches operate in reverse breakdown, where vz sets the voltage and vf does not.'],
+    ['field_probe.rodVolts',
+        'BLIND SPOT: bw-board src/fields.js reads it as the charged ruler\'s potential, which only couples while the '
+        + 'probe\'s knob is above 0; every charge bench starts with the ruler far away (position 0), and the induced '
+        + 'charge is a path in time (a hand moving), not one solve. test/lab-circuits-fields.test.mjs moves the knob and '
+        + 'flips rodVolts\' sign (lab-electroscope).'],
+    ['field_probe.skinOhms',
+        'BLIND SPOT: the finger\'s skin contact is skinOhms/position, open at the knob\'s rest position 0 '
+        + '(lab-body-hum starts untouched); test/lab-circuits-fields.test.mjs touches the plate.'],
     ['relay.switchTimeMs','BLIND SPOT: read by the relay model; no probed bench transitions the coil inside the probe window.'],
     ['ssd1306.address',   'BLIND SPOT: read by the I2C address decoder; the probe drives no I2C traffic.'],
     // The sensor PARTs' bench stimulus (2026-10-05). Each answers only to a
@@ -280,6 +288,22 @@ const KNOWN_INERT = new Map([
     // conversion. test/chain-sensors.test.mjs moves both on the emulated chips
     // (5-300 cm and -10.5-85 C read back exactly on nine boards).
     ['ultrasonic.distance', 'BLIND SPOT: read when TRIG falls; the probe sends no trigger. chain-sensors moves it.'],
+    // Optics benches (bw-board optics.js). The heater of lab-led-heat-light is
+    // behind a slide switch that is off as authored, and its parts warm with a
+    // 1.5 s time constant: nothing heats within this probe's 20 ms.
+    ['led.heatedBy', 'BLIND SPOT: lab-led-heat-light heats only after its slide switch closes, over seconds; test/lab-circuits-optics.test.mjs measures it.'],
+    ['led.thermalCoupling', 'BLIND SPOT: as led.heatedBy — no heat flows at the authored, switched-off state.'],
+    ['phototransistor.heatedBy', 'BLIND SPOT: as led.heatedBy, the heated phototransistor of lab-led-heat-light.'],
+    ['phototransistor.thermalCoupling', 'BLIND SPOT: as led.heatedBy.'],
+    ['phototransistor.thermalTau', 'BLIND SPOT: as led.heatedBy — a time constant of an unheated part.'],
+    ['light_path.cutQuality', 'BLIND SPOT: lab-light-guide authors clean cuts (1), the top of the 0..1 range; every larger perturbation clamps to 1. lab-circuits-optics sets 0 and measures it.'],
+    ['light_path.shield', 'BLIND SPOT: shield scales ROOM light at the receiver, and lab-light-guide authors none (0); lab-circuits-optics adds room light and measures the shield.'],
+    ['light_path.material', 'BLIND SPOT: read as a dispersion table name; a perturbed unknown name falls back to acrylic, the authored value, so no string perturbation can move it.'],
+    ['air_coil.dropHeightM', 'BLIND SPOT: the magnet falls only after a drop (setControl verb or params.drops), and lab-magnet-drop authors none, so the coil carries no EMF at either probe instant. lab-circuits-8 drops it and times the pulse.'],
+    ['air_coil.magnetAm2', 'BLIND SPOT: same as dropHeightM: without a drop the magnet never moves and its moment induces nothing. lab-circuits-8 drops it and times the pulse.'],
+    ['speaker.ringOnS', 'BLIND SPOT: a ring cadence starts with a burst at t = 0 and lab-ring-relay rings for 1 s; the probe reads 1 and 20 ms, inside the first burst, where neither the burst length nor the pause can show. lab-circuits-8 runs the cadence for seconds.'],
+    ['speaker.ringOffS', 'BLIND SPOT: the pause after the first 1 s burst; the probe never leaves the first burst (see ringOnS). lab-circuits-8 runs the cadence for seconds.'],
+    ['thermocouple.ohms', 'BLIND SPOT: lab-thermocouple feeds the junction straight into an LM358 input, which draws no current, so the series resistance drops nothing. Read whenever the thermocouple drives a load.'],
     ['ds18b20.temperature', 'BLIND SPOT: read when a READ SCRATCHPAD follows a conversion; the probe drives no 1-Wire. chain-sensors moves it.'],
 ]);
 
@@ -351,13 +375,19 @@ describe('circuit params, tier 2: the key moves a real bench', { skip: SKIP }, (
         // on four independent benches: pc24-light-gate and pc48-ldr-comparator
         // (rLight) and pc33-thermistor-divider and pc55-ntc-indicator (rHot)
         // are all INERT at the authored control and all LIVE at control 1.
-        const CONTROLLED = new Set(['button', 'switch', 'ldr', 'ntc']);
+        //
+        // A light path's knob (bw-board optics.js) is the same kind of control:
+        // it moves the geometry param named by params.knob between knobMin and
+        // knobMax, so knob/knobMin/knobMax are inert until it is turned. It is
+        // driven to mid-range, where both ends of the range still matter.
+        const CONTROLLED = new Set(['button', 'switch', 'ldr', 'ntc', 'light_path']);
+        const DRIVE_TO = { light_path: 0.5 };
         const controls = (circuit.parts || []).filter(p => CONTROLLED.has(p.kind));
         const last = TIMES[TIMES.length - 1];
         const sweep = [...TIMES.map(t => [false, t]),
             ...(controls.length ? TIMES.map(t => [true, t + last]) : [])];
         for (const [driven, ms] of sweep) {
-            if (driven) for (const c of controls) board.setControl(c.id, 1);
+            if (driven) for (const c of controls) board.setControl(c.id, DRIVE_TO[c.kind] ?? 1);
             board.advanceTo(BigInt(Math.round(ms * 1e6)));
             const frame = {};
             for (const net of (circuit.nets || board.getNets())) {
@@ -402,6 +432,18 @@ describe('circuit params, tier 2: the key moves a real bench', { skip: SKIP }, (
         : (v && typeof v === 'object') ? { ...v, __zz: 1 }
         : 'ZZ';
 
+    // Keys perturbed DOWN instead of out by 3.7x + 1. ferrite_coil.couplingRatio
+    // is the coupling winding's turns ratio, authored 0.02..0.25 on the radio
+    // benches. Taken past 1 it gives the regenerative stages so much feedback
+    // that bw-board 20c29a7 never finishes the 20 ms solve: MEASURED on
+    // lab-am-transmitter (0.02 -> 1.074) the first millisecond took 24 s and the
+    // heap passed 3 GB, and the whole gate died at the 4 GB heap limit. That is
+    // an engine defect (a runaway solve should end in a refusal, not unbounded
+    // memory); halving the ratio still asks whether the key is read.
+    const PERTURB_BY_KEY = new Map([
+        ['ferrite_coil.couplingRatio', (v) => (typeof v === 'number' && v > 0 ? v / 2 : perturb(v))],
+    ]);
+
     // The AUTHORED bench first: a retargeted or flat twin often has no firmware
     // driving it, so nothing moves there whatever the key does. Ordering by
     // observability is what stops "no current flows in this bench" from being
@@ -442,7 +484,7 @@ describe('circuit params, tier 2: the key moves a real bench', { skip: SKIP }, (
                 const part = mutated.parts.find(p => p.id === site.partId);
                 if (!part) continue;
                 probed++;
-                part.params[key] = perturb(part.params[key]);
+                part.params[key] = (PERTURB_BY_KEY.get(id) || perturb)(part.params[key]);
                 // Throwing IS a response: the engine read the value.
                 let after;
                 try { after = observe(mutated); } catch { moved = true; break; }
