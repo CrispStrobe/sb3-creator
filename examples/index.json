@@ -10828,5 +10828,185 @@
    "introDE": "lab-radio-whistle/intro.de.md"
   },
   "devices": []
+ },
+ {
+  "id": "lab-noise-hiss",
+  "title": {
+   "en": "Noise from a broken-down junction",
+   "de": "Rauschen aus einem durchgebrochenen Übergang"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-noise-hiss/program.bw",
+   "circuit": "lab-noise-hiss/circuit.json",
+   "expected": "lab-noise-hiss/EXPECTED.md",
+   "intro": "lab-noise-hiss/intro.md",
+   "introDE": "lab-noise-hiss/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-steam-train",
+  "title": {
+   "en": "Steam train: noise switched on and off",
+   "de": "Dampflok: Rauschen an und aus"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-steam-train/program.bw",
+   "circuit": "lab-steam-train/circuit.json",
+   "expected": "lab-steam-train/EXPECTED.md",
+   "intro": "lab-steam-train/intro.md",
+   "introDE": "lab-steam-train/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-noise-drum",
+  "title": {
+   "en": "Brush drum: a burst of noise that fades",
+   "de": "Besentrommel: ein Rauschstoß, der verklingt"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-noise-drum/program.bw",
+   "circuit": "lab-noise-drum/circuit.json",
+   "expected": "lab-noise-drum/EXPECTED.md",
+   "intro": "lab-noise-drum/intro.md",
+   "introDE": "lab-noise-drum/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-hum-finder",
+  "title": {
+   "en": "Hum finder: where is the cable in the wall?",
+   "de": "Brummsucher: wo liegt die Leitung in der Wand?"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-hum-finder/program.bw",
+   "circuit": "lab-hum-finder/circuit.json",
+   "expected": "lab-hum-finder/EXPECTED.md",
+   "intro": "lab-hum-finder/intro.md",
+   "introDE": "lab-hum-finder/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-body-hum",
+  "title": {
+   "en": "Your body hums",
+   "de": "Dein Körper brummt"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-body-hum/program.bw",
+   "circuit": "lab-body-hum/circuit.json",
+   "expected": "lab-body-hum/EXPECTED.md",
+   "intro": "lab-body-hum/intro.md",
+   "introDE": "lab-body-hum/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-static-detector",
+  "title": {
+   "en": "Static charge detector",
+   "de": "Detektor für elektrische Ladung"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-static-detector/program.bw",
+   "circuit": "lab-static-detector/circuit.json",
+   "expected": "lab-static-detector/EXPECTED.md",
+   "intro": "lab-static-detector/intro.md",
+   "introDE": "lab-static-detector/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-mosfet-field",
+  "title": {
+   "en": "MOSFET feels a charge",
+   "de": "Der MOSFET spürt eine Ladung"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-mosfet-field/program.bw",
+   "circuit": "lab-mosfet-field/circuit.json",
+   "expected": "lab-mosfet-field/EXPECTED.md",
+   "intro": "lab-mosfet-field/intro.md",
+   "introDE": "lab-mosfet-field/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-electroscope",
+  "title": {
+   "en": "Electronic electroscope: how much charge, and which sign",
+   "de": "Elektronisches Elektroskop: wie viel Ladung, und welches Vorzeichen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-electroscope/program.bw",
+   "circuit": "lab-electroscope/circuit.json",
+   "expected": "lab-electroscope/EXPECTED.md",
+   "intro": "lab-electroscope/intro.md",
+   "introDE": "lab-electroscope/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-touch-paper",
+  "title": {
+   "en": "Touch through paper",
+   "de": "Berührung durch Papier"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-touch-paper/program.bw",
+   "circuit": "lab-touch-paper/circuit.json",
+   "expected": "lab-touch-paper/EXPECTED.md",
+   "intro": "lab-touch-paper/intro.md",
+   "introDE": "lab-touch-paper/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-motorboat",
+  "title": {
+   "en": "Motor-boating: when the battery makes the amplifier oscillate",
+   "de": "Motorbooten: wenn die Batterie den Verstärker schwingen lässt"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-motorboat/program.bw",
+   "circuit": "lab-motorboat/circuit.json",
+   "expected": "lab-motorboat/EXPECTED.md",
+   "intro": "lab-motorboat/intro.md",
+   "introDE": "lab-motorboat/intro.de.md"
+  },
+  "devices": []
  }
 ]

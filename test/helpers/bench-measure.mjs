@@ -424,6 +424,10 @@ export function declaredPool (dir) {
     return pool;
 }
 
+/** bw-board src/fields.js PROBE_DEFAULTS, the values a probe that omits them runs on. */
+const FIELD_PROBE_DEFAULTS = Object.freeze({ maxFarads: 2e-12, strayFarads: 5e-12, paperFarads: 20e-12,
+    commonFarads: 50e-12, adaptorFarads: 0, bodyMainsFarads: 3e-12, bodyEarthFarads: 150e-12, mainsVolts: 230 });
+
 function poolOf (data) {
     const pool = { ohm: new Set(), cap: new Set(), ind: new Set(), vf: new Set(), supply: new Set() };
     for (const p of data.parts || []) {
@@ -436,6 +440,18 @@ function poolOf (data) {
         // A part's default is as much a declaration as an explicit value.
         if (p.kind === 'led' && q.vf === undefined) pool.vf.add(2.0);
         if (p.kind === 'diode' && q.vf === undefined) pool.vf.add(0.7);
+        // Reverse breakdown (bw-board src/fields.js) is a declared voltage too.
+        for (const k of ['bvEbo', 'bv']) if (typeof q[k] === 'number') pool.vf.add(q[k]);
+        // A field probe's room: its couplings and the sources it couples to,
+        // explicit or the engine's defaults (FIELD_PROBE_DEFAULTS).
+        if (p.kind === 'field_probe') {
+            const d = FIELD_PROBE_DEFAULTS;
+            for (const k of ['maxFarads', 'strayFarads', 'paperFarads', 'commonFarads', 'adaptorFarads', 'bodyMainsFarads', 'bodyEarthFarads'])
+                pool.cap.add(typeof q[k] === 'number' ? q[k] : d[k]);
+            pool.supply.add(typeof q.mainsVolts === 'number' ? q.mainsVolts : d.mainsVolts);
+            if (typeof q.rodVolts === 'number') pool.supply.add(Math.abs(q.rodVolts));
+            if (typeof q.skinOhms === 'number') pool.ohm.add(q.skinOhms);
+        }
     }
     if (typeof data.vcc === 'number') pool.supply.add(data.vcc);
     // A `vcc` part with no `volts` is not undeclared: BoardImpl's
