@@ -29,10 +29,10 @@
       "id": "air_coil_3",
       "kind": "air_coil",
       "params": {
-        "turns": 1000,
+        "turns": 30,
         "radiusM": 0.05,
-        "lengthM": 0.03,
-        "wireMm": 0.3
+        "lengthM": 0.02,
+        "wireMm": 0.5
       },
       "x": 135,
       "y": 345,
@@ -53,7 +53,7 @@
       "id": "capacitor_4",
       "kind": "capacitor",
       "params": {
-        "farads": 1e-7
+        "farads": 2.2e-8
       },
       "x": 121,
       "y": 495,
@@ -74,7 +74,7 @@
       "id": "capacitor_5",
       "kind": "capacitor",
       "params": {
-        "farads": 0.000001
+        "farads": 2.2e-7
       },
       "x": 163,
       "y": 495,
@@ -199,31 +199,38 @@
       ]
     },
     {
-      "id": "inductor_11",
-      "kind": "inductor",
+      "id": "ferrite_coil_11",
+      "kind": "ferrite_coil",
       "params": {
-        "henries": 0.175
+        "henrys": 0.00014,
+        "q": 60
       },
-      "x": 387,
+      "x": 394,
       "y": 345,
       "rotation": 0,
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
           "a": "a21",
-          "b": "a24"
+          "tap": "a22",
+          "b": "a23",
+          "c1": "a24",
+          "c2": "a25"
         }
       },
       "terminals": [
         "a",
-        "b"
+        "tap",
+        "b",
+        "c1",
+        "c2"
       ]
     },
     {
       "id": "capacitor_12",
       "kind": "capacitor",
       "params": {
-        "farads": 1e-7
+        "farads": 2.2e-8
       },
       "x": 373,
       "y": 495,
@@ -244,7 +251,7 @@
       "id": "capacitor_13",
       "kind": "capacitor",
       "params": {
-        "farads": 0.000001
+        "farads": 2.2e-7
       },
       "x": 415,
       "y": 495,
@@ -267,15 +274,15 @@
       "params": {
         "beta": 100
       },
-      "x": 450,
+      "x": 464,
       "y": 345,
       "rotation": 0,
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "emitter": "a26",
-          "base": "a27",
-          "collector": "a28"
+          "emitter": "a27",
+          "base": "a28",
+          "collector": "a29"
         }
       },
       "terminals": [
@@ -311,14 +318,14 @@
       "params": {
         "ohms": 22000
       },
-      "x": 520,
+      "x": 534,
       "y": 345,
       "rotation": 0,
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "a": "a30",
-          "b": "a34"
+          "a": "a31",
+          "b": "a35"
         }
       },
       "terminals": [
@@ -353,14 +360,14 @@
       "params": {
         "farads": 0.000001
       },
-      "x": 583,
+      "x": 597,
       "y": 345,
       "rotation": 0,
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "a": "a36",
-          "b": "a37"
+          "a": "a37",
+          "b": "a38"
         }
       },
       "terminals": [
@@ -375,13 +382,13 @@
         "farads": 1e-9
       },
       "x": 625,
-      "y": 345,
+      "y": 495,
       "rotation": 0,
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "a": "a39",
-          "b": "a40"
+          "a": "j39",
+          "b": "j40"
         }
       },
       "terminals": [
@@ -395,14 +402,14 @@
       "params": {
         "ohms": 100000
       },
-      "x": 646,
-      "y": 495,
+      "x": 660,
+      "y": 345,
       "rotation": 0,
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "a": "j39",
-          "b": "j43"
+          "a": "a40",
+          "b": "a44"
         }
       },
       "terminals": [
@@ -417,13 +424,13 @@
         "farads": 1e-9
       },
       "x": 667,
-      "y": 345,
+      "y": 495,
       "rotation": 0,
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "a": "a42",
-          "b": "a43"
+          "a": "j42",
+          "b": "j43"
         }
       },
       "terminals": [
@@ -433,27 +440,6 @@
     },
     {
       "id": "resistor_22",
-      "kind": "resistor",
-      "params": {
-        "ohms": 100000
-      },
-      "x": 730,
-      "y": 345,
-      "rotation": 0,
-      "seat": {
-        "boardId": "breadboard_1",
-        "leadMap": {
-          "a": "a45",
-          "b": "a49"
-        }
-      },
-      "terminals": [
-        "a",
-        "b"
-      ]
-    },
-    {
-      "id": "resistor_23",
       "kind": "resistor",
       "params": {
         "ohms": 100000
@@ -474,19 +460,40 @@
       ]
     },
     {
+      "id": "resistor_23",
+      "kind": "resistor",
+      "params": {
+        "ohms": 100000
+      },
+      "x": 744,
+      "y": 345,
+      "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "a": "a46",
+          "b": "a50"
+        }
+      },
+      "terminals": [
+        "a",
+        "b"
+      ]
+    },
+    {
       "id": "diode_24",
       "kind": "diode",
       "params": {
         "part": "1N34A"
       },
       "x": 800,
-      "y": 345,
+      "y": 495,
       "rotation": 0,
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "anode": "a51",
-          "cathode": "a53"
+          "anode": "j51",
+          "cathode": "j53"
         }
       },
       "terminals": [
@@ -498,16 +505,16 @@
       "id": "capacitor_25",
       "kind": "capacitor",
       "params": {
-        "farads": 2.2e-8
+        "farads": 1e-9
       },
-      "x": 793,
-      "y": 495,
+      "x": 807,
+      "y": 345,
       "rotation": 0,
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "a": "j51",
-          "b": "j52"
+          "a": "a52",
+          "b": "a53"
         }
       },
       "terminals": [
@@ -521,14 +528,14 @@
       "params": {
         "ohms": 100000
       },
-      "x": 856,
-      "y": 495,
+      "x": 870,
+      "y": 345,
       "rotation": 0,
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "a": "j54",
-          "b": "j58"
+          "a": "a55",
+          "b": "a59"
         }
       },
       "terminals": [
@@ -543,13 +550,13 @@
         "type": "crystal"
       },
       "x": 863,
-      "y": 345,
+      "y": 495,
       "rotation": 0,
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "a": "a56",
-          "b": "a57"
+          "a": "j56",
+          "b": "j57"
         }
       },
       "terminals": [
@@ -618,8 +625,8 @@
     {
       "ref": "bbw:breadboard_1:bbw_5",
       "boardId": "breadboard_1",
-      "a": "b30",
-      "b": "t+30",
+      "a": "b31",
+      "b": "t+31",
       "color": "red"
     },
     {
@@ -640,7 +647,7 @@
       "ref": "bbw:breadboard_1:bbw_9",
       "boardId": "breadboard_1",
       "a": "d10",
-      "b": "e39",
+      "b": "f39",
       "color": "blue"
     },
     {
@@ -689,21 +696,21 @@
       "ref": "bbw:breadboard_1:bbw_16",
       "boardId": "breadboard_1",
       "a": "f21",
-      "b": "e24",
+      "b": "e23",
       "color": "orange"
     },
     {
       "ref": "bbw:breadboard_1:bbw_17",
       "boardId": "breadboard_1",
-      "a": "d24",
-      "b": "e28",
+      "a": "d23",
+      "b": "e29",
       "color": "orange"
     },
     {
       "ref": "bbw:breadboard_1:bbw_18",
       "boardId": "breadboard_1",
-      "a": "d28",
-      "b": "e42",
+      "a": "d29",
+      "b": "f42",
       "color": "orange"
     },
     {
@@ -717,20 +724,20 @@
       "ref": "bbw:breadboard_1:bbw_20",
       "boardId": "breadboard_1",
       "a": "g24",
-      "b": "e26",
+      "b": "e27",
       "color": "purple"
     },
     {
       "ref": "bbw:breadboard_1:bbw_21",
       "boardId": "breadboard_1",
-      "a": "d26",
+      "a": "d27",
       "b": "f27",
       "color": "purple"
     },
     {
       "ref": "bbw:breadboard_1:bbw_22",
       "boardId": "breadboard_1",
-      "a": "e27",
+      "a": "e28",
       "b": "f33",
       "color": "white"
     },
@@ -738,70 +745,70 @@
       "ref": "bbw:breadboard_1:bbw_23",
       "boardId": "breadboard_1",
       "a": "g33",
-      "b": "e34",
+      "b": "e35",
       "color": "white"
     },
     {
       "ref": "bbw:breadboard_1:bbw_24",
       "boardId": "breadboard_1",
-      "a": "d34",
-      "b": "e36",
+      "a": "d35",
+      "b": "e37",
       "color": "white"
     },
     {
       "ref": "bbw:breadboard_1:bbw_25",
       "boardId": "breadboard_1",
-      "a": "f39",
+      "a": "f40",
       "b": "e40",
       "color": "blue"
     },
     {
       "ref": "bbw:breadboard_1:bbw_26",
       "boardId": "breadboard_1",
-      "a": "e43",
-      "b": "e45",
+      "a": "f43",
+      "b": "f45",
       "color": "green"
     },
     {
       "ref": "bbw:breadboard_1:bbw_27",
       "boardId": "breadboard_1",
-      "a": "f43",
-      "b": "f45",
+      "a": "e44",
+      "b": "e46",
       "color": "yellow"
     },
     {
       "ref": "bbw:breadboard_1:bbw_28",
       "boardId": "breadboard_1",
-      "a": "g45",
-      "b": "e49",
+      "a": "d46",
+      "b": "f49",
       "color": "yellow"
     },
     {
       "ref": "bbw:breadboard_1:bbw_29",
       "boardId": "breadboard_1",
-      "a": "d49",
-      "b": "e51",
+      "a": "g49",
+      "b": "f51",
       "color": "yellow"
     },
     {
       "ref": "bbw:breadboard_1:bbw_30",
       "boardId": "breadboard_1",
-      "a": "f51",
-      "b": "e53",
+      "a": "e52",
+      "b": "f53",
       "color": "orange"
     },
     {
       "ref": "bbw:breadboard_1:bbw_31",
       "boardId": "breadboard_1",
-      "a": "d53",
-      "b": "f54",
+      "a": "g53",
+      "b": "e55",
       "color": "orange"
     },
     {
       "ref": "bbw:breadboard_1:bbw_32",
       "boardId": "breadboard_1",
-      "a": "g54",
-      "b": "e56",
+      "a": "d55",
+      "b": "f56",
       "color": "orange"
     },
     {
@@ -856,36 +863,36 @@
     {
       "ref": "bbw:breadboard_1:bbw_40",
       "boardId": "breadboard_1",
-      "a": "b37",
-      "b": "t-37",
+      "a": "b38",
+      "b": "t-38",
       "color": "black"
     },
     {
       "ref": "bbw:breadboard_1:bbw_41",
       "boardId": "breadboard_1",
-      "a": "i49",
-      "b": "b-49",
+      "a": "b50",
+      "b": "t-50",
       "color": "black"
     },
     {
       "ref": "bbw:breadboard_1:bbw_42",
       "boardId": "breadboard_1",
-      "a": "i52",
-      "b": "b-52",
+      "a": "b53",
+      "b": "t-53",
       "color": "black"
     },
     {
       "ref": "bbw:breadboard_1:bbw_43",
       "boardId": "breadboard_1",
-      "a": "b57",
-      "b": "t-57",
+      "a": "i57",
+      "b": "b-57",
       "color": "black"
     },
     {
       "ref": "bbw:breadboard_1:bbw_44",
       "boardId": "breadboard_1",
-      "a": "i58",
-      "b": "b-58",
+      "a": "b59",
+      "b": "t-59",
       "color": "black"
     }
   ]

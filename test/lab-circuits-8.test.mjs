@@ -213,9 +213,10 @@ describe('lab sensing-transducer benches (set 8) behave as documented', { skip: 
     });
 
     test('lab-metal-detector: a coin on the search coil raises the beat', () => {
-        // The beat at the earphone, from its tone edges. At build time: about
-        // 195 Hz with no metal; a coin flat on the search coil lowers its
-        // inductance 5 % and raises the beat by ≈ 38 Hz.
+        // The beat at the earphone, from its tone edges. The oscillators run
+        // near 96 kHz in the RF bands. At build time: about 800 Hz with no
+        // metal; a coin flat on the search coil lowers its inductance 5 %,
+        // its oscillator rises 2.5 % (≈ 2.5 kHz) and the beat to ≈ 3.3 kHz.
         const x = bench('lab-metal-detector');
         x.run(20);
         const beat = (ms) => {
@@ -225,10 +226,10 @@ describe('lab sensing-transducer benches (set 8) behave as documented', { skip: 
             return per.length / per.reduce((a, b) => a + b, 0);
         };
         const none = beat(20);
-        near(none, 195, 25, 'no metal: beat (Hz)');
+        near(none, 800, 80, 'no metal: beat (Hz)');
         x.param('ls', 'metalCm', 0);
         const coin = beat(20);
-        near(coin - none, 38, 12, 'coin on the coil: the beat rises (Hz)');
+        near(coin - none, 2500, 300, 'coin on the coil: the beat rises (Hz)');
         assert.ok(x.state('ls').metalShift < -0.049, 'the coin lowered L by 5 %');
     });
 

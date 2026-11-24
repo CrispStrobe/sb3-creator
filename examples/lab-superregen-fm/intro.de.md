@@ -12,7 +12,7 @@ Klick auf **Sim** und hör zu. Miss am Emitter: Die Pendelung zeigt sich als 25-
 
 - Die HF im Kreis kommt in Stößen von einigen Volt, einer pro Pendelzyklus; dazwischen fällt sie nur bis auf das Niveau des Senders zurück (ein Zehntel Volt).
 - Ohne Sender beginnen die Stöße beim Rauschen, jeder mit einer anderen zufälligen Größe, und der Ohrhörer rauscht.
-- Mit dem Sender wird das Rauschen leise, und das 1-kHz-Programm des UKW-Senders auf 98 MHz kommt durch — schwach, denn ein Pendelempfänger folgt nur dem Logarithmus seines Eingangs und hört UKW nur auf der Flanke seines Kreises.
+- In einem echten Gerät wird das Rauschen mit dem Sender leise, und sein Programm kommt schwach durch (ein Pendelempfänger folgt nur dem Logarithmus seines Eingangs und hört UKW nur auf der Flanke seines Kreises). Die Simulation zeigt die Stöße; diesen Ton gibt sie nicht verlässlich wieder.
 
 ## Warum es funktioniert
 

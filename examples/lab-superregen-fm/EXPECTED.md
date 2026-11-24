@@ -8,11 +8,11 @@
 
 ## Observable behaviour
 - The tank's RF comes in bursts of about 2.6 V at the quench rate; with the station it falls back between bursts only to about 0.11 V, the station's own level, and each burst grows from there.
-- Without the station the bursts fall back to the noise floor (a tenth of a microvolt): each starts from a different random amplitude, so their average wanders and the earphone hisses.
-- With the station the hiss goes quiet (to about a ninth) and the 1 kHz programme stands above what is left of it — faintly: on the slope of its tank a super-regenerator is a poor FM detector, its output following the logarithm of the starting signal.
+- Without the station the bursts fall back to the noise floor (microvolts or less) and grow from there.
+- Not reproduced robustly: the station's programme in the earphone and the hiss going quiet when the station is tuned in. Both depend on how the noise floor each burst starts from is treated numerically (with 1 ns band steps the hiss fell to a seventh with the station; with 4 ns steps not at all), so this page claims neither.
 
 ## Measured on the engine
-bw-board r4/rf-20261123 (RF envelope front end: the quench in the transient solve, the oscillation in an envelope band whose growth follows the bias), `test/lab-circuits-rf.test.mjs`, 3 ms after 4 ms (RF every 10 µs; audio at the 10 nF, detrended, one-bin DFTs): station on — bursts 0.107 → 2.66 V, 1 kHz 7.9e-5 V, hiss (mean of the 1.33 and 2 kHz bins) 2.6e-5 V; station off — bursts 2e-7 → 2.58 V, hiss 2.3e-4 V (re-measured 2026-11-24 on the bit-reproducible engine: the same on macOS and Linux). About 13 000 solves per simulated millisecond.
+bw-board RF envelope front end (the quench in the transient solve, the oscillation in an envelope band whose growth rate is re-estimated as the quench moves the bias), `test/lab-circuits-rf.test.mjs`, 3 ms after 4 ms (RF every 10 µs): station on — bursts from 0.107 V to about 3 V; station off — from a few µV or less to about 3 V. About 5 300 band substeps and 5 700 transient attempts per simulated millisecond (≈ 5 s of wall time each).
 
 ## What this verifies
 1. An oscillator switched past its threshold grows exponentially from whatever signal it starts from.
@@ -25,9 +25,9 @@ net vsource_2.pos V 9.00 +-0.01
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@489ca7c` and `bw-circuit-ui@7f98562` — the revisions pinned in
+> `bw-board@d5501af` and `bw-circuit-ui@0efc30a` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
-> **19 of this page's 39** numeric claims against that engine
+> **19 of this page's 36** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs lab-superregen-fm` prints them one by one.
 <!-- engine-provenance -->
