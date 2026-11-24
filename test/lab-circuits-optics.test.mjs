@@ -114,6 +114,8 @@ describe('lab optics benches behave as documented', { skip: SKIP }, () => {
         assert.equal(bestAt, 9);
         x.at('guide', 8.75); near(x.v('vm', 'a'), 1.09, 0.08, 'a quarter centimetre short');
         const bare = bench('lab-fibre-lens', { guide: { lensFocalCm: 0, inGapMm: 90 } }); bare.run(1);
+        // MEASURED 2026-11-24 (scripts/threshold-observe.mjs): bare.v('vm', 'a') < 0.01 ->
+        // observed 0.007753297080361285.
         assert.ok(bare.v('vm', 'a') < 0.01, `no lens: ${bare.v('vm', 'a')}`);
     });
 
