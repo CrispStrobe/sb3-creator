@@ -1,7 +1,7 @@
 # lab-linear-ohmmeter — expected behaviour
 
 ## Circuit
-- 9 V for one half of an LM358 (`lm358_5`); its + input is on ground. The second half is parked.
+- 9 V for one section of an LM324 (`lm324_5`); its + input is on ground. The other three sections are parked.
 - A 1.5 V cell (`vsource_4`) is the reference: its + pole on ground, its − pole on the bottom of the range resistor.
 - Range switch: 1.5 kΩ (as loaded) or 15 kΩ from the − input to the cell's − pole.
 - The resistor under test sits in the feedback path, from the − input to the output. A second switch picks a fixed "mystery" resistor (3.3 kΩ, as loaded) or a 47 kΩ rheostat.
@@ -20,7 +20,7 @@
 
 ```assert
 # mystery 3.3 kΩ on the 1 kΩ/V range: 1 mA through it, 3.30 V out
-net lm358_5.1_neg V 0.000 +-0.002
+net lm324_5.1_neg V 0.000 +-0.002
 net vsource_4.neg V -1.50 +-0.01
-net lm358_5.1_out V 3.30 +-0.02
+net lm324_5.1_out V 3.30 +-0.02
 ```

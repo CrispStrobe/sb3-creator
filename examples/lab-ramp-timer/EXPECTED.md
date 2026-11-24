@@ -1,10 +1,11 @@
 # lab-ramp-timer — expected behaviour
 
 ## Circuit
-- 9 V. One half of an LM358 (`lm358_3`) integrates onto 4.7 µF. Its + input sits near 1 V (82 kΩ / 10 kΩ). The second half is parked.
-- The input resistor is 47 kΩ plus a 220 kΩ "time" rheostat (as loaded at zero, the fastest setting). A hold/run slide switch (`slide_switch_6`) connects it either to the same 1 V (hold) or to ground (run, as loaded).
+- 9 V, one LM324 (`lm324_3`). A 20k/20k/20k/20k/10k ladder from 9 V gives 7, 5, 3 and 1 V.
+- Section 1 integrates onto 4.7 µF; its + input is on the 1 V tap.
+- The input resistor is 47 kΩ plus a 220 kΩ "time" rheostat (as loaded at zero, the fastest setting). A hold/run slide switch (`slide_switch_6`) connects it either to the 1 V tap (hold) or to ground (run, as loaded).
 - **Zero**: a button with 100 Ω across the capacitor.
-- Three NPN stages watch the ramp, each through a divider to 1 kΩ: 3.3 kΩ (green), 6.2 kΩ (yellow), 9.1 kΩ (red) on top. Each LED has 1 kΩ in series from +9 V.
+- Sections 2, 3 and 4 are comparators: + input on the ramp, − input on the 3 V, 5 V and 7 V taps. Each output lights its LED (green, yellow, red) through 1 kΩ.
 
 ## Observable behaviour
 - Run (as loaded): the output climbs from about 1 V in a straight line; at the fastest setting it takes about 1.5 s to reach the top.
@@ -19,10 +20,11 @@
 3. The ramp speed is the input voltage divided by R·C.
 
 ```assert
-# 1 ms after switch-on, running: the + input near 1 V; the output a few
-# millivolts above it already, and one stage's divider following it
-net lm358_3.1_pos V 0.978 +-0.005
-net lm358_3.1_out V 0.9827 +-0.0015
-net npn_14.base V 0.2285 +-0.003
-net slide_switch_6.com V 0.00 +-0.001
+# 1 ms after switch-on, running: the ladder taps, the output already a few
+# millivolts above its 1 V start, the first comparator still low
+net lm324_3.1_pos V 1.000 +-0.002
+net lm324_3.2_neg V 3.000 +-0.002
+net lm324_3.4_neg V 7.000 +-0.002
+net lm324_3.1_out V 1.0045 +-0.0015
+net lm324_3.2_out V 0.005 +-0.01
 ```
