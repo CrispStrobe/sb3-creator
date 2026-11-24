@@ -5,7 +5,7 @@
 
 - **Microphone:** a magnetic earphone (2 kΩ, 0.1 H) used backwards. As authored a steady 200 Hz tone at 90 dB SPL reaches it (`soundDb`, `soundWave` tone, `soundHz`).
 - **Amplifier:** one half of an LM358, inverting: 10 µF and 1 kΩ from the earphone into the - input, 1 MΩ feedback. Together with the earphone's own resistance the gain is about 300. The earphone's other end and the + input both sit on the wiper of the sensitivity pot (10 kΩ below 10 kΩ from +5 V, so 0 to 2.5 V; authored at 0.8, 2.0 V). The 10 µF blocks DC, so the output rests at the wiper voltage. The second half is unused (inputs grounded).
-- **Counter:** the amplifier output drives input A of a 74HC93 directly; QA feeds input B; four red LEDs (470 Ω) show QA..QD. The counter switches at half the supply, 2.5 V. (The 74HC93 stands in for a CMOS 7-stage binary counter.)
+- **Counter:** the amplifier output drives input A of a 74HC93 directly; QA feeds input B; four red LEDs (470 Ω) show QA..QD. The counter switches at half the supply. (The 74HC93 stands in for a CMOS 7-stage binary counter.)
 
 ## Observable behaviour
 - The output rests at 2.0 V, below the counter's switching level.

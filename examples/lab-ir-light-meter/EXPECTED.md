@@ -2,8 +2,8 @@
 
 ## Circuit
 - 9 V battery. An IR LED (470 Ω, on a slide switch) shines on the sensor 5 cm away along a `light_path` (medium air); the path's knob is the distance, 3 to 20 cm.
-- The sensor is an IR LED used backwards (`photoSensitivity` = 10 µA at full light), anode on ground, cathode on the inverting input of LM358 half 1.
-- Half 1 is a transimpedance amplifier with 4.7 MΩ feedback. Its non-inverting input sits on a reference from 8.2 kΩ and 1 kΩ (0.98 V): a single-supply op-amp cannot hold its input at ground and still work, so the whole stage is lifted by that reference. Its output is reference plus photocurrent x 4.7 MΩ.
+- The sensor is an IR LED used backwards (`photoSensitivity` 1e-5, its photocurrent in amps at full light), anode on ground, cathode on the inverting input of LM358 half 1.
+- Half 1 is a transimpedance amplifier with 4.7 MΩ feedback. Its non-inverting input sits on a reference from 8.2 kΩ and 1 kΩ, about one volt: a single-supply op-amp cannot hold its input at ground and still work, so the whole stage is lifted by that reference. Its output is reference plus photocurrent x 4.7 MΩ.
 - Half 2 is a difference amplifier with four 100 kΩ resistors: output = half 1's output minus the zero pot's voltage. The zero pot (10 kΩ, below 56 kΩ from +9 V) gives 0 to 1.36 V. A moving-coil meter (5 V full scale) reads half 2's output.
 
 ## Observable behaviour
