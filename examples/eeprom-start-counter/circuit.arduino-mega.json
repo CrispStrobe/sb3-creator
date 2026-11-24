@@ -104,18 +104,18 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "a0": "e9",
-     "a1": "e10",
-     "a2": "e11",
-     "gnd": "e12",
-     "sda": "f12",
-     "scl": "f11",
-     "wp": "f10",
-     "vcc": "f9"
+     "a0": "f9",
+     "a1": "f10",
+     "a2": "f11",
+     "gnd": "f12",
+     "sda": "a12",
+     "scl": "a11",
+     "wp": "a10",
+     "vcc": "a9"
     }
    },
-   "x": 148,
-   "y": 311
+   "x": 169,
+   "y": 302
   },
   {
    "id": "R_sda_pullup_i2c_sda_D20",
@@ -297,7 +297,7 @@
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "g9",
+   "a": "d9",
    "b": "t+9",
    "color": "red"
   },
@@ -325,35 +325,35 @@
   {
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
-   "a": "a12",
+   "a": "j12",
    "b": "b-12",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_6",
    "boardId": "bb1",
-   "a": "a9",
+   "a": "j9",
    "b": "b-9",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_7",
    "boardId": "bb1",
-   "a": "a10",
+   "a": "j10",
    "b": "b-10",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_8",
    "boardId": "bb1",
-   "a": "a11",
+   "a": "j11",
    "b": "b-11",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_9",
    "boardId": "bb1",
-   "a": "g10",
+   "a": "d10",
    "b": "b-10",
    "color": "black"
   }

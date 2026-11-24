@@ -161,14 +161,14 @@
       "seat": {
         "boardId": "bb1",
         "leadMap": {
-          "vcc": "e18",
-          "gnd": "e19",
-          "1_pos": "e20",
-          "1_neg": "e21",
           "1_out": "f18",
-          "2_pos": "f19",
-          "2_neg": "f20",
-          "2_out": "f21"
+          "1_neg": "f19",
+          "1_pos": "f20",
+          "gnd": "f21",
+          "2_pos": "e21",
+          "2_neg": "e20",
+          "2_out": "e19",
+          "vcc": "e18"
         }
       }
     },
@@ -248,15 +248,15 @@
       "id": "ear",
       "kind": "piezo",
       "params": {},
-      "x": 555,
+      "x": 541,
       "y": 345,
       "rotation": 0,
       "label": "Earpiece",
       "seat": {
         "boardId": "bb1",
         "leadMap": {
-          "a": "a34",
-          "b": "a35"
+          "a": "a33",
+          "b": "a34"
         }
       }
     }
@@ -383,13 +383,13 @@
       "ref": "bbw:bb1:bbw_12",
       "boardId": "bb1",
       "a": "g16",
-      "b": "d20",
+      "b": "g20",
       "color": "purple"
     },
     {
       "ref": "bbw:bb1:bbw_13",
       "boardId": "bb1",
-      "a": "d21",
+      "a": "g19",
       "b": "e23",
       "color": "white"
     },
@@ -425,14 +425,14 @@
       "ref": "bbw:bb1:bbw_18",
       "boardId": "bb1",
       "a": "f31",
-      "b": "e34",
+      "b": "e33",
       "color": "yellow"
     },
     {
       "ref": "bbw:bb1:bbw_19",
       "boardId": "bb1",
-      "a": "g20",
-      "b": "g21",
+      "a": "d19",
+      "b": "d20",
       "color": "orange"
     },
     {
@@ -452,15 +452,15 @@
     {
       "ref": "bbw:bb1:bbw_22",
       "boardId": "bb1",
-      "a": "b19",
-      "b": "t-19",
+      "a": "i21",
+      "b": "b-21",
       "color": "black"
     },
     {
       "ref": "bbw:bb1:bbw_23",
       "boardId": "bb1",
-      "a": "i19",
-      "b": "b-19",
+      "a": "b21",
+      "b": "t-21",
       "color": "black"
     },
     {
@@ -473,8 +473,8 @@
     {
       "ref": "bbw:bb1:bbw_25",
       "boardId": "bb1",
-      "a": "b35",
-      "b": "t-35",
+      "a": "b34",
+      "b": "t-34",
       "color": "black"
     }
   ]

@@ -40,14 +40,14 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "gnd": "e3",
-     "trigger": "e4",
-     "output": "e5",
-     "reset": "e6",
-     "control": "f6",
-     "threshold": "f5",
-     "discharge": "f4",
-     "vcc": "f3"
+     "gnd": "f3",
+     "trigger": "f4",
+     "output": "f5",
+     "reset": "f6",
+     "vcc": "e3",
+     "discharge": "e4",
+     "threshold": "e5",
+     "control": "e6"
     }
    }
   },
@@ -72,14 +72,14 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "gnd": "e8",
-     "trigger": "e9",
-     "output": "e10",
-     "reset": "e11",
-     "control": "f11",
-     "threshold": "f10",
-     "discharge": "f9",
-     "vcc": "f8"
+     "gnd": "f8",
+     "trigger": "f9",
+     "output": "f10",
+     "reset": "f11",
+     "vcc": "e8",
+     "discharge": "e9",
+     "threshold": "e10",
+     "control": "e11"
     }
    }
   },
@@ -730,15 +730,15 @@
   {
    "ref": "bbw:bb1:bbw_6",
    "boardId": "bb1",
-   "a": "b3",
-   "b": "t-3",
+   "a": "i3",
+   "b": "b-3",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:bbw_7",
    "boardId": "bb1",
-   "a": "b8",
-   "b": "t-8",
+   "a": "i8",
+   "b": "b-8",
    "color": "black"
   },
   {
@@ -807,14 +807,14 @@
   {
    "ref": "bbw:bb1:bbw_19",
    "boardId": "bb1",
-   "a": "d4",
-   "b": "g5",
+   "a": "g4",
+   "b": "d5",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:bbw_20",
    "boardId": "bb1",
-   "a": "h5",
+   "a": "c5",
    "b": "f17",
    "color": "yellow"
   },
@@ -828,14 +828,14 @@
   {
    "ref": "bbw:bb1:bbw_22",
    "boardId": "bb1",
-   "a": "d9",
-   "b": "g10",
+   "a": "g9",
+   "b": "d10",
    "color": "orange"
   },
   {
    "ref": "bbw:bb1:bbw_23",
    "boardId": "bb1",
-   "a": "h10",
+   "a": "c10",
    "b": "e36",
    "color": "orange"
   },
@@ -849,14 +849,14 @@
   {
    "ref": "bbw:bb1:bbw_25",
    "boardId": "bb1",
-   "a": "g6",
+   "a": "d6",
    "b": "f19",
    "color": "purple"
   },
   {
    "ref": "bbw:bb1:bbw_26",
    "boardId": "bb1",
-   "a": "g11",
+   "a": "d11",
    "b": "e40",
    "color": "white"
   },
@@ -884,7 +884,7 @@
   {
    "ref": "bbw:bb1:bbw_30",
    "boardId": "bb1",
-   "a": "d5",
+   "a": "g5",
    "b": "f22",
    "color": "green"
   },
@@ -905,7 +905,7 @@
   {
    "ref": "bbw:bb1:bbw_33",
    "boardId": "bb1",
-   "a": "d10",
+   "a": "g10",
    "b": "f40",
    "color": "yellow"
   },
@@ -940,7 +940,7 @@
   {
    "ref": "bbw:bb1:bbw_38",
    "boardId": "bb1",
-   "a": "g4",
+   "a": "d4",
    "b": "f13",
    "color": "white"
   },
@@ -954,29 +954,29 @@
   {
    "ref": "bbw:bb1:bbw_40",
    "boardId": "bb1",
-   "a": "i3",
-   "b": "b+3",
+   "a": "b3",
+   "b": "t+3",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:bbw_41",
    "boardId": "bb1",
-   "a": "b6",
-   "b": "t+6",
+   "a": "i6",
+   "b": "b+6",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:bbw_42",
    "boardId": "bb1",
-   "a": "i8",
-   "b": "b+8",
+   "a": "b8",
+   "b": "t+8",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:bbw_43",
    "boardId": "bb1",
-   "a": "b11",
-   "b": "t+11",
+   "a": "i11",
+   "b": "b+11",
    "color": "red"
   },
   {
@@ -1010,7 +1010,7 @@
   {
    "ref": "bbw:bb1:bbw_50",
    "boardId": "bb1",
-   "a": "g9",
+   "a": "d9",
    "b": "e34",
    "color": "blue"
   },

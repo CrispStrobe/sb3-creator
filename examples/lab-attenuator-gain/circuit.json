@@ -14,7 +14,7 @@
    "id": "gnd",
    "kind": "gnd",
    "params": {},
-   "x": 149,
+   "x": 181,
    "y": 221,
    "rotation": 0
   },
@@ -25,7 +25,7 @@
     "volts": 9
    },
    "label": "+9 V",
-   "x": 215,
+   "x": 247,
    "y": 213,
    "rotation": 0
   },
@@ -36,7 +36,7 @@
     "volts": 9
    },
    "label": "-9 V",
-   "x": 287,
+   "x": 319,
    "y": 213,
    "rotation": 0
   },
@@ -50,8 +50,8 @@
     "offset": 0
    },
    "label": "function generator 440 Hz, 4 V peak",
-   "x": 83,
-   "y": 217,
+   "x": 99,
+   "y": 213,
    "rotation": 0
   },
   {
@@ -112,14 +112,14 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "vcc": "e14",
-     "gnd": "e15",
-     "1_pos": "e16",
-     "1_neg": "e17",
      "1_out": "f14",
-     "2_pos": "f15",
-     "2_neg": "f16",
-     "2_out": "f17"
+     "1_neg": "f15",
+     "1_pos": "f16",
+     "gnd": "f17",
+     "2_pos": "e17",
+     "2_neg": "e16",
+     "2_out": "e15",
+     "vcc": "e14"
     }
    }
   },
@@ -217,7 +217,7 @@
    },
    "to": {
     "board": "bb1",
-    "hole": "d15"
+    "hole": "g17"
    },
    "color": "blue"
   },
@@ -230,7 +230,7 @@
    },
    "to": {
     "board": "bb1",
-    "hole": "t-15"
+    "hole": "t-18"
    },
    "color": "black"
   },
@@ -243,7 +243,7 @@
    },
    "to": {
     "board": "bb1",
-    "hole": "t-10"
+    "hole": "t-13"
    },
    "color": "black"
   },
@@ -256,7 +256,7 @@
    },
    "to": {
     "board": "bb1",
-    "hole": "t-6"
+    "hole": "t-8"
    },
    "color": "black"
   },
@@ -282,7 +282,7 @@
    },
    "to": {
     "board": "bb1",
-    "hole": "t+10"
+    "hole": "t+13"
    },
    "color": "red"
   },
@@ -318,8 +318,8 @@
   {
    "ref": "bbw:bb1:bbw_4",
    "boardId": "bb1",
-   "a": "i15",
-   "b": "b-15",
+   "a": "b17",
+   "b": "t-17",
    "color": "black"
   },
   {
@@ -375,7 +375,7 @@
    "ref": "bbw:bb1:bbw_18",
    "boardId": "bb1",
    "a": "d12",
-   "b": "d16",
+   "b": "g16",
    "color": "yellow"
   },
   {
@@ -395,7 +395,7 @@
   {
    "ref": "bbw:bb1:bbw_21",
    "boardId": "bb1",
-   "a": "d17",
+   "a": "g15",
    "b": "e19",
    "color": "white"
   },
@@ -423,8 +423,8 @@
   {
    "ref": "bbw:bb1:bbw_25",
    "boardId": "bb1",
-   "a": "g16",
-   "b": "g17",
+   "a": "d15",
+   "b": "d16",
    "color": "green"
   }
  ]

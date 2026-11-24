@@ -116,14 +116,14 @@
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "gnd": "e12",
-          "trigger": "e13",
-          "output": "e14",
-          "reset": "e15",
-          "control": "f15",
-          "threshold": "f14",
-          "discharge": "f13",
-          "vcc": "f12"
+          "gnd": "f12",
+          "trigger": "f13",
+          "output": "f14",
+          "reset": "f15",
+          "vcc": "e12",
+          "discharge": "e13",
+          "threshold": "e14",
+          "control": "e15"
         }
       },
       "terminals": [
@@ -312,14 +312,14 @@
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "vcc": "e35",
-          "gnd": "e36",
-          "1_pos": "e37",
-          "1_neg": "e38",
           "1_out": "f35",
-          "2_pos": "f36",
-          "2_neg": "f37",
-          "2_out": "f38"
+          "1_neg": "f36",
+          "1_pos": "f37",
+          "gnd": "f38",
+          "2_pos": "e38",
+          "2_neg": "e37",
+          "2_out": "e36",
+          "vcc": "e35"
         }
       },
       "terminals": [
@@ -604,15 +604,15 @@
     {
       "ref": "bbw:breadboard_1:bbw_4",
       "boardId": "breadboard_1",
-      "a": "i12",
-      "b": "b+12",
+      "a": "b12",
+      "b": "t+12",
       "color": "red"
     },
     {
       "ref": "bbw:breadboard_1:bbw_5",
       "boardId": "breadboard_1",
-      "a": "b15",
-      "b": "t+15",
+      "a": "i15",
+      "b": "b+15",
       "color": "red"
     },
     {
@@ -668,20 +668,20 @@
       "ref": "bbw:breadboard_1:bbw_15",
       "boardId": "breadboard_1",
       "a": "d10",
-      "b": "d13",
+      "b": "g13",
       "color": "green"
     },
     {
       "ref": "bbw:breadboard_1:bbw_16",
       "boardId": "breadboard_1",
-      "a": "g13",
-      "b": "g14",
+      "a": "d13",
+      "b": "d14",
       "color": "yellow"
     },
     {
       "ref": "bbw:breadboard_1:bbw_17",
       "boardId": "breadboard_1",
-      "a": "h14",
+      "a": "c14",
       "b": "f17",
       "color": "yellow"
     },
@@ -695,14 +695,14 @@
     {
       "ref": "bbw:breadboard_1:bbw_19",
       "boardId": "breadboard_1",
-      "a": "g15",
+      "a": "d15",
       "b": "f20",
       "color": "orange"
     },
     {
       "ref": "bbw:breadboard_1:bbw_20",
       "boardId": "breadboard_1",
-      "a": "d14",
+      "a": "g14",
       "b": "e23",
       "color": "purple"
     },
@@ -731,13 +731,13 @@
       "ref": "bbw:breadboard_1:bbw_25",
       "boardId": "breadboard_1",
       "a": "e31",
-      "b": "d37",
+      "b": "g37",
       "color": "green"
     },
     {
       "ref": "bbw:breadboard_1:bbw_26",
       "boardId": "breadboard_1",
-      "a": "d38",
+      "a": "g36",
       "b": "e44",
       "color": "yellow"
     },
@@ -800,8 +800,8 @@
     {
       "ref": "bbw:breadboard_1:bbw_36",
       "boardId": "breadboard_1",
-      "a": "b12",
-      "b": "t-12",
+      "a": "i12",
+      "b": "b-12",
       "color": "black"
     },
     {
@@ -842,22 +842,22 @@
     {
       "ref": "bbw:breadboard_1:bbw_42",
       "boardId": "breadboard_1",
-      "a": "i36",
-      "b": "b-36",
+      "a": "b37",
+      "b": "t-37",
       "color": "black"
     },
     {
       "ref": "bbw:breadboard_1:bbw_43",
       "boardId": "breadboard_1",
-      "a": "i37",
-      "b": "b-37",
+      "a": "i38",
+      "b": "b-38",
       "color": "black"
     },
     {
       "ref": "bbw:breadboard_1:bbw_44",
       "boardId": "breadboard_1",
-      "a": "i38",
-      "b": "b-38",
+      "a": "b38",
+      "b": "t-38",
       "color": "black"
     },
     {

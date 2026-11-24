@@ -34,14 +34,14 @@
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "gnd": "e3",
-          "trigger": "e4",
-          "output": "e5",
-          "reset": "e6",
-          "control": "f6",
-          "threshold": "f5",
-          "discharge": "f4",
-          "vcc": "f3"
+          "gnd": "f3",
+          "trigger": "f4",
+          "output": "f5",
+          "reset": "f6",
+          "vcc": "e3",
+          "discharge": "e4",
+          "threshold": "e5",
+          "control": "e6"
         }
       },
       "terminals": [
@@ -449,15 +449,15 @@
     {
       "ref": "bbw:breadboard_1:bbw_3",
       "boardId": "breadboard_1",
-      "a": "i3",
-      "b": "b+3",
+      "a": "b3",
+      "b": "t+3",
       "color": "red"
     },
     {
       "ref": "bbw:breadboard_1:bbw_4",
       "boardId": "breadboard_1",
-      "a": "b6",
-      "b": "t+6",
+      "a": "i6",
+      "b": "b+6",
       "color": "red"
     },
     {
@@ -484,7 +484,7 @@
     {
       "ref": "bbw:breadboard_1:bbw_9",
       "boardId": "breadboard_1",
-      "a": "g4",
+      "a": "d4",
       "b": "f8",
       "color": "blue"
     },
@@ -498,14 +498,14 @@
     {
       "ref": "bbw:breadboard_1:bbw_11",
       "boardId": "breadboard_1",
-      "a": "d4",
-      "b": "g5",
+      "a": "g4",
+      "b": "d5",
       "color": "green"
     },
     {
       "ref": "bbw:breadboard_1:bbw_12",
       "boardId": "breadboard_1",
-      "a": "h5",
+      "a": "c5",
       "b": "f12",
       "color": "green"
     },
@@ -526,14 +526,14 @@
     {
       "ref": "bbw:breadboard_1:bbw_15",
       "boardId": "breadboard_1",
-      "a": "g6",
+      "a": "d6",
       "b": "f18",
       "color": "orange"
     },
     {
       "ref": "bbw:breadboard_1:bbw_16",
       "boardId": "breadboard_1",
-      "a": "d5",
+      "a": "g5",
       "b": "f20",
       "color": "purple"
     },
@@ -589,8 +589,8 @@
     {
       "ref": "bbw:breadboard_1:bbw_25",
       "boardId": "breadboard_1",
-      "a": "b3",
-      "b": "t-3",
+      "a": "i3",
+      "b": "b-3",
       "color": "black"
     },
     {

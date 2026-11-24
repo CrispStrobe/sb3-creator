@@ -28,19 +28,19 @@
    "id": "u1",
    "kind": "timer_555",
    "params": {},
-   "x": 316,
-   "y": 311,
+   "x": 337,
+   "y": 302,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "gnd": "e21",
-     "trigger": "e22",
-     "output": "e23",
-     "reset": "e24",
-     "vcc": "f21",
-     "discharge": "f22",
-     "threshold": "f23",
-     "control": "f24"
+     "gnd": "f21",
+     "trigger": "f22",
+     "output": "f23",
+     "reset": "f24",
+     "vcc": "a21",
+     "discharge": "a22",
+     "threshold": "a23",
+     "control": "a24"
     }
    }
   },
@@ -258,21 +258,21 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "g21",
+   "a": "d21",
    "b": "t+21",
    "color": "red"
   },
   {
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
-   "a": "a21",
+   "a": "j21",
    "b": "b-21",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "a24",
+   "a": "j24",
    "b": "t+24",
    "color": "red"
   },
@@ -287,7 +287,7 @@
    "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
    "a": "b7",
-   "b": "g22",
+   "b": "d22",
    "color": "green"
   },
   {
@@ -301,14 +301,14 @@
    "ref": "bbw:bb1:gen_6",
    "boardId": "bb1",
    "a": "b13",
-   "b": "g23",
+   "b": "d23",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_7",
    "boardId": "bb1",
    "a": "c13",
-   "b": "a22",
+   "b": "j22",
    "color": "orange"
   },
   {
@@ -328,7 +328,7 @@
   {
    "ref": "bbw:bb1:gen_10",
    "boardId": "bb1",
-   "a": "g24",
+   "a": "d24",
    "b": "b31",
    "color": "green"
   },
@@ -342,7 +342,7 @@
   {
    "ref": "bbw:bb1:gen_12",
    "boardId": "bb1",
-   "a": "a23",
+   "a": "j23",
    "b": "b15",
    "color": "blue"
   },
@@ -363,14 +363,14 @@
   {
    "ref": "bbw:bb1:gen_15",
    "boardId": "bb1",
-   "a": "b21",
+   "a": "i21",
    "b": "b-21",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_16",
    "boardId": "bb1",
-   "a": "h21",
+   "a": "c21",
    "b": "t+21",
    "color": "red"
   }

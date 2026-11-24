@@ -14,7 +14,7 @@
    "id": "gnd",
    "kind": "gnd",
    "params": {},
-   "x": 365,
+   "x": 293,
    "y": 217,
    "rotation": 0
   },
@@ -36,7 +36,7 @@
     "volts": 9
    },
    "label": "-9 V",
-   "x": 227,
+   "x": 359,
    "y": 209,
    "rotation": 0
   },
@@ -49,14 +49,14 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "vcc": "e3",
-     "gnd": "e4",
-     "1_pos": "e5",
-     "1_neg": "e6",
      "1_out": "f3",
-     "2_pos": "f4",
-     "2_neg": "f5",
-     "2_out": "f6"
+     "1_neg": "f4",
+     "1_pos": "f5",
+     "gnd": "f6",
+     "2_pos": "e6",
+     "2_neg": "e5",
+     "2_out": "e4",
+     "vcc": "e3"
     }
    }
   },
@@ -183,7 +183,7 @@
    "id": "vm_in",
    "kind": "voltmeter",
    "params": {},
-   "x": 299,
+   "x": 431,
    "y": 213,
    "rotation": 0
   },
@@ -199,15 +199,15 @@
    "id": "vm_non",
    "kind": "voltmeter",
    "params": {},
-   "x": 431,
+   "x": 227,
    "y": 213,
    "rotation": 0
   }
  ],
  "wires": [
   {
-   "id": "w_3",
-   "netId": "net_3",
+   "id": "w_2",
+   "netId": "net_2",
    "from": {
     "part": "bat_neg",
     "terminal": "neg"
@@ -219,15 +219,28 @@
    "color": "blue"
   },
   {
-   "id": "w_6",
-   "netId": "net_6",
+   "id": "w_5",
+   "netId": "net_5",
    "from": {
     "part": "bat_neg",
     "terminal": "pos"
    },
    "to": {
     "board": "bb1",
-    "hole": "t-11"
+    "hole": "b-21"
+   },
+   "color": "black"
+  },
+  {
+   "id": "w_6",
+   "netId": "net_6",
+   "from": {
+    "part": "bat_pos",
+    "terminal": "neg"
+   },
+   "to": {
+    "board": "bb1",
+    "hole": "b-1"
    },
    "color": "black"
   },
@@ -235,12 +248,12 @@
    "id": "w_7",
    "netId": "net_7",
    "from": {
-    "part": "bat_pos",
-    "terminal": "neg"
+    "part": "gnd",
+    "terminal": "gnd"
    },
    "to": {
     "board": "bb1",
-    "hole": "t-1"
+    "hole": "b-16"
    },
    "color": "black"
   },
@@ -248,12 +261,12 @@
    "id": "w_8",
    "netId": "net_8",
    "from": {
-    "part": "gnd",
-    "terminal": "gnd"
+    "part": "vm_in",
+    "terminal": "b"
    },
    "to": {
     "board": "bb1",
-    "hole": "t-21"
+    "hole": "b-26"
    },
    "color": "black"
   },
@@ -261,12 +274,12 @@
    "id": "w_9",
    "netId": "net_9",
    "from": {
-    "part": "vm_in",
+    "part": "vm_inv",
     "terminal": "b"
    },
    "to": {
     "board": "bb1",
-    "hole": "t-16"
+    "hole": "b-6"
    },
    "color": "black"
   },
@@ -274,31 +287,18 @@
    "id": "w_10",
    "netId": "net_10",
    "from": {
-    "part": "vm_inv",
-    "terminal": "b"
-   },
-   "to": {
-    "board": "bb1",
-    "hole": "t-6"
-   },
-   "color": "black"
-  },
-  {
-   "id": "w_11",
-   "netId": "net_11",
-   "from": {
     "part": "vm_non",
     "terminal": "b"
    },
    "to": {
     "board": "bb1",
-    "hole": "t-26"
+    "hole": "b-11"
    },
    "color": "black"
   },
   {
-   "id": "w_14",
-   "netId": "net_14",
+   "id": "w_13",
+   "netId": "net_13",
    "from": {
     "part": "bat_pos",
     "terminal": "pos"
@@ -310,8 +310,8 @@
    "color": "red"
   },
   {
-   "id": "w_19",
-   "netId": "net_19",
+   "id": "w_18",
+   "netId": "net_18",
    "from": {
     "part": "vm_in",
     "terminal": "a"
@@ -323,8 +323,8 @@
    "color": "orange"
   },
   {
-   "id": "w_23",
-   "netId": "net_23",
+   "id": "w_22",
+   "netId": "net_22",
    "from": {
     "part": "vm_inv",
     "terminal": "a"
@@ -336,15 +336,15 @@
    "color": "white"
   },
   {
-   "id": "w_27",
-   "netId": "net_27",
+   "id": "w_26",
+   "netId": "net_26",
    "from": {
     "part": "vm_non",
     "terminal": "a"
    },
    "to": {
     "board": "bb1",
-    "hole": "d30"
+    "hole": "c4"
    },
    "color": "green"
   }
@@ -353,112 +353,105 @@
   {
    "ref": "bbw:bb1:bbw_1",
    "boardId": "bb1",
-   "a": "t-2",
-   "b": "b-2",
-   "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:bbw_2",
-   "boardId": "bb1",
-   "a": "d4",
+   "a": "g6",
    "b": "f12",
    "color": "blue"
   },
   {
-   "ref": "bbw:bb1:bbw_4",
+   "ref": "bbw:bb1:bbw_3",
    "boardId": "bb1",
-   "a": "b5",
-   "b": "t-5",
+   "a": "i5",
+   "b": "b-5",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:bbw_5",
+   "ref": "bbw:bb1:bbw_4",
    "boardId": "bb1",
    "a": "i24",
    "b": "b-24",
    "color": "black"
   },
   {
-   "ref": "bbw:bb1:bbw_12",
+   "ref": "bbw:bb1:bbw_11",
    "boardId": "bb1",
    "a": "b3",
    "b": "t+3",
    "color": "red"
   },
   {
-   "ref": "bbw:bb1:bbw_13",
+   "ref": "bbw:bb1:bbw_12",
    "boardId": "bb1",
    "a": "b8",
    "b": "t+8",
    "color": "red"
   },
   {
-   "ref": "bbw:bb1:bbw_15",
+   "ref": "bbw:bb1:bbw_14",
    "boardId": "bb1",
    "a": "e12",
    "b": "e14",
    "color": "green"
   },
   {
-   "ref": "bbw:bb1:bbw_16",
+   "ref": "bbw:bb1:bbw_15",
    "boardId": "bb1",
    "a": "f8",
    "b": "e18",
    "color": "yellow"
   },
   {
-   "ref": "bbw:bb1:bbw_17",
+   "ref": "bbw:bb1:bbw_16",
    "boardId": "bb1",
-   "a": "g4",
+   "a": "d6",
    "b": "f14",
    "color": "orange"
   },
   {
-   "ref": "bbw:bb1:bbw_18",
+   "ref": "bbw:bb1:bbw_17",
    "boardId": "bb1",
    "a": "g14",
    "b": "e16",
    "color": "orange"
   },
   {
-   "ref": "bbw:bb1:bbw_20",
+   "ref": "bbw:bb1:bbw_19",
    "boardId": "bb1",
-   "a": "d6",
+   "a": "g4",
    "b": "f18",
    "color": "purple"
   },
   {
-   "ref": "bbw:bb1:bbw_21",
+   "ref": "bbw:bb1:bbw_20",
    "boardId": "bb1",
    "a": "g18",
    "b": "e20",
    "color": "purple"
   },
   {
-   "ref": "bbw:bb1:bbw_22",
+   "ref": "bbw:bb1:bbw_21",
    "boardId": "bb1",
    "a": "g3",
    "b": "e24",
    "color": "white"
   },
   {
-   "ref": "bbw:bb1:bbw_24",
+   "ref": "bbw:bb1:bbw_23",
    "boardId": "bb1",
-   "a": "g5",
+   "a": "d5",
    "b": "f20",
    "color": "blue"
   },
   {
-   "ref": "bbw:bb1:bbw_25",
+   "ref": "bbw:bb1:bbw_24",
    "boardId": "bb1",
    "a": "g20",
    "b": "e26",
    "color": "blue"
   },
   {
-   "ref": "bbw:bb1:bbw_26",
+   "ref": "bbw:bb1:bbw_25",
    "boardId": "bb1",
-   "a": "g6",
+   "a": "d4",
    "b": "e30",
    "color": "green"
   }

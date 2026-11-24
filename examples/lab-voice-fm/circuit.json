@@ -132,14 +132,14 @@
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "gnd": "e16",
-          "trigger": "e17",
-          "output": "e18",
-          "reset": "e19",
-          "control": "f19",
-          "threshold": "f18",
-          "discharge": "f17",
-          "vcc": "f16"
+          "gnd": "f16",
+          "trigger": "f17",
+          "output": "f18",
+          "reset": "f19",
+          "vcc": "e16",
+          "discharge": "e17",
+          "threshold": "e18",
+          "control": "e19"
         }
       },
       "terminals": [
@@ -310,15 +310,15 @@
     {
       "ref": "bbw:breadboard_1:bbw_4",
       "boardId": "breadboard_1",
-      "a": "i16",
-      "b": "b+16",
+      "a": "b16",
+      "b": "t+16",
       "color": "red"
     },
     {
       "ref": "bbw:breadboard_1:bbw_5",
       "boardId": "breadboard_1",
-      "a": "b19",
-      "b": "t+19",
+      "a": "i19",
+      "b": "b+19",
       "color": "red"
     },
     {
@@ -360,13 +360,13 @@
       "ref": "bbw:breadboard_1:bbw_12",
       "boardId": "breadboard_1",
       "a": "f13",
-      "b": "g19",
+      "b": "d19",
       "color": "purple"
     },
     {
       "ref": "bbw:breadboard_1:bbw_13",
       "boardId": "breadboard_1",
-      "a": "g17",
+      "a": "d17",
       "b": "f21",
       "color": "white"
     },
@@ -380,14 +380,14 @@
     {
       "ref": "bbw:breadboard_1:bbw_15",
       "boardId": "breadboard_1",
-      "a": "d17",
-      "b": "g18",
+      "a": "g17",
+      "b": "d18",
       "color": "blue"
     },
     {
       "ref": "bbw:breadboard_1:bbw_16",
       "boardId": "breadboard_1",
-      "a": "h18",
+      "a": "c18",
       "b": "f25",
       "color": "blue"
     },
@@ -401,7 +401,7 @@
     {
       "ref": "bbw:breadboard_1:bbw_18",
       "boardId": "breadboard_1",
-      "a": "d18",
+      "a": "g18",
       "b": "f27",
       "color": "green"
     },
@@ -436,8 +436,8 @@
     {
       "ref": "bbw:breadboard_1:bbw_23",
       "boardId": "breadboard_1",
-      "a": "b16",
-      "b": "t-16",
+      "a": "i16",
+      "b": "b-16",
       "color": "black"
     },
     {

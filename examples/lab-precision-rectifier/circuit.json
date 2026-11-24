@@ -100,14 +100,14 @@
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "vcc": "e15",
-     "gnd": "e16",
-     "1_pos": "e17",
-     "1_neg": "e18",
      "1_out": "f15",
-     "2_pos": "f16",
-     "2_neg": "f17",
-     "2_out": "f18"
+     "1_neg": "f16",
+     "1_pos": "f17",
+     "gnd": "f18",
+     "2_pos": "e18",
+     "2_neg": "e17",
+     "2_out": "e16",
+     "vcc": "e15"
     }
    }
   },
@@ -187,7 +187,7 @@
    "id": "vm_loop",
    "kind": "voltmeter",
    "params": {},
-   "x": 299,
+   "x": 227,
    "y": 213,
    "rotation": 0
   },
@@ -195,7 +195,7 @@
    "id": "vm_in",
    "kind": "voltmeter",
    "params": {},
-   "x": 227,
+   "x": 299,
    "y": 213,
    "rotation": 0
   }
@@ -262,7 +262,7 @@
    },
    "to": {
     "board": "bb1",
-    "hole": "b-11"
+    "hole": "b-16"
    },
    "color": "black"
   },
@@ -275,7 +275,7 @@
    },
    "to": {
     "board": "bb1",
-    "hole": "b-16"
+    "hole": "b-11"
    },
    "color": "black"
   },
@@ -314,7 +314,7 @@
    },
    "to": {
     "board": "bb1",
-    "hole": "c18"
+    "hole": "h16"
    },
    "color": "yellow"
   },
@@ -327,7 +327,7 @@
    },
    "to": {
     "board": "bb1",
-    "hole": "c17"
+    "hole": "c16"
    },
    "color": "orange"
   },
@@ -350,7 +350,7 @@
    "ref": "bbw:bb1:bbw_1",
    "boardId": "bb1",
    "a": "f7",
-   "b": "d16",
+   "b": "g18",
    "color": "blue"
   },
   {
@@ -391,7 +391,7 @@
   {
    "ref": "bbw:bb1:bbw_15",
    "boardId": "bb1",
-   "a": "d18",
+   "a": "g16",
    "b": "e26",
    "color": "yellow"
   },
@@ -405,7 +405,7 @@
   {
    "ref": "bbw:bb1:bbw_18",
    "boardId": "bb1",
-   "a": "d17",
+   "a": "d16",
    "b": "g17",
    "color": "orange"
   },
@@ -413,13 +413,13 @@
    "ref": "bbw:bb1:bbw_19",
    "boardId": "bb1",
    "a": "h17",
-   "b": "g18",
+   "b": "d17",
    "color": "orange"
   },
   {
    "ref": "bbw:bb1:bbw_20",
    "boardId": "bb1",
-   "a": "h18",
+   "a": "c17",
    "b": "e20",
    "color": "orange"
   },
@@ -448,7 +448,7 @@
    "ref": "bbw:bb1:bbw_26",
    "boardId": "bb1",
    "a": "e11",
-   "b": "g16",
+   "b": "d18",
    "color": "green"
   }
  ]

@@ -167,14 +167,14 @@
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "vcc": "e22",
-          "gnd": "e23",
-          "1_pos": "e24",
-          "1_neg": "e25",
           "1_out": "f22",
-          "2_pos": "f23",
-          "2_neg": "f24",
-          "2_out": "f25"
+          "1_neg": "f23",
+          "1_pos": "f24",
+          "gnd": "f25",
+          "2_pos": "e25",
+          "2_neg": "e24",
+          "2_out": "e23",
+          "vcc": "e22"
         }
       },
       "terminals": [
@@ -484,7 +484,7 @@
       "ref": "bbw:breadboard_1:bbw_16",
       "boardId": "breadboard_1",
       "a": "e18",
-      "b": "d24",
+      "b": "g24",
       "color": "yellow"
     },
     {
@@ -504,14 +504,14 @@
     {
       "ref": "bbw:breadboard_1:bbw_19",
       "boardId": "breadboard_1",
-      "a": "g24",
+      "a": "d24",
       "b": "e35",
       "color": "white"
     },
     {
       "ref": "bbw:breadboard_1:bbw_20",
       "boardId": "breadboard_1",
-      "a": "g25",
+      "a": "d23",
       "b": "f30",
       "color": "blue"
     },
@@ -567,8 +567,8 @@
     {
       "ref": "bbw:breadboard_1:bbw_28",
       "boardId": "breadboard_1",
-      "a": "b23",
-      "b": "t-23",
+      "a": "i25",
+      "b": "b-25",
       "color": "black"
     },
     {
