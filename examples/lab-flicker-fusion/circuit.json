@@ -111,14 +111,14 @@
       "seat": {
         "boardId": "bb1",
         "leadMap": {
-          "gnd": "e15",
-          "trigger": "e16",
-          "output": "e17",
-          "reset": "e18",
-          "control": "f18",
-          "threshold": "f17",
-          "discharge": "f16",
-          "vcc": "f15"
+          "gnd": "f15",
+          "trigger": "f16",
+          "output": "f17",
+          "reset": "f18",
+          "vcc": "e15",
+          "discharge": "e16",
+          "threshold": "e17",
+          "control": "e18"
         }
       }
     },
@@ -151,20 +151,20 @@
       "seat": {
         "boardId": "bb1",
         "leadMap": {
-          "1clr": "e23",
-          "1d": "e24",
-          "1clk": "e25",
-          "1pre": "e26",
-          "1q": "e27",
-          "1q_bar": "e28",
-          "gnd": "e29",
-          "2q_bar": "f29",
-          "2q": "f28",
-          "2pre": "f27",
-          "2clk": "f26",
-          "2d": "f25",
-          "2clr": "f24",
-          "vcc": "f23"
+          "1clr": "f23",
+          "1d": "f24",
+          "1clk": "f25",
+          "1pre": "f26",
+          "1q": "f27",
+          "1q_bar": "f28",
+          "gnd": "f29",
+          "2q_bar": "e29",
+          "2q": "e28",
+          "2pre": "e27",
+          "2clk": "e26",
+          "2d": "e25",
+          "2clr": "e24",
+          "vcc": "e23"
         }
       }
     },
@@ -259,50 +259,50 @@
     {
       "ref": "bbw:bb1:bbw_4",
       "boardId": "bb1",
-      "a": "i15",
-      "b": "b+15",
+      "a": "b15",
+      "b": "t+15",
       "color": "red"
     },
     {
       "ref": "bbw:bb1:bbw_5",
       "boardId": "bb1",
-      "a": "b18",
-      "b": "t+18",
+      "a": "i18",
+      "b": "b+18",
       "color": "red"
     },
     {
       "ref": "bbw:bb1:bbw_6",
-      "boardId": "bb1",
-      "a": "i23",
-      "b": "b+23",
-      "color": "red"
-    },
-    {
-      "ref": "bbw:bb1:bbw_7",
       "boardId": "bb1",
       "a": "b23",
       "b": "t+23",
       "color": "red"
     },
     {
+      "ref": "bbw:bb1:bbw_7",
+      "boardId": "bb1",
+      "a": "i23",
+      "b": "b+23",
+      "color": "red"
+    },
+    {
       "ref": "bbw:bb1:bbw_8",
       "boardId": "bb1",
-      "a": "i24",
-      "b": "b+24",
+      "a": "b24",
+      "b": "t+24",
       "color": "red"
     },
     {
       "ref": "bbw:bb1:bbw_9",
       "boardId": "bb1",
-      "a": "b26",
-      "b": "t+26",
+      "a": "i26",
+      "b": "b+26",
       "color": "red"
     },
     {
       "ref": "bbw:bb1:bbw_10",
       "boardId": "bb1",
-      "a": "i27",
-      "b": "b+27",
+      "a": "b27",
+      "b": "t+27",
       "color": "red"
     },
     {
@@ -316,7 +316,7 @@
       "ref": "bbw:bb1:bbw_13",
       "boardId": "bb1",
       "a": "d7",
-      "b": "g16",
+      "b": "d16",
       "color": "blue"
     },
     {
@@ -344,41 +344,41 @@
       "ref": "bbw:bb1:bbw_17",
       "boardId": "bb1",
       "a": "d13",
-      "b": "d16",
+      "b": "g16",
       "color": "yellow"
     },
     {
       "ref": "bbw:bb1:bbw_18",
       "boardId": "bb1",
-      "a": "c16",
-      "b": "g17",
+      "a": "h16",
+      "b": "d17",
       "color": "yellow"
     },
     {
       "ref": "bbw:bb1:bbw_19",
       "boardId": "bb1",
-      "a": "g18",
+      "a": "d18",
       "b": "e20",
       "color": "orange"
     },
     {
       "ref": "bbw:bb1:bbw_20",
       "boardId": "bb1",
-      "a": "d17",
-      "b": "d25",
+      "a": "g17",
+      "b": "g25",
       "color": "purple"
     },
     {
       "ref": "bbw:bb1:bbw_21",
       "boardId": "bb1",
-      "a": "d24",
-      "b": "d28",
+      "a": "g24",
+      "b": "g28",
       "color": "white"
     },
     {
       "ref": "bbw:bb1:bbw_22",
       "boardId": "bb1",
-      "a": "d27",
+      "a": "g27",
       "b": "e31",
       "color": "blue"
     },
@@ -399,8 +399,8 @@
     {
       "ref": "bbw:bb1:bbw_25",
       "boardId": "bb1",
-      "a": "b15",
-      "b": "t-15",
+      "a": "i15",
+      "b": "b-15",
       "color": "black"
     },
     {
@@ -413,22 +413,22 @@
     {
       "ref": "bbw:bb1:bbw_27",
       "boardId": "bb1",
-      "a": "i25",
-      "b": "b-25",
+      "a": "b25",
+      "b": "t-25",
       "color": "black"
     },
     {
       "ref": "bbw:bb1:bbw_28",
       "boardId": "bb1",
-      "a": "i26",
-      "b": "b-26",
+      "a": "b26",
+      "b": "t-26",
       "color": "black"
     },
     {
       "ref": "bbw:bb1:bbw_29",
       "boardId": "bb1",
-      "a": "b29",
-      "b": "t-29",
+      "a": "i29",
+      "b": "b-29",
       "color": "black"
     },
     {

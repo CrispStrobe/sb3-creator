@@ -28,19 +28,19 @@
    "id": "u1",
    "kind": "555",
    "params": {},
-   "x": 525,
-   "y": 300,
+   "x": 449,
+   "y": 272,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "gnd": "e29",
-     "trigger": "e30",
-     "output": "e31",
-     "reset": "e32",
-     "control": "f32",
-     "threshold": "f31",
-     "discharge": "f30",
-     "vcc": "f29"
+     "gnd": "f29",
+     "trigger": "f30",
+     "output": "f31",
+     "reset": "f32",
+     "vcc": "a29",
+     "discharge": "a30",
+     "threshold": "a31",
+     "control": "a32"
     }
    }
   },

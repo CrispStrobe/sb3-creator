@@ -209,14 +209,14 @@
       "seat": {
         "boardId": "bb1",
         "leadMap": {
-          "gnd": "e36",
-          "trigger": "e37",
-          "output": "e38",
-          "reset": "e39",
-          "control": "f39",
-          "threshold": "f38",
-          "discharge": "f37",
-          "vcc": "f36"
+          "gnd": "f36",
+          "trigger": "f37",
+          "output": "f38",
+          "reset": "f39",
+          "vcc": "e36",
+          "discharge": "e37",
+          "threshold": "e38",
+          "control": "e39"
         }
       }
     },
@@ -387,8 +387,8 @@
     {
       "ref": "bbw:bb1:bbw_7",
       "boardId": "bb1",
-      "a": "i36",
-      "b": "b+36",
+      "a": "b36",
+      "b": "t+36",
       "color": "red"
     },
     {
@@ -437,13 +437,13 @@
       "ref": "bbw:bb1:bbw_15",
       "boardId": "bb1",
       "a": "h21",
-      "b": "d39",
+      "b": "g39",
       "color": "yellow"
     },
     {
       "ref": "bbw:bb1:bbw_16",
       "boardId": "bb1",
-      "a": "c39",
+      "a": "h39",
       "b": "e47",
       "color": "yellow"
     },
@@ -465,7 +465,7 @@
       "ref": "bbw:bb1:bbw_19",
       "boardId": "bb1",
       "a": "d30",
-      "b": "g37",
+      "b": "d37",
       "color": "purple"
     },
     {
@@ -479,27 +479,27 @@
       "ref": "bbw:bb1:bbw_21",
       "boardId": "bb1",
       "a": "d32",
-      "b": "d37",
+      "b": "g37",
       "color": "white"
     },
     {
       "ref": "bbw:bb1:bbw_22",
       "boardId": "bb1",
-      "a": "c37",
-      "b": "g38",
+      "a": "h37",
+      "b": "d38",
       "color": "white"
     },
     {
       "ref": "bbw:bb1:bbw_23",
       "boardId": "bb1",
-      "a": "g39",
+      "a": "d39",
       "b": "e41",
       "color": "blue"
     },
     {
       "ref": "bbw:bb1:bbw_24",
       "boardId": "bb1",
-      "a": "d38",
+      "a": "g38",
       "b": "f41",
       "color": "green"
     },
@@ -590,8 +590,8 @@
     {
       "ref": "bbw:bb1:bbw_37",
       "boardId": "bb1",
-      "a": "b36",
-      "b": "t-36",
+      "a": "i36",
+      "b": "b-36",
       "color": "black"
     },
     {

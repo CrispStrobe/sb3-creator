@@ -181,3 +181,31 @@ defect. **A gate that cannot fail for its own purpose is worse than no gate**, s
 it is not shipped. What would work is a chirality check — traversing the pins in
 footprint order and requiring the saved holes to trace the same rotational sense —
 and that belongs with whoever owns the seating model.
+
+## 2026-11-24: the corpus re-seated under the re-laid footprints
+
+bw-circuit-ui #155 / bw-parts #25 re-laid the DIP footprints with pin 1
+bottom-left (most had described the chip from underneath), and bw-parts #26 /
+bw-circuit-ui #157 put nine sidecars on their datasheet pinout (lm358, lm393,
+lm339, cd74hc4067, darlington_driver, 74hc244, 74hc93, 74hc73, 74hc4050). A
+saved seat keeps its saved leadMap, so no net moved, but the canvas draws a part
+whose seat its art cannot reach as a box. Measured at bw-circuit-ui 92b55b7,
+bw-board d5501af: 399 seated parts in 269 files.
+
+All 399 re-seated, every engine net identical (headless and app load):
+
+- generated lab benches: their generators (`gen-lab-batch2.mjs`,
+  `gen-lab-circuits-4.mjs --set=…`); hand-authored lab benches:
+  `seat-lab-benches.mjs`. Both seat through `bench-layout.mjs` with the
+  current footprints;
+- everything else: `scripts/reseat-mirrored-dips.mjs`, which finds the seat
+  under the current footprint on exactly the same strips and carries every
+  other occupant of a strip (jumper ends, tap ends, other legs) with its pin,
+  so the strips are permuted and every net keeps its members.
+
+`scripts/check-seated-art.mjs` is the check: for every circuit file it counts
+parts on the box fallback (the canvas's own `seatedArtClean` test) and compares
+the net partition with a git revision. Run it with `--load=app` (the art and
+the box count need every sidecar) and with the default headless load (the
+gates' view of the nets). After the re-seat: 0 boxes, 269 files with
+identical nets under both loads.

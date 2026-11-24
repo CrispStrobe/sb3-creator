@@ -352,19 +352,19 @@
    "id": "xtal",
    "kind": "555",
    "declName": "xtal_1.8432MHz",
-   "x": 64,
-   "y": 1391,
+   "x": 85,
+   "y": 1382,
    "seat": {
     "boardId": "bb4",
     "leadMap": {
-     "gnd": "e3",
-     "trigger": "e4",
-     "output": "e5",
-     "reset": "e6",
-     "control": "f6",
-     "threshold": "f5",
-     "discharge": "f4",
-     "vcc": "f3"
+     "gnd": "f3",
+     "trigger": "f4",
+     "output": "f5",
+     "reset": "f6",
+     "vcc": "a3",
+     "discharge": "a4",
+     "threshold": "a5",
+     "control": "a6"
     }
    },
    "params": {}
@@ -373,19 +373,19 @@
    "id": "osc",
    "kind": "555",
    "declName": "clock_1MHz",
-   "x": 162,
-   "y": 1391,
+   "x": 183,
+   "y": 1382,
    "seat": {
     "boardId": "bb4",
     "leadMap": {
-     "gnd": "e10",
-     "trigger": "e11",
-     "output": "e12",
-     "reset": "e13",
-     "control": "f13",
-     "threshold": "f12",
-     "discharge": "f11",
-     "vcc": "f10"
+     "gnd": "f10",
+     "trigger": "f11",
+     "output": "f12",
+     "reset": "f13",
+     "vcc": "a10",
+     "discharge": "a11",
+     "threshold": "a12",
+     "control": "a13"
     }
    },
    "params": {}
@@ -427,7 +427,7 @@
    "x": 260,
    "y": 1335,
    "params": {
-    "farads": 1e-07
+    "farads": 1e-7
    },
    "seat": {
     "boardId": "bb4",
@@ -443,7 +443,7 @@
    "x": 302,
    "y": 1335,
    "params": {
-    "farads": 1e-07
+    "farads": 1e-7
    },
    "seat": {
     "boardId": "bb4",
@@ -459,7 +459,7 @@
    "x": 344,
    "y": 1335,
    "params": {
-    "farads": 1e-07
+    "farads": 1e-7
    },
    "seat": {
     "boardId": "bb4",
@@ -475,7 +475,7 @@
    "x": 386,
    "y": 1335,
    "params": {
-    "farads": 1e-07
+    "farads": 1e-7
    },
    "seat": {
     "boardId": "bb4",
@@ -491,7 +491,7 @@
    "x": 428,
    "y": 1335,
    "params": {
-    "farads": 1e-07
+    "farads": 1e-7
    },
    "seat": {
     "boardId": "bb4",
@@ -507,7 +507,7 @@
    "x": 470,
    "y": 1335,
    "params": {
-    "farads": 1e-07
+    "farads": 1e-7
    },
    "seat": {
     "boardId": "bb4",
@@ -1617,28 +1617,28 @@
   {
    "ref": "bbw:bb4:gen_47",
    "boardId": "bb4",
-   "a": "a3",
+   "a": "j3",
    "b": "b-3",
    "color": "black"
   },
   {
    "ref": "bbw:bb4:gen_48",
    "boardId": "bb4",
-   "a": "g3",
+   "a": "d3",
    "b": "t+3",
    "color": "red"
   },
   {
    "ref": "bbw:bb4:gen_49",
    "boardId": "bb4",
-   "a": "a10",
+   "a": "j10",
    "b": "b-10",
    "color": "black"
   },
   {
    "ref": "bbw:bb4:gen_50",
    "boardId": "bb4",
-   "a": "g10",
+   "a": "d10",
    "b": "t+10",
    "color": "red"
   }
