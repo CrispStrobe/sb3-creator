@@ -6,20 +6,25 @@
 1 kΩ "fine" potentiometer that hangs between two 4.7 kΩ limiting resistors, so its whole travel only
 covers about 4.07 V to 4.91 V. A voltmeter reads input minus reference directly.
 
-The two collectors drive one half of an LM358 op-amp with no feedback: q1's collector to the + input,
-q2's collector to the − input. The op-amp output lights a green LED (1 kΩ to ground) when high and a red
-LED (1 kΩ from +9 V) when low. The unused half is parked as a grounded follower.
+The two collectors drive an LM386 audio power amplifier, the engine's stand-in for the TBA820-class
+amplifier chip such a kit would use: q1's collector through 1 MΩ to the + input, q2's through 1 MΩ to the
+− input. Together with the chip's own input resistors to ground these keep both inputs near a third of a
+volt, inside the small range an audio amp's inputs accept. The gain pins are joined, so the chip
+amplifies the input difference 200 times down to DC; its output rests at half the supply. The output
+lights a green LED (1 kΩ to ground) when high and a red LED (1 kΩ from +9 V) when low.
 
 ## Observable behaviour
 - Input above the reference: q2 takes more of the tail current, its collector falls below q1's, and the
-  op-amp output swings high (about 7.25 V): green.
-- Input below the reference: the collectors swap places, the output drops to about 0.36 V: red.
-- The changeover happens with less than half a millivolt between the two bases. The bare pair needs
-  roughly a tenth of a volt to move its current from one side to the other; here the op-amp multiplies
-  the small collector difference until the output is at one end or the other.
+  amplifier's output swings to its top limit (about 8.1 V): green.
+- Input below the reference: the collectors swap places and the output drops to its bottom limit (about
+  0.9 V): red.
+- The whole changeover lies within about half a millivolt between the two bases; in between, the output
+  passes through half supply and both LEDs glow. The bare pair needs roughly a tenth of a volt to move
+  its current from one side to the other; here the amplifier multiplies the collector difference until
+  the output is at one end or the other.
 - Fine tuning: the limiting resistors shrink the knob's range to under a volt, so one percent of travel is
   about 6 mV instead of about 90 mV for a knob across the whole supply. The switching point sits near
-  the middle of the travel, between 0.485 and 0.49.
+  the middle of the travel, between 0.485 and 0.495.
 - As authored (knob at 0.5): input 4.4865 V, reference 4.4859 V, a difference of about 0.6 mV, and the
   output is high.
 
@@ -29,9 +34,10 @@ LED (1 kΩ from +9 V) when low. The unused half is parked as a grounded follower
 2. Series resistors on a potentiometer trade range for resolution.
 
 ```assert
-# knob at 0.5: input 0.6 mV above the reference, output high
+# knob at 0.5: input 0.6 mV above the reference, output at its top limit
 net npn_10.base V 4.4865 +-0.005
 net npn_9.base V 4.4859 +-0.005
 net resistor_13.a V 3.809 +-0.03
-net lm358_14.1_out V 7.248 +-0.1
+net lm386_16.inp V 0.364 +-0.01
+net lm386_16.vout V 8.10 +-0.1
 ```
