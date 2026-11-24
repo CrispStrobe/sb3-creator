@@ -122,6 +122,8 @@ test('three original examples assemble and retain the documented blink cell sequ
     }
     const blink = assembleCp1Program(readFileSync(new URL('../examples/cp1-blink/program.cp1', import.meta.url), 'utf8'));
     assert.deepEqual(bytesAt(blink, 0, 7), [4, 1, 18, 1, 3, 200, 4, 0, 18, 1, 3, 200, 9, 0]);
+    const display = assembleCp1Program(CP1_EXAMPLES['cp1-first-display']);
+    assert.deepEqual(bytesAt(display, 0, 3), [4, 42, 2, 0, 9, 1], 'repeat ANZ so the monitor halt message does not replace the value');
 });
 
 test('CP1 gallery entries link the actual sources and declared machine terminals without a ROM', () => {
