@@ -10974,6 +10974,24 @@
   "devices": []
  },
  {
+  "id": "lab-fibre-lens",
+  "title": {
+   "en": "Focusing light into a light guide",
+   "de": "Licht in einen Lichtleiter bündeln"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-fibre-lens/program.bw",
+   "circuit": "lab-fibre-lens/circuit.json",
+   "expected": "lab-fibre-lens/EXPECTED.md",
+   "intro": "lab-fibre-lens/intro.md",
+   "introDE": "lab-fibre-lens/intro.de.md"
+  },
+  "devices": []
+ },
+ {
   "id": "lab-fibre-tone",
   "title": {
    "en": "Light guide sets the pitch",
