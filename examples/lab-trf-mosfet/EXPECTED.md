@@ -1,7 +1,7 @@
 # lab-trf-mosfet — expected behaviour
 
 ## Circuit
-- 9 V battery. A short antenna (2 m effective height, 50 pF) with two stations: local 700 kHz (400 Hz tone) and a neighbour at 740 kHz (1 kHz tone), both 5 mV/m; earth. A slide switch connects the antenna straight to the top of the tank (first position, authored) or through 4.7 pF (second position). Tank: ferrite-rod main winding and the tuning capacitor (authored 0.30, on the local station).
+- 9 V battery. A short antenna (2 m effective height, 50 pF) with two stations: local 700 kHz (400 Hz tone) and a neighbour at 740 kHz (1 kHz tone), both five millivolts per metre; earth. A slide switch connects the antenna straight to the top of the tank (first position, authored) or through 4.7 pF (second position). Tank: ferrite-rod main winding and the tuning capacitor (authored 0.30, on the local station).
 - RF stage: the coupling winding drives an n-MOSFET's gate; its cold end sits on a 100 kΩ / 47 kΩ divider held by 10 nF (2.88 V). Drain load 4.7 kΩ; the RF goes through 1 nF to a germanium diode (100 kΩ DC return) into 47 kΩ ‖ 2.2 nF.
 - Audio: 100 nF into an NPN stage (1 MΩ collector-to-base, 4.7 kΩ load), 100 nF into the LM386 (gain 20), 8 Ω speaker through 220 µF.
 
@@ -26,7 +26,7 @@ net lm386_25.bypass V 4.51 +-0.05
 > **Engine provenance.** The measured numbers on this page were last held against
 > `bw-board@b094eb2` and `bw-circuit-ui@0b594d6` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
-> **18 of this page's 40** numeric claims against that engine
-> (1 of them disagreeing) and declines the rest with a stated reason;
+> **17 of this page's 39** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs lab-trf-mosfet` prints them one by one.
 <!-- engine-provenance -->
