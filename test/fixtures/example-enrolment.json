@@ -1,6 +1,6 @@
 {
   "note": "Which gates enrol which example, computed from scripts/lib/example-enrolment.mjs. A diff here is a change in COVERAGE — read it before regenerating.",
-  "measuredOn": "2026-11-24",
+  "measuredOn": "2026-11-25",
   "examples": 671,
   "gates": {
     "gallery": 601,
