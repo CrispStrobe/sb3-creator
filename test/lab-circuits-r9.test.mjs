@@ -185,7 +185,7 @@ describe('r9 benches behave as documented', { skip: SKIP }, () => {
             for (const [t, v] of tr) { re += v * Math.cos(2 * Math.PI * kHz * t); im += v * Math.sin(2 * Math.PI * kHz * t); }
             return 2 * Math.hypot(re, im) / tr.length;
         };
-        near(x.state('u').vcoHz, 70000, 12000, 'the VCO near the transmitter\'s rate (Hz)');
+        near(x.state('u').vcoHz, 68000, 12000, 'the VCO near the transmitter\'s rate (Hz)');
         const music = seen('5 kHz at dem_out (V)', bin(5)), other = seen('10 kHz at dem_out (V)', bin(10));
         near(music, 0.66, 0.2, 'the demodulator output carries the 5 kHz music (V)');
         assert.ok(other < music / 3, 'and not a tone it was not sent');

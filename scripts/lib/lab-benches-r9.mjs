@@ -105,7 +105,7 @@ export const BENCHES = {
 
     // Transmitter: the music (a 5 kHz test tone) into an LM358 inverting
     // stage centred by a pot; its output feeds the base resistors of a
-    // two-transistor astable (1 nF, 6.8 k), whose frequency (70-90 kHz)
+    // two-transistor astable (1 nF, 6.8 k), whose frequency (65-90 kHz)
     // follows that voltage. The LED in the astable's collector flashes into
     // a 2 m fibre. Receiver: the phototransistor's pulses (1 nF coupling)
     // clock a 4046's comparator II; its loop (10 k, 1 k + 4.7 nF) holds the

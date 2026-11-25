@@ -10,7 +10,7 @@ Click **Sim**. Turn the music generator's amplitude down to 0 and back up, and m
 
 ## What you should see
 
-- The PLL's oscillator runs near the transmitter's rate, 70–90 kHz.
+- The PLL's oscillator runs near the transmitter's rate, 65–90 kHz.
 - With music, the PLL's demodulator output (pin 10) swings with the music; without music it stays still.
 
 ## Why it works

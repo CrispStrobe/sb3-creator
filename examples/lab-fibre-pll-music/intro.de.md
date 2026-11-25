@@ -10,7 +10,7 @@ Klick auf **Sim**. Dreh die Amplitude des Musikgenerators auf 0 und wieder auf, 
 
 ## Was du sehen solltest
 
-- Der Oszillator der PLL läuft in der Nähe der Senderate, 70–90 kHz.
+- Der Oszillator der PLL läuft in der Nähe der Senderate, 65–90 kHz.
 - Mit Musik schwingt der Demodulatorausgang der PLL (Pin 10) mit der Musik; ohne Musik bleibt er ruhig.
 
 ## Warum es funktioniert

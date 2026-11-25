@@ -2,7 +2,7 @@
 
 ## Circuit
 - 9 V supply. Transmitter: a music generator (`function_gen_3`, a 5 kHz test tone, 1 V peak) into an LM358 (`lm358_5`) inverting stage (10 kΩ / 10 kΩ) whose + input sits on a centre pot (`potentiometer_4`, 3.15 V): its output is 2 × 3.15 V minus the music, 6.3 V ± 1 V.
-- That output feeds both 6.8 kΩ base resistors of a two-transistor astable (`npn_9`, `npn_10`, 1 nF, 1 kΩ collector on one side, a red LED and 470 Ω on the other): a higher voltage charges the capacitors faster, so the LED flashes 70–90 thousand times a second, faster or slower with the music.
+- That output feeds both 6.8 kΩ base resistors of a two-transistor astable (`npn_9`, `npn_10`, 1 nF, 1 kΩ collector on one side, a red LED and 470 Ω on the other): a higher voltage charges the capacitors faster, so the LED flashes 65–90 thousand times a second, faster or slower with the music.
 - A 2 m light guide to a phototransistor (`phototransistor_17`, 1 kΩ emitter load), 1 nF into the 4046's signal input (`cd4046_20`). The VCO (10 kΩ, 220 pF) is held on the incoming rate by comparator II through 10 kΩ and 1 kΩ + 4.7 nF.
 - The demodulator output (the VCO's control voltage, 10 kΩ load) is filtered by 10 kΩ / 10 nF and coupled by 1 µF into an LM386 (`lm386_30`, gain 20) driving a magnetic earphone through 10 µF.
 
@@ -15,7 +15,7 @@ bw-board r9/engine-robust-20261125 / bw-circuit-ui e3441d2, `test/lab-circuits-r
 
 | quantity | value |
 |---|---|
-| VCO | 70 kHz (80 kHz with the music at 0) |
+| VCO (at the end of the window) | 66 kHz (80 kHz in a run with the music at 0) |
 | 5 kHz at the demodulator output | 0.66 V |
 | 10 kHz there (not sent) | below a third of that |
 | same, music amplitude 0 | 0.12 V at 5 kHz |
