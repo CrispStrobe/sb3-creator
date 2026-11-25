@@ -16889,5 +16889,260 @@
       "intro": "lab-amp-dc-gain/intro.md",
       "introDE": "lab-amp-dc-gain/intro.de.md"
     }
+  },
+  {
+    "id": "lab-cap-two-way-leds",
+    "title": {
+      "en": "Capacitor current both ways",
+      "de": "Kondensatorstrom in beide Richtungen"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "files": {
+      "program": "lab-cap-two-way-leds/program.bw",
+      "circuit": "lab-cap-two-way-leds/circuit.json",
+      "expected": "lab-cap-two-way-leds/EXPECTED.md",
+      "intro": "lab-cap-two-way-leds/intro.md",
+      "introDE": "lab-cap-two-way-leds/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-salt-water-probe",
+    "title": {
+      "en": "Salt makes water conduct",
+      "de": "Salz macht Wasser leitend"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "files": {
+      "program": "lab-salt-water-probe/program.bw",
+      "circuit": "lab-salt-water-probe/circuit.json",
+      "expected": "lab-salt-water-probe/EXPECTED.md",
+      "intro": "lab-salt-water-probe/intro.md",
+      "introDE": "lab-salt-water-probe/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-led-reference-switch",
+    "title": {
+      "en": "An LED as a reference voltage",
+      "de": "Eine LED als Referenzspannung"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-led-reference-switch/program.bw",
+      "circuit": "lab-led-reference-switch/circuit.json",
+      "expected": "lab-led-reference-switch/EXPECTED.md",
+      "intro": "lab-led-reference-switch/intro.md",
+      "introDE": "lab-led-reference-switch/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-darlington-delay-on",
+    "title": {
+      "en": "Darlington: delayed on, slow fade off",
+      "de": "Darlington: verzögert an, langsam aus"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-darlington-delay-on/program.bw",
+      "circuit": "lab-darlington-delay-on/circuit.json",
+      "expected": "lab-darlington-delay-on/EXPECTED.md",
+      "intro": "lab-darlington-delay-on/intro.md",
+      "introDE": "lab-darlington-delay-on/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-npn-warm-on",
+    "title": {
+      "en": "Warm transistor turns the light on",
+      "de": "Warmer Transistor schaltet das Licht ein"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-npn-warm-on/program.bw",
+      "circuit": "lab-npn-warm-on/circuit.json",
+      "expected": "lab-npn-warm-on/EXPECTED.md",
+      "intro": "lab-npn-warm-on/intro.md",
+      "introDE": "lab-npn-warm-on/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-pair-heat-balance",
+    "title": {
+      "en": "Heat one transistor of a pair",
+      "de": "Einen Transistor des Paars erwärmen"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-pair-heat-balance/program.bw",
+      "circuit": "lab-pair-heat-balance/circuit.json",
+      "expected": "lab-pair-heat-balance/EXPECTED.md",
+      "intro": "lab-pair-heat-balance/intro.md",
+      "introDE": "lab-pair-heat-balance/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-torch-toggle",
+    "title": {
+      "en": "Flip-flop toggled by a torch",
+      "de": "Flipflop, mit der Taschenlampe umgeschaltet"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-torch-toggle/program.bw",
+      "circuit": "lab-torch-toggle/circuit.json",
+      "expected": "lab-torch-toggle/EXPECTED.md",
+      "intro": "lab-torch-toggle/intro.md",
+      "introDE": "lab-torch-toggle/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-monoflop-diode-edge",
+    "title": {
+      "en": "Monoflop: held trigger, edge trigger, diode",
+      "de": "Monoflop: Dauer-Trigger, Flanken-Trigger, Diode"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-monoflop-diode-edge/program.bw",
+      "circuit": "lab-monoflop-diode-edge/circuit.json",
+      "expected": "lab-monoflop-diode-edge/EXPECTED.md",
+      "intro": "lab-monoflop-diode-edge/intro.md",
+      "introDE": "lab-monoflop-diode-edge/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-knock-flicker",
+    "title": {
+      "en": "Knock detector",
+      "de": "Klopf-Detektor"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-knock-flicker/program.bw",
+      "circuit": "lab-knock-flicker/circuit.json",
+      "expected": "lab-knock-flicker/EXPECTED.md",
+      "intro": "lab-knock-flicker/intro.md",
+      "introDE": "lab-knock-flicker/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-relax-metronome",
+    "title": {
+      "en": "Unijunction metronome",
+      "de": "Unijunction-Metronom"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-relax-metronome/program.bw",
+      "circuit": "lab-relax-metronome/circuit.json",
+      "expected": "lab-relax-metronome/EXPECTED.md",
+      "intro": "lab-relax-metronome/intro.md",
+      "introDE": "lab-relax-metronome/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-comp-monoflop",
+    "title": {
+      "en": "Complementary timer with ready light",
+      "de": "Komplementärer Zeitschalter mit Bereit-Anzeige"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-comp-monoflop/program.bw",
+      "circuit": "lab-comp-monoflop/circuit.json",
+      "expected": "lab-comp-monoflop/EXPECTED.md",
+      "intro": "lab-comp-monoflop/intro.md",
+      "introDE": "lab-comp-monoflop/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-transistor-and-or",
+    "title": {
+      "en": "AND and OR from transistors",
+      "de": "UND und ODER aus Transistoren"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-transistor-and-or/program.bw",
+      "circuit": "lab-transistor-and-or/circuit.json",
+      "expected": "lab-transistor-and-or/EXPECTED.md",
+      "intro": "lab-transistor-and-or/intro.md",
+      "introDE": "lab-transistor-and-or/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-rf-preamp-radio",
+    "title": {
+      "en": "Radio with RF stage and transistor detector",
+      "de": "Radio mit HF-Stufe und Transistor-Demodulator"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-rf-preamp-radio/program.bw",
+      "circuit": "lab-rf-preamp-radio/circuit.json",
+      "expected": "lab-rf-preamp-radio/EXPECTED.md",
+      "intro": "lab-rf-preamp-radio/intro.md",
+      "introDE": "lab-rf-preamp-radio/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-ir-photo-darlington",
+    "title": {
+      "en": "IR receiver: phototransistor alone or photo-Darlington",
+      "de": "IR-Empfänger: Fototransistor allein oder Foto-Darlington"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-ir-photo-darlington/program.bw",
+      "circuit": "lab-ir-photo-darlington/circuit.json",
+      "expected": "lab-ir-photo-darlington/EXPECTED.md",
+      "intro": "lab-ir-photo-darlington/intro.md",
+      "introDE": "lab-ir-photo-darlington/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-fibre-bend-meter",
+    "title": {
+      "en": "Fibre bend on the meter",
+      "de": "Lichtleiter-Biegung am Messgerät"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-fibre-bend-meter/program.bw",
+      "circuit": "lab-fibre-bend-meter/circuit.json",
+      "expected": "lab-fibre-bend-meter/EXPECTED.md",
+      "intro": "lab-fibre-bend-meter/intro.md",
+      "introDE": "lab-fibre-bend-meter/intro.de.md"
+    }
   }
 ]
