@@ -61,6 +61,9 @@ export const ENROLMENT = [
     {   gate: 'index-metadata-matches-disk',
         why: 'every catalog entry',
         p: () => true },
+    {   gate: 'cp1-program',
+        why: 'CP1 teaching source and circuit reachability',
+        p: (f) => f.entry.target === 'kosmos-cp1' && Boolean(f.entry.files?.cp1) },
     {   gate: 'retarget-gallery',
         // `e.kind === 'program' && Array.isArray(e.devices) && e.authored !== 'microbit' && e.authored !== 'spike'`
         why: 'devices must equal the retarget dry-run — the gate the kind flip pulled in',
