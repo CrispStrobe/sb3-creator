@@ -1,23 +1,23 @@
 {
   "note": "Which gates enrol which example, computed from scripts/lib/example-enrolment.mjs. A diff here is a change in COVERAGE — read it before regenerating.",
   "measuredOn": "2026-11-25",
-  "examples": 748,
+  "examples": 765,
   "gates": {
-    "gallery": 678,
-    "example-kind-matches-content": 748,
-    "index-metadata-matches-disk": 748,
+    "gallery": 695,
+    "example-kind-matches-content": 765,
+    "index-metadata-matches-disk": 765,
     "retarget-gallery": 66,
     "retarget-amplification": 66,
     "gen-device-benches": 148,
     "example-corpus-contract": 402,
-    "assert-physics": 612,
+    "assert-physics": 629,
     "debug-micropython": 10,
     "debug-trace-audit": 18,
-    "circuit-params-are-read": 716,
-    "program-reads-what-it-writes": 674,
+    "circuit-params-are-read": 733,
+    "program-reads-what-it-writes": 691,
     "vm-and-c-agree-on-arithmetic": 168,
     "documented-tables-are-derived": 4,
-    "vm": 678,
+    "vm": 695,
     "simulator-driver-controls-respond": 44,
     "school-circuit-projects": 3,
     "gallery-e2e": 27
@@ -7321,6 +7321,159 @@
       "vm"
     ],
     "lab-counter-traffic-lights": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-opamp-plus-minus": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-opamp-sawtooth": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-opamp-staircase": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-wien-mosfet": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-opamp-baby-monitor": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-opamp-hysteresis": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-opamp-hand-astable": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-opamp-hearing-limit": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-opamp-toggle": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-opamp-meter-stages": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-opamp-gated-tones": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-opamp-beats": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-opamp-doubler": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-opamp-gates": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-opamp-led-pitch": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-opamp-key-finder": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-ir-reflect-alarm": [
       "assert-physics",
       "circuit-params-are-read",
       "example-kind-matches-content",

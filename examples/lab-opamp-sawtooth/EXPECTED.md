@@ -27,3 +27,12 @@ net resistor_3.b V 4.5 +-0.01
 net lm324_5.2_pos V 3.239 +-0.03
 net lm324_5.1_out V 4.703 +-0.03
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@2965782` and `bw-circuit-ui@e3441d2` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **21 of this page's 37** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-opamp-sawtooth` prints them one by one.
+<!-- engine-provenance -->

@@ -24,3 +24,12 @@ The adder takes the capacitor voltages (triangle-like) rather than the square ou
 net resistor_4.b V 4.5 +-0.01
 net lm324_3.1_pos V 3.008 +-0.03
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@2965782` and `bw-circuit-ui@e3441d2` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **14 of this page's 20** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-opamp-beats` prints them one by one.
+<!-- engine-provenance -->

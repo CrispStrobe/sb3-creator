@@ -29,3 +29,12 @@ net resistor_14.b V 0.296 +-0.005
 net lm324_3.3_neg V 2.878 +-0.01
 net lm324_3.1_pos V 5.407 +-0.03
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@2965782` and `bw-circuit-ui@e3441d2` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **18 of this page's 34** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-opamp-staircase` prints them one by one.
+<!-- engine-provenance -->
