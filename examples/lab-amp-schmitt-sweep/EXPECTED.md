@@ -2,7 +2,7 @@
 
 ## Circuit
 - 9 V supply. LM386 (lm386_3) with pins 1 and 8 joined by a wire: gain 200, at DC as well.
-- Reference: 330 kΩ (resistor_4) from +9 V to the − input, against the chip's own 50 kΩ to ground: 1.18 V.
+- Reference: 330 kΩ (resistor_4) from +9 V to the − input, against the chip's own input resistance to ground: 1.18 V.
 - Input: 22 kΩ (resistor_5) from +9 V onto a 10 kΩ INPUT pot (potentiometer_6) to ground, so the wiper spans 0 to 2.7 V (as built: knob at zero). The wiper feeds the + input through 47 kΩ (resistor_7); 470 kΩ (resistor_8) from the output to the + input is the positive feedback. A voltmeter (voltmeter_9) shows the wiper.
 - Red LED (1 kΩ) from the output to ground: lit while the output is high. Green LED (1 kΩ) from +9 V to the output: lit while it is low.
 
@@ -28,3 +28,12 @@ net lm386_3.inn V 1.184 +-0.02
 net lm386_3.vout V 0.901 +-0.02
 net led_13.anode V 2.907 +-0.05
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@2965782` and `bw-circuit-ui@e3441d2` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **21 of this page's 32** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-amp-schmitt-sweep` prints them one by one.
+<!-- engine-provenance -->

@@ -3,7 +3,7 @@
 ## Circuit
 - 9 V supply. LM386 (lm386_3) relaxation oscillator: 47 kΩ from the output and 100 kΩ from +9 V set the + input's moving threshold (1 nF speed-up); 10 kΩ and 220 nF from the output to the − input set the pitch. Loudspeaker through 47 µF and 47 Ω.
 - Key: a depletion dual-gate MOSFET (dual_gate_mosfet_13), source and gate 2 at ground. Its drain pulls the oscillator's + input down through a germanium diode (diode_16) while the channel conducts. Drain load: 4.7 kΩ and a red LED (led_15) from +9 V, which shows the channel current.
-- Gate 1 is a bare antenna wire (field_probe_12, a charged ruler at −2 kV; the knob is how near it is, 0 = far away).
+- Gate 1 is a bare antenna wire (field_probe_12, a ruler charged to minus two kilovolts; the knob is how near it is, 0 = far away).
 
 ## Observable behaviour
 - Ruler far away: gate 1 at 0 V, the channel conducts (LED on, about 1.5 mA), drain about 0.3 V, + input held at about 0.5 V: silent.
@@ -27,3 +27,12 @@ net lm386_3.inp V 0.506 +-0.03
 net dual_gate_mosfet_13.drain V 0.303 +-0.03
 net lm386_3.vout V 0.899 +-0.02
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@2965782` and `bw-circuit-ui@e3441d2` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **11 of this page's 35** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-mosfet-tone-key` prints them one by one.
+<!-- engine-provenance -->

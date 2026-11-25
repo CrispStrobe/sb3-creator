@@ -3,7 +3,7 @@
 ## Circuit
 - LM386 (lm386_13) at gain 200 (10 µF across pins 1 and 8), 1 µF on the bypass pin, + input grounded. Loudspeaker through 220 µF.
 - Its input is fed from its own supply: 100 kΩ (resistor_10) and 4.7 kΩ (resistor_11) divide the supply, and 1 µF (polarized_cap_12) carries that node to the − input, the way a microphone's feed would.
-- SUPPLY (slide_switch_4): left the 9 V battery; right an unsmoothed adaptor, the battery plus 0.5 V of 100 Hz ripple (function_gen_3 in series, 1 Ω source).
+- SUPPLY (slide_switch_4): left the 9 V battery; right an unsmoothed adaptor, the battery plus 0.5 V of 100 Hz ripple (function_gen_3 in series, its output resistance `rOut` set to one ohm: a stiff adaptor).
 - WEAK (slide_switch_5): right puts 47 Ω (resistor_6) in series, a run-down battery's internal resistance.
 - DECOUPLE (slide_switch_7): right feeds the divider through 10 kΩ (resistor_8) with 470 µF (polarized_cap_9) to ground.
 
@@ -30,3 +30,12 @@ net lm386_13.vs V 8.986 +-0.03
 net lm386_13.vout V 0.884 +-0.03
 net resistor_10.b V 0.371 +-0.03
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@2965782` and `bw-circuit-ui@e3441d2` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **11 of this page's 43** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-amp-supply-decoupling` prints them one by one.
+<!-- engine-provenance -->

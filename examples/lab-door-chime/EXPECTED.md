@@ -8,11 +8,11 @@
 
 ## Observable behaviour
 - At rest Q1 is off (collector about 5.5 V), the kill NPN is on and holds the + input near 0 V: silent.
-- A press turns Q1 on; its collector falls to about 0.1 V and drags Q2's base to about −4.9 V through the 4.7 µF. Q2 turns off and its collector holds Q1 on. The kill NPN lets go and the chime sounds (about 280 Hz, 7.2 V peak to peak).
+- A press turns Q1 on; its collector falls almost to ground and, through the 4.7 µF, drags Q2's base nearly five volts below ground. Q2 turns off and its collector holds Q1 on. The kill NPN lets go and the chime sounds (about 280 Hz, 7.2 V peak to peak).
 - After about 0.31 s Q2's base has recharged through 100 kΩ, Q2 turns back on, Q1 off, and the chime stops — the same length for a short tap as for a longer press, as long as the button is released before the chime ends.
 
 ## Measured on the engine
-bw-board 2965782a, `test/lab-circuits-r10d.test.mjs`: rest Q1 collector 5.454 V, + input 0.029 V; 5 ms after a press Q1 collector 0.075 V, Q2 base −4.915 V, output 7.178 V pp; pulse length 310 ms from the press (timed with the tone generator's pull-up lifted to 1 GΩ so that it stays silent; the pulse is the monoflop's alone).
+bw-board 2965782a, `test/lab-circuits-r10d.test.mjs`: rest Q1 collector 5.454 V, + input 0.029 V; 5 ms after a press Q1 collector 0.075 V and Q2's base about five volts below ground, output 7.178 V pp; pulse length 310 ms from the press (timed with the tone generator's pull-up lifted to 1 GΩ so that it stays silent; the pulse is the monoflop's alone).
 
 ## What this verifies
 1. A monoflop gives one pulse of fixed length per trigger: about 0.69 × 100 kΩ × 4.7 µF = 0.32 s by the rule of thumb, 0.31 s measured.
@@ -27,3 +27,12 @@ net npn_18.base V 0.717 +-0.03
 net npn_23.base V 0.678 +-0.03
 net lm386_3.vout V 0.899 +-0.02
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@2965782` and `bw-circuit-ui@e3441d2` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **24 of this page's 35** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-door-chime` prints them one by one.
+<!-- engine-provenance -->
