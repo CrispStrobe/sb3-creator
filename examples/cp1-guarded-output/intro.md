@@ -8,7 +8,7 @@ teaches: [boolean-logic, cp1-input, output]
 
 Import a compatible 2,048-byte monitor ROM. Run the CPU until the monitor shows its ready display, pause it, and load the cells. Resume CPU execution without resetting, and use the CP1 keypad to select the start address.
 
-Set terminals 2 and 7 with the panel’s external P1 controls. The LED connects to P2.4, which is teaching terminal 5.
+Use **Instruments → Switches** to set P1. An open switch reads high and a closed switch reads low. Switch 1 is the least significant bit. Use switch2 and switch7. The LED is on P2.4, teaching terminal 5.
 
 P2 terminal 5 goes high only when P1 terminal 2 is high and P1 terminal 7 is low. Set those two input levels before entering `030 PC RUN` and hold them until halt. Start each test at 030. Expect `P  037` after seven teaching instructions with no programmed delay. **ACC** shows the output bit as `A00.000` or `A00.001`. The program preserves the other P2 output bits. Base memory suffices. It occupies 030–036 and 046.
 

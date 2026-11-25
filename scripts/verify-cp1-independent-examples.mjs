@@ -7,17 +7,19 @@ import {resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {parseArgs} from 'node:util';
 import {assembleCp1Program} from '../src/utils/cp1Program.js';
+import {loadWorkbench} from './verify-cp1-cp5.mjs';
 
 const {values: options, positionals} = parseArgs({allowPositionals: true, options: {
-    board: {type: 'string'}, report: {type: 'string'},
+    board: {type: 'string'}, 'circuit-ui': {type: 'string'}, report: {type: 'string'},
 }});
 if (!options.board || !positionals.length) {
-    throw new Error('Usage: node scripts/verify-cp1-independent-examples.mjs --board BW_BOARD ROM.bin [ROM.bin ...] [--report report.json]');
+    throw new Error('Usage: node scripts/verify-cp1-independent-examples.mjs --board BW_BOARD ROM.bin [ROM.bin ...] [--circuit-ui CUI] [--report report.json]');
 }
 const {Cp1Machine} = await import(pathToFileURL(resolve(options.board, 'src/cp1-machine.js')));
 const read = (path, encoding) => readFileSync(new URL(`../${path}`, import.meta.url), encoding);
 const fixtures = JSON.parse(read('reference/cp1-independent-examples.json', 'utf8'));
 const glyphs = [0x3f, 0x06, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x27, 0x7f, 0x6f];
+const workbench = options['circuit-ui'] && await loadWorkbench({board: options.board, circuitUi: options['circuit-ui']});
 
 function displayNumber(digits) {
     const numbers = digits.map(mask => glyphs.indexOf(mask & 0x7f));
@@ -25,9 +27,35 @@ function displayNumber(digits) {
     return Number(numbers.join(''));
 }
 
-function verifyCase(rom, program, config, expected) {
-    const machine = new Cp1Machine({rom, expansion: config.requiresCp3});
-    const advance = ms => assert.equal(machine.advanceCycles(ms * 400).reached, true);
+function verifyCase(rom, program, config, expected, circuitConfig) {
+    const machineOptions = {rom, expansion: config.requiresCp3};
+    const circuit = workbench && workbench.Circuit.fromJSON(circuitConfig);
+    const adapter = circuit && workbench.createCp1Adapter({...machineOptions, partId: 'cp1'});
+    adapter?.attachBoard(circuit.board);
+    const machine = adapter ? adapter.machine : new Cp1Machine(machineOptions);
+    const advance = ms => {
+        if (!adapter) {
+            assert.equal(machine.advanceCycles(ms * 400).reached, true);
+            return;
+        }
+        for (let remaining = ms; remaining > 0; remaining -= 50) {
+            adapter.advanceNs(Math.min(50, remaining) * 1e6);
+        }
+    };
+    const setInput = (port, value) => {
+        if (!circuit) {
+            machine.setPortInput(port, value, 255);
+            return;
+        }
+        const switches = circuitConfig.parts.filter(part => part.id.startsWith('switch'));
+        assert.ok(switches.length, `the P${port} input exercise requires circuit switches`);
+        for (const {id} of switches) {
+            const terminal = Number(id.slice('switch'.length));
+            assert.ok(circuitConfig.wires.some(wire => wire.from.part === 'cp1' &&
+                wire.from.terminal === `P${port}.${terminal - 1}` && wire.to.part === id));
+            circuit.setControl(id, Number(!(value & (1 << (terminal - 1)))));
+        }
+    };
     const keypad = key => {
         machine.setKey(key, true);
         advance(100);
@@ -62,8 +90,8 @@ function verifyCase(rom, program, config, expected) {
     advance(150);
     assert.equal(pc(), 0);
     for (const {address, opcode, operand} of program.words) machine.writeCell(address, opcode, operand);
-    if (expected.p1 !== undefined) machine.setPortInput(1, expected.p1, 255);
-    if (expected.p3 !== undefined) machine.setPortInput(3, expected.p3, 255);
+    if (expected.p1 !== undefined) setInput(1, expected.p1);
+    if (expected.p3 !== undefined) setInput(3, expected.p3);
     for (const key of [...String(config.entry).padStart(3, '0'), 'PC']) keypad(key);
     assert.equal(pc(), config.entry);
 
@@ -71,7 +99,7 @@ function verifyCase(rom, program, config, expected) {
     if (expected.mode === 'step') {
         const inputs = (expected.p1Reads ?? []).slice();
         for (let index = 0; index < expected.instructions; index++) {
-            if (inputs.length && pc() === inputs[0].pc) machine.setPortInput(1, inputs.shift().value, 255);
+            if (inputs.length && pc() === inputs[0].pc) setInput(1, inputs.shift().value);
             keypad('STEP');
             if (expected.checkpoints?.[index]) verify(expected.checkpoints[index]);
         }
@@ -98,7 +126,14 @@ function verifyCase(rom, program, config, expected) {
         advance(350);
     }
     verify(expected);
-    return {pc: expected.pc, portChangeIntervalsMs};
+    const ledAmps = circuit ? Object.fromEntries(circuitConfig.parts.filter(part => part.kind === 'led').map(({id}) => {
+        const bit = Number(id.slice('led'.length));
+        const current = -circuit.board.branchCurrent(id, 'anode');
+        const high = Boolean(expected.p2 & (1 << bit));
+        assert.ok(high ? current > 0.001 && current < 0.004 : Math.abs(current) < 1e-6, `${id} current ${current}`);
+        return [id, current];
+    })) : undefined;
+    return {pc: expected.pc, portChangeIntervalsMs, ledAmps};
 }
 
 const runs = [];
@@ -108,11 +143,12 @@ for (const path of positionals) {
     const exercises = [];
     for (const [name, config] of Object.entries(fixtures)) {
         const source = read(`examples/cp1-${name}/program.cp1`, 'utf8');
+        const circuitConfig = workbench && JSON.parse(read(`examples/cp1-${name}/circuit.json`, 'utf8'));
         const program = assembleCp1Program(source, {expansion: config.requiresCp3});
         assert.equal(program.entry, config.entry, name);
         const cases = config.cases.map((expected, index) => {
             try {
-                return verifyCase(rom, program, config, expected);
+                return verifyCase(rom, program, config, expected, circuitConfig);
             } catch (error) {
                 throw new Error(`${sha1} ${name} case ${index + 1}: ${error.message}`, {cause: error});
             }
@@ -121,7 +157,7 @@ for (const path of positionals) {
     }
     runs.push({romSha1: sha1, exercises});
 }
-const report = {format: 'brickwright.cp1-independent-examples', version: 1, runs};
+const report = {format: 'brickwright.cp1-independent-examples', version: 1, electrical: workbench?.identity, runs};
 if (options.report) writeFileSync(options.report, JSON.stringify(report, null, 2) + '\n');
 for (const {romSha1, exercises} of runs) {
     console.log(`${romSha1}: ${exercises.length} examples, ${exercises.reduce((total, item) => total + item.cases.length, 0)} cases`);

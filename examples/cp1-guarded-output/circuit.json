@@ -15,7 +15,7 @@
       "id": "ground",
       "kind": "gnd",
       "params": {},
-      "x": 660,
+      "x": 920,
       "y": 320
     },
     {
@@ -24,7 +24,7 @@
       "params": {
         "ohms": 1000
       },
-      "x": 450,
+      "x": 710,
       "y": 85
     },
     {
@@ -34,8 +34,44 @@
         "vf": 2,
         "color": "red"
       },
-      "x": 575,
+      "x": 835,
       "y": 85
+    },
+    {
+      "id": "pullup2",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "x": 430,
+      "y": 80
+    },
+    {
+      "id": "switch2",
+      "kind": "switch",
+      "params": {
+        "closed": 0
+      },
+      "x": 430,
+      "y": 165
+    },
+    {
+      "id": "pullup7",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "x": 545,
+      "y": 80
+    },
+    {
+      "id": "switch7",
+      "kind": "switch",
+      "params": {
+        "closed": 1
+      },
+      "x": 545,
+      "y": 165
     }
   ],
   "wires": [
@@ -77,6 +113,94 @@
       "from": {
         "part": "led4",
         "terminal": "cathode"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "supply2",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "pullup2",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "pullup-input2",
+      "from": {
+        "part": "pullup2",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "cp1",
+        "terminal": "P1.1"
+      }
+    },
+    {
+      "id": "switch-input2",
+      "from": {
+        "part": "cp1",
+        "terminal": "P1.1"
+      },
+      "to": {
+        "part": "switch2",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "switch-ground2",
+      "from": {
+        "part": "switch2",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "supply7",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "pullup7",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "pullup-input7",
+      "from": {
+        "part": "pullup7",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "cp1",
+        "terminal": "P1.6"
+      }
+    },
+    {
+      "id": "switch-input7",
+      "from": {
+        "part": "cp1",
+        "terminal": "P1.6"
+      },
+      "to": {
+        "part": "switch7",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "switch-ground7",
+      "from": {
+        "part": "switch7",
+        "terminal": "b"
       },
       "to": {
         "part": "ground",

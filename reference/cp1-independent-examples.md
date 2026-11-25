@@ -11,3 +11,5 @@ node scripts/verify-cp1-independent-examples.mjs --board ../bw-board /path/to/mo
 ```
 
 Multiple ROM paths exercise the same sources and expectations on each firmware. The check uses physical keypad operations and observes display masks, teaching RAM and external ports.
+
+Add `--circuit-ui ../bw-circuit-ui` to run the same cases with gallery switch circuits attached and measure the LED currents. All 16 cases passed on both the historical 2716 and the independent monitor, including the CP3 switch byte and upper-memory workflow.

@@ -8,7 +8,7 @@ teaches: [indirect-jump, input-validation]
 
 Import a compatible 2,048-byte monitor ROM. Run the CPU until the monitor shows its ready display, pause it, and load the cells. Resume CPU execution without resetting, and use the CP1 keypad to select the start address.
 
-Set the external input byte using the panel’s P1 controls, then run the selected status case.
+Use **Instruments → Switches** to set P1. An open switch reads high and a closed switch reads low. Switch 1 is the least significant bit.
 
 The whole P1 byte selects a status handler. Values 0, 1 and 2 index a table of jump instructions. Higher bytes enter a fallback handler. Drive all eight input bits before entering `082 PC RUN` and hold them through halt. Check the table, then repeat from 082 for each input. The valid routes execute nine teaching instructions and the fallback executes five, with no programmed delay. Base memory suffices. The program occupies 082–095, 110–112, and 114–116.
 
