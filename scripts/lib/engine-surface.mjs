@@ -260,6 +260,10 @@ export const SIDECAR_FOOTPRINT_KINDS = Object.freeze([
     'lm358', 'lm339', 'lm393', 'lm324',
     '74hc08', '74hc14', '74hc32', '74hc74', '74hc93', '74hc132',
     'optocoupler', 'dip_switch_spst', 'hall_analog', 'transformer',
+    // 2026-11-24: the 4046 PLL and the CD4093 Schmitt NAND, first seated by
+    // the round-6 benches; no other shipped circuit carries either kind, so
+    // no existing net partition moves.
+    'cd4046', 'cd4093',
 ]);
 
 /**
