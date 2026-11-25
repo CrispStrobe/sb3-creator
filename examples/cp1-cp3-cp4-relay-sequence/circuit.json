@@ -1,0 +1,402 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "cp1",
+      "kind": "kosmos-cp1",
+      "params": {
+        "expansion": true,
+        "clockHz": 6000000
+      },
+      "x": 225,
+      "y": 255,
+      "declName": "Kosmos CP1 + CP3"
+    },
+    {
+      "id": "logic-ground",
+      "kind": "gnd",
+      "params": {},
+      "x": 460,
+      "y": 520
+    },
+    {
+      "id": "driver-supply",
+      "kind": "vcc",
+      "params": {},
+      "x": 580,
+      "y": 65
+    },
+    {
+      "id": "load-supply",
+      "kind": "battery",
+      "params": {
+        "volts": 5,
+        "rInternal": 1
+      },
+      "x": 940,
+      "y": 80
+    },
+    {
+      "id": "entry-base",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "x": 435,
+      "y": 213
+    },
+    {
+      "id": "entry-driver",
+      "kind": "npn",
+      "params": {},
+      "x": 560,
+      "y": 209
+    },
+    {
+      "id": "entry-diode",
+      "kind": "diode",
+      "params": {
+        "vf": 0.7
+      },
+      "x": 560,
+      "y": 105
+    },
+    {
+      "id": "entry-relay",
+      "kind": "relay",
+      "params": {
+        "coilR": 360
+      },
+      "x": 690,
+      "y": 155
+    },
+    {
+      "id": "entry-limiter",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "x": 830,
+      "y": 159
+    },
+    {
+      "id": "entry-lamp",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "green"
+      },
+      "x": 940,
+      "y": 160
+    },
+    {
+      "id": "exit-base",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "x": 435,
+      "y": 428
+    },
+    {
+      "id": "exit-driver",
+      "kind": "npn",
+      "params": {},
+      "x": 560,
+      "y": 424
+    },
+    {
+      "id": "exit-diode",
+      "kind": "diode",
+      "params": {
+        "vf": 0.7
+      },
+      "x": 560,
+      "y": 320
+    },
+    {
+      "id": "exit-relay",
+      "kind": "relay",
+      "params": {
+        "coilR": 360
+      },
+      "x": 690,
+      "y": 370
+    },
+    {
+      "id": "exit-limiter",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "x": 830,
+      "y": 374
+    },
+    {
+      "id": "exit-lamp",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "red"
+      },
+      "x": 940,
+      "y": 375
+    }
+  ],
+  "wires": [
+    {
+      "id": "cp1-return",
+      "from": {
+        "part": "cp1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "logic-ground",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "entry-output",
+      "from": {
+        "part": "cp1",
+        "terminal": "P4.0"
+      },
+      "to": {
+        "part": "entry-base",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "entry-drive",
+      "from": {
+        "part": "entry-base",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "entry-driver",
+        "terminal": "base"
+      }
+    },
+    {
+      "id": "entry-driver-return",
+      "from": {
+        "part": "entry-driver",
+        "terminal": "emitter"
+      },
+      "to": {
+        "part": "logic-ground",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "entry-coil-supply",
+      "from": {
+        "part": "driver-supply",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "entry-relay",
+        "terminal": "coil_a"
+      }
+    },
+    {
+      "id": "entry-coil-driver",
+      "from": {
+        "part": "entry-relay",
+        "terminal": "coil_b"
+      },
+      "to": {
+        "part": "entry-driver",
+        "terminal": "collector"
+      }
+    },
+    {
+      "id": "entry-diode-cathode",
+      "from": {
+        "part": "entry-diode",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "entry-relay",
+        "terminal": "coil_a"
+      }
+    },
+    {
+      "id": "entry-diode-anode",
+      "from": {
+        "part": "entry-diode",
+        "terminal": "anode"
+      },
+      "to": {
+        "part": "entry-relay",
+        "terminal": "coil_b"
+      }
+    },
+    {
+      "id": "entry-contact-supply",
+      "from": {
+        "part": "load-supply",
+        "terminal": "pos"
+      },
+      "to": {
+        "part": "entry-relay",
+        "terminal": "com"
+      }
+    },
+    {
+      "id": "entry-contact-output",
+      "from": {
+        "part": "entry-relay",
+        "terminal": "no"
+      },
+      "to": {
+        "part": "entry-limiter",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "entry-lamp-feed",
+      "from": {
+        "part": "entry-limiter",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "entry-lamp",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "entry-lamp-return",
+      "from": {
+        "part": "entry-lamp",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "load-supply",
+        "terminal": "neg"
+      }
+    },
+    {
+      "id": "exit-output",
+      "from": {
+        "part": "cp1",
+        "terminal": "P4.1"
+      },
+      "to": {
+        "part": "exit-base",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "exit-drive",
+      "from": {
+        "part": "exit-base",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "exit-driver",
+        "terminal": "base"
+      }
+    },
+    {
+      "id": "exit-driver-return",
+      "from": {
+        "part": "exit-driver",
+        "terminal": "emitter"
+      },
+      "to": {
+        "part": "logic-ground",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "exit-coil-supply",
+      "from": {
+        "part": "driver-supply",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "exit-relay",
+        "terminal": "coil_a"
+      }
+    },
+    {
+      "id": "exit-coil-driver",
+      "from": {
+        "part": "exit-relay",
+        "terminal": "coil_b"
+      },
+      "to": {
+        "part": "exit-driver",
+        "terminal": "collector"
+      }
+    },
+    {
+      "id": "exit-diode-cathode",
+      "from": {
+        "part": "exit-diode",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "exit-relay",
+        "terminal": "coil_a"
+      }
+    },
+    {
+      "id": "exit-diode-anode",
+      "from": {
+        "part": "exit-diode",
+        "terminal": "anode"
+      },
+      "to": {
+        "part": "exit-relay",
+        "terminal": "coil_b"
+      }
+    },
+    {
+      "id": "exit-contact-supply",
+      "from": {
+        "part": "load-supply",
+        "terminal": "pos"
+      },
+      "to": {
+        "part": "exit-relay",
+        "terminal": "com"
+      }
+    },
+    {
+      "id": "exit-contact-output",
+      "from": {
+        "part": "exit-relay",
+        "terminal": "no"
+      },
+      "to": {
+        "part": "exit-limiter",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "exit-lamp-feed",
+      "from": {
+        "part": "exit-limiter",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "exit-lamp",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "exit-lamp-return",
+      "from": {
+        "part": "exit-lamp",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "load-supply",
+        "terminal": "neg"
+      }
+    }
+  ],
+  "holeWires": []
+}

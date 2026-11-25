@@ -25,11 +25,13 @@ Die Kanalnummern beginnen bei 1, die Schaltungsanschlüsse bei 0:
 
 ## Mit einem bewusst gesetzten Ausgangszustand beginnen
 
-1. Importiere ein eigenes kompatibles CP1-Monitor-ROM mit 2048 Byte. Lass die CPU mit **CPU ausführen** bis zur stabilen Bereitschaftsanzeige laufen. Die originale CP5-Anleitung beschreibt, dass nach dem Monitorstart alle LEDs leuchten, weil der Computer seine Ausgänge auf 1 setzt. Das beschreibt den Firmwarestart, nicht jeden einzelnen Resetzeitpunkt oder ein unbekanntes ROM.
+1. Wähle **Brickwright-Monitor verwenden** oder importiere ein kompatibles CP1-Monitor-ROM mit 2048 Byte. Lass die CPU mit **CPU ausführen** bis zur stabilen Bereitschaftsanzeige laufen. Die originale CP5-Anleitung beschreibt, dass nach dem Monitorstart alle LEDs leuchten, weil der Computer seine Ausgänge auf 1 setzt. Das beschreibt den Firmwarestart, nicht jeden einzelnen Resetzeitpunkt oder ein unbekanntes ROM.
 2. Pausiere die CPU und lade `program.cp1`. Setze die CPU ohne Zurücksetzen fort: Die Monitorinitialisierung kann den Lernprogrammspeicher löschen. Gib auf der Originaltastatur **0, 0, 0, PC, RUN** ein.
 3. Das Programm schreibt zunächst null auf den gesamten Ausgangsport und fordert eine Wartezeit von 200 ms an. In der gelieferten Schaltung sind anfangs alle Schalter geschlossen. Die wiederholten Abfragen halten deshalb alle LEDs aus und zeigen `A00.000` an.
 4. Öffne das **Instrumentenpanel** und verwende dessen **Schalter**-Schaltflächen, um Schalter 1, 3, 6 und 8 zu öffnen. Jede Schaltfläche zeigt den tatsächlichen Kontaktzustand als **Offen** oder **Geschlossen**. Sage `1 + 4 + 32 + 128 = 165` voraus. Nach der nächsten Abfrage leuchten LEDs 1, 3, 6 und 8, und die Anzeige zeigt `A00.165`. Zelle 32 enthält `00.165`, das zuletzt gelesene Byte.
 5. Öffne nur Schalter 8 und danach alle Schalter. Sage vor dem Ablesen 128 und 255 voraus. Lies die LED-Reihe nach Kanalnummern; bei geschriebenen Binärzahlen steht Bit 7 üblicherweise links. Deshalb lautet 165 binär `10100101`.
+
+Verfolge S1 in **Schaltungen** vom Pull-up und Massekontakt bis zum Eingang P1.0. Verfolge danach P2.0 bis zum Eingang des Darlington-Treibers und seinen Ausgang über LED1 und Vorwiderstand bis zur 5-V-Klemme des CP1. Die Tastatur in **Widgets** bedient den Monitor. Die Schalter unter **Schaltungen → Instrumente** wirken auf den Stromkreis. Das Kassetteninterface CP2 verwendet P1.6 und P1.7 bei der Übertragung. Verwende zum Aufnehmen oder Abspielen eine separate CP2-Schaltung.
 
 ## Den Signalweg im Programm verfolgen
 

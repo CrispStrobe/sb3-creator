@@ -6,7 +6,7 @@ import {CP1_EXAMPLES} from '../src/utils/examples.js';
 
 const readJson = path => JSON.parse(readFileSync(new URL(`../${path}`, import.meta.url), 'utf8'));
 const curriculumPrograms = readJson('reference/cp1-curriculum-programs.json').programs;
-const expandedExamples = new Set(['cp1-expansion-step', ...curriculumPrograms
+const expandedExamples = new Set(['cp1-expansion-step', 'cp1-cp3-cp4-relay-sequence', ...curriculumPrograms
     .filter(program => program.hardware.cp3).map(program => `cp1-${program.id}`)]);
 
 const bytesAt = (result, start, count) => [...result.bytes.slice(start * 2, (start + count) * 2)];
@@ -223,7 +223,7 @@ test('the CP1 trail connects every mapped section and advanced activity to an or
     }
     assert.equal(curriculumPrograms.filter(program => program.sections.length).length, 35);
     const advanced = trail.chapters.at(-1).stations.map(station => station.example).sort();
-    assert.deepEqual(advanced, ['cp1-cp2-sample-logger', 'cp1-cp4-relay-bank', 'cp1-cp4-relay-signals',
+    assert.deepEqual(advanced, ['cp1-cp2-sample-logger', 'cp1-cp3-cp4-relay-sequence', 'cp1-cp4-relay-bank', 'cp1-cp4-relay-signals',
         'cp1-edge-trigger-capture', 'cp1-fixed-point-filter',
         'cp1-serial-receive', 'cp1-serial-transmit']);
     for (const id of advanced) assert.ok(CP1_EXAMPLES[id]);
