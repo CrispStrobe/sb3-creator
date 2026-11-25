@@ -19,6 +19,7 @@
     "build:harness": "node test/browser/build.mjs",
     "test:browser": "node test/browser/build.mjs && node --test test/browser/render.browser.mjs",
     "verify:cp1:cp5": "node scripts/verify-cp1-cp5.mjs",
+    "verify:cp1:cp5:monitor": "node scripts/verify-cp1-cp5-monitor.mjs",
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",

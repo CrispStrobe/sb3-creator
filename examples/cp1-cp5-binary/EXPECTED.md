@@ -4,6 +4,9 @@ This original example uses a base CP1, eight latching switches, eight explicit
 10 kΩ pull-ups, the existing eight-channel Darlington driver, and eight red LEDs
 with individual 1 kΩ series resistors. It is a 5 V teaching circuit. It does not
 reproduce the original CP5's transistor stages, supply or current ratings.
+The live contact buttons are in **Instruments → Switches**; their Open/Closed
+labels come from the active circuit board. The authored initial `closed` values
+are numeric 1, matching the ordinary switch's property-editor format.
 
 ## Teaching program
 
@@ -44,8 +47,27 @@ and whether either checkout is dirty; missing dependencies are errors.
 
 The synthetic firmware is an electrical test stimulus, not an implementation
 of the CP1 teaching language and not proof of the historical monitor program's
-display or timing. The monitor observations above remain acceptance predictions
-until a separately identified historical-ROM run records them.
+display or timing. The separate external-ROM gate is:
+
+```sh
+node scripts/verify-cp1-cp5-monitor.mjs --board /path/to/bw-board --circuit-ui /path/to/bw-circuit-ui --rom /path/to/monitor.bin
+```
+
+The [recorded 2026-11-25 observation](../../reference/cp1-cp5-observations.json)
+qualifies the identified 2716 monitor, SHA-1
+`ff4befcf82a664950186d3af1843fdef70d2209f`, at the exact clean upstream revisions
+and source hashes in that report. It passed 13 successive input patterns,
+including every individual bit, mixed 165/90, all low and all high. Each case
+asserted the live input, firmware-written output, saved cell 32, six raw display
+digits and actual LED/resistor currents. The supplied historical ROM stayed
+external and was not committed.
+
+After monitor startup all eight LEDs conducted about 2.272 mA each. With inputs
+held high, keypad RUN produced an initial output transition 255 → 0 → 255:
+the explicitly cleared interval was 226.0575 ms in this simulated run. This is
+the original program's 200 ms request plus firmware and program overhead, not a
+physical CP5 measurement or a guarantee of an exact 200 ms interval. A pause
+check also confirmed that outputs wait for resumed firmware execution.
 
 The pass condition for an on branch includes positive resistor/LED current and
 nonzero engine LED brightness; an off branch must have negligible current.

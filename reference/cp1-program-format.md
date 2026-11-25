@@ -71,3 +71,12 @@ upstream source paths to solve this exact circuit with original synthetic
 8049 firmware. Its current/voltage observations prove an electrical path;
 they do not substitute for a separately identified historical monitor run.
 Existing sibling CI pins are unchanged by this content checkpoint.
+
+`scripts/verify-cp1-cp5-monitor.mjs` is a separate optional checker for an external
+2716 monitor with the identified SHA-1. It starts the actual keypad contacts,
+loads the original gallery program after startup, and checks every input bit,
+the stored sample, raw display segments, driver/LED currents and paused output
+behavior. The [recorded observation](cp1-cp5-observations.json) names exact clean
+supplier commits and content hashes; it contains observations, no ROM bytes.
+The existing Circuit UI live switch controls supply the learner's input through
+the circuit board, preserving the authored numeric initial switch settings.

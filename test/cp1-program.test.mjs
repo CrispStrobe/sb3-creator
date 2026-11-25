@@ -161,7 +161,7 @@ test('the eight CP5 channels have distinct switch, pull-up, driver and current-l
     const expectedSupply = ['cp1.5v', 'driver.com'];
     for (let bit = 0; bit < 8; bit++) {
         const n = bit + 1;
-        assert.equal(parts.get(`switch${n}`).params.closed, true, 'initially closed switches request zero');
+        assert.equal(parts.get(`switch${n}`).params.closed, 1, 'initially closed switches request zero');
         assert.equal(parts.get(`pullup${n}`).params.ohms, 10000);
         assert.equal(parts.get(`series${n}`).params.ohms, 1000);
         assert.deepEqual(group(`cp1.P1.${bit}`), [`cp1.P1.${bit}`, `pullup${n}.b`, `switch${n}.a`].sort());

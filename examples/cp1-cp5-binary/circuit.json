@@ -30,7 +30,7 @@
       "id": "switch1",
       "kind": "switch",
       "params": {
-        "closed": true
+        "closed": 1
       },
       "declName": "S1 (1)",
       "x": 110,
@@ -74,7 +74,7 @@
       "id": "switch2",
       "kind": "switch",
       "params": {
-        "closed": true
+        "closed": 1
       },
       "declName": "S2 (2)",
       "x": 180,
@@ -118,7 +118,7 @@
       "id": "switch3",
       "kind": "switch",
       "params": {
-        "closed": true
+        "closed": 1
       },
       "declName": "S3 (4)",
       "x": 250,
@@ -162,7 +162,7 @@
       "id": "switch4",
       "kind": "switch",
       "params": {
-        "closed": true
+        "closed": 1
       },
       "declName": "S4 (8)",
       "x": 320,
@@ -206,7 +206,7 @@
       "id": "switch5",
       "kind": "switch",
       "params": {
-        "closed": true
+        "closed": 1
       },
       "declName": "S5 (16)",
       "x": 390,
@@ -250,7 +250,7 @@
       "id": "switch6",
       "kind": "switch",
       "params": {
-        "closed": true
+        "closed": 1
       },
       "declName": "S6 (32)",
       "x": 460,
@@ -294,7 +294,7 @@
       "id": "switch7",
       "kind": "switch",
       "params": {
-        "closed": true
+        "closed": 1
       },
       "declName": "S7 (64)",
       "x": 530,
@@ -338,7 +338,7 @@
       "id": "switch8",
       "kind": "switch",
       "params": {
-        "closed": true
+        "closed": 1
       },
       "declName": "S8 (128)",
       "x": 600,

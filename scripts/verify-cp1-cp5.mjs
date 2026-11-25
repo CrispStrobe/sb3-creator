@@ -17,7 +17,7 @@ const CIRCUIT_URL = new URL('../examples/cp1-cp5-binary/circuit.json', import.me
 
 function sourceIdentity(path) {
     const git = args => execFileSync('git', ['-C', path, ...args], {encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe']}).trim();
-    return {commit: git(['rev-parse', 'HEAD']), dirty: git(['status', '--porcelain']).length > 0};
+    return {commit: git(['rev-parse', 'HEAD']), tree: git(['rev-parse', 'HEAD^{tree}']), dirty: git(['status', '--porcelain']).length > 0};
 }
 
 /** Root integration checks can reuse the same canonical loader with a user ROM. */
@@ -157,7 +157,7 @@ export async function verifyElectricalWorkbench(paths) {
     // authored parameter state must survive the same round trip as the GUI.
     const restored = Circuit.fromJSON(JSON.parse(JSON.stringify(Circuit.fromJSON(json).toJSON())));
     assert.equal(restored.wires.length, json.wires.length);
-    assert.equal(restored.parts.filter(part => part.kind === 'switch' && part.params.closed === true).length, 8);
+    assert.equal(restored.parts.filter(part => part.kind === 'switch' && part.params.closed === 1).length, 8);
     const restoredAdapter = createCp1Adapter({rom: echoFirmware(), partId: 'cp1'});
     restoredAdapter.attachBoard(restored.board);
     setInputByte(restored, 165);
