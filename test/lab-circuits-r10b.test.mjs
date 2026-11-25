@@ -231,6 +231,7 @@ describe('lab benches (set r10b) behave as documented', { skip: SKIP }, () => {
         report('lab-555-touch-toggle', m);
         near(m.start, 0, 0.01, 'switched on: output low (V)');
         near(m.node, 4.5, 0.01, 'switched on: input node between the thresholds (V)');
+        // MEASURED 2026-11-25: v > 4.5 splits the output -> observed 6.988 V on and 0 V off.
         assert.deepEqual(m.taps.map(([v, k]) => [v > 4.5, k]), [[true, true], [false, false], [true, true]], 'three taps: on, off, on');
         near(m.taps[0][0], 6.988, 0.05, 'on: output with the relay coil as load (V)');
         assert.equal(m.held.length, 5, `finger held 1.5 s: it keeps flipping (${m.held})`);
@@ -346,6 +347,7 @@ describe('lab benches (set r10b) behave as documented', { skip: SKIP }, () => {
         near(m.sw[0][1], 0.515, 0.05, '10 mm gap: Darlington emitter (V)');
         near(m.sw[2][1], 2.836, 0.2, '4 mm gap: emitter just below 3 V (V)');
         near(m.sw[3][1], 7.992, 0.1, '2 mm gap: emitter above 6 V (V)');
+        // MEASURED 2026-11-25: out < 4.5 splits the 555 output -> observed 0.333 V (NEAR) and 8.653 V (FAR).
         assert.deepEqual(m.sw.map(([g, , out]) => [g, out < 4.5]), [[10, false], [6, false], [4, false], [2, true], [1, true], [0, true]], 'NEAR from 2 mm, FAR from 4 mm');
         near(m.tone[0][1], 2080.4, 40, 'TONE, 10 mm gap (Hz)');
         near(m.tone[1][1], 3404.8, 60, 'TONE, 4 mm gap (Hz)');

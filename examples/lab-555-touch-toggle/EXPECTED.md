@@ -1,7 +1,7 @@
 # lab-555-touch-toggle — expected behaviour
 
 ## Circuit
-- 9 V supply. 555 (timer_555_3) with trigger and threshold on one node, held at 4.5 V by two 1 MΩ (resistor_5, resistor_6): between its 3 V and 6 V thresholds, so it keeps its state.
+- 9 V supply. 555 (timer_555_3) with trigger and threshold on one node, held at half the supply by two 1 MΩ (resistor_5, resistor_6): between its thresholds at one third and two thirds, so it keeps its state.
 - The output charges a 1 µF steering capacitor (polarized_cap_8) through 100 kΩ (resistor_7).
 - TOUCH (button_9): a fingertip, 220 kΩ of skin (resistor_10), from the capacitor to the input node.
 - The output drives a red LED (1 kΩ) and a relay coil (relay_13, flyback diode).
@@ -28,3 +28,12 @@ net timer_555_3.trigger V 4.5 +-0.01
 net timer_555_3.output V 0 +-0.01
 net polarized_cap_8.pos V 0 +-0.01
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@2965782` and `bw-circuit-ui@e3441d2` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **6 of this page's 25** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-555-touch-toggle` prints them one by one.
+<!-- engine-provenance -->

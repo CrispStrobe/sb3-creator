@@ -1,7 +1,7 @@
 # lab-555-twilight — expected behaviour
 
 ## Circuit
-- 9 V supply. Phototransistor (phototransistor_3; 0.5 mA at full light) from +9 V into 22 kΩ (resistor_4) to ground. That node is the tied trigger and threshold of a 555 (timer_555_5): a Schmitt trigger at 3 V and 6 V.
+- 9 V supply. Phototransistor (phototransistor_3; 0.5 mA at full light) from +9 V into 22 kΩ (resistor_4) to ground. That node is the tied trigger and threshold of a 555 (timer_555_5): a Schmitt trigger at one third and two thirds of the supply.
 - Output → 1 kΩ → yellow LAMP LED (led_10) → ground; +9 V → 1 kΩ → green DAY LED (led_12) → output.
 - NARROW (switch_7): 10 kΩ (resistor_8) from the control pin to ground.
 
@@ -28,3 +28,12 @@ net timer_555_5.output V 8.663 +-0.03
 net led_10.anode V 1.917 +-0.05
 net led_12.anode V 9.0 +-0.01
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@2965782` and `bw-circuit-ui@e3441d2` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **6 of this page's 27** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-555-twilight` prints them one by one.
+<!-- engine-provenance -->

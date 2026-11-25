@@ -1,7 +1,7 @@
 # lab-555-humidity-switch — expected behaviour
 
 ## Circuit
-- 9 V supply. A 555 (timer_555_5) with trigger and threshold tied together: a Schmitt trigger that switches its output low above 6 V and high below 3 V (the control pin, 10 nF, sits at 6 V).
+- 9 V supply. A 555 (timer_555_5) with trigger and threshold tied together: a Schmitt trigger that switches its output low above two thirds of the supply and high below one third (the control pin has 10 nF).
 - Its input is a divider: the salt-film humidity comb (humidity_comb_3) from +9 V, 100 kΩ (resistor_4) to ground.
 - Output → 1 kΩ → green DRY LED (led_10) → ground; +9 V → 1 kΩ → blue WET LED (led_8) → output.
 
@@ -28,3 +28,12 @@ net timer_555_5.output V 8.667 +-0.03
 net led_10.anode V 2.015 +-0.05
 net timer_555_5.control V 6.0 +-0.01
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@2965782` and `bw-circuit-ui@e3441d2` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **5 of this page's 32** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-555-humidity-switch` prints them one by one.
+<!-- engine-provenance -->

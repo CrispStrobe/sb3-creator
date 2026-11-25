@@ -1,7 +1,7 @@
 # lab-555-hysteresis-feedback — expected behaviour
 
 ## Circuit
-- 9 V supply. INPUT (potentiometer_3, 10 kΩ across the supply) → 10 kΩ → NPN base (npn_5); 4.7 kΩ (resistor_6) in its emitter. Collector: 10 kΩ (resistor_7) to +9 V and 100 nF to ground; it is the tied trigger and threshold of a 555 (timer_555_9; switching at 3 V and 6 V).
+- 9 V supply. INPUT (potentiometer_3, 10 kΩ across the supply) → 10 kΩ → NPN base (npn_5); 4.7 kΩ (resistor_6) in its emitter. Collector: 10 kΩ (resistor_7) to +9 V and 100 nF to ground; it is the tied trigger and threshold of a 555 (timer_555_9; switching at one third and two thirds of the supply).
 - FEEDBACK: 4.7 kΩ (resistor_11) plus a 100 kΩ rheostat (potentiometer_12; 100 kΩ at position 0, 0 at position 1) from the 555 output back to the collector node.
 - Red LED (1 kΩ) on the output.
 
@@ -28,3 +28,12 @@ net npn_5.emitter V 1.097 +-0.02
 net potentiometer_3.wiper V 1.796 +-0.02
 net timer_555_9.control V 6.0 +-0.01
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@2965782` and `bw-circuit-ui@e3441d2` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **11 of this page's 35** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-555-hysteresis-feedback` prints them one by one.
+<!-- engine-provenance -->
