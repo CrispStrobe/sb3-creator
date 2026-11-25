@@ -296,6 +296,7 @@ const KNOWN_INERT = new Map([
     ['phototransistor.heatedBy', 'BLIND SPOT: as led.heatedBy, the heated phototransistor of lab-led-heat-light.'],
     ['phototransistor.thermalCoupling', 'BLIND SPOT: as led.heatedBy.'],
     ['phototransistor.thermalTau', 'BLIND SPOT: as led.heatedBy — a time constant of an unheated part.'],
+    ['npn.thermalTau', 'BLIND SPOT: lab-npn-heat-alarm authors its sensing transistor in surroundings at the bench temperature (surroundC 25), so at the authored state nothing warms or cools and a time constant has nothing to shape. The key IS read: MEASURED 2026-11-25, surroundC moved 25 -> 33 and 1 s later the transistor is at 28.90 C (LED 10.19 mA) with thermalTau 1.5 against 27.27 C (10.95 mA) with 3; test/lab-circuits-r6a.test.mjs drives the slider.'],
     ['light_path.cutQuality', 'BLIND SPOT: lab-light-guide authors clean cuts (1), the top of the 0..1 range; every larger perturbation clamps to 1. lab-circuits-optics sets 0 and measures it.'],
     ['light_path.shield', 'BLIND SPOT: shield scales ROOM light at the receiver, and lab-light-guide authors none (0); lab-circuits-optics adds room light and measures the shield.'],
     ['light_path.material', 'BLIND SPOT: read as a dispersion table name; a perturbed unknown name falls back to acrylic, the authored value, so no string perturbation can move it.'],

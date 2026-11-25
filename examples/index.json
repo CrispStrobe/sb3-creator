@@ -11558,5 +11558,221 @@
    "introDE": "lab-broadcast-pickup/intro.de.md"
   },
   "devices": []
+ },
+ {
+  "id": "lab-npn-two-tone-bell",
+  "title": {
+   "en": "Two-tone doorbell from three transistors",
+   "de": "Zweiton-Klingel aus drei Transistoren"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-npn-two-tone-bell/program.bw",
+   "circuit": "lab-npn-two-tone-bell/circuit.json",
+   "expected": "lab-npn-two-tone-bell/EXPECTED.md",
+   "intro": "lab-npn-two-tone-bell/intro.md",
+   "introDE": "lab-npn-two-tone-bell/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-npn-four-tone-keys",
+  "title": {
+   "en": "Four notes from two buttons: transistor drone",
+   "de": "Vier Töne aus zwei Tastern: Transistor-Bordun"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-npn-four-tone-keys/program.bw",
+   "circuit": "lab-npn-four-tone-keys/circuit.json",
+   "expected": "lab-npn-four-tone-keys/EXPECTED.md",
+   "intro": "lab-npn-four-tone-keys/intro.md",
+   "introDE": "lab-npn-four-tone-keys/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-npn-police-siren",
+  "title": {
+   "en": "Two-pitch transistor siren with a softener",
+   "de": "Zweiton-Transistorsirene mit Weichmacher"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-npn-police-siren/program.bw",
+   "circuit": "lab-npn-police-siren/circuit.json",
+   "expected": "lab-npn-police-siren/EXPECTED.md",
+   "intro": "lab-npn-police-siren/intro.md",
+   "introDE": "lab-npn-police-siren/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-npn-swell-siren",
+  "title": {
+   "en": "Swelling siren from a charged bias capacitor",
+   "de": "Anschwellende Sirene aus einem Vorspannungs-Kondensator"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-npn-swell-siren/program.bw",
+   "circuit": "lab-npn-swell-siren/circuit.json",
+   "expected": "lab-npn-swell-siren/EXPECTED.md",
+   "intro": "lab-npn-swell-siren/intro.md",
+   "introDE": "lab-npn-swell-siren/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-npn-probe-tone",
+  "title": {
+   "en": "Probe oscillator: resistance you can hear",
+   "de": "Prüfspitzen-Oszillator: Widerstand zum Hören"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-npn-probe-tone/program.bw",
+   "circuit": "lab-npn-probe-tone/circuit.json",
+   "expected": "lab-npn-probe-tone/EXPECTED.md",
+   "intro": "lab-npn-probe-tone/intro.md",
+   "introDE": "lab-npn-probe-tone/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-npn-diode-horn",
+  "title": {
+   "en": "A diode in the coupling path changes the horn",
+   "de": "Eine Diode im Koppelweg verändert die Hupe"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-npn-diode-horn/program.bw",
+   "circuit": "lab-npn-diode-horn/circuit.json",
+   "expected": "lab-npn-diode-horn/EXPECTED.md",
+   "intro": "lab-npn-diode-horn/intro.md",
+   "introDE": "lab-npn-diode-horn/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-earphone-click",
+  "title": {
+   "en": "Direct current only clicks",
+   "de": "Gleichstrom klickt nur"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 1,
+  "files": {
+   "program": "lab-earphone-click/program.bw",
+   "circuit": "lab-earphone-click/circuit.json",
+   "expected": "lab-earphone-click/EXPECTED.md",
+   "intro": "lab-earphone-click/intro.md",
+   "introDE": "lab-earphone-click/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-npn-heat-alarm",
+  "title": {
+   "en": "The transistor itself feels the heat",
+   "de": "Der Transistor selbst fühlt die Wärme"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-npn-heat-alarm/program.bw",
+   "circuit": "lab-npn-heat-alarm/circuit.json",
+   "expected": "lab-npn-heat-alarm/EXPECTED.md",
+   "intro": "lab-npn-heat-alarm/intro.md",
+   "introDE": "lab-npn-heat-alarm/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-npn-astable-states",
+  "title": {
+   "en": "One blinker, five signals",
+   "de": "Ein Blinker, fünf Signale"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-npn-astable-states/program.bw",
+   "circuit": "lab-npn-astable-states/circuit.json",
+   "expected": "lab-npn-astable-states/EXPECTED.md",
+   "intro": "lab-npn-astable-states/intro.md",
+   "introDE": "lab-npn-astable-states/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-npn-fade",
+  "title": {
+   "en": "Fade in, fade out with two transistors",
+   "de": "Auf- und Abblenden mit zwei Transistoren"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-npn-fade/program.bw",
+   "circuit": "lab-npn-fade/circuit.json",
+   "expected": "lab-npn-fade/EXPECTED.md",
+   "intro": "lab-npn-fade/intro.md",
+   "introDE": "lab-npn-fade/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-npn-shunt-pair",
+  "title": {
+   "en": "A transistor moves the current to another LED",
+   "de": "Ein Transistor lenkt den Strom zu einer anderen LED"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-npn-shunt-pair/program.bw",
+   "circuit": "lab-npn-shunt-pair/circuit.json",
+   "expected": "lab-npn-shunt-pair/EXPECTED.md",
+   "intro": "lab-npn-shunt-pair/intro.md",
+   "introDE": "lab-npn-shunt-pair/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-npn-and-gate",
+  "title": {
+   "en": "AND gate from two transistors in series",
+   "de": "UND-Gatter aus zwei Transistoren in Reihe"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-npn-and-gate/program.bw",
+   "circuit": "lab-npn-and-gate/circuit.json",
+   "expected": "lab-npn-and-gate/EXPECTED.md",
+   "intro": "lab-npn-and-gate/intro.md",
+   "introDE": "lab-npn-and-gate/intro.de.md"
+  },
+  "devices": []
  }
 ]
