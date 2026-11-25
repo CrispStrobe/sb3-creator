@@ -34,6 +34,7 @@ import { BENCHES as SET_R10B } from './lab-benches-r10b.mjs';
 import { BENCHES as SET_R10C } from './lab-benches-r10c.mjs';
 import { BENCHES as SET_R10D } from './lab-benches-r10d.mjs';
 import { BENCHES as SET_R10A } from './lab-benches-r10a.mjs';
+import { BENCHES as SET_R9 } from './lab-benches-r9.mjs';
 
 /** scripts/gen-lab-batch2.mjs — kept in step with its `B[...]` table. */
 export const BATCH2_BENCHES = Object.freeze([
@@ -49,6 +50,7 @@ export const CIRCUITS4_BENCHES = Object.freeze({
     4: Object.keys(SET4), 5: Object.keys(SET5), 6: Object.keys(SET6), 8: Object.keys(SET8), optics: Object.keys(SET_OPTICS),
     fields: Object.keys(SET_FIELDS), rf: Object.keys(SET_RF),
     r6h: Object.keys(SET_R6H),
+    r9: Object.keys(SET_R9),
     r6g: Object.keys(SET_R6G),
     r6i: Object.keys(SET_R6I),
     r6f: Object.keys(SET_R6F),

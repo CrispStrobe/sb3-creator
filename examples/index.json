@@ -17144,5 +17144,124 @@
       "intro": "lab-fibre-bend-meter/intro.md",
       "introDE": "lab-fibre-bend-meter/intro.de.md"
     }
+  },
+  {
+    "id": "lab-ptc-window-blink",
+    "title": {
+      "en": "Temperature window: green inside, a flashing warning outside",
+      "de": "Temperaturfenster: innen grün, außen eine blinkende Warnung"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-ptc-window-blink/program.bw",
+      "circuit": "lab-ptc-window-blink/circuit.json",
+      "expected": "lab-ptc-window-blink/EXPECTED.md",
+      "intro": "lab-ptc-window-blink/intro.md",
+      "introDE": "lab-ptc-window-blink/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-chopper-tacho",
+    "title": {
+      "en": "Optical tachometer: a slotted disc chops a light guide",
+      "de": "Optischer Drehzahlmesser: Eine Schlitzscheibe unterbricht einen Lichtleiter"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-chopper-tacho/program.bw",
+      "circuit": "lab-chopper-tacho/circuit.json",
+      "expected": "lab-chopper-tacho/EXPECTED.md",
+      "intro": "lab-chopper-tacho/intro.md",
+      "introDE": "lab-chopper-tacho/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-fibre-pll-music",
+    "title": {
+      "en": "Music down a light guide, frequency-coded, back out of a PLL",
+      "de": "Musik durch einen Lichtleiter, als Frequenz übertragen und mit einer PLL zurückgewonnen"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 4,
+    "files": {
+      "program": "lab-fibre-pll-music/program.bw",
+      "circuit": "lab-fibre-pll-music/circuit.json",
+      "expected": "lab-fibre-pll-music/EXPECTED.md",
+      "intro": "lab-fibre-pll-music/intro.md",
+      "introDE": "lab-fibre-pll-music/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-ptc-fibre-tone",
+    "title": {
+      "en": "A temperature sent as light, heard as a pitch",
+      "de": "Eine Temperatur als Licht gesendet und als Tonhöhe gehört"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-ptc-fibre-tone/program.bw",
+      "circuit": "lab-ptc-fibre-tone/circuit.json",
+      "expected": "lab-ptc-fibre-tone/EXPECTED.md",
+      "intro": "lab-ptc-fibre-tone/intro.md",
+      "introDE": "lab-ptc-fibre-tone/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-ptc-fibre-pll",
+    "title": {
+      "en": "A temperature sent as a pulse rate and read by a PLL",
+      "de": "Eine Temperatur als Pulsrate gesendet und von einer PLL gelesen"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 4,
+    "files": {
+      "program": "lab-ptc-fibre-pll/program.bw",
+      "circuit": "lab-ptc-fibre-pll/circuit.json",
+      "expected": "lab-ptc-fibre-pll/EXPECTED.md",
+      "intro": "lab-ptc-fibre-pll/intro.md",
+      "introDE": "lab-ptc-fibre-pll/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-pll-jar-level",
+    "title": {
+      "en": "Capacitive level meter: a PLL oscillator, a jar and a light bar",
+      "de": "Kapazitiver Füllstandsmesser: ein PLL-Oszillator, ein Glas und eine Leuchtanzeige"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 4,
+    "files": {
+      "program": "lab-pll-jar-level/program.bw",
+      "circuit": "lab-pll-jar-level/circuit.json",
+      "expected": "lab-pll-jar-level/EXPECTED.md",
+      "intro": "lab-pll-jar-level/intro.md",
+      "introDE": "lab-pll-jar-level/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-hum-counter",
+    "title": {
+      "en": "Counting the mains hum with a piece of wire",
+      "de": "Den Netzbrumm mit einem Stück Draht zählen"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-hum-counter/program.bw",
+      "circuit": "lab-hum-counter/circuit.json",
+      "expected": "lab-hum-counter/EXPECTED.md",
+      "intro": "lab-hum-counter/intro.md",
+      "introDE": "lab-hum-counter/intro.de.md"
+    }
   }
 ]
