@@ -14727,5 +14727,175 @@
       "introDE": "lab-am-voice-dual-gate/intro.de.md"
     },
     "devices": []
+  },
+  {
+    "id": "lab-fibre-morse-music",
+    "title": {
+      "en": "Morse and music over a light guide",
+      "de": "Morsezeichen und Musik über einen Lichtleiter"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-fibre-morse-music/program.bw",
+      "circuit": "lab-fibre-morse-music/circuit.json",
+      "expected": "lab-fibre-morse-music/EXPECTED.md",
+      "intro": "lab-fibre-morse-music/intro.md",
+      "introDE": "lab-fibre-morse-music/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-fibre-loss-receivers",
+    "title": {
+      "en": "Losses in a light guide: heard as pitch, read on a meter",
+      "de": "Verluste im Lichtleiter: als Tonhöhe gehört, am Messgerät abgelesen"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-fibre-loss-receivers/program.bw",
+      "circuit": "lab-fibre-loss-receivers/circuit.json",
+      "expected": "lab-fibre-loss-receivers/EXPECTED.md",
+      "intro": "lab-fibre-loss-receivers/intro.md",
+      "introDE": "lab-fibre-loss-receivers/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-colour-amp-comparator",
+    "title": {
+      "en": "Red or green? The LM386 as a colour comparator",
+      "de": "Rot oder grün? Der LM386 als Farbvergleicher"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-colour-amp-comparator/program.bw",
+      "circuit": "lab-colour-amp-comparator/circuit.json",
+      "expected": "lab-colour-amp-comparator/EXPECTED.md",
+      "intro": "lab-colour-amp-comparator/intro.md",
+      "introDE": "lab-colour-amp-comparator/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-solar-tone-switch",
+    "title": {
+      "en": "A solar cell too weak to switch: bias helps, and you hear the light",
+      "de": "Eine Solarzelle zu schwach zum Schalten: Vorspannung hilft, und man hört das Licht"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-solar-tone-switch/program.bw",
+      "circuit": "lab-solar-tone-switch/circuit.json",
+      "expected": "lab-solar-tone-switch/EXPECTED.md",
+      "intro": "lab-solar-tone-switch/intro.md",
+      "introDE": "lab-solar-tone-switch/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-hall-door-tone",
+    "title": {
+      "en": "Magnet at the door: a Hall switch starts a tone",
+      "de": "Magnet an der Tür: Ein Hall-Schalter startet einen Ton"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "files": {
+      "program": "lab-hall-door-tone/program.bw",
+      "circuit": "lab-hall-door-tone/circuit.json",
+      "expected": "lab-hall-door-tone/EXPECTED.md",
+      "intro": "lab-hall-door-tone/intro.md",
+      "introDE": "lab-hall-door-tone/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-hall-changeover-pitch",
+    "title": {
+      "en": "Hall changeover with hysteresis, and a magnet that tunes a PLL",
+      "de": "Hall-Umschalter mit Hysterese und ein Magnet, der eine PLL stimmt"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-hall-changeover-pitch/program.bw",
+      "circuit": "lab-hall-changeover-pitch/circuit.json",
+      "expected": "lab-hall-changeover-pitch/EXPECTED.md",
+      "intro": "lab-hall-changeover-pitch/intro.md",
+      "introDE": "lab-hall-changeover-pitch/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-lux-meter-pnp",
+    "title": {
+      "en": "Lux meter: a PNP stage and an op-amp follower side by side",
+      "de": "Luxmeter: eine PNP-Stufe und ein Operationsverstärker-Folger nebeneinander"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-lux-meter-pnp/program.bw",
+      "circuit": "lab-lux-meter-pnp/circuit.json",
+      "expected": "lab-lux-meter-pnp/EXPECTED.md",
+      "intro": "lab-lux-meter-pnp/intro.md",
+      "introDE": "lab-lux-meter-pnp/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-noise-level-meter",
+    "title": {
+      "en": "Noise-level meter: op-amp, LM386 and a transistor rectifier",
+      "de": "Lärmmesser: Operationsverstärker, LM386 und ein Transistor-Gleichrichter"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-noise-level-meter/program.bw",
+      "circuit": "lab-noise-level-meter/circuit.json",
+      "expected": "lab-noise-level-meter/EXPECTED.md",
+      "intro": "lab-noise-level-meter/intro.md",
+      "introDE": "lab-noise-level-meter/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-draught-alarm",
+    "title": {
+      "en": "Draught alarm: a self-heated PTC, an LM386 bridge detector and a blinker",
+      "de": "Zugluftalarm: ein selbstgeheizter PTC, ein LM386-Brückendetektor und ein Blinker"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-draught-alarm/program.bw",
+      "circuit": "lab-draught-alarm/circuit.json",
+      "expected": "lab-draught-alarm/EXPECTED.md",
+      "intro": "lab-draught-alarm/intro.md",
+      "introDE": "lab-draught-alarm/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-thermocouple-millivolts",
+    "title": {
+      "en": "A thermocouple straight onto a millivolt meter",
+      "de": "Ein Thermoelement direkt am Millivoltmeter"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "files": {
+      "program": "lab-thermocouple-millivolts/program.bw",
+      "circuit": "lab-thermocouple-millivolts/circuit.json",
+      "expected": "lab-thermocouple-millivolts/EXPECTED.md",
+      "intro": "lab-thermocouple-millivolts/intro.md",
+      "introDE": "lab-thermocouple-millivolts/intro.de.md"
+    }
   }
 ]

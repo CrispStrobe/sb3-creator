@@ -1,0 +1,113 @@
+{
+  "vcc": 9,
+  "parts": [
+    {
+      "id": "breadboard_1",
+      "kind": "breadboard",
+      "params": {},
+      "terminals": [],
+      "x": 520,
+      "y": 420,
+      "rotation": 0
+    },
+    {
+      "id": "gnd_2",
+      "kind": "gnd",
+      "params": {},
+      "x": 149,
+      "y": 221,
+      "rotation": 0,
+      "terminals": [
+        "gnd"
+      ]
+    },
+    {
+      "id": "thermocouple_3",
+      "kind": "thermocouple",
+      "params": {
+        "type": "T",
+        "hotC": 600,
+        "ohms": 5
+      },
+      "x": 121,
+      "y": 345,
+      "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "pos": "a3",
+          "neg": "a4"
+        }
+      },
+      "terminals": [
+        "pos",
+        "neg"
+      ]
+    },
+    {
+      "id": "analog_meter_4",
+      "kind": "analog_meter",
+      "params": {
+        "fullScale": 0.05,
+        "ifs": 0.0001
+      },
+      "x": 83,
+      "y": 217,
+      "rotation": 0,
+      "terminals": [
+        "a",
+        "b"
+      ]
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_1",
+      "netId": "net_1",
+      "from": {
+        "part": "analog_meter_4",
+        "terminal": "a"
+      },
+      "to": {
+        "board": "breadboard_1",
+        "hole": "e3"
+      },
+      "color": "blue"
+    },
+    {
+      "id": "w_3",
+      "netId": "net_3",
+      "from": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      },
+      "to": {
+        "board": "breadboard_1",
+        "hole": "t-6"
+      },
+      "color": "black"
+    },
+    {
+      "id": "w_4",
+      "netId": "net_4",
+      "from": {
+        "part": "analog_meter_4",
+        "terminal": "b"
+      },
+      "to": {
+        "board": "breadboard_1",
+        "hole": "t-1"
+      },
+      "color": "black"
+    }
+  ],
+  "holeWires": [
+    {
+      "ref": "bbw:breadboard_1:bbw_2",
+      "boardId": "breadboard_1",
+      "a": "b4",
+      "b": "t-4",
+      "color": "black"
+    }
+  ]
+}
