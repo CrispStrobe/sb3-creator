@@ -35,7 +35,7 @@ const EXAMPLES = join(dirname(fileURLToPath(import.meta.url)), '..', 'examples')
 
 /**
  * spec = {
- *   vcc, parts: {name: [kind, params]}, nets: [['name.term', …], …],
+ *   vcc, parts: {name: [kind, params, label?]}, nets: [['name.term', …], …],
  *   supply: {pos: 'name.term', neg: 'name.term'},   // nets that use the rails
  *   open: ['name.term', …],                          // leads left open on purpose
  *   layoutOrder: ['name', …],                        // optional: parts seated first
@@ -52,8 +52,8 @@ export function buildBench(spec) {
     };
     const json = layoutBench(E, {
         vcc: spec.vcc ?? 9,
-        parts: Object.entries(spec.parts).map(([name, [kind, params]]) =>
-            ({ id: ids[name], kind, params: { ...(params || {}) }, x: 0, y: 0, rotation: 0 })),
+        parts: Object.entries(spec.parts).map(([name, [kind, params, label]]) =>
+            ({ id: ids[name], kind, params: { ...(params || {}) }, ...(label ? { label } : {}), x: 0, y: 0, rotation: 0 })),
         nets: spec.nets.map(n => n.map(ref)),
         supply: spec.supply && { pos: ref(spec.supply.pos), neg: ref(spec.supply.neg) },
         boardId: 'breadboard_1',
