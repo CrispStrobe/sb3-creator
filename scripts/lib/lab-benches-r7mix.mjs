@@ -253,36 +253,6 @@ export const BENCHES = {
         open: ['m.osc_e', 'u.gain1', 'u.gain8', 'u.bypass'],
     },
 
-    // FM on medium wave. The Meissner transmitter of the direct-conversion
-    // bench on 9 V, its base divider's top fed through 47 kΩ from an LM386
-    // relaxation oscillator (68 nF, 15 kΩ: about 100 Hz). Each half of the
-    // LM386's square wave moves the transistor's operating point, its
-    // capacitances move with the current, and the carrier's frequency with
-    // them: frequency modulation. The mixer receiver of the direct-conversion
-    // bench beats against the carrier, so the deviation is heard as a pitch
-    // that jumps between two values a hundred times a second.
-    'lab-mixer-mw-fm': {
-        vcc: 6, supply: SUP,
-        parts: { bat: BAT6, btx: ['vsource', { volts: 9 }],
-            lt: ['ferrite_coil', { rodHeightM: 0, couplingRatio: 0.05 }], tct: TUNE(0.3), q: NPN,
-            r1: R(47000), r2: R(10000), cb: C(10e-9), re: R(1000), ce: C(1e-9),
-            um: ['lm386', {}], cfm: C(68e-9), rbm: R(15000), rmod: R(47000),
-            cx: C(2.2e-12), cin: C(100e-9),
-            m: MIX, l2: ['ferrite_coil', { rodHeightM: 0 }], tc2: TUNE(0.3), ck: C(10e-9), ct: C(10e-9),
-            co: C(22e-9), ca: C(100e-9), ri: R(10000), u: ['lm386', {}], cs: EL(100e-6), cspk: EL(220e-6), spk: ['speaker', { ohms: 8 }] },
-        nets: [
-            ['btx.pos', 'lt.a', 'tct.a', 'r1.a', 'um.vs'],
-            ['q.collector', 'lt.b', 'tct.b', 'cx.a'], ['r1.b', 'r2.a', 'cb.a', 'lt.c2', 'rmod.b'], ['q.base', 'lt.c1'], ['q.emitter', 're.a', 'ce.a'],
-            ['um.vout', 'cfm.a', 'rmod.a'], ['cfm.b', 'um.inp', 'rbm.a'],
-            ['cx.b', 'm.in_a'], ['m.in_b', 'cin.a'],
-            ['bat.pos', 'm.vcc', 'u.vs', 'cs.pos'],
-            ['m.osc_b', 'ck.a'], ['ck.b', 'l2.b', 'tc2.a'], ['l2.tap', 'ct.a'], ['ct.b', 'm.osc_e'],
-            ['m.out_a', 'co.a', 'ca.a'], ['ca.b', 'u.inp', 'ri.a'], ['u.vout', 'cspk.pos'], ['cspk.neg', 'spk.a'],
-            ['bat.neg', 'btx.neg', 'r2.b', 'cb.b', 're.b', 'ce.b', 'um.gnd', 'um.inn', 'rbm.b', 'cin.b', 'm.gnd', 'l2.a', 'tc2.b', 'co.b', 'ri.b',
-                'u.gnd', 'u.inn', 'cs.neg', 'spk.b'],
-        ],
-        open: ['lt.tap', 'l2.c1', 'l2.c2', 'm.out_b', 'um.gain1', 'um.gain8', 'um.bypass', 'u.gain1', 'u.gain8', 'u.bypass'],
-    },
 };
 
 // Resolve '@name' params to engine ids.
