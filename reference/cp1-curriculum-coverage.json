@@ -1,0 +1,567 @@
+{
+  "sourceIndex": "https://www.rigert.com/ee-wiki/index.php?title=Kosmos_CP1",
+  "coverageMeaning": {
+    "existing": "An existing Brickwright listing directly teaches this objective.",
+    "guided": "A proposed investigation uses the named listing. Its own activity or lesson is still to be authored.",
+    "program": "New Brickwright program and its acceptance fixture are proposed."
+  },
+  "sections": [
+    {
+      "section": "1.16",
+      "objective": "Diagnose an unexpected stop",
+      "coverage": "guided",
+      "exercise": "cp1-first-display"
+    },
+    {
+      "section": "1.17",
+      "objective": "Sample a number after a human key event",
+      "coverage": "program",
+      "exercise": "ticket-draw"
+    },
+    {
+      "section": "1.18",
+      "objective": "Identify instructions and data",
+      "coverage": "guided",
+      "exercise": "cp1-first-display"
+    },
+    {
+      "section": "1.19",
+      "objective": "Follow the next instruction address",
+      "coverage": "guided",
+      "exercise": "cp1-first-display"
+    },
+    {
+      "section": "1.20",
+      "objective": "Assemble numeric instruction words",
+      "coverage": "guided",
+      "exercise": "cp1-first-display"
+    },
+    {
+      "section": "1.21",
+      "objective": "Follow the accumulator",
+      "coverage": "existing",
+      "exercise": "cp1-descending-sum"
+    },
+    {
+      "section": "1.22",
+      "objective": "Separate the operation and operand fields",
+      "coverage": "guided",
+      "exercise": "cp1-instruction-patch"
+    },
+    {
+      "section": "1.23",
+      "objective": "Load an existing memory word",
+      "coverage": "existing",
+      "exercise": "cp1-instruction-patch"
+    },
+    {
+      "section": "1.24",
+      "objective": "Run one teaching instruction per press",
+      "coverage": "guided",
+      "exercise": "cp1-expansion-step"
+    },
+    {
+      "section": "1.25",
+      "objective": "Trace the state changes caused by a word",
+      "coverage": "guided",
+      "exercise": "cp1-instruction-patch"
+    },
+    {
+      "section": "1.26",
+      "objective": "Explain why a displayed result disappears",
+      "coverage": "guided",
+      "exercise": "cp1-first-display"
+    },
+    {
+      "section": "1.27",
+      "objective": "Make successive display states readable",
+      "coverage": "program",
+      "exercise": "display-postcard"
+    },
+    {
+      "section": "1.28",
+      "objective": "Create an intentional terminal state",
+      "coverage": "guided",
+      "exercise": "cp1-descending-sum"
+    },
+    {
+      "section": "1.29",
+      "objective": "Compare named operations with decimal words",
+      "coverage": "guided",
+      "exercise": "cp1-first-display"
+    },
+    {
+      "section": "1.30",
+      "objective": "Load and run a complete source listing",
+      "coverage": "guided",
+      "exercise": "cp1-first-display"
+    },
+    {
+      "section": "1.31",
+      "objective": "Predict successive single-step results",
+      "coverage": "guided",
+      "exercise": "cp1-descending-sum"
+    },
+    {
+      "section": "1.32",
+      "objective": "Show the accumulator explicitly",
+      "coverage": "existing",
+      "exercise": "cp1-first-display"
+    },
+    {
+      "section": "1.33",
+      "objective": "Measure a programmed pause",
+      "coverage": "existing",
+      "exercise": "cp1-gray-indicator"
+    },
+    {
+      "section": "1.34",
+      "objective": "Observe manual and programmed stops",
+      "coverage": "guided",
+      "exercise": "cp1-blink"
+    },
+    {
+      "section": "1.35",
+      "objective": "Inspect how the monitor handles interruption",
+      "coverage": "guided",
+      "exercise": "cp1-blink"
+    },
+    {
+      "section": "1.36",
+      "objective": "Resume after a terminal instruction",
+      "coverage": "guided",
+      "exercise": "cp1-crate-division"
+    },
+    {
+      "section": "1.37",
+      "objective": "Store a result in teaching RAM",
+      "coverage": "existing",
+      "exercise": "cp1-descending-sum"
+    },
+    {
+      "section": "1.38",
+      "objective": "Load a literal byte",
+      "coverage": "existing",
+      "exercise": "cp1-first-display"
+    },
+    {
+      "section": "1.39",
+      "objective": "Process a sequence of numeric samples",
+      "coverage": "existing",
+      "exercise": "cp1-descending-sum"
+    },
+    {
+      "section": "1.40",
+      "objective": "Track a finite supply with entry and exit events",
+      "coverage": "program",
+      "exercise": "workshop-capacity"
+    },
+    {
+      "section": "1.41",
+      "objective": "Add an unsigned byte with bounds",
+      "coverage": "existing",
+      "exercise": "cp1-descending-sum"
+    },
+    {
+      "section": "1.42",
+      "objective": "Subtract without wrapping below zero",
+      "coverage": "existing",
+      "exercise": "cp1-crate-division"
+    },
+    {
+      "section": "1.43",
+      "objective": "Advance a counter automatically",
+      "coverage": "program",
+      "exercise": "batch-ticker"
+    },
+    {
+      "section": "1.44",
+      "objective": "Use an unconditional branch",
+      "coverage": "existing",
+      "exercise": "cp1-blink"
+    },
+    {
+      "section": "1.45",
+      "objective": "Allocate distinct code and data ranges",
+      "coverage": "guided",
+      "exercise": "cp1-lookup-card"
+    },
+    {
+      "section": "1.46",
+      "objective": "Express a Boolean condition with terminals",
+      "coverage": "existing",
+      "exercise": "cp1-guarded-output"
+    },
+    {
+      "section": "1.47",
+      "objective": "Use equality to select a state",
+      "coverage": "existing",
+      "exercise": "cp1-descending-sum"
+    },
+    {
+      "section": "1.48",
+      "objective": "Branch on a prior comparison",
+      "coverage": "existing",
+      "exercise": "cp1-status-dispatch"
+    },
+    {
+      "section": "1.49",
+      "objective": "Run a bounded-value perpetual counter",
+      "coverage": "program",
+      "exercise": "batch-ticker"
+    },
+    {
+      "section": "1.50",
+      "objective": "Translate a state diagram into cells",
+      "coverage": "guided",
+      "exercise": "cp1-status-dispatch"
+    },
+    {
+      "section": "1.51",
+      "objective": "Solve a small programming puzzle",
+      "coverage": "program",
+      "exercise": "led-route-puzzle"
+    },
+    {
+      "section": "1.52",
+      "objective": "Design clear human input and feedback",
+      "coverage": "guided",
+      "exercise": "cp1-cp5-binary"
+    },
+    {
+      "section": "1.53",
+      "objective": "Read one input bit",
+      "coverage": "existing",
+      "exercise": "cp1-switch-input"
+    },
+    {
+      "section": "1.54",
+      "objective": "Enter one byte through a switch bank",
+      "coverage": "existing",
+      "exercise": "cp1-cp5-binary"
+    },
+    {
+      "section": "1.55",
+      "objective": "Count elapsed intervals while enabled",
+      "coverage": "program",
+      "exercise": "button-stopwatch"
+    },
+    {
+      "section": "1.56",
+      "objective": "Drive a terminal on the quasi-bidirectional port",
+      "coverage": "program",
+      "exercise": "bidirectional-beacon"
+    },
+    {
+      "section": "1.57",
+      "objective": "Generate a timed output change",
+      "coverage": "existing",
+      "exercise": "cp1-blink"
+    },
+    {
+      "section": "1.58",
+      "objective": "Drive the separate output port",
+      "coverage": "existing",
+      "exercise": "cp1-gray-indicator"
+    },
+    {
+      "section": "1.59",
+      "objective": "Compose Boolean terminal expressions",
+      "coverage": "existing",
+      "exercise": "cp1-guarded-output"
+    },
+    {
+      "section": "1.60",
+      "objective": "Verify a truth table on a circuit",
+      "coverage": "existing",
+      "exercise": "cp1-guarded-output"
+    },
+    {
+      "section": "1.61",
+      "objective": "Invert an input bit",
+      "coverage": "existing",
+      "exercise": "cp1-guarded-output"
+    },
+    {
+      "section": "1.62",
+      "objective": "Relate a displayed number to its underlying byte",
+      "coverage": "guided",
+      "exercise": "cp1-cp5-binary"
+    },
+    {
+      "section": "1.63",
+      "objective": "Read the place values of selected bits",
+      "coverage": "guided",
+      "exercise": "cp1-cp5-binary"
+    },
+    {
+      "section": "1.64",
+      "objective": "Build and decode bytes with switch and LED values",
+      "coverage": "guided",
+      "exercise": "cp1-cp5-binary"
+    },
+    {
+      "section": "1.65",
+      "objective": "Inspect a bit, a byte and a two-byte teaching word",
+      "coverage": "guided",
+      "exercise": "cp1-instruction-patch"
+    },
+    {
+      "section": "1.66",
+      "objective": "Store through an address held in RAM",
+      "coverage": "existing",
+      "exercise": "cp1-sample-log"
+    },
+    {
+      "section": "1.67",
+      "objective": "Load through an address held in RAM",
+      "coverage": "existing",
+      "exercise": "cp1-lookup-card"
+    },
+    {
+      "section": "1.68",
+      "objective": "Dispatch through a table of addresses",
+      "coverage": "existing",
+      "exercise": "cp1-status-dispatch"
+    },
+    {
+      "section": "1.69",
+      "objective": "Compute a small product by repeated addition",
+      "coverage": "program",
+      "exercise": "tile-bundles"
+    },
+    {
+      "section": "1.70",
+      "objective": "Compute whole groups and remainder by subtraction",
+      "coverage": "existing",
+      "exercise": "cp1-crate-division"
+    },
+    {
+      "section": "1.71",
+      "objective": "Debug a deliberately broken calculation",
+      "coverage": "guided",
+      "exercise": "cp1-descending-sum"
+    },
+    {
+      "section": "1.72",
+      "objective": "Shorten a program and verify equivalence",
+      "coverage": "guided",
+      "exercise": "cp1-status-dispatch"
+    },
+    {
+      "section": "1.73",
+      "objective": "Profile a delay routine built from nested counters",
+      "coverage": "program",
+      "exercise": "delay-lab"
+    },
+    {
+      "section": "1.74",
+      "objective": "Construct and verify a word that preserves teaching state",
+      "coverage": "guided",
+      "exercise": "delay-lab"
+    },
+    {
+      "section": "1.75",
+      "objective": "Keep two entry points in one RAM image",
+      "coverage": "program",
+      "exercise": "dual-workbench"
+    },
+    {
+      "section": "1.76",
+      "objective": "Relocate code and data and repair references",
+      "coverage": "guided",
+      "exercise": "dual-workbench"
+    },
+    {
+      "section": "1.77",
+      "objective": "Measure instruction overhead and vary the delay operand",
+      "coverage": "guided",
+      "exercise": "cp1-gray-indicator"
+    },
+    {
+      "section": "2.1",
+      "objective": "Wrap a time-of-day counter",
+      "coverage": "program",
+      "exercise": "shift-clock",
+      "fixture": "clock pulse or simulated time"
+    },
+    {
+      "section": "2.2",
+      "objective": "Measure a button response after a variable interval",
+      "coverage": "program",
+      "exercise": "signal-reaction",
+      "fixture": "pushbutton and LED"
+    },
+    {
+      "section": "2.3",
+      "objective": "Count time units and calculate a usage total",
+      "coverage": "program",
+      "exercise": "machine-time-meter",
+      "fixture": "synthetic tariff ticks"
+    },
+    {
+      "section": "2.4",
+      "objective": "Convert an external digital sample into calibrated readings",
+      "coverage": "program",
+      "exercise": "bench-voltmeter",
+      "fixture": "simulated ADC or comparison ladder"
+    },
+    {
+      "section": "2.5",
+      "objective": "Choose moves in a take-away game",
+      "coverage": "program",
+      "exercise": "token-match",
+      "fixture": "switches or keypad entry"
+    },
+    {
+      "section": "2.6",
+      "objective": "Find an unknown code with feedback",
+      "coverage": "program",
+      "exercise": "code-feedback",
+      "fixture": "switch byte or keypad entry"
+    },
+    {
+      "section": "2.7",
+      "objective": "Run an output at scheduled times",
+      "coverage": "program",
+      "exercise": "greenhouse-schedule",
+      "fixture": "clock stimulus and LED or relay model"
+    },
+    {
+      "section": "2.8",
+      "objective": "Repeat a generated sequence from memory",
+      "coverage": "program",
+      "exercise": "signal-memory",
+      "fixture": "switches and LEDs"
+    },
+    {
+      "section": "2.9",
+      "objective": "Discover pairs in a small memory table",
+      "coverage": "program",
+      "exercise": "pair-grid",
+      "fixture": "switches and display"
+    },
+    {
+      "section": "2.10",
+      "objective": "Use an input sequence to change an interlock state",
+      "coverage": "program",
+      "exercise": "cabinet-panel",
+      "fixture": "switches and lamps"
+    },
+    {
+      "section": "2.11",
+      "objective": "Generate two results and detect equality",
+      "coverage": "program",
+      "exercise": "twin-samples",
+      "fixture": "pushbutton, optional LED"
+    },
+    {
+      "section": "2.12",
+      "objective": "Control a descent against a limited resource",
+      "coverage": "program",
+      "exercise": "descent-challenge",
+      "fixture": "input controls and display"
+    },
+    {
+      "section": "2.13",
+      "objective": "Emit notes and pauses from a table",
+      "coverage": "program",
+      "exercise": "signal-melody",
+      "fixture": "simulated tone generator"
+    },
+    {
+      "section": "2.14",
+      "objective": "Evaluate moves on a small board",
+      "coverage": "program",
+      "exercise": "grid-escape",
+      "fixture": "switches or keypad entry"
+    },
+    {
+      "section": "2.15",
+      "objective": "Multiply with a multi-byte accumulator",
+      "coverage": "program",
+      "exercise": "wide-tile-count",
+      "fixture": "CP1 RAM and display"
+    },
+    {
+      "section": "2.16",
+      "objective": "Stream the digits of a fractional division",
+      "coverage": "program",
+      "exercise": "fraction-stream",
+      "fixture": "CP1 display"
+    },
+    {
+      "section": "2.17",
+      "objective": "Address one of several annunciators",
+      "coverage": "program",
+      "exercise": "studio-annunciator",
+      "fixture": "switches and lamps"
+    },
+    {
+      "section": "2.18",
+      "objective": "Check answers to generated arithmetic questions",
+      "coverage": "program",
+      "exercise": "number-drill",
+      "fixture": "input byte and display"
+    },
+    {
+      "section": "2.19",
+      "objective": "Control start, stop and direction of a motor model",
+      "coverage": "program",
+      "exercise": "conveyor-controller",
+      "fixture": "motor driver and switch model"
+    },
+    {
+      "section": "2.20",
+      "objective": "Count periodic sensor pulses",
+      "coverage": "program",
+      "exercise": "pulse-bench",
+      "fixture": "synthetic pulse generator"
+    },
+    {
+      "section": "2.21",
+      "objective": "Encode short and long signals",
+      "coverage": "program",
+      "exercise": "beacon-code",
+      "fixture": "LED or simulated buzzer"
+    },
+    {
+      "section": "2.22",
+      "objective": "Produce a single output pulse from an input edge",
+      "coverage": "program",
+      "exercise": "pulse-stretcher",
+      "fixture": "trigger switch and indicator"
+    },
+    {
+      "section": "2.23",
+      "objective": "Infer direction from ordered sensor events",
+      "coverage": "program",
+      "exercise": "gate-tally",
+      "fixture": "two sensor switches and display"
+    },
+    {
+      "section": "2.24",
+      "objective": "Sequence points and signals for a model layout",
+      "coverage": "program",
+      "exercise": "yard-dispatch",
+      "fixture": "simulated switches and outputs"
+    },
+    {
+      "section": "2.25",
+      "objective": "Choose a stop position on a ring of indicators",
+      "coverage": "program",
+      "exercise": "ring-selector",
+      "fixture": "switch and indicator bank"
+    }
+  ],
+  "beyondTheManual": [
+    "Software UART between two simulated CP1 boards",
+    "Virtual I2C target with a bit-banged CP1 master",
+    "Fault-tolerant railway interlock with exhaustive switch-state tests",
+    "Fixed-point waveform or sensor filtering with quantization plots",
+    "A bytecode profiler that measures instruction cost without changing the teaching program",
+    "A small keyboard sequencer with debounce and undo",
+    "A logic analyzer trigger that captures the history around a chosen edge",
+    "A CP2 data logger that saves original sensor records and reloads them"
+  ]
+}
