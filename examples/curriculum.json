@@ -2374,6 +2374,17 @@
        }
       },
       {
+       "example": "cp1-cp3-cp4-relay-sequence",
+       "title": {
+        "en": "Play a relay sequence from expansion RAM",
+        "de": "Eine Relaisfolge aus dem Erweiterungsspeicher abspielen"
+       },
+       "lead": {
+        "en": "Watch the two P4 outputs. Edit cell 255 to change the second signal, then verify the affected load in Circuits.",
+        "de": "Die beiden Ausgänge an Port 4 beobachten. Zelle 255 ändern und in der Schaltung prüfen, welche Last jetzt eingeschaltet wird."
+       }
+      },
+      {
        "example": "cp1-cp4-relay-signals",
        "title": {
         "en": "Two isolated relay signals",

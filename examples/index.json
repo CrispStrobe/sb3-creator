@@ -15219,6 +15219,26 @@
   "devices": []
  },
  {
+  "id": "cp1-cp3-cp4-relay-sequence",
+  "title": {
+   "en": "CP1: CP3 relay sequencer",
+   "de": "CP1: Relaisfolge aus dem CP3-Speicher"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-cp3-cp4-relay-sequence/program.bw",
+   "cp1": "cp1-cp3-cp4-relay-sequence/program.cp1",
+   "circuit": "cp1-cp3-cp4-relay-sequence/circuit.json",
+   "intro": "cp1-cp3-cp4-relay-sequence/intro.md",
+   "introDE": "cp1-cp3-cp4-relay-sequence/intro.de.md",
+   "expected": "cp1-cp3-cp4-relay-sequence/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
   "id": "cp1-cp4-relay-signals",
   "title": {
    "en": "CP1: CP4 relay signals",

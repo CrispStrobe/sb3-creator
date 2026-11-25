@@ -1,0 +1,23 @@
+; Play the two expansion words on the isolated relay outputs.
+ORG 0
+again:  LDA entry
+        P4A 0
+        ANZ
+        VZG 250
+        VZG 250
+        LDA exit
+        P4A 0
+        ANZ
+        VZG 250
+        VZG 250
+        AKO 0
+        P4A 0
+        ANZ
+        VZG 250
+        VZG 250
+        SPU again
+
+ORG 128
+entry:  DATA 1
+ORG 255
+exit:   DATA 2
