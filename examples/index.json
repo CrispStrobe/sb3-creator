@@ -16217,5 +16217,243 @@
    "expected": "cp1-yard-dispatch/EXPECTED.md"
   },
   "devices": []
- }
+ },
+  {
+    "id": "lab-555-humidity-switch",
+    "title": {
+      "en": "Humidity switch with a 555",
+      "de": "Feuchteschalter mit dem 555"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "files": {
+      "program": "lab-555-humidity-switch/program.bw",
+      "circuit": "lab-555-humidity-switch/circuit.json",
+      "expected": "lab-555-humidity-switch/EXPECTED.md",
+      "intro": "lab-555-humidity-switch/intro.md",
+      "introDE": "lab-555-humidity-switch/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-555-direction-tester",
+    "title": {
+      "en": "Direction tester with a 555 tone",
+      "de": "Durchlassprüfer mit 555-Ton"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "files": {
+      "program": "lab-555-direction-tester/program.bw",
+      "circuit": "lab-555-direction-tester/circuit.json",
+      "expected": "lab-555-direction-tester/EXPECTED.md",
+      "intro": "lab-555-direction-tester/intro.md",
+      "introDE": "lab-555-direction-tester/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-555-morse-touch",
+    "title": {
+      "en": "Morse key and touch key on the reset pin",
+      "de": "Morsetaste und Fingertaste am Reset-Pin"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-555-morse-touch/program.bw",
+      "circuit": "lab-555-morse-touch/circuit.json",
+      "expected": "lab-555-morse-touch/EXPECTED.md",
+      "intro": "lab-555-morse-touch/intro.md",
+      "introDE": "lab-555-morse-touch/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-555-wail",
+    "title": {
+      "en": "Siren and wail on the control pin",
+      "de": "Sirene und Heulton am Steuereingang"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-555-wail/program.bw",
+      "circuit": "lab-555-wail/circuit.json",
+      "expected": "lab-555-wail/EXPECTED.md",
+      "intro": "lab-555-wail/intro.md",
+      "introDE": "lab-555-wail/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-555-touch-timer",
+    "title": {
+      "en": "Touch timer with a hum guard",
+      "de": "Berührungs-Zeitschalter mit Brummschutz"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-555-touch-timer/program.bw",
+      "circuit": "lab-555-touch-timer/circuit.json",
+      "expected": "lab-555-touch-timer/EXPECTED.md",
+      "intro": "lab-555-touch-timer/intro.md",
+      "introDE": "lab-555-touch-timer/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-555-touch-toggle",
+    "title": {
+      "en": "One-touch on/off switch",
+      "de": "Ein-Tasten-Ein/Aus-Schalter"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-555-touch-toggle/program.bw",
+      "circuit": "lab-555-touch-toggle/circuit.json",
+      "expected": "lab-555-touch-toggle/EXPECTED.md",
+      "intro": "lab-555-touch-toggle/intro.md",
+      "introDE": "lab-555-touch-toggle/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-555-sound-switch",
+    "title": {
+      "en": "Switched by a clap or a torch",
+      "de": "Geschaltet durch Klatschen oder Taschenlampe"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-555-sound-switch/program.bw",
+      "circuit": "lab-555-sound-switch/circuit.json",
+      "expected": "lab-555-sound-switch/EXPECTED.md",
+      "intro": "lab-555-sound-switch/intro.md",
+      "introDE": "lab-555-sound-switch/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-555-hysteresis-feedback",
+    "title": {
+      "en": "How feedback sets the hysteresis",
+      "de": "Wie Rückkopplung die Hysterese bestimmt"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-555-hysteresis-feedback/program.bw",
+      "circuit": "lab-555-hysteresis-feedback/circuit.json",
+      "expected": "lab-555-hysteresis-feedback/EXPECTED.md",
+      "intro": "lab-555-hysteresis-feedback/intro.md",
+      "introDE": "lab-555-hysteresis-feedback/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-555-trip-latch",
+    "title": {
+      "en": "Trip-wire alarm that stays on",
+      "de": "Stolperdraht-Alarm, der an bleibt"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "files": {
+      "program": "lab-555-trip-latch/program.bw",
+      "circuit": "lab-555-trip-latch/circuit.json",
+      "expected": "lab-555-trip-latch/EXPECTED.md",
+      "intro": "lab-555-trip-latch/intro.md",
+      "introDE": "lab-555-trip-latch/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-555-twilight",
+    "title": {
+      "en": "Twilight switch",
+      "de": "Dämmerungsschalter"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "files": {
+      "program": "lab-555-twilight/program.bw",
+      "circuit": "lab-555-twilight/circuit.json",
+      "expected": "lab-555-twilight/EXPECTED.md",
+      "intro": "lab-555-twilight/intro.md",
+      "introDE": "lab-555-twilight/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-555-fibre-darlington",
+    "title": {
+      "en": "Light guide onto a photo-Darlington",
+      "de": "Lichtleiter auf einen Foto-Darlington"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-555-fibre-darlington/program.bw",
+      "circuit": "lab-555-fibre-darlington/circuit.json",
+      "expected": "lab-555-fibre-darlington/EXPECTED.md",
+      "intro": "lab-555-fibre-darlington/intro.md",
+      "introDE": "lab-555-fibre-darlington/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-555-amp-beats",
+    "title": {
+      "en": "Beats between two different oscillators",
+      "de": "Schwebung zwischen zwei verschiedenen Oszillatoren"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-555-amp-beats/program.bw",
+      "circuit": "lab-555-amp-beats/circuit.json",
+      "expected": "lab-555-amp-beats/EXPECTED.md",
+      "intro": "lab-555-amp-beats/intro.md",
+      "introDE": "lab-555-amp-beats/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-555-mic-fm",
+    "title": {
+      "en": "Your voice bends the pitch",
+      "de": "Deine Stimme verbiegt den Ton"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-555-mic-fm/program.bw",
+      "circuit": "lab-555-mic-fm/circuit.json",
+      "expected": "lab-555-mic-fm/EXPECTED.md",
+      "intro": "lab-555-mic-fm/intro.md",
+      "introDE": "lab-555-mic-fm/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-counter-traffic-lights",
+    "title": {
+      "en": "Traffic light from a counter",
+      "de": "Ampel aus einem Zähler"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-counter-traffic-lights/program.bw",
+      "circuit": "lab-counter-traffic-lights/circuit.json",
+      "expected": "lab-counter-traffic-lights/EXPECTED.md",
+      "intro": "lab-counter-traffic-lights/intro.md",
+      "introDE": "lab-counter-traffic-lights/intro.de.md"
+    }
+  }
 ]
