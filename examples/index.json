@@ -14897,5 +14897,95 @@
       "intro": "lab-thermocouple-millivolts/intro.md",
       "introDE": "lab-thermocouple-millivolts/intro.de.md"
     }
+  },
+  {
+    "id": "lab-npn-horn-follower",
+    "title": {
+      "en": "Two-tone horn with a follower amplifier",
+      "de": "Zweiklanghorn mit Folgeverstärker"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-npn-horn-follower/program.bw",
+      "circuit": "lab-npn-horn-follower/circuit.json",
+      "expected": "lab-npn-horn-follower/EXPECTED.md",
+      "intro": "lab-npn-horn-follower/intro.md",
+      "introDE": "lab-npn-horn-follower/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-amp-ic-light-organ",
+    "title": {
+      "en": "Light organ with a power amplifier",
+      "de": "Lichtorgel mit Leistungsverstärker"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-amp-ic-light-organ/program.bw",
+      "circuit": "lab-amp-ic-light-organ/circuit.json",
+      "expected": "lab-amp-ic-light-organ/EXPECTED.md",
+      "intro": "lab-amp-ic-light-organ/intro.md",
+      "introDE": "lab-amp-ic-light-organ/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-amp-ic-applause",
+    "title": {
+      "en": "Applause meter with a power amplifier",
+      "de": "Applausmesser mit Leistungsverstärker"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-amp-ic-applause/program.bw",
+      "circuit": "lab-amp-ic-applause/circuit.json",
+      "expected": "lab-amp-ic-applause/EXPECTED.md",
+      "intro": "lab-amp-ic-applause/intro.md",
+      "introDE": "lab-amp-ic-applause/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-amp-ic-clap-latch",
+    "title": {
+      "en": "Clap switch with a transistor Schmitt trigger",
+      "de": "Klatschschalter mit Transistor-Schmitt-Trigger"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-amp-ic-clap-latch/program.bw",
+      "circuit": "lab-amp-ic-clap-latch/circuit.json",
+      "expected": "lab-amp-ic-clap-latch/EXPECTED.md",
+      "intro": "lab-amp-ic-clap-latch/intro.md",
+      "introDE": "lab-amp-ic-clap-latch/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-amp-ic-pot-piano",
+    "title": {
+      "en": "Pot piano with a power-amplifier oscillator",
+      "de": "Poti-Klavier mit Leistungsverstärker-Oszillator"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-amp-ic-pot-piano/program.bw",
+      "circuit": "lab-amp-ic-pot-piano/circuit.json",
+      "expected": "lab-amp-ic-pot-piano/EXPECTED.md",
+      "intro": "lab-amp-ic-pot-piano/intro.md",
+      "introDE": "lab-amp-ic-pot-piano/intro.de.md"
+    },
+    "devices": []
   }
 ]
