@@ -71,7 +71,11 @@ describe('lab MOSFET benches behave as documented', { skip: SKIP }, () => {
         const i45 = at(4.5), i12 = at(12);
         near(i45, 3.40, 0.2, '4.5 V (mA)');
         near(i12, 3.88, 0.2, '12 V (mA)');
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): i12 / i45 < 1.2 -> observed
+        // 1.1416728938203813.
         assert.ok(i12 / i45 < 1.2, `the voltage nearly triples, the current rises by under 20 %: ${i45} -> ${i12}`);
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): at(3) < 0.05 -> observed
+        // 0.010593037568178525.
         assert.ok(at(3) < 0.05, 'below the two LED drops: dark');
     });
 
@@ -89,8 +93,14 @@ describe('lab MOSFET benches behave as documented', { skip: SKIP }, () => {
             assert.ok(i >= last - 1e-6, `brighter as the gate rises: ${i} at ${pos}`);
             last = i; seen.push([vgs(), i]);
         }
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): seen[0][1] < 0.001 -> observed
+        // 6.384965863277859e-9.
         assert.ok(seen[0][0] < -1.5 && seen[0][1] < 0.001, `bottom: gate ${seen[0][0]} V below the source, dark`);
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): seen[2][1] > 0.2 -> observed
+        // 0.40350336542673576.
         assert.ok(seen[2][0] < -0.8 && seen[2][1] > 0.2, `already conducting with the gate negative: ${seen[2]}`);
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): seen.at(-1)[1] > 9.5 -> observed
+        // 9.886664549912531; seen.at(-1)[0] > 1.5 -> observed 1.7690588633331314.
         assert.ok(seen.at(-1)[0] > 1.5 && seen.at(-1)[1] > 9.5, `top: gate positive, full: ${seen.at(-1)}`);
         x.set('pot', 0); x.run(0.5);
         x.set('zero', 1); x.run(0.5);
@@ -103,8 +113,14 @@ describe('lab MOSFET benches behave as documented', { skip: SKIP }, () => {
         x.run(1);
         near(x.mA('sig', 'anode'), 9.4, 0.6, 'both gates high (mA)');
         const with_ = (p1, p2) => { x.set('p1', p1); x.set('p2', p2); x.run(0.5); return x.mA('sig', 'anode'); };
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): with_(0, 1) < 0.001 -> observed
+        // 3.217548320785805e-9.
         assert.ok(with_(0, 1) < 0.001, 'gate 1 down: dark');
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): with_(1, 0) < 0.001 -> observed
+        // 6.384947817601526e-9.
         assert.ok(with_(1, 0) < 0.001, 'gate 2 down: dark');
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): with_(0, 1) < 0.001 -> observed
+        // 3.217548320785805e-9; with_(0, 0.5) < 0.001 -> observed 3.217548320785805e-9.
         assert.ok(with_(0, 0.5) < 0.001 && with_(0, 1) < 0.001, 'gate 1 pinched: gate 2 has no effect');
         const g1mid = with_(0.5, 1), g2mid = with_(1, 0.5);
         near(g1mid, 7.6, 0.6, 'gate 1 at mid travel (mA)');
@@ -112,8 +128,12 @@ describe('lab MOSFET benches behave as documented', { skip: SKIP }, () => {
         assert.ok(g2mid < g1mid, 'gate 2 controls more strongly');
         with_(1, 1);
         x.set('b1', 1); x.run(0.5);
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): x.mA('sig', 'anode') < 0.001 ->
+        // observed 3.217548320785805e-9.
         assert.ok(x.mA('sig', 'anode') < 0.001, 'button 1 grounds gate 1: dark');
         x.set('b1', 0); x.set('b2', 1); x.run(0.5);
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): x.mA('sig', 'anode') < 0.001 ->
+        // observed 6.384947817601526e-9.
         assert.ok(x.mA('sig', 'anode') < 0.001, 'button 2 grounds gate 2: dark');
         assert.equal(x.state('q').pinchedBy, 'gate2');
     });
@@ -127,26 +147,46 @@ describe('lab MOSFET benches behave as documented', { skip: SKIP }, () => {
             truth[`${a}${b}`] = x.mA('out', 'anode');
         }
         for (const k of ['00', '10', '01']) near(truth[k], 5.36, 0.3, `inputs ${k}: LED lit (mA)`);
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): truth['11'] < 0.01 -> observed
+        // 1.682931591614735e-10.
         assert.ok(truth['11'] < 0.01, `both pressed: dark (${truth['11']} mA)`);
     });
 
     test('lab-humidity-comb: dark in room air, lit above about 60 % RH and by breath', () => {
         const x = bench('lab-humidity-comb');
         x.run(1);
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): x.mA('sig', 'anode') < 0.001 ->
+        // observed 6.381703105746318e-9.
         assert.ok(x.mA('sig', 'anode') < 0.001, 'room air: dark');
         near(x.state('comb').humidityPct, 50, 1e-9, 'the bench starts at 50 % RH');
         const at = (rh) => { x.set('comb', rh); x.run(1); return x.mA('sig', 'anode'); };
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): at(0.55) < 0.01 -> observed
+        // 6.381689911232832e-9.
         assert.ok(at(0.55) < 0.01, '55 %: still dark');
         const sixty = at(0.6);
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): sixty < 1 -> observed
+        // 0.07827180116708488; sixty > 0.01 -> observed 0.07827180116708488.
         assert.ok(sixty > 0.01 && sixty < 1, `60 %: just starting (${sixty} mA)`);
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): at(0.7) > 9 -> observed
+        // 9.610621386948425.
         assert.ok(at(0.7) > 9, '70 %: fully on');
         near(at(0.9), 10.3, 0.8, 'breath: LED current (mA)');
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): x.v('q', 'gate1') > 8 ->
+        // observed 8.600786838501268.
         assert.ok(x.v('q', 'gate1') > 8, 'breath: the gate near the rail');
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): at(0.4) < 0.001 -> observed
+        // 6.38170293551968e-9.
         assert.ok(at(0.4) < 0.001, 'dry again: dark');
         // The response knob lifts the source: 65 % no longer switches it on.
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): at(0.65) > 3 -> observed
+        // 3.69214330544418.
         assert.ok(at(0.65) > 3, '65 % with the knob at zero: on');
         x.set('set', 0); x.run(0.5);
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): at(0.65) < 0.01 -> observed
+        // 4.131827636238005e-9.
         assert.ok(at(0.65) < 0.01, '65 % with 1 kΩ under the source: still dark');
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): at(0.75) > 1.5 -> observed
+        // 2.1893195747757614.
         assert.ok(at(0.75) > 1.5, '75 %: on again, dimmer');
     });
 
@@ -171,11 +211,17 @@ describe('lab MOSFET benches behave as documented', { skip: SKIP }, () => {
         const x = bench('lab-button-volume');
         x.run(3);
         near(x.v('q', 'gate1'), 4.5, 0.1, 'switch-on: integrator at half supply');
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): x.pp('q', 'drain', 3) < 0.3 ->
+        // observed 0.06316419318506994.
         assert.ok(x.pp('q', 'drain', 3) < 0.3, 'switch-on: the conducting channel swallows the tone');
         // Hold "louder" until the gate is below pinch-off.
         x.set('loud', 1); x.run(45); x.set('loud', 0);
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): x.v('q', 'gate1') < 0.3 ->
+        // observed 0.18670839758411972.
         assert.ok(x.v('q', 'gate1') < 0.3, `held louder: gate ${x.v('q', 'gate1')}`);
         const loud = x.pp('q', 'drain', 3);
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): loud > 6 -> observed
+        // 6.527124711483134.
         assert.ok(loud > 6, `full volume: ${loud} V peak to peak`);
         // Tap "softer": the gate moves up a step and then stays there.
         const g0 = x.v('q', 'gate1');

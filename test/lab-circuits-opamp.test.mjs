@@ -85,9 +85,13 @@ describe('op-amp measuring lab benches behave as documented', { skip: SKIP }, ()
         const at = (p) => { x.param('tilt', 'position', p); x.run(100); return { mv: diff(), out: x.v('u', '1_out'), g: x.mA('rg'), r: x.mA('rr') }; };
         const left = at(0.4);
         near(left.mv, -4.48, 0.05, 'authored: input below the reference (mV)');
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): left.g < 0.01 -> observed
+        // 3.60249774455923e-10; left.r > 6 -> observed 6.91994418771403.
         assert.ok(left.r > 6 && left.g < 0.01, 'tilted left: red lit, green dark');
         const right = at(0.6);
         near(right.mv, 4.48, 0.05, 'tilted right: input above the reference (mV)');
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): right.r < 0.5 -> observed
+        // 0.2524828077069774; right.g > 5 -> observed 5.258011252473061.
         assert.ok(right.g > 5 && right.r < 0.5, 'tilted right: green lit, red (nearly) dark');
         near(at(0).mv, -22.37, 0.1, 'knob fully left (mV)');
         near(at(1).mv, 22.37, 0.1, 'knob fully right (mV)');
@@ -98,6 +102,8 @@ describe('op-amp measuring lab benches behave as documented', { skip: SKIP }, ()
         assert.ok(b.g > 1 && b.r > 1, '45 µV above balance (a thousandth of the knob): both LEDs glow');
         const c = at(0.51);
         near(c.mv, 0.448, 0.01, 'a hundredth of the knob from the middle (mV)');
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): c.r < 0.5 -> observed
+        // 0.2524955640624498; c.g > 5 -> observed 5.2579962995997.
         assert.ok(c.g > 5 && c.r < 0.5, 'half a millivolt is already a full switch');
     });
 
@@ -140,6 +146,8 @@ describe('op-amp measuring lab benches behave as documented', { skip: SKIP }, ()
         assert.ok(x.mA('r3') > 1, 'hold: red stays lit');
         x.tap('zero', 10, 10);
         near(x.v('u', '1_out'), 1.0, 0.02, 'zero: back at the 1 V start (V)');
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): x.mA('r1') < 0.05 -> observed
+        // 9.845080480019863e-12.
         assert.ok(x.mA('r1') < 0.05, 'zero: all LEDs dark');
         x.set('time', 0.5); x.set('run', 1); const s = x.v('u', '1_out'); x.run(300);
         near((x.v('u', '1_out') - s) / 0.3, 1.34, 0.08, 'ramp speed with the time knob at half (V/s)');
@@ -163,6 +171,8 @@ describe('op-amp measuring lab benches behave as documented', { skip: SKIP }, ()
         near(l90 / l80, 2.8, 0.3, '90 dB / 80 dB');
         near(l96 / l90, 2.03, 0.15, '96 dB / 90 dB (6 dB = x2)');
         x.param('mic', 'soundDb', 0); x.run(30);
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): x.meter() < 0.01 -> observed
+        // 0.004235977492079712.
         assert.ok(x.meter() < 0.01, `silence: the needle falls back (${x.meter().toFixed(4)} mA)`);
     });
 
@@ -184,7 +194,11 @@ describe('op-amp measuring lab benches behave as documented', { skip: SKIP }, ()
         assert.ok(on[2] >= n / 2, `tuned: red lit most of the time (${on[2]} of ${n})`);
         x.param('tc', 'position', 0.38);
         x.run(30);
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): x.v('ch', 'a') < 1.2 -> observed
+        // 1.002392183317813.
         assert.ok(x.v('ch', 'a') < 1.2, `between stations: the level has fallen (${x.v('ch', 'a').toFixed(3)} V)`);
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): x.mA(c) < 0.05 -> observed
+        // 9.845080480019863e-12…9.845384056628159e-12 over 3 reaches.
         for (const c of ['r1', 'r2', 'r3']) assert.ok(x.mA(c) < 0.05, `between stations: ${c} LED dark`);
     });
 
@@ -218,6 +232,8 @@ describe('op-amp measuring lab benches behave as documented', { skip: SKIP }, ()
         near(x.meter() * 20, 93.75, 1, 'calibrated meter reads the load current (mA, at 20 mA/V)');
         const y = bench('lab-opamp-ammeter', withParam('load', 'volts', -4.5));
         y.run(1);
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): y.meter() < 0.02 -> observed
+        // 0.004878501054151801.
         assert.ok(y.meter() < 0.02, `load reversed: the meter is not driven backwards (${y.meter().toFixed(4)} V)`);
     });
 
@@ -234,6 +250,8 @@ describe('op-amp measuring lab benches behave as documented', { skip: SKIP }, ()
             near(x.meter(), kOhm, 0.02, `rheostat ${kOhm} kΩ on the 1 kΩ/V range (V)`);
         }
         x.param('rx', 'position', 0.5); x.run(1);
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): x.meter() > 7 -> observed
+        // 7.420308636032887.
         assert.ok(x.meter() > 7, `over range: the needle pins past full scale (${x.meter().toFixed(3)} V)`);
         x.set('range', 1); x.run(1);
         near(x.meter(), 2.35, 0.02, '23.5 kΩ on the 10 kΩ/V range (V)');
@@ -249,6 +267,8 @@ describe('op-amp measuring lab benches behave as documented', { skip: SKIP }, ()
             near(x.meter(), Math.abs(vin), 0.005, `knob at ${p}: meter (mA)`);
             const [on, off] = vin > 0 ? ['plus', 'minus'] : ['minus', 'plus'];
             near(x.mA(on, 'anode'), Math.abs(vin), 0.005, `knob at ${p}: ${on} LED carries the meter current (mA)`);
+            // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): x.mA(off, 'anode') < 0.001
+            // -> observed 6.048648797346955e-10…6.876997322201051e-10 over 4 reaches.
             assert.ok(x.mA(off, 'anode') < 0.001, `knob at ${p}: ${off} LED dark`);
         }
         x.set('knob', 0.5); x.run(1);
