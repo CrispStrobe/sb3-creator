@@ -357,6 +357,14 @@ describe('circuit params, tier 2: the key moves a real bench', { skip: SKIP }, (
         const circuit = Circuit.fromJSON(d);
         const board = circuit.board;
         const frames = [];
+        // A saved Microtronic opens halted. Press its public Run control before
+        // observing program/rate parameters, just as the learner does. At the
+        // authored 20 instructions/s, the old 40 ms sweep ends before even DIN;
+        // sampling through 200 ms lets a faster rate change the wired outputs
+        // after the switches close. Existing benches keep their original times.
+        const microtronics = (circuit.parts || []).filter(p => p.kind === 'busch-microtronic');
+        for (const computer of microtronics) board.setDeviceControl(computer.id, 'run', 0);
+        const probeTimes = microtronics.length ? [1, 100] : TIMES;
         // Every manual control DRIVEN for the second half of the sweep.
         //
         // A param behind an open switch is unobservable for a reason that has
@@ -395,9 +403,9 @@ describe('circuit params, tier 2: the key moves a real bench', { skip: SKIP }, (
         const CONTROLLED = new Set(['button', 'switch', 'ldr', 'ntc', 'light_path']);
         const DRIVE_TO = { light_path: 0.5 };
         const controls = (circuit.parts || []).filter(p => CONTROLLED.has(p.kind));
-        const last = TIMES[TIMES.length - 1];
-        const sweep = [...TIMES.map(t => [false, t]),
-            ...(controls.length ? TIMES.map(t => [true, t + last]) : [])];
+        const last = probeTimes[probeTimes.length - 1];
+        const sweep = [...probeTimes.map(t => [false, t]),
+            ...(controls.length ? probeTimes.map(t => [true, t + last]) : [])];
         for (const [driven, ms] of sweep) {
             if (driven) for (const c of controls) board.setControl(c.id, DRIVE_TO[c.kind] ?? 1);
             board.advanceTo(BigInt(Math.round(ms * 1e6)));

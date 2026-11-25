@@ -17280,5 +17280,22 @@
       "intro": "lab-hum-counter/intro.md",
       "introDE": "lab-hum-counter/intro.de.md"
     }
+  },
+  {
+    "id": "busch-microtronic-wired-io",
+    "title": {
+      "en": "Busch Microtronic 2090: Wired I/O",
+      "de": "Busch Microtronic 2090: Verdrahtete Ein- und Ausgänge"
+    },
+    "category": "digital",
+    "difficulty": 1,
+    "files": {
+      "circuit": "busch-microtronic-wired-io/circuit.json",
+      "intro": "busch-microtronic-wired-io/intro.md",
+      "introDE": "busch-microtronic-wired-io/intro.de.md",
+      "expected": "busch-microtronic-wired-io/EXPECTED.md"
+    },
+    "kind": "circuit",
+    "devices": []
   }
 ]
