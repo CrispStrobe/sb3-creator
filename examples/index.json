@@ -14987,5 +14987,175 @@
       "introDE": "lab-amp-ic-pot-piano/intro.de.md"
     },
     "devices": []
+  },
+  {
+    "id": "lab-beeper-diode-check",
+    "title": {
+      "en": "Diode tester with a beeper",
+      "de": "Diodenprüfer mit Piepser"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-beeper-diode-check/program.bw",
+      "circuit": "lab-beeper-diode-check/circuit.json",
+      "expected": "lab-beeper-diode-check/EXPECTED.md",
+      "intro": "lab-beeper-diode-check/intro.md",
+      "introDE": "lab-beeper-diode-check/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-beeper-transistor-check",
+    "title": {
+      "en": "Transistor tester with a beeper",
+      "de": "Transistorprüfer mit Piepser"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-beeper-transistor-check/program.bw",
+      "circuit": "lab-beeper-transistor-check/circuit.json",
+      "expected": "lab-beeper-transistor-check/EXPECTED.md",
+      "intro": "lab-beeper-transistor-check/intro.md",
+      "introDE": "lab-beeper-transistor-check/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-amp-metronome",
+    "title": {
+      "en": "Metronome, engine and siren",
+      "de": "Metronom, Motor und Sirene"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-amp-metronome/program.bw",
+      "circuit": "lab-amp-metronome/circuit.json",
+      "expected": "lab-amp-metronome/EXPECTED.md",
+      "intro": "lab-amp-metronome/intro.md",
+      "introDE": "lab-amp-metronome/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-amp-light-organ",
+    "title": {
+      "en": "Light organ with an amplifier",
+      "de": "Lichtorgel mit Verstärker"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-amp-light-organ/program.bw",
+      "circuit": "lab-amp-light-organ/circuit.json",
+      "expected": "lab-amp-light-organ/EXPECTED.md",
+      "intro": "lab-amp-light-organ/intro.md",
+      "introDE": "lab-amp-light-organ/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-flame-ir-latch",
+    "title": {
+      "en": "Flame switch that holds itself on",
+      "de": "Flammenschalter, der sich selbst hält"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-flame-ir-latch/program.bw",
+      "circuit": "lab-flame-ir-latch/circuit.json",
+      "expected": "lab-flame-ir-latch/EXPECTED.md",
+      "intro": "lab-flame-ir-latch/intro.md",
+      "introDE": "lab-flame-ir-latch/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-amp-midpoint",
+    "title": {
+      "en": "Power amplifier as a split supply",
+      "de": "Endstufe als geteilte Versorgung"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-amp-midpoint/program.bw",
+      "circuit": "lab-amp-midpoint/circuit.json",
+      "expected": "lab-amp-midpoint/EXPECTED.md",
+      "intro": "lab-amp-midpoint/intro.md",
+      "introDE": "lab-amp-midpoint/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-opamp-schmitt",
+    "title": {
+      "en": "Op-amp Schmitt trigger",
+      "de": "Schmitt-Trigger mit Op-Amp"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-opamp-schmitt/program.bw",
+      "circuit": "lab-opamp-schmitt/circuit.json",
+      "expected": "lab-opamp-schmitt/EXPECTED.md",
+      "intro": "lab-opamp-schmitt/intro.md",
+      "introDE": "lab-opamp-schmitt/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-opamp-sound-relay",
+    "title": {
+      "en": "A ringing phone switches a lamp",
+      "de": "Ein klingelndes Telefon schaltet eine Lampe"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-opamp-sound-relay/program.bw",
+      "circuit": "lab-opamp-sound-relay/circuit.json",
+      "expected": "lab-opamp-sound-relay/EXPECTED.md",
+      "intro": "lab-opamp-sound-relay/intro.md",
+      "introDE": "lab-opamp-sound-relay/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-opamp-relay-timer",
+    "title": {
+      "en": "Half-hour timer with a relay",
+      "de": "Halbstunden-Zeitschalter mit Relais"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-opamp-relay-timer/program.bw",
+      "circuit": "lab-opamp-relay-timer/circuit.json",
+      "expected": "lab-opamp-relay-timer/EXPECTED.md",
+      "intro": "lab-opamp-relay-timer/intro.md",
+      "introDE": "lab-opamp-relay-timer/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-opamp-shift-register",
+    "title": {
+      "en": "Shift register from three op-amps",
+      "de": "Schieberegister aus drei Op-Amps"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-opamp-shift-register/program.bw",
+      "circuit": "lab-opamp-shift-register/circuit.json",
+      "expected": "lab-opamp-shift-register/EXPECTED.md",
+      "intro": "lab-opamp-shift-register/intro.md",
+      "introDE": "lab-opamp-shift-register/intro.de.md"
+    }
   }
 ]
