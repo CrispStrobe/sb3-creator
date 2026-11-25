@@ -1,0 +1,17 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "cp1",
+      "kind": "kosmos-cp1",
+      "params": {
+        "expansion": true,
+        "clockHz": 6000000
+      },
+      "x": 200,
+      "y": 180
+    }
+  ],
+  "wires": [],
+  "holeWires": []
+}

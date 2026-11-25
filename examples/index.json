@@ -11638,5 +11638,185 @@
    "expected": "cp1-cp5-binary/EXPECTED.md"
   },
   "devices": []
+ },
+ {
+  "id": "cp1-descending-sum",
+  "title": {
+   "en": "CP1: Descending sum",
+   "de": "CP1: Absteigende Summe"
+  },
+  "category": "digital",
+  "difficulty": 1,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-descending-sum/program.bw",
+   "cp1": "cp1-descending-sum/program.cp1",
+   "circuit": "cp1-descending-sum/circuit.json",
+   "intro": "cp1-descending-sum/intro.md",
+   "introDE": "cp1-descending-sum/intro.de.md",
+   "expected": "cp1-descending-sum/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-crate-division",
+  "title": {
+   "en": "CP1: Crate division",
+   "de": "CP1: Kistenaufteilung"
+  },
+  "category": "digital",
+  "difficulty": 2,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-crate-division/program.bw",
+   "cp1": "cp1-crate-division/program.cp1",
+   "circuit": "cp1-crate-division/circuit.json",
+   "intro": "cp1-crate-division/intro.md",
+   "introDE": "cp1-crate-division/intro.de.md",
+   "expected": "cp1-crate-division/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-lookup-card",
+  "title": {
+   "en": "CP1: Lookup card",
+   "de": "CP1: Tabellenkarte"
+  },
+  "category": "digital",
+  "difficulty": 2,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-lookup-card/program.bw",
+   "cp1": "cp1-lookup-card/program.cp1",
+   "circuit": "cp1-lookup-card/circuit.json",
+   "intro": "cp1-lookup-card/intro.md",
+   "introDE": "cp1-lookup-card/intro.de.md",
+   "expected": "cp1-lookup-card/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-instruction-patch",
+  "title": {
+   "en": "CP1: Instruction patch",
+   "de": "CP1: Befehlswechsel"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-instruction-patch/program.bw",
+   "cp1": "cp1-instruction-patch/program.cp1",
+   "circuit": "cp1-instruction-patch/circuit.json",
+   "intro": "cp1-instruction-patch/intro.md",
+   "introDE": "cp1-instruction-patch/intro.de.md",
+   "expected": "cp1-instruction-patch/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-guarded-output",
+  "title": {
+   "en": "CP1: Guarded output",
+   "de": "CP1: Bedingter Ausgang"
+  },
+  "category": "digital",
+  "difficulty": 2,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-guarded-output/program.bw",
+   "cp1": "cp1-guarded-output/program.cp1",
+   "circuit": "cp1-guarded-output/circuit.json",
+   "intro": "cp1-guarded-output/intro.md",
+   "introDE": "cp1-guarded-output/intro.de.md",
+   "expected": "cp1-guarded-output/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-expansion-step",
+  "title": {
+   "en": "CP1: Expansion step",
+   "de": "CP1: Erweiterung im Einzelschritt"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-expansion-step/program.bw",
+   "cp1": "cp1-expansion-step/program.cp1",
+   "circuit": "cp1-expansion-step/circuit.json",
+   "intro": "cp1-expansion-step/intro.md",
+   "introDE": "cp1-expansion-step/intro.de.md",
+   "expected": "cp1-expansion-step/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-sample-log",
+  "title": {
+   "en": "CP1: Sample log",
+   "de": "CP1: Messprotokoll"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-sample-log/program.bw",
+   "cp1": "cp1-sample-log/program.cp1",
+   "circuit": "cp1-sample-log/circuit.json",
+   "intro": "cp1-sample-log/intro.md",
+   "introDE": "cp1-sample-log/intro.de.md",
+   "expected": "cp1-sample-log/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-gray-indicator",
+  "title": {
+   "en": "CP1: Gray indicator",
+   "de": "CP1: Gray-Anzeige"
+  },
+  "category": "digital",
+  "difficulty": 2,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-gray-indicator/program.bw",
+   "cp1": "cp1-gray-indicator/program.cp1",
+   "circuit": "cp1-gray-indicator/circuit.json",
+   "intro": "cp1-gray-indicator/intro.md",
+   "introDE": "cp1-gray-indicator/intro.de.md",
+   "expected": "cp1-gray-indicator/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-status-dispatch",
+  "title": {
+   "en": "CP1: Status dispatch",
+   "de": "CP1: Statusverteiler"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-status-dispatch/program.bw",
+   "cp1": "cp1-status-dispatch/program.cp1",
+   "circuit": "cp1-status-dispatch/circuit.json",
+   "intro": "cp1-status-dispatch/intro.md",
+   "introDE": "cp1-status-dispatch/intro.de.md",
+   "expected": "cp1-status-dispatch/EXPECTED.md"
+  },
+  "devices": []
  }
 ]

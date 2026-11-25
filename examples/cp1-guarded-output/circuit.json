@@ -1,0 +1,88 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "cp1",
+      "kind": "kosmos-cp1",
+      "params": {
+        "expansion": false,
+        "clockHz": 6000000
+      },
+      "x": 200,
+      "y": 180
+    },
+    {
+      "id": "ground",
+      "kind": "gnd",
+      "params": {},
+      "x": 660,
+      "y": 320
+    },
+    {
+      "id": "series4",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "x": 450,
+      "y": 85
+    },
+    {
+      "id": "led4",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "red"
+      },
+      "x": 575,
+      "y": 85
+    }
+  ],
+  "wires": [
+    {
+      "id": "machine-ground",
+      "from": {
+        "part": "cp1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "output4",
+      "from": {
+        "part": "cp1",
+        "terminal": "P2.4"
+      },
+      "to": {
+        "part": "series4",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "feed4",
+      "from": {
+        "part": "series4",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "led4",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "return4",
+      "from": {
+        "part": "led4",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      }
+    }
+  ],
+  "holeWires": []
+}

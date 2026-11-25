@@ -1,0 +1,18 @@
+ORG 38
+AKO 4
+ADD CardStart
+ABS Cursor
+LIA Cursor
+HLT 0
+
+ORG 50
+CardStart: DATA 54
+Cursor: DATA 0
+
+ORG 54
+DATA 208
+DATA 31
+DATA 174
+DATA 96
+DATA 123
+DATA 67

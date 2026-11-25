@@ -117,7 +117,9 @@ test('source size, expression depth and non-text inputs are bounded without exec
 test('original examples assemble and retain the documented blink cell sequence', () => {
     for (const name of Object.keys(CP1_EXAMPLES)) {
         const source = readFileSync(new URL(`../examples/${name}/program.cp1`, import.meta.url), 'utf8');
-        assert.equal(assembleCp1Program(source).ok, true, name);
+        const expansion = name === 'cp1-expansion-step';
+        assert.equal(assembleCp1Program(source, {expansion}).ok, true, name);
+        if (expansion) assert.equal(parseCp1Program(source).ok, false, 'upper RAM requires CP3');
         assert.equal(CP1_EXAMPLES[name], source, 'named CP1 examples retain the canonical source');
     }
     const blink = assembleCp1Program(readFileSync(new URL('../examples/cp1-blink/program.cp1', import.meta.url), 'utf8'));
@@ -188,7 +190,7 @@ test('CP1 gallery entries link the actual sources and declared machine terminals
         const circuit = JSON.parse(readFileSync(new URL(`../examples/${entry.files.circuit}`, import.meta.url), 'utf8'));
         const machine = circuit.parts.find(part => part.kind === 'kosmos-cp1');
         assert.ok(machine);
-        assert.equal(machine.params.expansion, false);
+        assert.equal(machine.params.expansion, name === 'cp1-expansion-step');
         assert.equal(machine.params.clockHz, 6000000);
         assert.equal(circuit.parts.some(part => part.kind === 'vsource'), false, 'examples use the CP1 connector supply');
         if (name === 'cp1-blink') assert.ok(circuit.wires.some(wire => wire.from.part === 'cp1' && wire.from.terminal === 'P2.0'));

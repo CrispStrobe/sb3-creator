@@ -1,0 +1,22 @@
+ORG 20
+AKO 83
+ABS Loose
+AKO 0
+ABS Crates
+Check: LDA Loose
+VKL Size
+SPB Done
+SUB Size
+ABS Loose
+LDA Crates
+ADD One
+ABS Crates
+SPU Check
+Done: LDA Loose
+HLT 0
+
+ORG 39
+Loose: DATA 0
+Crates: DATA 0
+Size: DATA 9
+One: DATA 1
