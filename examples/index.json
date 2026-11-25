@@ -14457,5 +14457,77 @@
    "introDE": "lab-sync-detector/intro.de.md"
   },
   "devices": []
+ },
+ {
+  "id": "lab-spark-transmitter",
+  "title": {
+   "en": "A spark transmitter: a switched coil clicks every radio",
+   "de": "Ein Funkensender: eine geschaltete Spule knackt in jedem Radio"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-spark-transmitter/program.bw",
+   "circuit": "lab-spark-transmitter/circuit.json",
+   "expected": "lab-spark-transmitter/EXPECTED.md",
+   "intro": "lab-spark-transmitter/intro.md",
+   "introDE": "lab-spark-transmitter/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-chopped-spark",
+  "title": {
+   "en": "A tone at every setting of the dial: a coil switched by an astable",
+   "de": "Ein Ton auf jeder Skalenstellung: eine Spule, von einem Multivibrator geschaltet"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-chopped-spark/program.bw",
+   "circuit": "lab-chopped-spark/circuit.json",
+   "expected": "lab-chopped-spark/EXPECTED.md",
+   "intro": "lab-chopped-spark/intro.md",
+   "introDE": "lab-chopped-spark/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-sliding-winding",
+  "title": {
+   "en": "Tuning with the coil: a sliding winding, windings in series",
+   "de": "Abstimmen mit der Spule: verschiebbare Wicklung, Wicklungen in Reihe"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-sliding-winding/program.bw",
+   "circuit": "lab-sliding-winding/circuit.json",
+   "expected": "lab-sliding-winding/EXPECTED.md",
+   "intro": "lab-sliding-winding/intro.md",
+   "introDE": "lab-sliding-winding/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-superhet",
+  "title": {
+   "en": "A superhet on a mixer IC: IF, tracking and the image",
+   "de": "Ein Superhet mit Mischer-IC: ZF, Gleichlauf und Spiegelfrequenz"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 5,
+  "files": {
+   "program": "lab-superhet/program.bw",
+   "circuit": "lab-superhet/circuit.json",
+   "expected": "lab-superhet/EXPECTED.md",
+   "intro": "lab-superhet/intro.md",
+   "introDE": "lab-superhet/intro.de.md"
+  },
+  "devices": []
  }
 ]
