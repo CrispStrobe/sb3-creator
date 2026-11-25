@@ -37,7 +37,7 @@ net diode_10.anode V 0.580 +-0.01
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@b094eb2` and `bw-circuit-ui@0b594d6` — the revisions pinned in
+> `bw-board@2965782` and `bw-circuit-ui@e3441d2` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **17 of this page's 39** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;
