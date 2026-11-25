@@ -27,3 +27,4 @@ net vsource_2.pos V 9.00 +-0.01
 net lm386_10.bypass V 4.50 +-0.05
 net speaker_3.a V 0.00 +-0.01
 ```
+

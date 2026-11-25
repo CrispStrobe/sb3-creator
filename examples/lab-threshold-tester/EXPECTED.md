@@ -17,7 +17,7 @@ Turning the pot up from 0, the yellow LED comes on (Q1's collector below 6 V) at
 | Q2 junction | green LED | 1.61 V |
 | ground | nothing | 0.71 V |
 
-- With both transistors at 70 °C: the Q2-referenced reading stays at 0.04 V; the ground-referenced one falls by 0.089 V (−2 mV/K over 45 K).
+- With both transistors at 70 °C: the Q2-referenced reading stays where it was; the ground-referenced one falls by about ninety millivolts (two millivolts per kelvin over the 45 degrees).
 
 ## Measured on the engine
 bw-board f4aaec43, `test/lab-circuits-r7a.test.mjs` (pot stepped by 0.005).
@@ -36,3 +36,4 @@ net npn_4.base V 0.68 +-0.02
 net potentiometer_7.a V 4.84 +-0.05
 net npn_16.collector V 7.24 +-0.1
 ```
+

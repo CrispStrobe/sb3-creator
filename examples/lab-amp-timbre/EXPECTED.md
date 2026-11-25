@@ -27,3 +27,4 @@ The LM386 model swings within about 1 V of its rails. The speaker is a resistanc
 net vsource_2.pos V 9.00 +-0.01
 net lm386_3.bypass V 4.50 +-0.05
 ```
+

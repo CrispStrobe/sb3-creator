@@ -28,3 +28,4 @@ net npn_10.base V 0.68 +-0.02
 net lm386_13.bypass V 4.50 +-0.05
 net ferrite_coil_3.b V 0.00 +-0.01
 ```
+
