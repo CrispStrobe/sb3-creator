@@ -5,7 +5,7 @@ prereqs: [lab-mosfet-vcr, lab-opamp-integrator]
 teaches: [integrator, voltage-controlled-resistor, volume-control, analog-memory]
 ---
 ## What you see
-One op-amp plays a tone into an earphone. Between them a MOSFET leaks the tone away to its source, and a second op-amp with a capacitor holds the MOSFET's gate voltage. Two buttons: softer and louder.
+One op-amp sends a tone to an earphone. Between them a MOSFET leaks the tone away to its source, and a second op-amp with a capacitor holds the MOSFET's gate voltage. Two buttons: softer and louder.
 
 ## Try this
 1. Click **Sim** and listen: the tone is barely there.

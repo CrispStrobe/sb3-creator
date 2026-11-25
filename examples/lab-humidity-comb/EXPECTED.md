@@ -5,14 +5,14 @@
 depletion-mode dual-gate MOSFET; 100 kΩ pulls gate 1 to ground. Gate 2 is tied to +9 V. A green LED with
 470 Ω sits in the drain, the source on a red reference LED (2.2 kΩ from +9 V, about 1.65 V) with a 1 kΩ
 "response" rheostat under it, at zero as loaded.
-The comb's film resistance falls about tenfold for every 12 % of relative humidity: about 10 MΩ in room
+The comb's film resistance falls about tenfold for every 12 % of relative humidity: about ten megohms in room
 air at 50 %, a few kilohms when breathed on.
 
 ## Observable behaviour
 - Room air, 50 % (as loaded): the comb and the 100 kΩ divide the 9 V down to about 0.09 V at the gate,
   about 1.6 V below the source: the channel is pinched off and the green LED is dark.
 - Move the humidity slider up: around 60 % the gate climbs above the pinch-off point and the LED starts
-  to glow; by 70 % it is fully on (about 10 mA).
+  to glow; by 70 % it is fully on.
 - Breath (about 90 %): the comb is a few kilohms, the gate sits close to the battery voltage, the LED is
   fully lit. Let the comb dry (slider back down) and the LED goes out again.
 - Turn up the response rheostat: it lifts the source, so the gate must climb higher before the channel

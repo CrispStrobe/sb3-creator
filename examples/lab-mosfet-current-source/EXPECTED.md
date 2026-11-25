@@ -8,8 +8,9 @@ is zero. The green LED sits in the drain lead, the red one in the source lead.
 ## Observable behaviour
 - With its gates at the source the MOSFET conducts: both LEDs light. A depletion MOSFET does not need a
   gate voltage to turn on.
-- The current is set by the transistor, not by a resistor: about 3.8 mA at 9 V. Turn the battery from
-  4.5 V to 12 V and it only changes from about 3.4 to 3.9 mA, although the voltage nearly triples. The
+- The current is set by the transistor, not by a resistor: about 3.8 mA at 9 V. Turn the battery up
+  from four and a half to twelve volts and the current rises by only about a seventh, although the voltage
+  nearly triples. The
   MOSFET takes up the extra voltage itself: a constant-current source.
 - Both LEDs carry exactly the same current: it does not matter whether the LED sits above the transistor
   (drain side) or below it (source side).

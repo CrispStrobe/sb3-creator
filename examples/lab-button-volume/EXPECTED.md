@@ -18,7 +18,7 @@ All four amplifiers are one LM324 quad op-amp.
 - At switch-on the integrator output, and so gate 1, sits at half supply, 4.5 V: almost 3 V above the
   source, the channel is about 100 Ω and shunts the tone: very quiet (well under 0.3 V peak to peak at
   the volume node).
-- Hold "louder": the output ramps down at roughly 100 V per second. Once the gate is more than 1.2 V
+- Hold "louder": the output ramps down at roughly a hundred volts per second. Once the gate is more than 1.2 V
   below the source the channel is pinched and the full tone, over 6 V peak to peak, reaches the earphone.
 - A short tap on either button moves the volume one step; between taps the capacitor holds the gate
   voltage and the volume stays where it was.

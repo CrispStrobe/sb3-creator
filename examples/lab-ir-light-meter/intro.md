@@ -5,7 +5,7 @@ prereqs: [lab-led-sensor-colours, lab-led-light-sensor]
 teaches: [offset, zero-adjust, difference-amplifier, inverse-square-law]
 ---
 ## What you see
-An infrared LED shines on a second IR LED that works as a light sensor. Two op-amps turn its tiny photocurrent into a meter reading. A pot marked "zero" sets the meter's zero point.
+An infrared LED shines on a second IR LED that works as a sensor for light. Two op-amps turn its tiny photocurrent into a meter reading. A pot marked "zero" sets the meter's zero point.
 
 ## Try this
 1. Click **Sim**. The meter reads about 1.2 V.
