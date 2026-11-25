@@ -10,7 +10,7 @@
 - As authored (pot at half, lamp on, 5 cm): half 1 at 1.65 V, the meter at 0.96 V.
 - Lamp off, the dark: half 1 still at 0.78 V: the reference, less the LM358's own input bias current (about 42 nA out of the − input) through the 4.7 MΩ. That is an offset, and the meter shows 0.11 V of it although there is no light.
 - Turn the zero pot up until the meter just reads 0 in the dark (near position 0.58). The difference amplifier now subtracts exactly the offset. Turned further the meter stays at zero: a single-supply amplifier cannot go below ground.
-- Zeroed, with the lamp on, the meter shows the light alone: about 0.85 V at 5 cm, 0.22 V at 10 cm, 0.06 V at 20 cm. Twice the distance gives close to a quarter of the reading.
+- Zeroed, with the lamp on, the meter shows the light alone: about 0.85 V at 5 cm and 0.22 V at 10 cm; at 20 cm about a quarter of that again. Twice the distance gives close to a quarter of the reading.
 - Without the zeroing, the same light would read 0.11 V too high everywhere, and the distance law would be hidden.
 
 ## What this verifies

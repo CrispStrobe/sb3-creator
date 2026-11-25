@@ -6,7 +6,7 @@
 - A meter (5 V) on the output.
 
 ## Observable behaviour
-- No load: the needle rests near 0 (0.02 V).
+- No load: the needle rests near 0 (about two hundredths of a volt).
 - 20 g: 0.25 V. 50 g: 0.87 V. 100 g: 4.25 V. Much beyond 100 g the amplifier saturates.
 - The second 50 g move the needle about four times as far as the first 50 g: the scale is not linear.
 

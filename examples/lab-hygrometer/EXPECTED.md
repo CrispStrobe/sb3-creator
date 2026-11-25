@@ -10,7 +10,7 @@ reference to the output. Sections 3 and 4 are parked as grounded followers.
 - The comb feeds a current of 4.5 V / R_comb into the stage; the output falls below the reference by
   that current times the feedback resistance, and the meter shows the difference.
 - Room air (50 % RH, comb about 10 MΩ) with the gain knob at half (about 600 kΩ of feedback): the meter
-  reads about 0.3 V. About 26 mV of that is the LM324's own input bias current (about 42 nA out of the − input) through the feedback resistance; it is there with the comb dry, too.
+  reads about 0.3 V. A few hundredths of a volt of that is the LM324's own input bias current (about 42 nA out of the − input) through the feedback resistance; it is there with the comb dry, too.
 - The comb's conductance rises about tenfold every 12 % of humidity, so the reading climbs steeply: about
   two and a half times the room reading at 55 %, nearly seven times at 60 %. A little above 60 % the output reaches its lower limit near 0 V and the
   needle stops at about nine tenths of the scale.

@@ -2,7 +2,7 @@
 
 ## Circuit
 - 9 V supply. One op-amp of the LM324 is a comparator: its − input sits at a third of the supply (200 kΩ from +9 V, 100 kΩ to ground).
-- Its + input hangs on its own output through 10 MΩ, with 10 MΩ to ground: a high output (7.24 V) holds + at 3.86 V, above the threshold; a low output holds it at 0.42 V (half the output, plus the LM324's input bias current of about 47 nA through the 5 MΩ the two resistors make). The decision holds itself.
+- Its + input hangs on its own output through 10 MΩ, with 10 MΩ to ground: a high output (7.24 V) holds + at 3.86 V, above the threshold; a low output holds it at 0.42 V (half the output, plus the LM324's input bias current of about 47 nA through the two resistors in parallel). The decision holds itself.
 - Two touch plates. Each is a button standing for the plates bridged by a fingertip, in series with 1 MΩ, the finger's resistance: **SET** connects + to +9 V, **RESET** connects + to ground.
 - Red LED (1 kΩ, output to ground) lit while set; green LED (1 kΩ, +9 V into the output) lit while reset. The other three op-amps are parked.
 
