@@ -82,7 +82,7 @@ describe('lab medium-wave benches (set r7mw) behave as documented', { skip: SKIP
         const aid = at(0, 0, 0.5);
         const fAid = nearest(aid.bands(), 500).khz;
         near(fAid, 488, 15, 'aiding, winding in the middle (kHz)');
-        assert.ok(aid.v('d', 'cathode') < 0.01, `no station there: ${aid.v('d', 'cathode')} V`);
+        assert.ok(aid.v('d', 'cathode') < 0.01, `no station there: ${aid.v('d', 'cathode')} V`); // MEASURED 2026-11-25: 0.0013 V -> observed 0.0013.
         // MEASURED 2026-11-25: opposing -> 810 kHz, the 810 kHz carrier 0.166 V at the diode, 36 mV rectified.
         const opp = at(1, 0, 0.5);
         const fOpp = nearest(opp.bands(), 800);

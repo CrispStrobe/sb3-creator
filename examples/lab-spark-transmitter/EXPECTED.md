@@ -22,3 +22,12 @@ net vsource_2.pos V 9.00 +-0.01
 net lm386_16.bypass V 4.50 +-0.05
 net ferrite_coil_7.b V 0.00 +-0.01
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@2c62bd5` and `bw-circuit-ui@15b936d` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **7 of this page's 16** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-spark-transmitter` prints them one by one.
+<!-- engine-provenance -->

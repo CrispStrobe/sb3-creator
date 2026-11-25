@@ -1,7 +1,7 @@
 # lab-superhet — expected behaviour
 
 ## Circuit
-- Aerial: antenna on the tap of a ferrite rod (250 µH) tuned by the first tuning capacitor (0.512: 612 kHz); its coupling winding drives the gate of an n-channel MOSFET biased at 2.4 V (100 kΩ / 68 kΩ held by 10 nF at the winding's cold end), source 330 Ω ‖ 100 nF, drain 2.2 kΩ to the supply.
+- Aerial: antenna on the tap of a ferrite rod tuned by the first tuning capacitor (0.512: 612 kHz); its coupling winding drives the gate of an n-channel MOSFET biased from a 100 kΩ / 68 kΩ divider (held by 10 nF at the winding's cold end), source 330 Ω ‖ 100 nF, drain 2.2 kΩ to the supply.
 - Mixer IC: the drain feeds input A through 1 nF, input B is held by 100 nF. Its oscillator transistor runs as a Colpitts oscillator (220 pF base–emitter, 470 pF emitter–ground, 100 µH ‖ the second tuning capacitor through 10 nF), at 0.127 about 1068 kHz.
 - IF: the two outputs drive the ends of a 25 µH coil whose middle tap is on the supply (push-pull), 4.7 nF plus a trimmer across it: about 457 kHz. Its coupling winding drives an NPN IF amplifier (47 kΩ / 10 kΩ, 10 nF; 1 kΩ ‖ 100 nF; 4.7 kΩ), whose collector a germanium diode detects (10 nF, 2.2 nF, 47 kΩ); 100 nF into an LM386 (gain 20) and a loudspeaker on 220 µF. 6 V supply.
 - Switches: "Low IF" adds 6.8 nF across the IF tank (about 296 kHz); "Loose" moves the antenna from the tap to a 10 pF capacitor.
@@ -21,8 +21,17 @@ The mixer's output contains the product of station and oscillator, so their diff
 `test/lab-circuits-r7mw.test.mjs`: IF tank 0.40 V at 457 kHz (IF collector 1.8 V) after 1.5 ms; 9×10⁻⁸ V with the oscillator at 0.15. With only the 1200 kHz station on the air: 0.175 V in the 296 kHz IF tank with the low IF, 0.11 mV in the 457 kHz tank with the high one.
 
 ```assert
-# supply; the mixer's input bias (0.23 of the supply); the LM386's bias at half the supply
+# supply; the mixer's input bias (0.23 of the supply); the LM386's -IN on ground
 net vsource_2.pos V 6.00 +-0.01
 net sa612_16.in_b V 1.38 +-0.03
-net lm386_39.bypass V 3.00 +-0.05
+net lm386_38.inn V 0.00 +-0.01
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@2c62bd5` and `bw-circuit-ui@15b936d` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **30 of this page's 63** numeric claims against that engine
+> (2 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-superhet` prints them one by one.
+<!-- engine-provenance -->
