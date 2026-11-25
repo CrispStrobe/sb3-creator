@@ -4,7 +4,8 @@
  *
  * One quad op-amp (LM324) does the active work on every bench: comparators,
  * Schmitt triggers, integrators, oscillators, latches, gain stages and gates
- * built from op-amps. Two benches add one more part where the job needs it:
+ * built from op-amps (the chirp's pitch switch is one support transistor).
+ * Two benches add one more part where the job needs it:
  * a depletion dual-gate MOSFET as the voltage-controlled resistor that holds
  * a Wien-bridge oscillator's amplitude, and a power-amplifier IC (LM386)
  * sounding the alarm of a reflective infrared alarm.
@@ -16,8 +17,10 @@
  *
  * THE OP-AMP. bw-board's LM324 (src/ground-sensing-opamp.js) swings from
  * 5 mV above its GND pin to 1.5 V below its VCC pin, has a gain of 10^5 and
- * a 1 MHz gain-bandwidth, slews 0.3 V/µs and has NO input offset or input
- * bias current. Unused sections are parked as followers on a defined input.
+ * a 1 MHz gain-bandwidth, slews 0.3 V/µs and has no input offset voltage.
+ * Its inputs carry the chip's bias current (PNP inputs: 45 nA typical out of
+ * each pin, 5 nA offset between the two). Unused sections are parked as
+ * followers on a defined input.
  */
 import { benchIds } from './lab-benches-4.mjs';
 export { benchIds };
@@ -282,12 +285,13 @@ export const BENCHES = {
 
     // Op-amp meter stages, and what they need. Section 4 buffers a 4.5 V
     // midpoint. Section 1 is a ×10 stage (91 kΩ / 10 kΩ) for small voltages
-    // against that midpoint; its input lead hangs on 1 MΩ. A real LM324
-    // drives about 45 nA out of each input (its input transistors are PNP):
-    // drawn here as a current source, because the engine's op-amp has no
-    // bias current of its own. Through the 1 MΩ (‖ 10 MΩ) that makes
-    // +41 mV at the input, +0.41 V at the meter, with nothing connected. The ZERO pot feeds a small opposing current through
-    // 10 MΩ into the input: turned to the right place, the meter reads zero.
+    // against that midpoint; its input lead hangs on 1 MΩ. The LM324 drives
+    // about 45 nA out of each input (its input transistors are PNP; the
+    // engine's model carries it, 47.5 nA at this + input). Through the 1 MΩ
+    // (‖ 10 MΩ) that makes +43 mV at the input, about +0.48 V at the meter,
+    // with nothing connected. The ZERO pot feeds a small opposing current
+    // through 10 MΩ into the input: turned to the right place, the meter
+    // reads zero.
     // PROBE connects a 50 mV source (330 Ω from the midpoint): the meter
     // then reads 0.5 V. Section 2 is an ammeter: the circuit under test is
     // 4.5 V driving 47 Ω and a 10 Ω sensing resistor; section 2 amplifies
@@ -299,15 +303,15 @@ export const BENCHES = {
     'lab-opamp-meter-stages': {
         vcc: 9, supply: SUP,
         parts: { bat: BAT9, gnd: ['gnd', {}], u: QUAD, ma: R(10000), mb: R(10000),
-            rin: R(1000000), ib: ['isource', { amps: 45e-9 }], zero: POT(10000, 0.5), rz: R(10000000),
+            rin: R(1000000), zero: POT(10000, 0.5), rz: R(10000000),
             probe: BTN, pa: R(330), pb: R(30000), rf: R(91000), rg: R(10000), meter: VM,
             load: ['vsource', { volts: 4.5 }], rev: ['vsource', { volts: 4.5 }], pol: SLIDE(0), rl: R(47), shunt: R(10), rp: R(10000), dp: GE,
             rf2: R(40000), rg2: R(10000), amps: VM },
         nets: [
             ['bat.pos', 'u.vcc', 'ma.a', 'zero.a', 'pb.a'],
             ['ma.b', 'mb.a', 'u.4_pos'],
-            ['u.4_out', 'u.4_neg', 'rin.b', 'ib.neg', 'pa.b', 'rg.b', 'meter.b'],
-            ['rin.a', 'ib.pos', 'rz.b', 'probe.b', 'u.1_pos'], ['zero.wiper', 'rz.a'],
+            ['u.4_out', 'u.4_neg', 'rin.b', 'pa.b', 'rg.b', 'meter.b'],
+            ['rin.a', 'rz.b', 'probe.b', 'u.1_pos'], ['zero.wiper', 'rz.a'],
             ['probe.a', 'pa.a', 'pb.b'],
             ['u.1_neg', 'rf.b', 'rg.a'], ['u.1_out', 'rf.a', 'meter.a'],
             ['load.pos', 'pol.a'], ['rev.neg', 'pol.b'], ['pol.com', 'rl.a'],
@@ -340,6 +344,41 @@ export const BENCHES = {
             ['tt.b', 'ct.a', 'u.2_neg', 'dg.cathode'],
             ['rg.b', 'gate.anode'], ['co.neg', 'rs.a'], ['rs.b', 'spk.a'],
             ['bat.neg', 'u.gnd', 'sb.b', 'cs.b', 'cr.b', 'tb.b', 'ct.b', 'gate.cathode', 'spk.b', ...park(3, 4)],
+        ],
+    },
+
+    // A pitch-sliding chirp. Section 1 is a slow Schmitt-trigger astable
+    // (thresholds 3 V / 5.5 V) whose capacitor charges through 100 kΩ and
+    // is emptied quickly through a diode and 4.7 kΩ: a sawtooth, rising for
+    // about 85 ms and dropping in a few. SLOW swaps 1 µF for 10 µF: ten
+    // times slower. Section 2 amplifies the sawtooth 2.7 times around the
+    // 4.5 V midpoint (47 kΩ / 22 kΩ to a 10 kΩ / 10 kΩ divider): a control
+    // voltage sweeping from about 0.4 V to 7 V. Sections 3 and 4 are a
+    // voltage-controlled oscillator: an integrator (100 kΩ, 10 nF, + input
+    // at half the control voltage) ramps down while the transistor is off
+    // and up while it pulls 47 kΩ from its − input to ground; the Schmitt
+    // trigger of section 4 switches the transistor at 3 V and 5.5 V. The
+    // ramp's speed, and so the pitch, is proportional to the control
+    // voltage: about 100 Hz per volt. Each sawtooth is one chirp, sliding up
+    // from a growl to over 700 Hz and falling back at once: a chick's
+    // cheeping, or with SLOW a long rising crow. Green LED: section 1's
+    // output (lit while a chirp rises); the loudspeaker plays section 4.
+    'lab-opamp-chirp': {
+        vcc: 9, supply: SUP,
+        parts: { bat: BAT9, u: QUAD,
+            sa: R(10000), sb: R(10000), sh: R(10000), st: R(100000), ds: SI, rd: R(4700), slow: SLIDE(0), cs: EL(1e-6), cw: EL(10e-6),
+            ma: R(10000), mb: R(10000), rg: R(22000), rf: R(47000),
+            rv1: R(100000), rv2: R(100000), ri: R(100000), rq: R(47000), ci: C(10e-9), q: NPN, rb: R(22000),
+            ta: R(10000), tb: R(10000), th: R(10000), rl: R(1000), led: LED('green'), co: EL(10e-6), rs: R(220), spk: SPK },
+        nets: [
+            ['bat.pos', 'u.vcc', 'sa.a', 'ma.a', 'ta.a'],
+            ['sa.b', 'sb.a', 'sh.a', 'u.1_pos'], ['u.1_out', 'sh.b', 'st.a', 'rd.a', 'rl.a'], ['rd.b', 'ds.cathode'],
+            ['st.b', 'ds.anode', 'slow.com', 'u.1_neg', 'u.2_pos'], ['slow.a', 'cs.pos'], ['slow.b', 'cw.pos'],
+            ['ma.b', 'mb.a', 'rg.a'], ['rg.b', 'rf.a', 'u.2_neg'], ['u.2_out', 'rf.b', 'rv1.a', 'ri.a'],
+            ['rv1.b', 'rv2.a', 'u.3_pos'], ['ri.b', 'rq.a', 'ci.a', 'u.3_neg'], ['u.3_out', 'ci.b', 'u.4_neg'], ['rq.b', 'q.collector'],
+            ['ta.b', 'tb.a', 'th.a', 'u.4_pos'], ['u.4_out', 'th.b', 'rb.a', 'co.pos'], ['rb.b', 'q.base'],
+            ['co.neg', 'rs.a'], ['rs.b', 'spk.a'], ['rl.b', 'led.anode'],
+            ['bat.neg', 'u.gnd', 'sb.b', 'cs.neg', 'cw.neg', 'mb.b', 'rv2.b', 'q.emitter', 'tb.b', 'spk.b', 'led.cathode'],
         ],
     },
 
@@ -544,9 +583,10 @@ const LABELS = {
     'lab-opamp-hand-astable': { charge: 'CHARGE', drain: 'DRAIN', auto: 'AUTO', vm: 'capacitor volts' },
     'lab-opamp-hearing-limit': { pitch: 'PITCH' },
     'lab-opamp-toggle': { set: 'SET', reset: 'RESET', tog: 'TOGGLE' },
-    'lab-opamp-meter-stages': { ib: 'input bias 45 nA (the chip’s, drawn)', zero: 'ZERO', probe: 'PROBE 50 mV', meter: '×10 meter',
+    'lab-opamp-meter-stages': { zero: 'ZERO', probe: 'PROBE 50 mV', meter: '×10 meter',
         load: 'circuit under test 4.5 V', rev: 'the same, connected backwards', pol: 'POLARITY', amps: 'ammeter (1 V = 20 mA)' },
     'lab-opamp-gated-tones': { rattle: 'RATTLE', gate: 'gate' },
+    'lab-opamp-chirp': { slow: 'SLOW (chick / crow)', led: 'chirp', ci: 'pitch', q: 'pitch switch' },
     'lab-opamp-beats': { detune: 'DETUNE' },
     'lab-opamp-doubler': { width: 'WIDTH', slow: 'astable', fast: 'doubled' },
     'lab-opamp-gates': { a: 'A', b: 'B', mode: 'MODE (AND / OR)', and: 'AND / OR', nand: 'NAND / NOR' },

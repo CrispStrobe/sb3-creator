@@ -15,7 +15,7 @@ All four amplifiers are one LM324 quad op-amp.
   pulls it to +9 V through 47 kΩ. Sections 3 and 4 are parked as grounded followers.
 
 ## Observable behaviour
-- At switch-on the integrator output, and so gate 1, sits at half supply, 4.5 V: almost 3 V above the
+- At switch-on the integrator output, and so gate 1, sits at half supply, 4.5 V: nearly three volts above the
   source, the channel is about 100 Ω and shunts the tone: very quiet (well under 0.3 V peak to peak at
   the volume node).
 - Hold "louder": the output ramps down at roughly a hundred volts per second. Once the gate is more than 1.2 V

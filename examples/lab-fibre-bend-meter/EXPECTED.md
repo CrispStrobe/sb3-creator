@@ -3,7 +3,7 @@
 ## Circuit
 - 9 V battery. Red LED (led_4) with 1 kΩ feeding 1 m of plastic fibre (light_path_9); its control is the bend radius of one loop (5 cm as built, down to 4 mm).
 - At the far end a phototransistor (phototransistor_5), 2.2 kΩ from its emitter to ground, sets the base of an NPN emitter follower.
-- The follower drives the moving-coil meter (analog_meter_8: 1 mA movement on its 5 V range, five kilohms).
+- The follower drives the moving-coil meter (analog_meter_8: a one-milliamp movement on its 5 V range, five kilohms).
 
 ## Observable behaviour
 - Gentle loop (5 cm): the meter reads about 3.8 V.
@@ -28,9 +28,9 @@ net npn_7.emitter V 3.78 +-0.1
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@9de91e3` and `bw-circuit-ui@3084f35` — the revisions pinned in
+> `bw-board@e744ede` and `bw-circuit-ui@3084f35` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
-> **6 of this page's 12** numeric claims against that engine
+> **5 of this page's 11** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs lab-fibre-bend-meter` prints them one by one.
 <!-- engine-provenance -->

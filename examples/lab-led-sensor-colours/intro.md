@@ -8,7 +8,7 @@ teaches: [photocurrent, wavelength, led-as-sensor, transimpedance-amplifier]
 Two lamps (a red LED and an infrared LED) shine on two sensors that are also just LEDs: a red one and an infrared one. A switch picks which sensor goes to the amplifier, and the meter shows its photocurrent, one volt per microamp.
 
 ## Try this
-1. Click **Sim**. Only the red lamp is on and the red sensor is selected: the meter shows about 0.45 V.
+1. Click **Sim**. Only the red lamp is on and the red sensor is selected: the meter shows about 0.4 V.
 2. Switch the IR lamp on as well. Nothing changes: the red sensor cannot see infrared.
 3. Flip the selector to the IR sensor. It reads much more, about 2.5 V from the red lamp alone.
 4. Now try the IR lamp alone with each sensor. The IR sensor sees it; the red one reads nothing.

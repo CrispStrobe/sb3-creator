@@ -98,7 +98,7 @@
       "kind": "potentiometer",
       "params": {
         "ohms": 10000,
-        "position": 0.457
+        "position": 0.451
       },
       "label": "ZERO",
       "x": 226,

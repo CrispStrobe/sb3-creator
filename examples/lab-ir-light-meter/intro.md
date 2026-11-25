@@ -9,7 +9,7 @@ An infrared LED shines on a second IR LED that works as a sensor for light. Two 
 
 ## Try this
 1. Click **Sim**. The meter reads about 1.2 V.
-2. Switch the IR lamp off. The meter still shows about 0.3 V in the dark: that is the offset.
+2. Switch the IR lamp off. The meter still shows about 0.1 V in the dark: that is the offset.
 3. Turn the zero pot up slowly until the meter just reaches 0.
 4. Switch the lamp on again and move the light path's distance knob: 5 cm, 10 cm, 20 cm. Each doubling of the distance leaves about a quarter of the reading.
 

@@ -194,14 +194,14 @@ describe('lab benches (set r10c) behave as documented', { skip: SKIP }, () => {
         x.run(5);
         const rd = () => ({ meter: r3(x.v('meter', 'a') - x.v('meter', 'b')), inp: r3((x.v('u', '1_pos') - x.v('u', '4_out')) * 1000), amps: r3(x.v('amps', 'a')), sense: r3(x.v('u', '2_pos')) });
         const m = { authored: rd() };
-        x.param('zero', 'position', 0.45); x.run(5); m.nulled = rd();
+        x.param('zero', 'position', 0.448); x.run(5); m.nulled = rd();
         x.set('probe', 1); x.run(5); m.probe = rd(); x.set('probe', 0); x.run(5);
         x.param('pol', 'position', 1); x.run(5); m.reversed = rd(); m.reversed.uA = r3(x.mA('rp') * 1000);
         report('lab-opamp-meter-stages', m);
-        near(m.authored.inp, 41, 2, 'nothing connected: 45 nA through 1 MΩ ‖ 10 MΩ lifts the input (mV)');
-        near(m.authored.meter, 0.41, 0.02, 'nothing connected: the ×10 meter shows the offset (V)');
+        near(m.authored.inp, 43.2, 1, 'nothing connected: the + input\'s 47.5 nA bias current through 1 MΩ ‖ 10 MΩ lifts the input (mV)');
+        near(m.authored.meter, 0.432, 0.02, 'nothing connected: the ×10 meter shows the offset (V)');
         // MEASURED 2026-11-25: |nulled.meter| < 0.03 -> observed 0.000 V.
-        assert.ok(Math.abs(m.nulled.meter) < 0.03, `ZERO turned to 0.45: offset nulled (${m.nulled.meter} V)`);
+        assert.ok(Math.abs(m.nulled.meter) < 0.01, `ZERO turned to 0.448: offset nulled (${m.nulled.meter} V)`);
         near(m.probe.meter, 0.495, 0.01, 'PROBE: 50 mV in, 0.5 V on the meter (V)');
         near(m.authored.sense, 0.786, 0.005, 'ammeter: 10 Ω carries 79 mA (V)');
         near(m.authored.amps, 3.93, 0.03, 'ammeter: five times the sensing voltage, 1 V = 20 mA (V)');
@@ -407,6 +407,45 @@ describe('lab benches (set r10c) behave as documented', { skip: SKIP }, () => {
         // MEASURED 2026-11-25: toneHalves > 20 -> observed 24 half-periods.
         assert.ok(m.plain.toneHalves > 20, `the tone runs while the gate is open (${m.plain.toneHalves} half-periods)`);
         assert.equal(m.plain.inClosed, 0, 'no tone while the gate is closed');
+    });
+
+    test('lab-opamp-chirp: each sawtooth slides the pitch up several-fold and drops it at once; SLOW stretches the slide tenfold', () => {
+        const x = bench('lab-opamp-chirp');
+        x.run(40);
+        const tone = []; const falls = []; const rises = [];
+        let pt = x.v('u', '4_out') > 3.75; let pg = x.v('u', '1_out') > 3.75;
+        x.each(115, 0.05, (t) => {
+            const tn = x.v('u', '4_out') > 3.75; const g = x.v('u', '1_out') > 3.75;
+            if (tn !== pt) tone.push(t);
+            if (g !== pg) (g ? rises : falls).push(t);
+            pt = tn; pg = g;
+        });
+        const hz = (a, b) => r3(tone.filter(t => t >= a && t < b).length / 2 / ((b - a) / 1000));
+        const end = falls[0]; const again = rises.find(t => t > end);
+        const m = { firstTone: r3(tone[0]), end: r3(end), again: r3(again),
+            early: hz(tone[0], tone[0] + 10), late: hz(end - 10, end), after: hz(again, again + 8) };
+        // SLOW: the same slide over a ten times larger capacitor. The control
+        // voltage's climb from 2 V to 4 V is timed in both settings.
+        const climb = (limitMs, step) => {
+            let t2 = null; let t4 = null; const stop = x.t + limitMs;
+            while (t4 === null && x.t < stop) {
+                x.run(step); const v = x.v('u', '2_out');
+                if (t2 === null && v > 2) t2 = x.t;
+                if (t2 !== null && v > 4) t4 = x.t;
+            }
+            return r3(t4 - t2);
+        };
+        m.climbChick = climb(150, 0.1);
+        x.set('slow', 1);
+        m.climbCrow = climb(2000, 1);
+        report('lab-opamp-chirp', m);
+        near(m.early, 200, 120, 'start of a chirp: a low growl (Hz)');
+        near(m.late, 700, 100, 'end of the slide: about 700 Hz (Hz)');
+        assert.ok(m.late > 2.5 * m.early, `the pitch slides several-fold (${m.early} -> ${m.late} Hz)`);
+        near(m.end - m.firstTone, 75, 12, 'one chirp rises for about 75 ms (ms)');
+        near(m.again - m.end, 3.5, 2.5, 'the sawtooth drops back in a few milliseconds (ms)');
+        near(m.after, 120, 100, 'right after the drop the pitch is low again (Hz)');
+        near(m.climbCrow / m.climbChick, 10, 2, 'SLOW: the control voltage climbs about ten times slower');
     });
 
     test('lab-ir-reflect-alarm: an object near the sensor pair latches the alarm and starts the tone; RESET stops it', () => {

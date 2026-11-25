@@ -28,7 +28,7 @@
 2. Averaging two logarithms is taking the square root of a product; weighting them 1 : 2 takes the cube root.
 
 ## Simulation notes
-The transistors are matched and at one temperature, so Is and Vt cancel exactly; real ones need a matched pair and temperature compensation. The reference current is (9 V − reference)/4.3 MΩ ≈ 0.99 µA, which the test uses as measured.
+The transistors are matched and at one temperature, so Is and Vt cancel exactly; real ones need a matched pair and temperature compensation. The reference current is (9 V − reference)/4.3 MΩ ≈ 0.99 µA, which the test uses as measured. The LM324's input bias currents (about 45 nA out of each input) put close to 1 % on every result: they add to the reference current and lift the buffer's input a quarter of a millivolt, which the antilog transistor multiplies by exp(0.24 mV / Vt).
 
 ```assert
 # as authored: INPUT at half, x ≈ 45 µA, square root ≈ 6.7 µA (0.67 V)
@@ -42,9 +42,9 @@ net lm324_8.3_out V 5.416 +-0.02
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@9de91e3` and `bw-circuit-ui@3084f35` — the revisions pinned in
+> `bw-board@e744ede` and `bw-circuit-ui@3084f35` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
-> **28 of this page's 32** numeric claims against that engine
+> **30 of this page's 35** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs lab-log-roots` prints them one by one.
 <!-- engine-provenance -->

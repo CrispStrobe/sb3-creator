@@ -138,7 +138,8 @@ describe('lab round-6 r6e benches behave as documented', { skip: SKIP }, () => {
         assert.ok(x.mA('r2') > 4, 'green lit');
         x.set('set', 1); x.run(5); x.set('set', 0); x.run(20);
         near(x.v('u', '1_out'), 7.24, 0.05, 'after SET: output high, held');
-        near(x.v('u', '1_pos'), 3.62, 0.05, 'the output holds + above the threshold (V)');
+        // Half of 7.24 V, plus the LM324's + input bias current (47.5 nA) through 10 MΩ ‖ 10 MΩ.
+        near(x.v('u', '1_pos'), 3.86, 0.05, 'the output holds + above the threshold (V)');
         // MEASURED 2026-11-24: x.mA('r1') > 4 -> observed 5.44.
         assert.ok(x.mA('r1') > 4, 'red lit');
         x.set('reset', 1); x.run(5); x.set('reset', 0); x.run(20);
@@ -185,7 +186,8 @@ describe('lab round-6 r6e benches behave as documented', { skip: SKIP }, () => {
     test('lab-ammeter-overload: 1 V per amp on the meter, a tone above 1 A', () => {
         const x = bench('lab-ammeter-overload');
         x.run(2);
-        near(x.state('meter').reading, 0.101, 0.003, 'LAMP: 0.1 A reads 0.1 V');
+        // 0.1 A x 0.1 Ω x 10.1, less the − input's bias current (42.5 nA) x 91 kΩ = 3.9 mV.
+        near(x.state('meter').reading, 0.097, 0.003, 'LAMP: 0.1 A reads 0.1 V');
         // MEASURED 2026-11-24: x.v('ct', 'a') < 0.7 -> observed 0.575.
         assert.ok(x.v('ct', 'a') < 0.7, 'no alarm: the diode holds the tone capacitor down');
         x.set('sheat', 1); x.run(2);
@@ -290,6 +292,10 @@ describe('lab round-6 r6e benches behave as documented', { skip: SKIP }, () => {
 
     test('lab-log-roots: halving the logarithm takes the square root, a third the cube root', () => {
         const x = bench('lab-log-roots');
+        // The LM324's input bias currents (about 45 nA out of each input) add to
+        // the 1 µA reference and sit 0.24 mV on the buffer's divider input,
+        // which the antilog transistor turns into close to 1 % more output.
+        const BIAS_GAIN = 1.008;
         const read = () => {
             const vref = x.v('rv1', 'b');
             return { xin: (x.v('knob', 'wiper') - vref) / 42e3 * 1e6, iref: (9 - vref) / 4.3e6 * 1e6, out: (x.v('u', '3_out') - vref) / 100e3 * 1e6 };
@@ -297,13 +303,13 @@ describe('lab round-6 r6e benches behave as documented', { skip: SKIP }, () => {
         for (const pos of [1, 0.64, 0.16]) {
             x.set('knob', pos); x.run(5);
             const r = read();
-            near(r.out, Math.sqrt(r.xin * r.iref), 0.05, `square root of ${r.xin.toFixed(1)} (µA)`);
+            near(r.out, BIAS_GAIN * Math.sqrt(r.xin * r.iref), 0.05, `square root of ${r.xin.toFixed(1)} (µA)`);
         }
         x.set('root', 1);
         for (const pos of [1, 0.64]) {
             x.set('knob', pos); x.run(5);
             const r = read();
-            near(r.out, Math.cbrt(r.xin * r.iref * r.iref), 0.05, `cube root of ${r.xin.toFixed(1)} (µA)`);
+            near(r.out, BIAS_GAIN * Math.cbrt(r.xin * r.iref * r.iref), 0.05, `cube root of ${r.xin.toFixed(1)} (µA)`);
         }
         x.set('knob', 1); x.run(5);
         near(read().out, 4.6, 0.1, 'cube root of 100 µA·(1 µA)² read on the meter (µA)');

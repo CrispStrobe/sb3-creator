@@ -339,11 +339,13 @@ export const BENCHES = {
     // 5 V meter reads 0–100 °C. A second op-amp compares the reading with the
     // SET knob (4.7 M of feedback for a little hysteresis) and, while it is
     // colder than set, drives the relay through an NPN; the relay's contact
-    // lights the lamp that stands for the heater.
+    // lights the lamp that stands for the heater. ZERO is trimmed with the
+    // LM324's input bias current flowing (0.451; 0.457 before the op-amp
+    // model carried it, when the reading came out 2.4 K high).
     'lab-transistor-thermometer': {
         vcc: 9, supply: SUP,
         parts: { bat: BAT9, rs: R(10000), sensor: ['npn', { beta: 100, surroundC: 25, thermalTau: 1 }],
-            rz1: R(100000), zero: POT(10000, 0.457), rz2: R(4700), rzp: R(100000), rzg: R(2700000),
+            rz1: R(100000), zero: POT(10000, 0.451), rz2: R(4700), rzp: R(100000), rzg: R(2700000),
             u: LM324, ri: R(10000), rfb: R(250000), meter: ['analog_meter', { fullScale: 5, ifs: 0.0001 }],
             rs1: R(8200), set: POT(10000, 0.5), rset: R(47000), rhy: R(4.7e6),
             rq: R(10000), q: NPN, k: ['relay', { coilR: 200 }], df: D, lamp: ['light_bulb', { ohms: 90, vRated: 9 }] },

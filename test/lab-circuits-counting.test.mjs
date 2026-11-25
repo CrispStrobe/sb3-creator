@@ -85,14 +85,16 @@ describe('lab counting benches behave as documented', { skip: SKIP }, () => {
             x.set('sel', sel); x.set('swr', red); x.set('swi', ir); x.run(1);
             return x.v('vm', 'a');
         };
-        near(reading(0, 1, 0), 0.4515, 0.01, 'red sensor, red lamp');
+        // Each reading is photocurrent x 1 MΩ less the LM358's − input bias
+        // current (42.5 nA) x 1 MΩ.
+        near(reading(0, 1, 0), 0.409, 0.01, 'red sensor, red lamp');
         // MEASURED 2026-11-24 (bw-board eb3ec0a7): reading(0, 0, 1) < 0.01 -> observed 0.0050
         // (the op-amp's output floor: no photocurrent at all).
         assert.ok(reading(0, 0, 1) < 0.01, 'red sensor, IR lamp: blind');
-        near(reading(0, 1, 1), 0.4515, 0.01, 'red sensor, both lamps: IR adds nothing');
-        near(reading(1, 1, 0), 2.475, 0.03, 'IR sensor, red lamp');
-        near(reading(1, 0, 1), 0.565, 0.02, 'IR sensor, IR lamp');
-        near(reading(1, 1, 1), 3.040, 0.03, 'IR sensor, both lamps add');
+        near(reading(0, 1, 1), 0.409, 0.01, 'red sensor, both lamps: IR adds nothing');
+        near(reading(1, 1, 0), 2.432, 0.03, 'IR sensor, red lamp');
+        near(reading(1, 0, 1), 0.522, 0.02, 'IR sensor, IR lamp');
+        near(reading(1, 1, 1), 2.997, 0.03, 'IR sensor, both lamps add');
         // MEASURED 2026-11-24 (bw-board eb3ec0a7): reading(1, 0, 0) < 0.01 -> observed 0.0050.
         assert.ok(reading(1, 0, 0) < 0.01, 'IR sensor, dark');
     });
@@ -117,19 +119,21 @@ describe('lab counting benches behave as documented', { skip: SKIP }, () => {
     test('lab-ir-light-meter: the zero pot removes the 1 V offset; then the meter shows the light alone', () => {
         const x = bench('lab-ir-light-meter');
         x.run(1);
-        near(x.v('u', '1_out'), 1.848, 0.02, 'first amplifier at 5 cm');
-        near(x.v('meter', 'a'), 1.155, 0.02, 'meter, zero pot as authored');
+        // The LM358's − input bias current (42.5 nA) through the 4.7 MΩ
+        // feedback pulls the first stage 0.2 V below reference + light.
+        near(x.v('u', '1_out'), 1.648, 0.02, 'first amplifier at 5 cm');
+        near(x.v('meter', 'a'), 0.960, 0.02, 'meter, zero pot as authored');
         x.set('sw', 0); x.run(1);
-        near(x.v('u', '1_out'), 0.978, 0.01, 'first amplifier in the dark: the offset');
-        near(x.v('meter', 'a'), 0.305, 0.02, 'meter in the dark before zeroing');
+        near(x.v('u', '1_out'), 0.779, 0.01, 'first amplifier in the dark: the offset');
+        near(x.v('meter', 'a'), 0.110, 0.02, 'meter in the dark before zeroing');
         // Turn the zero pot up until the meter just reads 0.
         let zeroAt = null;
-        for (let p = 0.70; p <= 0.8001; p += 0.002) {
+        for (let p = 0.50; p <= 0.7001; p += 0.002) {
             x.set('zero', p); x.run(1);
             if (x.v('meter', 'a') < 0.006) { zeroAt = p; break; }
         }
         assert.ok(zeroAt !== null, 'the pot reaches zero');
-        near(zeroAt, 0.738, 0.01, 'pot position where the dark reading is zero');
+        near(zeroAt, 0.582, 0.01, 'pot position where the dark reading is zero');
         x.set('sw', 1);
         const at = (d) => { x.at('beam', d); x.run(1); return x.v('meter', 'a'); };
         const m5 = at(5), m10 = at(10), m20 = at(20);

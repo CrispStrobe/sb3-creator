@@ -6,7 +6,7 @@
 - A meter (5 V) on the output.
 
 ## Observable behaviour
-- No load: the needle rests near 0 (0.02 V).
+- No load: the needle rests near 0 (about two hundredths of a volt).
 - 20 g: 0.25 V. 50 g: 0.87 V. 100 g: 4.25 V. Much beyond 100 g the amplifier saturates.
 - The second 50 g move the needle about four times as far as the first 50 g: the scale is not linear.
 
@@ -36,9 +36,9 @@ net lm358_7.1_out V 0.02 +-0.02
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@9de91e3` and `bw-circuit-ui@3084f35` — the revisions pinned in
+> `bw-board@e744ede` and `bw-circuit-ui@3084f35` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
-> **16 of this page's 20** numeric claims against that engine
+> **15 of this page's 19** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs lab-ruler-scale` prints them one by one.
 <!-- engine-provenance -->

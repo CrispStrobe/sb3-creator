@@ -84,24 +84,27 @@ describe('op-amp measuring lab benches behave as documented', { skip: SKIP }, ()
         // setting.
         const at = (p) => { x.param('tilt', 'position', p); x.run(100); return { mv: diff(), out: x.v('u', '1_out'), g: x.mA('rg'), r: x.mA('rr') }; };
         const left = at(0.4);
-        near(left.mv, -4.48, 0.05, 'authored: input below the reference (mV)');
+        // The LM324's input bias current (47.5 nA out of + through the knob's
+        // ~50 kΩ, 42.5 nA out of − through the 5 kΩ divider) lifts + by about
+        // 2.2 mV against −: an input offset, so balance sits near 0.4514.
+        near(left.mv, -2.30, 0.05, 'authored: input below the reference (mV)');
         // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): left.g < 0.01 -> observed
         // 3.60249774455923e-10; left.r > 6 -> observed 6.91994418771403.
         assert.ok(left.r > 6 && left.g < 0.01, 'tilted left: red lit, green dark');
         const right = at(0.6);
-        near(right.mv, 4.48, 0.05, 'tilted right: input above the reference (mV)');
+        near(right.mv, 6.65, 0.05, 'tilted right: input above the reference (mV)');
         // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): right.r < 0.5 -> observed
         // 0.2524828077069774; right.g > 5 -> observed 5.258011252473061.
         assert.ok(right.g > 5 && right.r < 0.5, 'tilted right: green lit, red (nearly) dark');
-        near(at(0).mv, -22.37, 0.1, 'knob fully left (mV)');
-        near(at(1).mv, 22.37, 0.1, 'knob fully right (mV)');
-        // The changeover: between +4.5 µV and +45 µV the output moves 3.7 V,
+        near(at(0).mv, -20.19, 0.1, 'knob fully left (mV)');
+        near(at(1).mv, 24.54, 0.1, 'knob fully right (mV)');
+        // The changeover: between +3 µV and +48 µV the output moves 4.1 V,
         // the chip's open-loop gain (10^5 on its card).
-        const a = at(0.5001); const b = at(0.501);
+        const a = at(0.4515); const b = at(0.4525);
         near((b.out - a.out) / ((b.mv - a.mv) / 1e3), 92000, 15000, 'open-loop gain in the changeover');
-        assert.ok(b.g > 1 && b.r > 1, '45 µV above balance (a thousandth of the knob): both LEDs glow');
-        const c = at(0.51);
-        near(c.mv, 0.448, 0.01, 'a hundredth of the knob from the middle (mV)');
+        assert.ok(b.g > 1 && b.r > 1, '48 µV above balance (a thousandth of the knob): both LEDs glow');
+        const c = at(0.461);
+        near(c.mv, 0.429, 0.01, 'a hundredth of the knob above balance (mV)');
         // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): c.r < 0.5 -> observed
         // 0.2524955640624498; c.g > 5 -> observed 5.2579962995997.
         assert.ok(c.g > 5 && c.r < 0.5, 'half a millivolt is already a full switch');
@@ -161,15 +164,18 @@ describe('op-amp measuring lab benches behave as documented', { skip: SKIP }, ()
         near(x.v('u', '4_out'), 4.5, 0.01, 'M, the buffered half supply (V)');
         const level = (db) => { x.param('mic', 'soundDb', db); x.run(10); return x.mean(() => x.meter(), 10, 0.1); };
         const l90 = level(90);
-        near(l90, 0.348, 0.03, '90 dB (mA)');
+        // The gain stages' − input bias currents (42.5 nA each through 100 kΩ)
+        // leave the signal about 8.5 mV below M at DC, which the rectifier
+        // takes off every positive half-wave: a little less at each level.
+        near(l90, 0.323, 0.03, '90 dB (mA)');
         const l80 = level(80);
-        near(l80, 0.124, 0.015, '80 dB (mA)');
+        near(l80, 0.098, 0.015, '80 dB (mA)');
         const l96 = level(96);
-        near(l96, 0.707, 0.05, '96 dB (mA)');
+        near(l96, 0.680, 0.05, '96 dB (mA)');
         // 10 dB = x3.16 in pressure; the 80 dB window still carries a little of
-        // the 90 dB reading, so the measured ratio is a bit lower (2.8).
-        near(l90 / l80, 2.8, 0.3, '90 dB / 80 dB');
-        near(l96 / l90, 2.03, 0.15, '96 dB / 90 dB (6 dB = x2)');
+        // the 90 dB reading, the offset takes a little off it.
+        near(l90 / l80, 3.3, 0.3, '90 dB / 80 dB');
+        near(l96 / l90, 2.11, 0.15, '96 dB / 90 dB (6 dB = x2)');
         x.param('mic', 'soundDb', 0); x.run(30);
         // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): x.meter() < 0.01 -> observed
         // 0.004235977492079712.
@@ -209,7 +215,8 @@ describe('op-amp measuring lab benches behave as documented', { skip: SKIP }, ()
         x.set('via', 1); x.run(1);
         near(x.v('da', 'b'), 4.45, 0.03, 'through the follower the divider stays near 4.5 V (V)');
         near(x.meter(), 4.22, 0.03, 'follower reading: the input diode costs about 0.2 V (V)');
-        near(x.meter('meter10'), 0.005, 0.005, 'x10 stage with nothing at its input (V)');
+        // The LM324's + input bias current (47.5 nA) through the 1 MΩ, ten times.
+        near(x.meter('meter10'), 0.476, 0.02, 'x10 stage with nothing at its input: the bias-current offset (V)');
         x.set('probe', 1); x.run(1);
         near(x.v('u', '2_pos'), 0.486, 0.005, 'probe on 0.5 V (V)');
         near(x.meter('meter10'), 4.905, 0.03, 'x10 stage reading (V)');
