@@ -1,0 +1,34 @@
+# lab-opamp-hearing-limit — expected behaviour
+
+## Circuit
+- 9 V supply. LM324 section 1 as a relaxation oscillator: + input on three 10 kΩ from +9 V, ground and the output (two thresholds that move with the output); the output charges 10 nF (capacitor_9) on the − input through 2.2 kΩ and the PITCH rheostat (potentiometer_8, 100 kΩ; as built at half).
+- Loudspeaker (speaker_12) through 10 µF and 1 kΩ.
+
+## Observable behaviour
+- PITCH down (102 kΩ): about 660 Hz.
+- Half way: about 1.27 kHz.
+- PITCH up (2.2 kΩ): about 14.5 kHz, high enough that many adults no longer hear it. Here the op-amp's slew rate (a third of a volt per microsecond) already takes a large part of each half-period: the square's edges are ramps of about 24 µs.
+
+## Measured on the engine
+bw-board 2965782a, `test/lab-circuits-r10c.test.mjs`: 664 Hz, 1266 Hz, 14 463 Hz.
+
+## What this verifies
+1. The period of an RC relaxation oscillator is proportional to R: 102 kΩ against 2.2 kΩ would be a factor of 46.
+2. At the top the slew rate, not the RC, sets the limit: the measured factor is only 22.
+
+## Simulation notes
+The speaker sits behind 1 kΩ so that the op-amp's output (40 mA at most) is not loaded down and the thresholds stay where they are.
+
+```assert
+# 1 ms after switch-on (the solve assert-physics runs)
+net lm324_3.1_pos V 3.015 +-0.03
+```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@2965782` and `bw-circuit-ui@e3441d2` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **8 of this page's 21** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-opamp-hearing-limit` prints them one by one.
+<!-- engine-provenance -->
