@@ -1,23 +1,23 @@
 {
   "note": "Which gates enrol which example, computed from scripts/lib/example-enrolment.mjs. A diff here is a change in COVERAGE — read it before regenerating.",
   "measuredOn": "2026-11-24",
-  "examples": 671,
+  "examples": 681,
   "gates": {
-    "gallery": 601,
-    "example-kind-matches-content": 671,
-    "index-metadata-matches-disk": 671,
+    "gallery": 611,
+    "example-kind-matches-content": 681,
+    "index-metadata-matches-disk": 681,
     "retarget-gallery": 66,
     "retarget-amplification": 66,
     "gen-device-benches": 148,
     "example-corpus-contract": 349,
-    "assert-physics": 588,
+    "assert-physics": 598,
     "debug-micropython": 10,
     "debug-trace-audit": 18,
-    "circuit-params-are-read": 639,
-    "program-reads-what-it-writes": 597,
+    "circuit-params-are-read": 649,
+    "program-reads-what-it-writes": 607,
     "vm-and-c-agree-on-arithmetic": 168,
     "documented-tables-are-derived": 4,
-    "vm": 601,
+    "vm": 611,
     "simulator-driver-controls-respond": 44,
     "school-circuit-projects": 3,
     "gallery-e2e": 27
@@ -6630,6 +6630,96 @@
       "assert-physics",
       "circuit-params-are-read",
       "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-beeper-diode-check": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-beeper-transistor-check": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-amp-metronome": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-amp-light-organ": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-flame-ir-latch": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-amp-midpoint": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-opamp-schmitt": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-opamp-sound-relay": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-opamp-relay-timer": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-opamp-shift-register": [
+      "assert-physics",
+      "circuit-params-are-read",
       "example-kind-matches-content",
       "gallery",
       "index-metadata-matches-disk",

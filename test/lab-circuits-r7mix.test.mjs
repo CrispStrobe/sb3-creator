@@ -229,12 +229,13 @@ describe('lab mixer-IC benches (set r7mix) behave as documented', { skip: SKIP }
             const tr = x.trace('spk', 'a', 3, 0.01);
             return { swing: span(tr), hz: crossings(tr) };
         };
-        // MEASURED 2026-11-25: as authored (9 V, both at 0.3) 3846 Hz, 3.64 V p-p at the speaker;
-        // transmitter tuned to 0.302 -> 1171 Hz; transmitter on 6 V -> 5518 Hz.
+        // MEASURED 2026-11-25 (bw-board b094eb22): as authored (9 V, both at 0.3) 5833 Hz, 4.2 V p-p
+        // at the speaker; transmitter tuned to 0.302 -> 7167 Hz; transmitter on 6 V -> 1167 Hz.
+        // (First build: 3846 / 1171 / 5518 Hz, on an engine before the radiator fix, bw-board #755.)
         const base = run({}), tuned = run({ tct: 0.302 }), sagged = run({ vsel: 1 });
-        assert.ok(base.swing > 1, `a loud whistle (${base.swing} V p-p; MEASURED 2026-11-25: 3.64 V)`);
-        near1(base.hz, 3850, 600, 'as authored: the difference of the two oscillators (Hz)');
-        assert.ok(tuned.hz < base.hz / 2, `the transmitter tuned towards the receiver: a lower whistle (${tuned.hz} Hz; MEASURED 2026-11-25: 1171 Hz)`);
-        assert.ok(sagged.hz > base.hz + 1000, `the transmitter on 6 V instead of 9 V: its frequency moves, the whistle with it (${sagged.hz} Hz; MEASURED 2026-11-25: 5518 Hz)`);
+        assert.ok(base.swing > 1, `a loud whistle (${base.swing} V p-p; MEASURED 2026-11-25: 4.2 V)`);
+        near1(base.hz, 5830, 600, 'as authored: the difference of the two oscillators (Hz)');
+        assert.ok(tuned.hz > base.hz + 800, `the transmitter tuned away from the receiver: a higher whistle (${tuned.hz} Hz; MEASURED 2026-11-25: 7167 Hz)`);
+        assert.ok(sagged.hz < base.hz / 2, `the transmitter on 6 V instead of 9 V: its frequency moves towards the receiver, the whistle falls (${sagged.hz} Hz; MEASURED 2026-11-25: 1167 Hz)`);
     });
 });
