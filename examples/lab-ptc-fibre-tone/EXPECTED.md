@@ -1,7 +1,7 @@
 # lab-ptc-fibre-tone — expected behaviour
 
 ## Circuit
-- 9 V supply. 22 kΩ from +9 V over a PTC sensor (`ptc_sensor_4`, 2 kΩ at 25 °C, thermal time constant 50 ms) into the + input of an LM386 (`lm386_7`, gain 20; its 50 kΩ input resistance loads the divider to 0.72 V). The − input sits on a set pot (`potentiometer_5`, 10 kΩ at 0.84 under 82 kΩ from +9 V).
+- 9 V supply. 22 kΩ from +9 V over a PTC sensor (`ptc_sensor_4`, silicon, thermal time constant 50 ms) into the + input of an LM386 (`lm386_7`, gain 20; its own input resistance loads the divider). The − input sits on a set pot (`potentiometer_5`, 10 kΩ at 0.84 under 82 kΩ from +9 V).
 - The LM386 output drives a red LED (`led_9`) through 1 kΩ: its brightness follows the temperature.
 - A 2 m light guide (`light_path_21`, 1 mm exit gap) to a phototransistor (`phototransistor_10`) whose emitter load is 2.2 kΩ. That emitter voltage feeds both 47 kΩ base resistors of a two-transistor astable (4.7 kΩ collectors, 10 nF) with a piezo on its second collector.
 

@@ -1,7 +1,7 @@
 # lab-chopper-tacho — expected behaviour
 
 ## Circuit
-- 9 V supply for the electronics. A solar panel (`solar_cell_3`, 3 V open circuit, 0.3 A at full light) drives a small motor (`dc_motor_4`, 10 Ω winding, kV 0.01 V·s/rad, light viscous load) on its own.
+- 9 V supply for the electronics. A small solar panel (`solar_cell_3`) drives a small motor (`dc_motor_4`, light viscous load) on its own.
 - A red LED (`led_6`, 470 Ω from +9 V) shines into a 0.5 m light guide (`light_path_20`) whose exit faces a phototransistor (`phototransistor_7`, 1 kΩ emitter load) across a 2 mm gap. A disc with 4 slots on the motor's shaft runs through the gap (`chopper`: half of each pitch open, the beam 0.3 of a pitch wide).
 - The emitter pulses go through 100 nF and 100 kΩ into an LM386 (`lm386_11`, gain 20) that drives an 8 Ω speaker through 220 µF.
 - From the LM386 output, 100 nF and two diodes pump one charge per pulse into 47 kΩ || 1 µF, read by an analog meter (`analog_meter_19`, 5 V full scale).

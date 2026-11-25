@@ -1,7 +1,7 @@
 # lab-ptc-window-blink — expected behaviour
 
 ## Circuit
-- 9 V supply. 6.8 kΩ from +9 V over a PTC sensor (`ptc_sensor_4`, 2 kΩ at 25 °C, thermal time constant 50 ms) gives about 2.05 V at 25 °C.
+- 9 V supply. 6.8 kΩ from +9 V over a PTC sensor (`ptc_sensor_4`, silicon, thermal time constant 50 ms) gives about 2.05 V at 25 °C.
 - LM324 (`lm324_5`): op-amp 1 amplifies it ×3 (20 kΩ / 10 kΩ). The limits come from 30 kΩ, 4.3 kΩ and 68 kΩ in series from +9 V: 6.36 V (upper, op-amp 3's + input) and 5.98 V (lower, op-amp 2's − input). Op-amp 2 is high above the lower limit, op-amp 3 below the upper one.
 - CD4093 (`cd4093_11`): NAND 1 of the two comparator outputs is low only inside the window; NAND 2 inverts it. Its output lights the green LED through 1 kΩ and, through 10 kΩ, turns on `npn_15`, which holds the LM386 blinker's 2.2 µF timing capacitor at ground.
 - LM386 (`lm386_16`) relaxation blinker: 1 MΩ / 1 MΩ positive feedback, 220 kΩ / 2.2 µF timing. Its output drives a PNP (`pnp_23`, 10 kΩ base resistor, 10 kΩ base-emitter) whose collector lights the red LED through 1 kΩ.

@@ -1,7 +1,7 @@
 # lab-ptc-fibre-pll — expected behaviour
 
 ## Circuit
-- 9 V supply. The temperature stage of lab-ptc-fibre-tone: 22 kΩ over a PTC sensor (`ptc_sensor_4`, 2 kΩ at 25 °C, thermal time constant 50 ms) into an LM386 (`lm386_7`, gain 20) against a set pot (`potentiometer_5`).
+- 9 V supply. The temperature stage of lab-ptc-fibre-tone: 22 kΩ over a PTC sensor (`ptc_sensor_4`, silicon, thermal time constant 50 ms) into an LM386 (`lm386_7`, gain 20) against a set pot (`potentiometer_5`).
 - The LM386 output feeds both 10 kΩ base resistors of a two-transistor astable (`npn_9`, `npn_10`, 47 nF, 1 kΩ collector on one side, a red LED and 470 Ω on the other): about 900 flashes per second at 25 °C, more when warmer.
 - A 2 m light guide to a phototransistor (`phototransistor_17`, 1 kΩ emitter load), 10 nF into a 4046 (`cd4046_20`). VCO: 100 kΩ, 2.2 nF; comparator II through 22 kΩ and 2.2 kΩ + 100 nF holds it on the incoming rate.
 - The demodulator output (10 kΩ load) through 10 kΩ / 220 nF to an analog meter (`analog_meter_29`, 10 V full scale).
