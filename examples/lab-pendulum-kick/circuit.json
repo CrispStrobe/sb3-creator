@@ -29,7 +29,6 @@
       "id": "coil_pendulum_3",
       "kind": "coil_pendulum",
       "params": {
-        "bob": "iron",
         "lengthM": 0.15,
         "gapMm": 8
       },

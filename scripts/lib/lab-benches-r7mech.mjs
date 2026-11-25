@@ -82,7 +82,7 @@ export const BENCHES = {
     // rest. The clip hangs 8 mm above and 20 mm beside the pole.
     'lab-pendulum-kick': {
         vcc: 9, supply: SUP,
-        parts: { bat: BAT9, pend: ['coil_pendulum', { bob: 'iron', lengthM: 0.15, gapMm: 8 }], d: ['diode', { part: '1N4148' }],
+        parts: { bat: BAT9, pend: ['coil_pendulum', { lengthM: 0.15, gapMm: 8 }], d: ['diode', { part: '1N4148' }],
             q1: NPN, q2: NPN, c1: EL(15e-6), c2: EL(220e-6), rb2: R(10000), rb1: R(4700), pot: POT(47000, 1),
             rled: R(1000), led: LED('green') },
         nets: [

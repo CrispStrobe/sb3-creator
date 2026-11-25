@@ -3,8 +3,8 @@
 ## Circuit
 - 9 V supply (`vsource_2`). Two NPN transistors make an astable. Q1 (`npn_5`) carries the electromagnet of the coil pendulum (`coil_pendulum_3`), with a 1N4148 (`diode_4`) across the winding. Q2 (`npn_6`) has a green LED (`led_13`) with 1 kΩ in its collector.
 - Q1 conducts for about 0.69 · 10 kΩ · 15 µF ≈ 0.1 s per cycle (`resistor_9`, `polarized_cap_7`). It then rests for a time set by 4.7 kΩ (`resistor_10`) plus the 47 kΩ pot (`potentiometer_11`) and 220 µF (`polarized_cap_8`). The LED lights during the rest.
-- Pot at 1 (rest position): 4.7 kΩ, pulses about 2.6 times a second. Pot at 0: 51.7 kΩ, about 0.35 times a second.
-- The pendulum is a paper clip (soft iron, 0.1 cm³, 0.8 g) on a 15 cm thread, hanging 8 mm above and 20 mm to the side of the pole of a wound rod (150 Ω, 0.1 H). Its natural frequency is √(g/L)/2π = 1.29 Hz.
+- Pot at 1 (rest position): 4.7 kΩ, pulses about 2.6 times a second. Pot at 0: the whole 47 kΩ added, about 0.35 times a second.
+- The pendulum is a paper clip (soft iron, 0.1 cm³, 0.8 g) on a 15 cm thread, hanging 8 mm above and 20 mm to the side of the pole of a wound rod (the part's default winding). Its natural frequency is √(g/L)/2π = 1.29 Hz.
 
 ## Observable behaviour
 - Pot at 1 (fast pulses): the clip only twitches, 0.76° after 8 s.
@@ -31,3 +31,12 @@ bw-board `coil_pendulum` (src/magnetic-coupling.js):
 # the supply rail; the swing is checked in the scenario test
 net vsource_2.pos V 9.00 +-0.01
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@2c62bd5` and `bw-circuit-ui@15b936d` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **9 of this page's 16** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-pendulum-kick` prints them one by one.
+<!-- engine-provenance -->

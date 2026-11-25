@@ -90,10 +90,11 @@ describe('lab magnetic-coupling benches (set r7mech) behave as documented', { sk
         assert.ok(rest.a50 < 0.01 && rest.a800 < 0.05, `at rest: ${rest.a50} V hum, ${rest.a800} V tone`);
         // MEASURED 2026-11-25: on.a50 -> observed 0.142.
         assert.ok(on.a50 > 0.07, `loaded cable 3.9 cm away: ${on.a50} V of 50 Hz`);
-        // MEASURED 2026-11-25: off.a50 -> observed 0.0051.
+        // MEASURED 2026-11-25: off.a50 -> observed 0.0051 (on.a50 / off.a50 = 28).
         assert.ok(off.a50 < on.a50 / 10, `lamp off: ${off.a50} V of 50 Hz`);
         // MEASURED 2026-11-25: phone.a800 -> observed 0.627.
         assert.ok(phone.a800 > 0.1, `telephone 15.75 cm away: ${phone.a800} V of 800 Hz`);
+        // MEASURED 2026-11-25: phone.a800 / rest.a800 -> observed 27.9.
         assert.ok(phone.a800 > 5 * rest.a800, 'nearer, louder');
     });
 
@@ -108,7 +109,9 @@ describe('lab magnetic-coupling benches (set r7mech) behave as documented', { sk
         const tuned = swing(0.82), fast = swing(1), slow = swing(0.72);
         // MEASURED 2026-11-25: tuned.amplitudeDeg -> observed 9.02, fast -> 0.76, slow -> 0.51.
         assert.ok(tuned.amplitudeDeg > 5, `pot 0.82: ${tuned.amplitudeDeg}°`);
+        // MEASURED 2026-11-25: fast.amplitudeDeg -> observed 0.76.
         assert.ok(fast.amplitudeDeg < 1.5, `pot 1 (fast pulses): ${fast.amplitudeDeg}°`);
+        // MEASURED 2026-11-25: tuned / slow -> observed 17.6.
         assert.ok(slow.amplitudeDeg < tuned.amplitudeDeg / 3, `pot 0.72 (too slow): ${slow.amplitudeDeg}°`);
         near(tuned.naturalHz, 1.287, 0.002, 'natural frequency of a 15 cm pendulum');
     });
@@ -134,9 +137,12 @@ describe('lab magnetic-coupling benches (set r7mech) behave as documented', { sk
         near(hand.before, 0, 1e-6, 'nothing before the press');
         // MEASURED 2026-11-25: hand.peak -> observed 0.462.
         assert.ok(hand.peak > 0.2, `click at 8 cm: ${hand.peak} V`);
+        // MEASURED 2026-11-25: hand.held -> observed -1.4e-13 V.
         assert.ok(Math.abs(hand.held) < 1e-3, `held: ${hand.held} V`);
+        // MEASURED 2026-11-25: hand.back -> observed 0 V.
         assert.ok(hand.back < 1e-3, `release: the reversed pulse is blocked (${hand.back} V)`);
         // MEASURED 2026-11-25: far.peak -> observed 0.00079.
+        // MEASURED 2026-11-25: hand.peak / far.peak -> observed 582.
         assert.ok(far.peak < hand.peak / 20, `at 24 cm: ${far.peak} V`);
     });
 });
