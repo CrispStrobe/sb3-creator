@@ -9248,6 +9248,546 @@
   "devices": []
  },
  {
+  "id": "lab-barrier-counter",
+  "title": {
+   "en": "Pulsed light barrier counter: relay after six",
+   "de": "Zähler an gepulster Lichtschranke: Relais nach sechs"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-barrier-counter/program.bw",
+   "circuit": "lab-barrier-counter/circuit.json",
+   "expected": "lab-barrier-counter/EXPECTED.md",
+   "intro": "lab-barrier-counter/intro.md",
+   "introDE": "lab-barrier-counter/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-battery-monitor",
+  "title": {
+   "en": "Adjustable battery monitor: a flasher that stops below a set voltage",
+   "de": "Einstellbarer Batteriewächter: ein Blitzer, der unter einer Schwelle aufhört"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-battery-monitor/program.bw",
+   "circuit": "lab-battery-monitor/circuit.json",
+   "expected": "lab-battery-monitor/EXPECTED.md",
+   "intro": "lab-battery-monitor/intro.md",
+   "introDE": "lab-battery-monitor/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-bridge-meter",
+  "title": {
+   "en": "Bridge in the feedback loop: the meter reads the size, LEDs the sign",
+   "de": "Brücke in der Rückkopplung: das Instrument zeigt den Betrag, LEDs das Vorzeichen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-bridge-meter/program.bw",
+   "circuit": "lab-bridge-meter/circuit.json",
+   "expected": "lab-bridge-meter/EXPECTED.md",
+   "intro": "lab-bridge-meter/intro.md",
+   "introDE": "lab-bridge-meter/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-buffered-voltmeter",
+  "title": {
+   "en": "Buffered voltmeter: the follower stops the meter loading the circuit",
+   "de": "Voltmeter mit Folger: das Instrument belastet die Schaltung nicht mehr"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-buffered-voltmeter/program.bw",
+   "circuit": "lab-buffered-voltmeter/circuit.json",
+   "expected": "lab-buffered-voltmeter/EXPECTED.md",
+   "intro": "lab-buffered-voltmeter/intro.md",
+   "introDE": "lab-buffered-voltmeter/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-button-volume",
+  "title": {
+   "en": "Volume by button taps",
+   "de": "Lautstärke per Tastendruck"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-button-volume/program.bw",
+   "circuit": "lab-button-volume/circuit.json",
+   "expected": "lab-button-volume/EXPECTED.md",
+   "intro": "lab-button-volume/intro.md",
+   "introDE": "lab-button-volume/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-diff-blinker",
+  "title": {
+   "en": "Delayed feedback makes it blink, a Miller capacitor calms it",
+   "de": "Verzögerte Rückkopplung lässt es blinken, ein Miller-Kondensator beruhigt es"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 5,
+  "files": {
+   "program": "lab-diff-blinker/program.bw",
+   "circuit": "lab-diff-blinker/circuit.json",
+   "expected": "lab-diff-blinker/EXPECTED.md",
+   "intro": "lab-diff-blinker/intro.md",
+   "introDE": "lab-diff-blinker/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-diff-comparator",
+  "title": {
+   "en": "Differential pair plus amplifier chip: a very sensitive comparator",
+   "de": "Differenzpaar mit Verstärkerchip: ein sehr empfindlicher Komparator"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-diff-comparator/program.bw",
+   "circuit": "lab-diff-comparator/circuit.json",
+   "expected": "lab-diff-comparator/EXPECTED.md",
+   "intro": "lab-diff-comparator/intro.md",
+   "introDE": "lab-diff-comparator/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-dual-gate",
+  "title": {
+   "en": "Two gates, one channel",
+   "de": "Zwei Gates, ein Kanal"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-dual-gate/program.bw",
+   "circuit": "lab-dual-gate/circuit.json",
+   "expected": "lab-dual-gate/EXPECTED.md",
+   "intro": "lab-dual-gate/intro.md",
+   "introDE": "lab-dual-gate/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-humidity-comb",
+  "title": {
+   "en": "Breathing on a humidity comb",
+   "de": "Einen Feuchtekamm anhauchen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-humidity-comb/program.bw",
+   "circuit": "lab-humidity-comb/circuit.json",
+   "expected": "lab-humidity-comb/EXPECTED.md",
+   "intro": "lab-humidity-comb/intro.md",
+   "introDE": "lab-humidity-comb/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-hygrometer",
+  "title": {
+   "en": "Hygrometer with an op-amp and a meter",
+   "de": "Hygrometer mit Operationsverstärker und Messwerk"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-hygrometer/program.bw",
+   "circuit": "lab-hygrometer/circuit.json",
+   "expected": "lab-hygrometer/EXPECTED.md",
+   "intro": "lab-hygrometer/intro.md",
+   "introDE": "lab-hygrometer/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-inverting-stages",
+  "title": {
+   "en": "One and two inverting stages: one lamp dims, the other brightens",
+   "de": "Eine und zwei invertierende Stufen: eine Lampe wird dunkler, die andere heller"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-inverting-stages/program.bw",
+   "circuit": "lab-inverting-stages/circuit.json",
+   "expected": "lab-inverting-stages/EXPECTED.md",
+   "intro": "lab-inverting-stages/intro.md",
+   "introDE": "lab-inverting-stages/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-ir-beam-alarm",
+  "title": {
+   "en": "IR beam alarm",
+   "de": "Infrarot-Strahlalarm"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-ir-beam-alarm/program.bw",
+   "circuit": "lab-ir-beam-alarm/circuit.json",
+   "expected": "lab-ir-beam-alarm/EXPECTED.md",
+   "intro": "lab-ir-beam-alarm/intro.md",
+   "introDE": "lab-ir-beam-alarm/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-ir-light-meter",
+  "title": {
+   "en": "IR light meter with zero adjust",
+   "de": "IR-Lichtmesser mit Nullabgleich"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-ir-light-meter/program.bw",
+   "circuit": "lab-ir-light-meter/circuit.json",
+   "expected": "lab-ir-light-meter/EXPECTED.md",
+   "intro": "lab-ir-light-meter/intro.md",
+   "introDE": "lab-ir-light-meter/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-ir-remote-toggle",
+  "title": {
+   "en": "IR remote: amplifier monoflop and transistor toggle",
+   "de": "IR-Fernbedienung: Verstärker-Monoflop und Transistor-Umschalter"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-ir-remote-toggle/program.bw",
+   "circuit": "lab-ir-remote-toggle/circuit.json",
+   "expected": "lab-ir-remote-toggle/EXPECTED.md",
+   "intro": "lab-ir-remote-toggle/intro.md",
+   "introDE": "lab-ir-remote-toggle/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-led-sensor-colours",
+  "title": {
+   "en": "Red LED and IR LED as light sensors",
+   "de": "Rote LED und IR-LED als Lichtsensoren"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-led-sensor-colours/program.bw",
+   "circuit": "lab-led-sensor-colours/circuit.json",
+   "expected": "lab-led-sensor-colours/EXPECTED.md",
+   "intro": "lab-led-sensor-colours/intro.md",
+   "introDE": "lab-led-sensor-colours/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-linear-ohmmeter",
+  "title": {
+   "en": "Op-amp ohmmeter with a straight scale",
+   "de": "Ohmmeter mit Operationsverstärker und gerader Skala"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-linear-ohmmeter/program.bw",
+   "circuit": "lab-linear-ohmmeter/circuit.json",
+   "expected": "lab-linear-ohmmeter/EXPECTED.md",
+   "intro": "lab-linear-ohmmeter/intro.md",
+   "introDE": "lab-linear-ohmmeter/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-loud-counter",
+  "title": {
+   "en": "A counter that only counts a loud signal",
+   "de": "Ein Zähler, der nur ein lautes Signal zählt"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-loud-counter/program.bw",
+   "circuit": "lab-loud-counter/circuit.json",
+   "expected": "lab-loud-counter/EXPECTED.md",
+   "intro": "lab-loud-counter/intro.md",
+   "introDE": "lab-loud-counter/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-mosfet-current-source",
+  "title": {
+   "en": "A MOSFET as a constant-current source",
+   "de": "Ein MOSFET als Konstantstromquelle"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-mosfet-current-source/program.bw",
+   "circuit": "lab-mosfet-current-source/circuit.json",
+   "expected": "lab-mosfet-current-source/EXPECTED.md",
+   "intro": "lab-mosfet-current-source/intro.md",
+   "introDE": "lab-mosfet-current-source/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-mosfet-nand",
+  "title": {
+   "en": "One transistor as a NAND gate",
+   "de": "Ein Transistor als NAND-Gatter"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-mosfet-nand/program.bw",
+   "circuit": "lab-mosfet-nand/circuit.json",
+   "expected": "lab-mosfet-nand/EXPECTED.md",
+   "intro": "lab-mosfet-nand/intro.md",
+   "introDE": "lab-mosfet-nand/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-mosfet-vcr",
+  "title": {
+   "en": "Depletion MOSFET: gate from negative to positive",
+   "de": "Selbstleitender MOSFET: Gate von negativ bis positiv"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-mosfet-vcr/program.bw",
+   "circuit": "lab-mosfet-vcr/circuit.json",
+   "expected": "lab-mosfet-vcr/EXPECTED.md",
+   "intro": "lab-mosfet-vcr/intro.md",
+   "introDE": "lab-mosfet-vcr/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-octave-divider",
+  "title": {
+   "en": "Seven octaves from one oscillator",
+   "de": "Sieben Oktaven aus einem Oszillator"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-octave-divider/program.bw",
+   "circuit": "lab-octave-divider/circuit.json",
+   "expected": "lab-octave-divider/EXPECTED.md",
+   "intro": "lab-octave-divider/intro.md",
+   "introDE": "lab-octave-divider/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-opamp-ammeter",
+  "title": {
+   "en": "Op-amp ammeter, calibrated with an LED voltage",
+   "de": "Amperemeter mit Operationsverstärker, kalibriert mit einer LED-Spannung"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-opamp-ammeter/program.bw",
+   "circuit": "lab-opamp-ammeter/circuit.json",
+   "expected": "lab-opamp-ammeter/EXPECTED.md",
+   "intro": "lab-opamp-ammeter/intro.md",
+   "introDE": "lab-opamp-ammeter/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-phototransistor-or-ir-led",
+  "title": {
+   "en": "Phototransistor or IR LED?",
+   "de": "Fototransistor oder IR-LED?"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 1,
+  "files": {
+   "program": "lab-phototransistor-or-ir-led/program.bw",
+   "circuit": "lab-phototransistor-or-ir-led/circuit.json",
+   "expected": "lab-phototransistor-or-ir-led/EXPECTED.md",
+   "intro": "lab-phototransistor-or-ir-led/intro.md",
+   "introDE": "lab-phototransistor-or-ir-led/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-radio-level",
+  "title": {
+   "en": "Radio level indicator: meter and three-LED ladder",
+   "de": "Pegelanzeige am Radio: Zeigerinstrument und Leuchtkette"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-radio-level/program.bw",
+   "circuit": "lab-radio-level/circuit.json",
+   "expected": "lab-radio-level/EXPECTED.md",
+   "intro": "lab-radio-level/intro.md",
+   "introDE": "lab-radio-level/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-ramp-timer",
+  "title": {
+   "en": "Ramp timer: an integrator lights three LEDs in turn",
+   "de": "Rampen-Zeitgeber: ein Integrator schaltet drei LEDs nacheinander"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-ramp-timer/program.bw",
+   "circuit": "lab-ramp-timer/circuit.json",
+   "expected": "lab-ramp-timer/EXPECTED.md",
+   "intro": "lab-ramp-timer/intro.md",
+   "introDE": "lab-ramp-timer/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-relax-tone",
+  "title": {
+   "en": "PNP-NPN relaxation oscillator as a tone generator",
+   "de": "PNP-NPN-Kippschwinger als Tongenerator"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-relax-tone/program.bw",
+   "circuit": "lab-relax-tone/circuit.json",
+   "expected": "lab-relax-tone/EXPECTED.md",
+   "intro": "lab-relax-tone/intro.md",
+   "introDE": "lab-relax-tone/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-sound-meter",
+  "title": {
+   "en": "Sound-level meter: microphone, amplifier, precision rectifier",
+   "de": "Schallpegelmesser: Mikrofon, Verstärker, Präzisionsgleichrichter"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-sound-meter/program.bw",
+   "circuit": "lab-sound-meter/circuit.json",
+   "expected": "lab-sound-meter/EXPECTED.md",
+   "intro": "lab-sound-meter/intro.md",
+   "introDE": "lab-sound-meter/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-tap-integrator",
+  "title": {
+   "en": "An integrator that counts taps, with a protected meter",
+   "de": "Ein Integrator, der Tipper zählt, mit geschütztem Messinstrument"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 4,
+  "files": {
+   "program": "lab-tap-integrator/program.bw",
+   "circuit": "lab-tap-integrator/circuit.json",
+   "expected": "lab-tap-integrator/EXPECTED.md",
+   "intro": "lab-tap-integrator/intro.md",
+   "introDE": "lab-tap-integrator/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-tilt-comparator",
+  "title": {
+   "en": "Op-amp comparator: a few microvolts tip the balance",
+   "de": "Operationsverstärker als Komparator: wenige Mikrovolt bringen ihn zum Kippen"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-tilt-comparator/program.bw",
+   "circuit": "lab-tilt-comparator/circuit.json",
+   "expected": "lab-tilt-comparator/EXPECTED.md",
+   "intro": "lab-tilt-comparator/intro.md",
+   "introDE": "lab-tilt-comparator/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-tone-thermometer",
+  "title": {
+   "en": "Hearing a temperature difference: a tone-fed transistor bridge",
+   "de": "Temperaturunterschiede hören: eine tongespeiste Transistorbrücke"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 5,
+  "files": {
+   "program": "lab-tone-thermometer/program.bw",
+   "circuit": "lab-tone-thermometer/circuit.json",
+   "expected": "lab-tone-thermometer/EXPECTED.md",
+   "intro": "lab-tone-thermometer/intro.md",
+   "introDE": "lab-tone-thermometer/intro.de.md"
+  },
+  "devices": []
+ },
+ {
   "id": "lab-touch-darlington",
   "title": {
    "en": "Touch switch: one transistor vs. a Darlington pair",
@@ -9314,6 +9854,24 @@
    "intro": "lab-shunt-gates/intro.md",
    "introDE": "lab-shunt-gates/intro.de.md"
   }
+ },
+ {
+  "id": "lab-two-followers",
+  "title": {
+   "en": "Two emitter followers in a row",
+   "de": "Zwei Emitterfolger hintereinander"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-two-followers/program.bw",
+   "circuit": "lab-two-followers/circuit.json",
+   "expected": "lab-two-followers/EXPECTED.md",
+   "intro": "lab-two-followers/intro.md",
+   "introDE": "lab-two-followers/intro.de.md"
+  },
+  "devices": []
  },
  {
   "id": "lab-wet-dry-probe",
