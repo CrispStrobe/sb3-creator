@@ -13820,5 +13820,498 @@
       "introDE": "lab-comb-jet-spark/intro.de.md"
     },
     "devices": []
+  },
+  {
+    "id": "lab-lamp-hum",
+    "title": {
+      "en": "A mains lamp hums at 100 Hz, a torch is silent",
+      "de": "Eine Netzlampe brummt mit 100 Hz, eine Taschenlampe ist still"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-lamp-hum/program.bw",
+      "circuit": "lab-lamp-hum/circuit.json",
+      "expected": "lab-lamp-hum/EXPECTED.md",
+      "intro": "lab-lamp-hum/intro.md",
+      "introDE": "lab-lamp-hum/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-light-remote",
+    "title": {
+      "en": "Remote control by light: a dimmer and a motor switch",
+      "de": "Fernsteuerung mit Licht: ein Dimmer und ein Motorschalter"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-light-remote/program.bw",
+      "circuit": "lab-light-remote/circuit.json",
+      "expected": "lab-light-remote/EXPECTED.md",
+      "intro": "lab-light-remote/intro.md",
+      "introDE": "lab-light-remote/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-pll-light-tone",
+    "title": {
+      "en": "Light made audible: a phototransistor tunes the PLL oscillator",
+      "de": "Licht hörbar gemacht: Ein Fototransistor stimmt den PLL-Oszillator"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "files": {
+      "program": "lab-pll-light-tone/program.bw",
+      "circuit": "lab-pll-light-tone/circuit.json",
+      "expected": "lab-pll-light-tone/EXPECTED.md",
+      "intro": "lab-pll-light-tone/intro.md",
+      "introDE": "lab-pll-light-tone/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-led-power-curve",
+    "title": {
+      "en": "How much light does an LED give per milliampere?",
+      "de": "Wie viel Licht gibt eine LED pro Milliampere ab?"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-led-power-curve/program.bw",
+      "circuit": "lab-led-power-curve/circuit.json",
+      "expected": "lab-led-power-curve/EXPECTED.md",
+      "intro": "lab-led-power-curve/intro.md",
+      "introDE": "lab-led-power-curve/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-led-colour-blind",
+    "title": {
+      "en": "A red LED sees green light, a green LED does not see red",
+      "de": "Eine rote LED sieht grünes Licht, eine grüne LED sieht kein rotes"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-led-colour-blind/program.bw",
+      "circuit": "lab-led-colour-blind/circuit.json",
+      "expected": "lab-led-colour-blind/EXPECTED.md",
+      "intro": "lab-led-colour-blind/intro.md",
+      "introDE": "lab-led-colour-blind/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-pll-vco",
+    "title": {
+      "en": "The PLL chip as a voltage-controlled oscillator",
+      "de": "Der PLL-Baustein als spannungsgesteuerter Oszillator"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "files": {
+      "program": "lab-pll-vco/program.bw",
+      "circuit": "lab-pll-vco/circuit.json",
+      "expected": "lab-pll-vco/EXPECTED.md",
+      "intro": "lab-pll-vco/intro.md",
+      "introDE": "lab-pll-vco/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-pll-sound-machine",
+    "title": {
+      "en": "Sound machine: the PLL oscillator warbles and wails",
+      "de": "Klangmaschine: Der PLL-Oszillator trillert und heult"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-pll-sound-machine/program.bw",
+      "circuit": "lab-pll-sound-machine/circuit.json",
+      "expected": "lab-pll-sound-machine/EXPECTED.md",
+      "intro": "lab-pll-sound-machine/intro.md",
+      "introDE": "lab-pll-sound-machine/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-pll-beats",
+    "title": {
+      "en": "Beats between a transistor oscillator and the PLL oscillator",
+      "de": "Schwebung zwischen einem Transistoroszillator und dem PLL-Oszillator"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-pll-beats/program.bw",
+      "circuit": "lab-pll-beats/circuit.json",
+      "expected": "lab-pll-beats/EXPECTED.md",
+      "intro": "lab-pll-beats/intro.md",
+      "introDE": "lab-pll-beats/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-pll-lock",
+    "title": {
+      "en": "A phase-locked loop locks onto a transistor oscillator",
+      "de": "Eine Phasenregelschleife rastet auf einen Transistoroszillator ein"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-pll-lock/program.bw",
+      "circuit": "lab-pll-lock/circuit.json",
+      "expected": "lab-pll-lock/EXPECTED.md",
+      "intro": "lab-pll-lock/intro.md",
+      "introDE": "lab-pll-lock/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-pll-fsk",
+    "title": {
+      "en": "FSK: two tones turned back into 0 and 1 by a PLL",
+      "de": "FSK: Zwei Töne werden von einer PLL wieder zu 0 und 1"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-pll-fsk/program.bw",
+      "circuit": "lab-pll-fsk/circuit.json",
+      "expected": "lab-pll-fsk/EXPECTED.md",
+      "intro": "lab-pll-fsk/intro.md",
+      "introDE": "lab-pll-fsk/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-barcode-pen",
+    "title": {
+      "en": "A reflective pen reads black bars: LED and tone",
+      "de": "Ein Reflexstift liest schwarze Striche: LED und Ton"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-barcode-pen/program.bw",
+      "circuit": "lab-barcode-pen/circuit.json",
+      "expected": "lab-barcode-pen/EXPECTED.md",
+      "intro": "lab-barcode-pen/intro.md",
+      "introDE": "lab-barcode-pen/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-fibre-proximity",
+    "title": {
+      "en": "Proximity switch: two fibre ends and a relay",
+      "de": "Annäherungsschalter: zwei Lichtleiterenden und ein Relais"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "files": {
+      "program": "lab-fibre-proximity/program.bw",
+      "circuit": "lab-fibre-proximity/circuit.json",
+      "expected": "lab-fibre-proximity/EXPECTED.md",
+      "intro": "lab-fibre-proximity/intro.md",
+      "introDE": "lab-fibre-proximity/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-light-thyristor",
+    "title": {
+      "en": "A thyristor fired by a flash of light",
+      "de": "Ein Thyristor, gezündet von einem Lichtblitz"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "files": {
+      "program": "lab-light-thyristor/program.bw",
+      "circuit": "lab-light-thyristor/circuit.json",
+      "expected": "lab-light-thyristor/EXPECTED.md",
+      "intro": "lab-light-thyristor/intro.md",
+      "introDE": "lab-light-thyristor/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-tail-light-fibre",
+    "title": {
+      "en": "Tail-light check: a tone when the lamp goes dark",
+      "de": "Rücklichtkontrolle: ein Ton, wenn die Lampe dunkel wird"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "files": {
+      "program": "lab-tail-light-fibre/program.bw",
+      "circuit": "lab-tail-light-fibre/circuit.json",
+      "expected": "lab-tail-light-fibre/EXPECTED.md",
+      "intro": "lab-tail-light-fibre/intro.md",
+      "introDE": "lab-tail-light-fibre/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-lens-beam-link",
+    "title": {
+      "en": "A lens turns an LED into a beam that reaches 3 m",
+      "de": "Eine Linse macht aus einer LED einen Strahl, der 3 m weit reicht"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-lens-beam-link/program.bw",
+      "circuit": "lab-lens-beam-link/circuit.json",
+      "expected": "lab-lens-beam-link/EXPECTED.md",
+      "intro": "lab-lens-beam-link/intro.md",
+      "introDE": "lab-lens-beam-link/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-pll-light-gate",
+    "title": {
+      "en": "Light barrier with a pulsed beam: the PLL oscillator raises the alarm",
+      "de": "Lichtschranke mit gepulstem Strahl: Der PLL-Oszillator schlägt Alarm"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-pll-light-gate/program.bw",
+      "circuit": "lab-pll-light-gate/circuit.json",
+      "expected": "lab-pll-light-gate/EXPECTED.md",
+      "intro": "lab-pll-light-gate/intro.md",
+      "introDE": "lab-pll-light-gate/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-ruler-scale",
+    "title": {
+      "en": "A scale from a ruler, a magnet and a Hall sensor",
+      "de": "Eine Waage aus Lineal, Magnet und Hallsensor"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-ruler-scale/program.bw",
+      "circuit": "lab-ruler-scale/circuit.json",
+      "expected": "lab-ruler-scale/EXPECTED.md",
+      "intro": "lab-ruler-scale/intro.md",
+      "introDE": "lab-ruler-scale/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-pll-hygrometer",
+    "title": {
+      "en": "Humidity made audible, and a hygrometer bridge",
+      "de": "Feuchte hörbar gemacht, und eine Hygrometer-Brücke"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-pll-hygrometer/program.bw",
+      "circuit": "lab-pll-hygrometer/circuit.json",
+      "expected": "lab-pll-hygrometer/EXPECTED.md",
+      "intro": "lab-pll-hygrometer/intro.md",
+      "introDE": "lab-pll-hygrometer/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-ptc-bridge",
+    "title": {
+      "en": "A silicon PTC sensor in a bridge: meter and warm/cold LEDs",
+      "de": "Ein Silizium-PTC-Fühler in einer Brücke: Messgerät und Warm/Kalt-LEDs"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-ptc-bridge/program.bw",
+      "circuit": "lab-ptc-bridge/circuit.json",
+      "expected": "lab-ptc-bridge/EXPECTED.md",
+      "intro": "lab-ptc-bridge/intro.md",
+      "introDE": "lab-ptc-bridge/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-ptc-tone-bridge",
+    "title": {
+      "en": "A tone bridge: the earphone falls silent at balance",
+      "de": "Eine Tonbrücke: Der Ohrhörer verstummt beim Abgleich"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-ptc-tone-bridge/program.bw",
+      "circuit": "lab-ptc-tone-bridge/circuit.json",
+      "expected": "lab-ptc-tone-bridge/EXPECTED.md",
+      "intro": "lab-ptc-tone-bridge/intro.md",
+      "introDE": "lab-ptc-tone-bridge/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-ptc-alarm",
+    "title": {
+      "en": "Temperature alarm with two thresholds: rising or falling",
+      "de": "Temperaturalarm mit zwei Schwellen: steigend oder fallend"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-ptc-alarm/program.bw",
+      "circuit": "lab-ptc-alarm/circuit.json",
+      "expected": "lab-ptc-alarm/EXPECTED.md",
+      "intro": "lab-ptc-alarm/intro.md",
+      "introDE": "lab-ptc-alarm/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-ptc-fibre-alarm",
+    "title": {
+      "en": "A temperature limit alarm sent through a light guide",
+      "de": "Ein Temperatur-Grenzalarm über einen Lichtleiter"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-ptc-fibre-alarm/program.bw",
+      "circuit": "lab-ptc-fibre-alarm/circuit.json",
+      "expected": "lab-ptc-fibre-alarm/EXPECTED.md",
+      "intro": "lab-ptc-fibre-alarm/intro.md",
+      "introDE": "lab-ptc-fibre-alarm/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-ptc-thermometer",
+    "title": {
+      "en": "A thermometer for 15 to 25 °C across the whole dial",
+      "de": "Ein Thermometer für 15 bis 25 °C über die ganze Skala"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-ptc-thermometer/program.bw",
+      "circuit": "lab-ptc-thermometer/circuit.json",
+      "expected": "lab-ptc-thermometer/EXPECTED.md",
+      "intro": "lab-ptc-thermometer/intro.md",
+      "introDE": "lab-ptc-thermometer/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-abs-alarm",
+    "title": {
+      "en": "ABS model: a wheel that stops turning sounds a warning",
+      "de": "ABS-Modell: Ein Rad, das stehen bleibt, löst eine Warnung aus"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-abs-alarm/program.bw",
+      "circuit": "lab-abs-alarm/circuit.json",
+      "expected": "lab-abs-alarm/EXPECTED.md",
+      "intro": "lab-abs-alarm/intro.md",
+      "introDE": "lab-abs-alarm/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-hall-tacho",
+    "title": {
+      "en": "Contactless tachometer and speed regulation",
+      "de": "Berührungsloser Drehzahlmesser und Drehzahlregelung"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-hall-tacho/program.bw",
+      "circuit": "lab-hall-tacho/circuit.json",
+      "expected": "lab-hall-tacho/EXPECTED.md",
+      "intro": "lab-hall-tacho/intro.md",
+      "introDE": "lab-hall-tacho/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-brake-light-check",
+    "title": {
+      "en": "Brake-light check: a latch remembers a dark brake lamp",
+      "de": "Bremslichtkontrolle: Ein Speicher merkt sich eine dunkle Bremsleuchte"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-brake-light-check/program.bw",
+      "circuit": "lab-brake-light-check/circuit.json",
+      "expected": "lab-brake-light-check/EXPECTED.md",
+      "intro": "lab-brake-light-check/intro.md",
+      "introDE": "lab-brake-light-check/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-motor-throttle",
+    "title": {
+      "en": "A magnet as throttle, and a soft start for the motor",
+      "de": "Ein Magnet als Gashebel und ein Sanftanlauf für den Motor"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-motor-throttle/program.bw",
+      "circuit": "lab-motor-throttle/circuit.json",
+      "expected": "lab-motor-throttle/EXPECTED.md",
+      "intro": "lab-motor-throttle/intro.md",
+      "introDE": "lab-motor-throttle/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-motor-stall-cutout",
+    "title": {
+      "en": "A stalled motor switches its own drive off",
+      "de": "Ein blockierter Motor schaltet seinen Antrieb selbst ab"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-motor-stall-cutout/program.bw",
+      "circuit": "lab-motor-stall-cutout/circuit.json",
+      "expected": "lab-motor-stall-cutout/EXPECTED.md",
+      "intro": "lab-motor-stall-cutout/intro.md",
+      "introDE": "lab-motor-stall-cutout/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-magnet-code-lock",
+    "title": {
+      "en": "A magnetic code lock: three quick north passes",
+      "de": "Ein magnetisches Codeschloss: drei schnelle Nordpol-Durchgänge"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-magnet-code-lock/program.bw",
+      "circuit": "lab-magnet-code-lock/circuit.json",
+      "expected": "lab-magnet-code-lock/EXPECTED.md",
+      "intro": "lab-magnet-code-lock/intro.md",
+      "introDE": "lab-magnet-code-lock/intro.de.md"
+    }
   }
 ]

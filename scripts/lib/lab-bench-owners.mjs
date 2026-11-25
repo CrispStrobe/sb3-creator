@@ -12,6 +12,7 @@ import { BENCHES as SET8 } from './lab-benches-8.mjs';
 import { BENCHES as SET_OPTICS } from './lab-benches-optics.mjs';
 import { BENCHES as SET_FIELDS } from './lab-benches-fields.mjs';
 import { BENCHES as SET_RF } from './lab-benches-rf.mjs';
+import { BENCHES as SET_R6F } from './lab-benches-r6f.mjs';
 import { BENCHES as SET_R6E } from './lab-benches-r6e.mjs';
 import { BENCHES as SET_R6B } from './lab-benches-r6b.mjs';
 import { BENCHES as SET_R6C } from './lab-benches-r6c.mjs';
@@ -36,6 +37,7 @@ export const BATCH2_BENCHES = Object.freeze([
 export const CIRCUITS4_BENCHES = Object.freeze({
     4: Object.keys(SET4), 5: Object.keys(SET5), 6: Object.keys(SET6), 8: Object.keys(SET8), optics: Object.keys(SET_OPTICS),
     fields: Object.keys(SET_FIELDS), rf: Object.keys(SET_RF),
+    r6f: Object.keys(SET_R6F),
     r6e: Object.keys(SET_R6E),
     r6b: Object.keys(SET_R6B),
     r6c: Object.keys(SET_R6C),
