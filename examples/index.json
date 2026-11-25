@@ -16744,5 +16744,90 @@
       "intro": "lab-ir-reflect-alarm/intro.md",
       "introDE": "lab-ir-reflect-alarm/intro.de.md"
     }
+  },
+  {
+    "id": "lab-mosfet-tone-key",
+    "title": {
+      "en": "A tone switched by static charge",
+      "de": "Ein Ton, geschaltet durch statische Ladung"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-mosfet-tone-key/program.bw",
+      "circuit": "lab-mosfet-tone-key/circuit.json",
+      "expected": "lab-mosfet-tone-key/EXPECTED.md",
+      "intro": "lab-mosfet-tone-key/intro.md",
+      "introDE": "lab-mosfet-tone-key/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-door-chime",
+    "title": {
+      "en": "Shop-door chime",
+      "de": "Ladentür-Gong"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-door-chime/program.bw",
+      "circuit": "lab-door-chime/circuit.json",
+      "expected": "lab-door-chime/EXPECTED.md",
+      "intro": "lab-door-chime/intro.md",
+      "introDE": "lab-door-chime/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-amp-supply-decoupling",
+    "title": {
+      "en": "Howl and hum through the supply",
+      "de": "Heulen und Brummen über die Versorgung"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-amp-supply-decoupling/program.bw",
+      "circuit": "lab-amp-supply-decoupling/circuit.json",
+      "expected": "lab-amp-supply-decoupling/EXPECTED.md",
+      "intro": "lab-amp-supply-decoupling/intro.md",
+      "introDE": "lab-amp-supply-decoupling/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-amp-schmitt-sweep",
+    "title": {
+      "en": "The amplifier as a Schmitt trigger",
+      "de": "Der Verstärker als Schmitt-Trigger"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-amp-schmitt-sweep/program.bw",
+      "circuit": "lab-amp-schmitt-sweep/circuit.json",
+      "expected": "lab-amp-schmitt-sweep/EXPECTED.md",
+      "intro": "lab-amp-schmitt-sweep/intro.md",
+      "introDE": "lab-amp-schmitt-sweep/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-amp-dc-gain",
+    "title": {
+      "en": "DC gain of the amplifier chip",
+      "de": "Gleichspannungsverstärkung des Verstärker-Chips"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-amp-dc-gain/program.bw",
+      "circuit": "lab-amp-dc-gain/circuit.json",
+      "expected": "lab-amp-dc-gain/EXPECTED.md",
+      "intro": "lab-amp-dc-gain/intro.md",
+      "introDE": "lab-amp-dc-gain/intro.de.md"
+    }
   }
 ]
