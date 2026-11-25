@@ -10,7 +10,7 @@ Klicke auf **Sim** und drehe den Drehknopf des Dipols. Beobachte das Messgerät 
 
 ## Was du sehen solltest
 
-- Bei 0° zeigt das Messgerät am meisten (etwa 16 mV): der Dipol liegt quer zur Richtung des Senders.
+- Bei 0° zeigt das Messgerät am meisten: der Dipol liegt quer zur Richtung des Senders.
 - Bei 45° weniger; bei 90° — der Dipol zeigt auf den Sender — gar nichts.
 - Bei 180° dasselbe wie bei 0°: hinten empfängt er so gut wie vorne.
 

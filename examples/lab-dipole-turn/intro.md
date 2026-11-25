@@ -10,7 +10,7 @@ Click **Sim** and turn the dipole's dial. Watch the meter, and probe the top of 
 
 ## What you should see
 
-- At 0° the meter reads its most (about 16 mV): the dipole lies across the station's direction.
+- At 0° the meter reads its most: the dipole lies across the station's direction.
 - At 45° less; at 90° — the dipole points at the station — nothing at all.
 - At 180° the same as at 0°: the back is as good as the front.
 
