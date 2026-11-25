@@ -7,7 +7,7 @@ of this claim and the relevant consumer ownership contracts. No word, native
 operation, default admission, reference kind or dependency pin changes here.
 
 The consumer contracts are collected in
-[Brickwright Lite PR954](https://github.com/CrispStrobe/brickwright-lite/pull/954).
+[Brickwright Lite PR954](https://github.com/CrispStrobe/brickwright/pull/954).
 Canonical parser/schema/decompiler work belongs in this repository; native
 ownership, source/current-project proof, runtime algorithms and authoring UI
 belong in Lite. Neither side substitutes for the other's qualification.

@@ -1,6 +1,6 @@
 # Arcade inspection value word
 
-The consumer contract is the merged [Lite inspection lane](https://github.com/CrispStrobe/brickwright-lite/pull/942).
+The consumer contract is the merged [Lite inspection lane](https://github.com/CrispStrobe/brickwright/pull/942).
 This supplier adds one canonical reporter:
 
 ```text
