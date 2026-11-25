@@ -184,6 +184,8 @@ test('the eight CP5 channels have distinct switch, pull-up, driver and current-l
 
 test('CP1 gallery entries link the actual sources and declared machine terminals without a ROM', () => {
     const index = JSON.parse(readFileSync(new URL('../examples/index.json', import.meta.url), 'utf8'));
+    const enrolled = index.filter(entry => entry.target === 'kosmos-cp1' && entry.files?.cp1);
+    assert.deepEqual(enrolled.map(entry => entry.id).sort(), Object.keys(CP1_EXAMPLES).sort());
     for (const name of Object.keys(CP1_EXAMPLES)) {
         const entry = index.find(item => item.id === name);
         assert.ok(entry, `${name} is reachable from the gallery`);
@@ -221,7 +223,8 @@ test('the CP1 trail connects every mapped section and advanced activity to an or
     }
     assert.equal(curriculumPrograms.filter(program => program.sections.length).length, 35);
     const advanced = trail.chapters.at(-1).stations.map(station => station.example).sort();
-    assert.deepEqual(advanced, ['cp1-cp2-sample-logger', 'cp1-edge-trigger-capture', 'cp1-fixed-point-filter',
+    assert.deepEqual(advanced, ['cp1-cp2-sample-logger', 'cp1-cp4-relay-bank', 'cp1-cp4-relay-signals',
+        'cp1-edge-trigger-capture', 'cp1-fixed-point-filter',
         'cp1-serial-receive', 'cp1-serial-transmit']);
     for (const id of advanced) assert.ok(CP1_EXAMPLES[id]);
 });

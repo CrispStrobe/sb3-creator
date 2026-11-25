@@ -1,23 +1,23 @@
 {
   "note": "Which gates enrol which example, computed from scripts/lib/example-enrolment.mjs. A diff here is a change in COVERAGE — read it before regenerating.",
   "measuredOn": "2026-11-25",
-  "examples": 770,
+  "examples": 772,
   "gates": {
-    "gallery": 700,
-    "example-kind-matches-content": 770,
-    "index-metadata-matches-disk": 770,
+    "gallery": 702,
+    "example-kind-matches-content": 772,
+    "index-metadata-matches-disk": 772,
     "retarget-gallery": 66,
     "retarget-amplification": 66,
     "gen-device-benches": 148,
-    "example-corpus-contract": 402,
+    "example-corpus-contract": 404,
     "assert-physics": 634,
     "debug-micropython": 10,
     "debug-trace-audit": 18,
-    "circuit-params-are-read": 738,
-    "program-reads-what-it-writes": 696,
+    "circuit-params-are-read": 740,
+    "program-reads-what-it-writes": 698,
     "vm-and-c-agree-on-arithmetic": 168,
     "documented-tables-are-derived": 4,
-    "vm": 700,
+    "vm": 702,
     "simulator-driver-controls-respond": 44,
     "school-circuit-projects": 3,
     "gallery-e2e": 27
@@ -6745,6 +6745,24 @@
       "vm"
     ],
     "cp1-blink": [
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "cp1-cp4-relay-signals": [
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "cp1-cp4-relay-bank": [
       "circuit-params-are-read",
       "example-corpus-contract",
       "example-kind-matches-content",

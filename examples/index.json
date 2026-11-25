@@ -15219,6 +15219,46 @@
   "devices": []
  },
  {
+  "id": "cp1-cp4-relay-signals",
+  "title": {
+   "en": "CP1: CP4 relay signals",
+   "de": "CP1: Signale mit CP4-Relais"
+  },
+  "category": "digital",
+  "difficulty": 2,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-cp4-relay-signals/program.bw",
+   "cp1": "cp1-cp4-relay-signals/program.cp1",
+   "circuit": "cp1-cp4-relay-signals/circuit.json",
+   "intro": "cp1-cp4-relay-signals/intro.md",
+   "introDE": "cp1-cp4-relay-signals/intro.de.md",
+   "expected": "cp1-cp4-relay-signals/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-cp4-relay-bank",
+  "title": {
+   "en": "CP1: Eight-channel CP4 relay bank",
+   "de": "CP1: CP4-Relaisbank mit acht Kanälen"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-cp4-relay-bank/program.bw",
+   "cp1": "cp1-cp4-relay-bank/program.cp1",
+   "circuit": "cp1-cp4-relay-bank/circuit.json",
+   "intro": "cp1-cp4-relay-bank/intro.md",
+   "introDE": "cp1-cp4-relay-bank/intro.de.md",
+   "expected": "cp1-cp4-relay-bank/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
   "id": "cp1-cp5-binary",
   "title": {
    "en": "CP1: CP5-style binary workbench",

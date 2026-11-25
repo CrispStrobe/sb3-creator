@@ -25,7 +25,7 @@ The channel numbers count from 1, while circuit terminals count from 0:
 
 ## Start with a deliberate output state
 
-1. Import your own compatible 2048-byte CP1 monitor ROM. Use **Run CPU** until the monitor reaches its stable ready display. The original CP5 manual describes all LEDs on after monitor startup because the computer initializes its outputs high. This is a firmware startup observation, not a promise about every raw reset instant or an unknown ROM.
+1. Choose **Use Brickwright monitor** or import a compatible 2048-byte CP1 monitor ROM. Use **Run CPU** until the monitor reaches its stable ready display. The original CP5 manual describes all LEDs on after monitor startup because the computer initializes its outputs high. This is a firmware startup observation, not a promise about every raw reset instant or an unknown ROM.
 2. Pause the CPU and load `program.cp1`. Resume without resetting: monitor initialization can clear teaching-program memory. On the original keypad enter **0, 0, 0, PC, RUN**.
 3. The program first writes zero to the whole output port and requests a 200 ms settling delay. The supplied circuit starts with every switch closed, so the repeated samples then keep the LEDs off and show `A00.000`.
 4. Open the **Instruments** panel and use its **Switches** buttons to open switches 1, 3, 6 and 8. Each button reports the live contact as **Open** or **Closed**. Predict `1 + 4 + 32 + 128 = 165`. After the next sample, LEDs 1, 3, 6 and 8 light and the display shows `A00.165`. Cell 32 holds `00.165`, the last sampled byte.

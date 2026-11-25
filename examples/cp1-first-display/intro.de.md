@@ -6,12 +6,12 @@ teaches: [cp1-cells, cp1-accumulator, seven-segment-display]
 ---
 ## Eine Zahl zum Nachverfolgen
 
-Dieses neu geschriebene Programm hat drei Zellen: `AKO 42` lädt eine Konstante, `ANZ` lässt die CP1-Firmware den Akkumulator anzeigen und `SPU display` springt zum Anzeigebefehl zurück. Die Wiederholung hält das Ergebnis sichtbar. Importiere vor dem Start ein eigenes kompatibles CP1-Monitor-ROM mit 2 KB. Dieses Beispiel enthält kein ROM.
+Dieses neu geschriebene Programm hat drei Zellen: `AKO 42` lädt eine Konstante, `ANZ` lässt die CP1-Firmware den Akkumulator anzeigen und `SPU display` springt zum Anzeigebefehl zurück. Die Wiederholung hält das Ergebnis sichtbar. Wähle im Debugger oder in Widgets **Brickwright-Monitor verwenden**. Du kannst auch ein kompatibles Monitor-ROM mit 2 KB importieren.
 
 ## Ausprobieren
 
 1. Vergleiche Quelle und Dezimallisting: `04.042`, `02.000`, `09.001`. Jede Zelle enthält ein Befehlsbyte und ein Operandenbyte. Der Punkt trennt beide Werte; er ist kein Dezimalzeichen.
-2. Lass nach dem ROM-Import die CPU mit „CPU ausführen“ bis zur stabilen Bereitschaftsanzeige des Monitors laufen. Pausiere die CPU, lade die Zellen und setze die CPU ohne Zurücksetzen fort. Wähle auf der CP1-Tastatur mit PC die Zelle 0 und starte das Lernprogramm mit RUN.
+2. Lass nach der Monitorauswahl die CPU mit „CPU ausführen“ bis zur stabilen Bereitschaftsanzeige des Monitors laufen. Pausiere die CPU, lade die Zellen und setze die CPU ohne Zurücksetzen fort. Wähle auf der CP1-Tastatur mit PC die Zelle 0 und starte das Lernprogramm mit RUN.
 3. Lies die sechs Segmentanzeigen ab, nachdem die Firmware sie angesteuert hat. Vergleiche den sichtbaren Wert mit 42. Lässt sich ein Muster nicht als Ziffer lesen, notiere das tatsächliche Muster, statt eine Zahl zu raten.
 4. Halte die Schleife mit STP auf der Tastatur an und pausiere die CPU. Ändere `VALUE` auf 73, lade erneut und setze die CPU ohne Zurücksetzen fort. Wähle dann mit PC auf der Tastatur Zelle 0 und drücke RUN. Vergleiche die RAM-Zellen vor und nach der Änderung.
 

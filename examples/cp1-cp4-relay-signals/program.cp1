@@ -1,0 +1,24 @@
+; A request shows two signals in sequence. Opening the switch rearms it.
+ORG 0
+start:  AKO 0
+        P2A 0
+wait:   P1E 1
+        VGL closed
+        SPB entry
+        SPU wait
+entry:  AKO 1
+        P2A 0
+        ANZ
+        VZG 200
+exit:   AKO 2
+        P2A 0
+        ANZ
+        VZG 200
+        AKO 0
+        P2A 0
+        ANZ
+rearm:  P1E 1
+        VGL closed
+        SPB rearm
+        SPU wait
+closed: DATA 0
