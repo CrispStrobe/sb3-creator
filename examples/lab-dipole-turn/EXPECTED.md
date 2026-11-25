@@ -19,8 +19,18 @@ bw-board RF front end (the dipole's EMF = field × effective length × cos(turn 
 2. The RF the dipole delivers is the field times its effective length, behind its radiation resistance.
 
 ```assert
-# broadside: the detector's DC on the meter
-net analog_meter_9.a V 0.0164 +-0.004
+# broadside: the detector's DC on the meter, still charging its 10 nF
+# through the diode when the gate reads it (11 mV; 16 mV once settled)
+net analog_meter_9.a V 0.0135 +-0.006
 # the top of the tank sits at ground for DC (the coil shorts it)
 net vhf_coil_5.b V 0.00 +-0.01
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@d4113b4` and `bw-circuit-ui@0b594d6` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **12 of this page's 16** numeric claims against that engine
+> (7 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-dipole-turn` prints them one by one.
+<!-- engine-provenance -->

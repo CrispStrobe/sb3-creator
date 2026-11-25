@@ -57,12 +57,16 @@ describe('lab VHF bench (set r7vhf) behaves as documented', { skip: SKIP }, () =
             return { tank: x.rf('l', 'b'), meter: x.meter('meter') };
         };
         const r0 = at(0), r45 = at(0.125), r90 = at(0.25), r180 = at(0.5);
-        // MEASURED 2026-11-25: tank 0.0797 / 0.0564 / 0 / 0.0797 V peak; meter 16.4 / 8.5 / 0 / 16.4 mV.
+        // Tank 0.0797 / 0.0564 / 0 / 0.0797 V peak; meter 16.4 / 8.5 / 0 / 16.4 mV.
+        // MEASURED 2026-11-25: r0.tank > 0.05 -> observed 0.0797.
         assert.ok(r0.tank > 0.05, `broadside: the tank swings ${r0.tank.toFixed(4)} V`);
+        // MEASURED 2026-11-25: Math.abs(r45.tank / r0.tank - Math.SQRT1_2) < 0.02 -> observed 0.0004.
         assert.ok(Math.abs(r45.tank / r0.tank - Math.SQRT1_2) < 0.02, `45°: cos 45° of it (${(r45.tank / r0.tank).toFixed(3)})`);
+        // MEASURED 2026-11-25: r90.tank < r0.tank * 1e-3 -> observed 0.
         assert.ok(r90.tank < r0.tank * 1e-3, `end-on: nothing (${r90.tank.toExponential(2)} V)`);
+        // MEASURED 2026-11-25: Math.abs(r180.tank / r0.tank - 1) < 0.01 -> observed 0.0000.
         assert.ok(Math.abs(r180.tank / r0.tank - 1) < 0.01, `turned half round: the same again (${(r180.tank / r0.tank).toFixed(4)})`);
-        // MEASURED 2026-11-25: meter at 0° -> observed 0.0164 V.
+        // MEASURED 2026-11-25: r0.meter > 0.01, r0.meter > 1.5 * r45.meter, r90.meter < 0.001 -> observed 0.0164, 0.0085, 0.
         assert.ok(r0.meter > 0.01 && r0.meter > 1.5 * r45.meter && r90.meter < 0.001, `the meter: ${r0.meter}, ${r45.meter}, ${r90.meter} V`);
     });
 });
