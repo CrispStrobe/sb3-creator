@@ -306,6 +306,14 @@ const KNOWN_INERT = new Map([
     ['speaker.ringOffS', 'BLIND SPOT: the pause after the first 1 s burst; the probe never leaves the first burst (see ringOnS). lab-circuits-8 runs the cadence for seconds.'],
     ['thermocouple.ohms', 'BLIND SPOT: lab-thermocouple feeds the junction straight into an LM358 input, which draws no current, so the series resistance drops nothing. Read whenever the thermocouple drives a load.'],
     ['ds18b20.temperature', 'BLIND SPOT: read when a READ SCRATCHPAD follows a conversion; the probe drives no 1-Wire. chain-sensors moves it.'],
+    // Round-6 r6e benches (2026-11-24). Each key is read by bw-board but only
+    // acts on an event or a ramp the static probe never produces.
+    ['button.bounceMs', 'BLIND SPOT: bw-board BoardImpl schedules bounce events only when a button\'s control CHANGES; the probe never presses lab-bounce-counter\'s buttons. test/lab-circuits-r6e.test.mjs presses them and counts 4 + 3 edges (bouncy) against 1 (debounced).'],
+    ['button.bounces', 'BLIND SPOT: as button.bounceMs — the number of reversals after a press the probe never makes.'],
+    ['button.bounceSeed', 'BLIND SPOT: as button.bounceMs — the seed of the reversal times after a press the probe never makes.'],
+    ['light_path.combCm', 'BLIND SPOT: combCm is the jet medium\'s knob, so the light path\'s control (authored at rest, the comb 20 cm away) overrides the param; at 20 cm the jet does not bend in either direction. test/lab-circuits-r6e.test.mjs turns the knob to 1 cm and BEAM lights (6.98 mA).'],
+    ['npn.thermalCoupling', 'BLIND SPOT: lab-resistor-heating\'s thermometer transistors take a share of their resistor\'s RISE, and the resistors warm with a 1 s time constant: within the probe\'s 20 ms nothing has risen to share. test/lab-circuits-r6e.test.mjs heats for 3.5 s and lights the HOT LED.'],
+    ['spark_gap.gapMm', 'BLIND SPOT: the gap sets the breakdown voltage (4.35 kV at 1 mm), and lab-comb-jet-spark\'s comb is resting (no charging current) as authored, so no voltage ever reaches the gap in the probe window. test/lab-circuits-r6e.test.mjs combs for a second and counts sparks 430 ms apart.'],
 ]);
 
 describe('circuit params, tier 2: the key moves a real bench', { skip: SKIP }, () => {

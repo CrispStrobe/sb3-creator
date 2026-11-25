@@ -13424,5 +13424,401 @@
       "introDE": "lab-amp-ic-chirp/intro.de.md"
     },
     "devices": []
+  },
+  {
+    "id": "lab-opamp-crossing",
+    "title": {
+      "en": "Level-crossing lights from one op-amp",
+      "de": "Bahnübergang-Blinklicht mit einem Operationsverstärker"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-opamp-crossing/program.bw",
+      "circuit": "lab-opamp-crossing/circuit.json",
+      "expected": "lab-opamp-crossing/EXPECTED.md",
+      "intro": "lab-opamp-crossing/intro.md",
+      "introDE": "lab-opamp-crossing/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-opamp-touch-latch",
+    "title": {
+      "en": "Touch plates set and reset an op-amp latch",
+      "de": "Berührungsflächen setzen und löschen einen OPV-Speicher"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-opamp-touch-latch/program.bw",
+      "circuit": "lab-opamp-touch-latch/circuit.json",
+      "expected": "lab-opamp-touch-latch/EXPECTED.md",
+      "intro": "lab-opamp-touch-latch/intro.md",
+      "introDE": "lab-opamp-touch-latch/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-opamp-click-whistle",
+    "title": {
+      "en": "From clicks to a whistle: an op-amp astable in a loudspeaker",
+      "de": "Vom Knacken zum Pfeifen: ein OPV-Multivibrator im Lautsprecher"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-opamp-click-whistle/program.bw",
+      "circuit": "lab-opamp-click-whistle/circuit.json",
+      "expected": "lab-opamp-click-whistle/EXPECTED.md",
+      "intro": "lab-opamp-click-whistle/intro.md",
+      "introDE": "lab-opamp-click-whistle/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-resistor-heating",
+    "title": {
+      "en": "A resistor heats up: the power limit is a curve",
+      "de": "Ein Widerstand wird heiß: die Leistungsgrenze ist eine Kurve"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-resistor-heating/program.bw",
+      "circuit": "lab-resistor-heating/circuit.json",
+      "expected": "lab-resistor-heating/EXPECTED.md",
+      "intro": "lab-resistor-heating/intro.md",
+      "introDE": "lab-resistor-heating/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-ammeter-overload",
+    "title": {
+      "en": "Electronic ammeter to 1 A with an overload tone",
+      "de": "Elektronischer Strommesser bis 1 A mit Überlast-Ton"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-ammeter-overload/program.bw",
+      "circuit": "lab-ammeter-overload/circuit.json",
+      "expected": "lab-ammeter-overload/EXPECTED.md",
+      "intro": "lab-ammeter-overload/intro.md",
+      "introDE": "lab-ammeter-overload/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-opamp-adder-subtractor",
+    "title": {
+      "en": "An op-amp adder and subtractor with two knobs",
+      "de": "Addierer und Subtrahierer mit Operationsverstärkern und zwei Knöpfen"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-opamp-adder-subtractor/program.bw",
+      "circuit": "lab-opamp-adder-subtractor/circuit.json",
+      "expected": "lab-opamp-adder-subtractor/EXPECTED.md",
+      "intro": "lab-opamp-adder-subtractor/intro.md",
+      "introDE": "lab-opamp-adder-subtractor/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-amp-configurations",
+    "title": {
+      "en": "Common emitter, common collector, common base side by side",
+      "de": "Emitter-, Kollektor- und Basisschaltung nebeneinander"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-amp-configurations/program.bw",
+      "circuit": "lab-amp-configurations/circuit.json",
+      "expected": "lab-amp-configurations/EXPECTED.md",
+      "intro": "lab-amp-configurations/intro.md",
+      "introDE": "lab-amp-configurations/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-hartley-oscillator",
+    "title": {
+      "en": "A tapped coil makes a Hartley oscillator",
+      "de": "Eine Spule mit Anzapfung macht einen Hartley-Oszillator"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 4,
+    "files": {
+      "program": "lab-hartley-oscillator/program.bw",
+      "circuit": "lab-hartley-oscillator/circuit.json",
+      "expected": "lab-hartley-oscillator/EXPECTED.md",
+      "intro": "lab-hartley-oscillator/intro.md",
+      "introDE": "lab-hartley-oscillator/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-transistor-phase-shift",
+    "title": {
+      "en": "A phase-shift oscillator from a single transistor",
+      "de": "Ein Phasenschieber-Oszillator mit nur einem Transistor"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-transistor-phase-shift/program.bw",
+      "circuit": "lab-transistor-phase-shift/circuit.json",
+      "expected": "lab-transistor-phase-shift/EXPECTED.md",
+      "intro": "lab-transistor-phase-shift/intro.md",
+      "introDE": "lab-transistor-phase-shift/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-ac-voltmeter",
+    "title": {
+      "en": "Precision AC voltmeter: average against peak",
+      "de": "Präzisions-Wechselspannungsmesser: Mittelwert gegen Spitzenwert"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 4,
+    "files": {
+      "program": "lab-ac-voltmeter/program.bw",
+      "circuit": "lab-ac-voltmeter/circuit.json",
+      "expected": "lab-ac-voltmeter/EXPECTED.md",
+      "intro": "lab-ac-voltmeter/intro.md",
+      "introDE": "lab-ac-voltmeter/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-opamp-flash-adc",
+    "title": {
+      "en": "Two-bit analogue-to-digital converter with op-amps and one transistor",
+      "de": "Zwei-Bit-Analog-Digital-Wandler mit Operationsverstärkern und einem Transistor"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-opamp-flash-adc/program.bw",
+      "circuit": "lab-opamp-flash-adc/circuit.json",
+      "expected": "lab-opamp-flash-adc/EXPECTED.md",
+      "intro": "lab-opamp-flash-adc/intro.md",
+      "introDE": "lab-opamp-flash-adc/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-log-roots",
+    "title": {
+      "en": "Square and cube roots with logarithmic amplifiers",
+      "de": "Quadrat- und Kubikwurzel mit Logarithmierverstärkern"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 5,
+    "files": {
+      "program": "lab-log-roots/program.bw",
+      "circuit": "lab-log-roots/circuit.json",
+      "expected": "lab-log-roots/EXPECTED.md",
+      "intro": "lab-log-roots/intro.md",
+      "introDE": "lab-log-roots/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-opamp-binary-counter",
+    "title": {
+      "en": "A two-bit counter clocked by an op-amp",
+      "de": "Ein Zwei-Bit-Zähler mit Operationsverstärker-Takt"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 4,
+    "files": {
+      "program": "lab-opamp-binary-counter/program.bw",
+      "circuit": "lab-opamp-binary-counter/circuit.json",
+      "expected": "lab-opamp-binary-counter/EXPECTED.md",
+      "intro": "lab-opamp-binary-counter/intro.md",
+      "introDE": "lab-opamp-binary-counter/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-tone-control",
+    "title": {
+      "en": "Active bass and treble control",
+      "de": "Aktive Bass- und Höhenregelung"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 4,
+    "files": {
+      "program": "lab-tone-control/program.bw",
+      "circuit": "lab-tone-control/circuit.json",
+      "expected": "lab-tone-control/EXPECTED.md",
+      "intro": "lab-tone-control/intro.md",
+      "introDE": "lab-tone-control/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-siren-canary",
+    "title": {
+      "en": "Siren and canary: a slow ramp sweeps a tone",
+      "de": "Sirene und Kanarienvogel: eine langsame Rampe verschiebt einen Ton"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 4,
+    "files": {
+      "program": "lab-siren-canary/program.bw",
+      "circuit": "lab-siren-canary/circuit.json",
+      "expected": "lab-siren-canary/EXPECTED.md",
+      "intro": "lab-siren-canary/intro.md",
+      "introDE": "lab-siren-canary/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-transistor-thermometer",
+    "title": {
+      "en": "Transistor thermometer 0–100 °C with a relay thermostat",
+      "de": "Transistor-Thermometer 0–100 °C mit Relais-Thermostat"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 4,
+    "files": {
+      "program": "lab-transistor-thermometer/program.bw",
+      "circuit": "lab-transistor-thermometer/circuit.json",
+      "expected": "lab-transistor-thermometer/EXPECTED.md",
+      "intro": "lab-transistor-thermometer/intro.md",
+      "introDE": "lab-transistor-thermometer/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-two-tone-horn",
+    "title": {
+      "en": "Two-tone horn: a slow op-amp switches the pitch",
+      "de": "Zweiklanghorn: ein langsamer OPV schaltet die Tonhöhe um"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-two-tone-horn/program.bw",
+      "circuit": "lab-two-tone-horn/circuit.json",
+      "expected": "lab-two-tone-horn/EXPECTED.md",
+      "intro": "lab-two-tone-horn/intro.md",
+      "introDE": "lab-two-tone-horn/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-led-tester",
+    "title": {
+      "en": "LED-circuit tester: one tone for open, another for short",
+      "de": "LED-Kreis-Prüfer: ein Ton für Unterbrechung, ein anderer für Kurzschluss"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-led-tester/program.bw",
+      "circuit": "lab-led-tester/circuit.json",
+      "expected": "lab-led-tester/EXPECTED.md",
+      "intro": "lab-led-tester/intro.md",
+      "introDE": "lab-led-tester/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-moisture-beeper",
+    "title": {
+      "en": "Moisture alarm with light and tone",
+      "de": "Feuchtigkeitsmelder mit Licht und Ton"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-moisture-beeper/program.bw",
+      "circuit": "lab-moisture-beeper/circuit.json",
+      "expected": "lab-moisture-beeper/EXPECTED.md",
+      "intro": "lab-moisture-beeper/intro.md",
+      "introDE": "lab-moisture-beeper/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-voice-canceller",
+    "title": {
+      "en": "Voice canceller: left minus right",
+      "de": "Stimmen-Entferner: links minus rechts"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-voice-canceller/program.bw",
+      "circuit": "lab-voice-canceller/circuit.json",
+      "expected": "lab-voice-canceller/EXPECTED.md",
+      "intro": "lab-voice-canceller/intro.md",
+      "introDE": "lab-voice-canceller/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-bounce-counter",
+    "title": {
+      "en": "Contact bounce: a counter counts one press several times",
+      "de": "Kontaktprellen: ein Zähler zählt einen Tastendruck mehrfach"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-bounce-counter/program.bw",
+      "circuit": "lab-bounce-counter/circuit.json",
+      "expected": "lab-bounce-counter/EXPECTED.md",
+      "intro": "lab-bounce-counter/intro.md",
+      "introDE": "lab-bounce-counter/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-comb-jet-spark",
+    "title": {
+      "en": "A charged comb: a bending water jet and sparks",
+      "de": "Ein geladener Kamm: ein abgelenkter Wasserstrahl und Funken"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-comb-jet-spark/program.bw",
+      "circuit": "lab-comb-jet-spark/circuit.json",
+      "expected": "lab-comb-jet-spark/EXPECTED.md",
+      "intro": "lab-comb-jet-spark/intro.md",
+      "introDE": "lab-comb-jet-spark/intro.de.md"
+    },
+    "devices": []
   }
 ]
