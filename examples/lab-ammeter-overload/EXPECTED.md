@@ -36,9 +36,9 @@ net capacitor_20.a V 0.57 +-0.05
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@9de91e3` and `bw-circuit-ui@3084f35` — the revisions pinned in
+> `bw-board@e744ede` and `bw-circuit-ui@3084f35` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
-> **24 of this page's 28** numeric claims against that engine
+> **26 of this page's 31** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs lab-ammeter-overload` prints them one by one.
 <!-- engine-provenance -->
