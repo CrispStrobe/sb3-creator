@@ -12332,5 +12332,59 @@
    "introDE": "lab-npn-and-gate/intro.de.md"
   },
   "devices": []
+ },
+ {
+  "id": "lab-cable-tracer",
+  "title": {
+   "en": "Cable tracer: a coil hears magnetic fields",
+   "de": "Kabelsucher: Eine Spule hört Magnetfelder"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-cable-tracer/program.bw",
+   "circuit": "lab-cable-tracer/circuit.json",
+   "expected": "lab-cable-tracer/EXPECTED.md",
+   "intro": "lab-cable-tracer/intro.md",
+   "introDE": "lab-cable-tracer/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-pendulum-kick",
+  "title": {
+   "en": "A coil kicks a pendulum: resonance",
+   "de": "Eine Spule stößt ein Pendel an: Resonanz"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 3,
+  "files": {
+   "program": "lab-pendulum-kick/program.bw",
+   "circuit": "lab-pendulum-kick/circuit.json",
+   "expected": "lab-pendulum-kick/EXPECTED.md",
+   "intro": "lab-pendulum-kick/intro.md",
+   "introDE": "lab-pendulum-kick/intro.de.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "lab-wireless-click",
+  "title": {
+   "en": "A click without a wire",
+   "de": "Ein Klicken ohne Draht"
+  },
+  "kind": "circuit",
+  "category": "pure-circuit",
+  "difficulty": 2,
+  "files": {
+   "program": "lab-wireless-click/program.bw",
+   "circuit": "lab-wireless-click/circuit.json",
+   "expected": "lab-wireless-click/EXPECTED.md",
+   "intro": "lab-wireless-click/intro.md",
+   "introDE": "lab-wireless-click/intro.de.md"
+  },
+  "devices": []
  }
 ]
