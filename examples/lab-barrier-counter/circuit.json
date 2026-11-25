@@ -1377,15 +1377,15 @@
     {
       "ref": "bbw:breadboard_1_2:bbw_47",
       "boardId": "breadboard_1_2",
-      "a": "d8",
-      "b": "f20",
-      "color": "yellow"
+      "a": "g14",
+      "b": "e33",
+      "color": "green"
     },
     {
       "ref": "bbw:breadboard_1_2:bbw_48",
       "boardId": "breadboard_1_2",
-      "a": "g20",
-      "b": "e33",
+      "a": "d8",
+      "b": "f20",
       "color": "yellow"
     },
     {

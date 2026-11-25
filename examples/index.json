@@ -9250,8 +9250,8 @@
   {
     "id": "lab-barrier-counter",
     "title": {
-      "en": "Pulsed light barrier counter: relay after six",
-      "de": "Zähler an gepulster Lichtschranke: Relais nach sechs"
+      "en": "Pulsed light barrier counter: relay after five",
+      "de": "Zähler an gepulster Lichtschranke: Relais nach fünf"
     },
     "kind": "circuit",
     "category": "pure-circuit",

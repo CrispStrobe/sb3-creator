@@ -256,7 +256,7 @@ describe('lab counting benches behave as documented', { skip: SKIP }, () => {
         assert.ok(ear.on, 'the earphone sounds');
     });
 
-    test('lab-barrier-counter: every interruption of the pulsed beam counts; at 6 the relay pulls in and the count stops', () => {
+    test('lab-barrier-counter: every interruption of the pulsed beam counts; at 5 the relay pulls in and the count stops', () => {
         const x = bench('lab-barrier-counter');
         const count = () => x.bits('cnt', ['qc', 'qb', 'qa']);
         x.run(40);
@@ -266,18 +266,20 @@ describe('lab counting benches behave as documented', { skip: SKIP }, () => {
         const seen = [];
         // Blocked for 10 ms, clear for 18 ms: the receiver answers a break
         // within about 4 ms and a returning beam within about 10 ms.
-        for (let n = 1; n <= 7; n++) {
+        for (let n = 1; n <= 6; n++) {
             x.at('beam', 1); x.run(10);
             seen.push(count());
             x.at('beam', 0); x.run(18);
         }
-        assert.deepEqual(seen, ['001', '010', '011', '100', '101', '110', '110'], 'counts to 6, then holds');
+        assert.deepEqual(seen, ['001', '010', '011', '100', '101', '101'], 'counts to 5, then holds');
         near(x.mA('k', 'coil_a'), 24.4, 0.5, 'relay coil current');
         near(x.mA('rl'), 13.1, 0.5, 'lamp through the second pole');
         // MEASURED 2026-11-24 (bw-board eb3ec0a7): x.v('cnt', 'clk_a') < 0.1 -> observed 0.00.
         assert.ok(x.v('cnt', 'clk_a') < 0.1, 'first pole has cut the clock');
+        // Reset is taken at 5, with QA high: the clear must not leave a stale
+        // input-B edge behind that counts on release.
         x.set('clr', 1); x.run(10); x.set('clr', 0); x.run(20);
-        assert.equal(count(), '000', 'cleared');
+        assert.equal(count(), '000', 'cleared, no phantom count');
         // MEASURED 2026-11-24 (bw-board eb3ec0a7): x.mA('k', 'coil_a') < 0.1 -> observed 0.0.
         assert.ok(x.mA('k', 'coil_a') < 0.1, 'relay dropped out');
     });
