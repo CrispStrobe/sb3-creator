@@ -1,0 +1,22 @@
+ORG 10
+AKO 7
+ABS Remaining
+AKO 0
+ABS Total
+Check: LDA Remaining
+VGL Zero
+SPB Done
+ADD Total
+ABS Total
+LDA Remaining
+SUB One
+ABS Remaining
+SPU Check
+Done: LDA Total
+HLT 0
+
+ORG 30
+Remaining: DATA 0
+Total: DATA 0
+One: DATA 1
+Zero: DATA 0

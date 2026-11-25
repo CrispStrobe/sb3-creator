@@ -1,0 +1,56 @@
+ORG 0
+Entry: AKO 5
+ABS First
+AKO 2
+ABS Second
+AKO 0
+ABS Score
+ABS Round
+Question: LDA First
+ANZ 0
+VZG 200
+LDA Second
+ANZ 0
+VZG 200
+ADD First
+ABS Answer
+Request: P1E 0
+VGL Idle
+SPB Request
+VGL Answer
+SPB Right
+AKO 0
+P2A 1
+SPU Count
+Right: AKO 1
+P2A 1
+LDA Score
+ADD One
+ABS Score
+Count: LDA Round
+ADD One
+ABS Round
+VGL Three
+SPB Done
+LDA First
+ADD Two
+ABS First
+LDA Second
+ADD Three
+ABS Second
+Release: P1E 0
+VGL Idle
+SPB Question
+SPU Release
+Done: LDA Score
+ANZ 0
+HLT 0
+First: DATA 0
+Second: DATA 0
+Round: DATA 0
+Score: DATA 0
+Answer: DATA 0
+Idle: DATA 255
+One: DATA 1
+Two: DATA 2
+Three: DATA 3

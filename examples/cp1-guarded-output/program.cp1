@@ -1,0 +1,11 @@
+ORG 30
+P1E 7
+NEG 0
+ABS NotSeven
+P1E 2
+UND NotSeven
+P2A 5
+HLT 0
+
+ORG 46
+NotSeven: DATA 0

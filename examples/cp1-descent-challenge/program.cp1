@@ -1,0 +1,55 @@
+ORG 0
+Entry: AKO 15
+ABS Height
+AKO 2
+ABS Speed
+AKO 3
+ABS Fuel
+Request: P1E 0
+VGL Zero
+SPB Coast
+VGL One
+SPB Brake
+SPU Request
+Brake: LDA Fuel
+VGL Zero
+SPB Coast
+SUB One
+ABS Fuel
+LDA Speed
+VGL One
+SPB Move
+SUB One
+SPU Move
+Coast: LDA Speed
+ADD One
+Move: ABS Speed
+VKL Height
+SPB Fall
+AKO 0
+ABS Height
+LDA Speed
+VGR Safe
+SPB Hard
+AKO 1
+SPU Verdict
+Hard: AKO 2
+Verdict: ABS Result
+ANZ 0
+HLT 0
+Fall: LDA Height
+SUB Speed
+ABS Height
+ANZ 0
+Release: P1E 0
+VGL Idle
+SPB Request
+SPU Release
+Height: DATA 0
+Speed: DATA 0
+Fuel: DATA 0
+Result: DATA 0
+Zero: DATA 0
+One: DATA 1
+Safe: DATA 2
+Idle: DATA 255

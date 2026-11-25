@@ -1,0 +1,19 @@
+ORG 0
+Entry: P1E 0
+VGR Three
+SPB Blank
+ADD TableStart
+ABS Cursor
+LIA Cursor
+SPU Show
+Blank: AKO 0
+Show: P2A 0
+HLT 0
+Three: DATA 3
+TableStart: DATA 20
+Cursor: DATA 0
+ORG 20
+Masks: DATA 1
+DATA 4
+DATA 16
+DATA 64

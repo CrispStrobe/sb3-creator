@@ -1,0 +1,45 @@
+ORG 0
+Entry: AKO 0
+ABS SampleA
+ABS SampleB
+P2A 5
+First: P1E 2
+VGL Zero
+SPB Release
+LDA SampleA
+ADD One
+VKL Five
+SPB KeepA
+AKO 0
+KeepA: ABS SampleA
+VZG 45
+SPU First
+Release: P1E 2
+VGL One
+SPB Second
+SPU Release
+Second: P1E 5
+VGL Zero
+SPB Test
+LDA SampleB
+ADD One
+VKL Five
+SPB KeepB
+AKO 0
+KeepB: ABS SampleB
+VZG 45
+SPU Second
+Test: LDA SampleA
+VGL SampleB
+SPB Same
+AKO 0
+SPU Report
+Same: AKO 1
+Report: P2A 5
+ANZ 0
+HLT 0
+SampleA: DATA 0
+SampleB: DATA 0
+Zero: DATA 0
+One: DATA 1
+Five: DATA 5

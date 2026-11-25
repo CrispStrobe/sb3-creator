@@ -1,0 +1,39 @@
+ORG 0
+Entry: AKO 0
+ABS Used
+ABS Cost
+Request: P1E 0
+VGL Zero
+SPB Done
+VGL One
+SPB Base
+VGL Two
+SPB Peak
+SPU Request
+Base: LDA Cost
+ADD BaseRate
+SPU Charge
+Peak: LDA Cost
+ADD PeakRate
+Charge: ABS Cost
+ANZ 0
+LDA Used
+ADD One
+ABS Used
+VGL Limit
+SPB Done
+Release: P1E 0
+VGL Idle
+SPB Request
+SPU Release
+Done: LDA Cost
+HLT 0
+Used: DATA 0
+Cost: DATA 0
+Zero: DATA 0
+One: DATA 1
+Two: DATA 2
+Idle: DATA 255
+Limit: DATA 8
+BaseRate: DATA 7
+PeakRate: DATA 11

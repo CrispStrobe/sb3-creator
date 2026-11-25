@@ -1,0 +1,56 @@
+ORG 0
+Entry: AKO 0
+ABS Received
+ABS Count
+ABS Parity
+ABS Valid
+WaitStrobeLow: P1E 2
+VGL Zero
+SPB ReadBit
+SPU WaitStrobeLow
+ReadBit: P1E 1
+ABS Incoming
+VGL Zero
+SPB Fold
+LDA Parity
+NEG 0
+ABS Parity
+Fold: LDA Count
+VGL Eight
+SPB Ack
+LDA Received
+ADD Received
+ADD Incoming
+ABS Received
+Ack: AKO 0
+P2A 3
+WaitStrobeHigh: P1E 2
+VGL One
+SPB ReleaseAck
+SPU WaitStrobeHigh
+ReleaseAck: AKO 1
+P2A 3
+LDA Count
+VGL Eight
+SPB Check
+ADD One
+ABS Count
+SPU WaitStrobeLow
+Check: LDA Parity
+VGL Zero
+SPB Good
+AKO 0
+SPU Report
+Good: AKO 1
+ABS Valid
+LDA Received
+Report: ANZ 0
+HLT 0
+Received: DATA 0
+Count: DATA 0
+Parity: DATA 0
+Valid: DATA 0
+Incoming: DATA 0
+Zero: DATA 0
+One: DATA 1
+Eight: DATA 8

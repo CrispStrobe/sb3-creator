@@ -1,0 +1,150 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "cp1",
+      "kind": "kosmos-cp1",
+      "params": {
+        "expansion": false,
+        "clockHz": 6000000
+      },
+      "x": 210,
+      "y": 195
+    },
+    {
+      "id": "ground",
+      "kind": "gnd",
+      "params": {},
+      "x": 650,
+      "y": 540
+    },
+    {
+      "id": "pullup-p1-5",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "x": 440,
+      "y": 85
+    },
+    {
+      "id": "switch-p1-5",
+      "kind": "switch",
+      "params": {
+        "closed": 0
+      },
+      "x": 440,
+      "y": 153
+    },
+    {
+      "id": "series-p2-3",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "x": 890,
+      "y": 85
+    },
+    {
+      "id": "led-p2-3",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "red"
+      },
+      "x": 1005,
+      "y": 85
+    }
+  ],
+  "wires": [
+    {
+      "id": "cp1-ground",
+      "from": {
+        "part": "cp1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "supply-p1-5",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "pullup-p1-5",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "pull-p1-5",
+      "from": {
+        "part": "pullup-p1-5",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "cp1",
+        "terminal": "P1.5"
+      }
+    },
+    {
+      "id": "input-p1-5",
+      "from": {
+        "part": "cp1",
+        "terminal": "P1.5"
+      },
+      "to": {
+        "part": "switch-p1-5",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "return-p1-5",
+      "from": {
+        "part": "switch-p1-5",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "output-p2-3",
+      "from": {
+        "part": "cp1",
+        "terminal": "P2.3"
+      },
+      "to": {
+        "part": "series-p2-3",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "feed-p2-3",
+      "from": {
+        "part": "series-p2-3",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "led-p2-3",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "led-return-p2-3",
+      "from": {
+        "part": "led-p2-3",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      }
+    }
+  ],
+  "holeWires": []
+}

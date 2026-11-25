@@ -1,0 +1,9 @@
+ORG 66
+LDA Replacement
+ABS Action
+SPU Action
+Action: AKO 14
+HLT 0
+
+ORG 78
+Replacement: AKO 197

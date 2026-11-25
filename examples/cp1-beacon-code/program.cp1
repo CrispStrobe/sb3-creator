@@ -1,0 +1,33 @@
+ORG 0
+Entry: AKO 0
+P2A 2
+VZG 70
+AKO Pattern
+ABS Cursor
+Emit: AKO 1
+P2A 2
+LIA Cursor
+VGL Long
+SPB HoldLong
+VZG 70
+SPU Gap
+HoldLong: VZG 210
+Gap: AKO 0
+P2A 2
+VZG 70
+LDA Cursor
+VGL Last
+SPB Done
+ADD One
+ABS Cursor
+SPU Emit
+Done: HLT 0
+Cursor: DATA 0
+One: DATA 1
+Long: DATA 3
+Last: DATA 33
+ORG 30
+Pattern: DATA 1
+DATA 3
+DATA 3
+DATA 1

@@ -1,0 +1,32 @@
+ORG 0
+Entry: AKO 4
+ABS Rows
+AKO 0
+ABS Visits
+P2A 4
+Outer: AKO 6
+ABS Columns
+Inner: LDA Visits
+ADD One
+ABS Visits
+LDA Columns
+SUB One
+ABS Columns
+VGL Zero
+SPB RowDone
+SPU Inner
+RowDone: LDA Rows
+SUB One
+ABS Rows
+VGL Zero
+SPB Done
+SPU Outer
+Done: AKO 1
+P2A 4
+LDA Visits
+HLT 0
+Rows: DATA 0
+Columns: DATA 0
+Visits: DATA 0
+One: DATA 1
+Zero: DATA 0

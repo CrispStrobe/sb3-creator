@@ -1,0 +1,36 @@
+ORG 0
+Entry: AKO 0
+P2A 2
+P2A 3
+Request: P1E 0
+VGR Three
+SPB Request
+ABS Command
+AKO 0
+P2A 2
+P2A 3
+LDA Command
+VGL Three
+SPB Done
+VGL Two
+SPB Release
+P2A 1
+VZG 120
+LDA Command
+VGL Zero
+SPB OpenA
+AKO 1
+P2A 3
+SPU Release
+OpenA: AKO 1
+P2A 2
+Release: P1E 0
+VGL Idle
+SPB Request
+SPU Release
+Done: HLT 0
+Command: DATA 0
+Zero: DATA 0
+Two: DATA 2
+Three: DATA 3
+Idle: DATA 255

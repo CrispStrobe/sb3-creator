@@ -1,0 +1,9 @@
+ORG 196
+P3E 0
+ABS Captured
+P4A 0
+P5A 0
+HLT 0
+
+ORG 212
+Captured: DATA 0

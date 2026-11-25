@@ -1,0 +1,23 @@
+ORG 35
+AKO RecordStart
+ABS Cursor
+Sample: P1E 0
+AIS Cursor
+LDA Cursor
+VGL Last
+SPB Done
+ADD One
+ABS Cursor
+SPU Sample
+Done: LIA Cursor
+HLT 0
+
+ORG 62
+Cursor: DATA 0
+One: DATA 1
+Last: DATA 78
+
+ORG 76
+RecordStart: DATA 0
+DATA 0
+DATA 0

@@ -1,0 +1,40 @@
+ORG 0
+Entry: AKO 0
+P2A 1
+P2A 2
+ABS Mode
+Request: P1E 0
+VGL Three
+SPB End
+VGR Two
+SPB Request
+VGL Mode
+SPB Release
+ABS NextMode
+AKO 0
+P2A 1
+LDA NextMode
+ABS Mode
+VGL Zero
+SPB Release
+VZG 40
+LDA Mode
+SUB One
+P2A 2
+AKO 1
+P2A 1
+Release: P1E 0
+VGL Idle
+SPB Request
+SPU Release
+End: AKO 0
+P2A 1
+ABS Mode
+HLT 0
+Mode: DATA 0
+NextMode: DATA 0
+Idle: DATA 255
+Zero: DATA 0
+One: DATA 1
+Two: DATA 2
+Three: DATA 3

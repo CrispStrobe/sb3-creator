@@ -1,0 +1,38 @@
+ORG 0
+Entry: AKO 9
+ABS Remaining
+AKO 0
+ABS High
+ABS Low
+AddBundle: LDA Low
+VGR Headroom
+SPB Carry
+ADD Bundle
+SPU SaveLow
+Carry: LDA High
+ADD One
+ABS High
+LDA Low
+SUB Wrap
+SaveLow: ABS Low
+LDA Remaining
+SUB One
+ABS Remaining
+VGL Zero
+SPB Done
+SPU AddBundle
+Done: LDA High
+ANZ 0
+VZG 200
+LDA Low
+ANZ 0
+VZG 200
+HLT 0
+High: DATA 0
+Low: DATA 0
+Remaining: DATA 0
+Bundle: DATA 73
+Headroom: DATA 182
+Wrap: DATA 183
+Zero: DATA 0
+One: DATA 1

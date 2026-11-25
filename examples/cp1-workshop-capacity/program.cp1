@@ -1,0 +1,36 @@
+ORG 0
+Entry: LDA Limit
+ABS Free
+Request: P1E 0
+VGL Idle
+SPB Request
+VGL Zero
+SPB Done
+VGL One
+SPB Arrive
+VGL Two
+SPB Depart
+SPU Release
+Arrive: LDA Free
+VGL Zero
+SPB Report
+SUB One
+SPU Update
+Depart: LDA Free
+VGL Limit
+SPB Report
+ADD One
+Update: ABS Free
+Report: ANZ 0
+Release: P1E 0
+VGL Idle
+SPB Request
+SPU Release
+Done: LDA Free
+HLT 0
+Free: DATA 0
+Limit: DATA 3
+Idle: DATA 255
+Zero: DATA 0
+One: DATA 1
+Two: DATA 2

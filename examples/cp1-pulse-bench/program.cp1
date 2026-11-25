@@ -1,0 +1,27 @@
+ORG 0
+Entry: AKO 0
+ABS Pulses
+Arm: P1E 5
+VGL One
+SPB Fall
+SPU Arm
+Fall: P1E 5
+VGL Zero
+SPB Release
+SPU Fall
+Release: P1E 5
+VGL One
+SPB Count
+SPU Release
+Count: LDA Pulses
+ADD One
+ABS Pulses
+ANZ 0
+VGL Five
+SPB Done
+SPU Fall
+Done: HLT 0
+Pulses: DATA 0
+Zero: DATA 0
+One: DATA 1
+Five: DATA 5

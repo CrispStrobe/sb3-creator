@@ -1,0 +1,21 @@
+ORG 0
+Entry: AKO 7
+ABS Remaining
+AKO 0
+ABS Product
+Next: LDA Product
+ADD Bundle
+ABS Product
+LDA Remaining
+SUB One
+ABS Remaining
+VGL Zero
+SPB Done
+SPU Next
+Done: LDA Product
+HLT 0
+Product: DATA 0
+Remaining: DATA 0
+Bundle: DATA 13
+One: DATA 1
+Zero: DATA 0

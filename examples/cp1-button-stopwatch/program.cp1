@@ -1,0 +1,19 @@
+ORG 0
+Entry: AKO 0
+ABS Count
+Gate: P1E 4
+VGL One
+SPB Done
+VZG 100
+LDA Count
+ADD One
+ABS Count
+ANZ 0
+VGL Limit
+SPB Done
+SPU Gate
+Done: LDA Count
+HLT 0
+Count: DATA 0
+One: DATA 1
+Limit: DATA 9

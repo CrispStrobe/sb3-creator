@@ -1,0 +1,55 @@
+ORG 0
+Entry: AKO 1
+ABS Tally
+Request: P1E 0
+VGL Finish
+SPB Done
+VGL ACode
+SPB First
+VGL BCode
+SPB First
+SPU Request
+First: ABS Sensor
+ReleaseFirst: P1E 0
+VGL Idle
+SPB Second
+SPU ReleaseFirst
+Second: P1E 0
+VGL Finish
+SPB Done
+VGL ACode
+SPB Judge
+VGL BCode
+SPB Judge
+SPU Second
+Judge: VGL Sensor
+SPB ReleaseRound
+LDA Sensor
+VGL ACode
+SPB Enter
+LDA Tally
+VGL Zero
+SPB Report
+SUB One
+SPU Report
+Enter: LDA Tally
+VGL Four
+SPB Report
+ADD One
+Report: ABS Tally
+ANZ 0
+ReleaseRound: P1E 0
+VGL Idle
+SPB Request
+SPU ReleaseRound
+Done: LDA Tally
+HLT 0
+Tally: DATA 0
+Sensor: DATA 0
+ACode: DATA 254
+BCode: DATA 253
+Finish: DATA 251
+Idle: DATA 255
+Zero: DATA 0
+One: DATA 1
+Four: DATA 4

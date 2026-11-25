@@ -1,0 +1,532 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "cp1",
+      "kind": "kosmos-cp1",
+      "params": {
+        "expansion": true,
+        "clockHz": 6000000
+      },
+      "x": 210,
+      "y": 195
+    },
+    {
+      "id": "ground",
+      "kind": "gnd",
+      "params": {},
+      "x": 650,
+      "y": 540
+    },
+    {
+      "id": "pullup-p3-0",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "x": 440,
+      "y": 85
+    },
+    {
+      "id": "switch-p3-0",
+      "kind": "switch",
+      "params": {
+        "closed": 0
+      },
+      "x": 440,
+      "y": 153
+    },
+    {
+      "id": "pullup-p3-1",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "x": 545,
+      "y": 85
+    },
+    {
+      "id": "switch-p3-1",
+      "kind": "switch",
+      "params": {
+        "closed": 0
+      },
+      "x": 545,
+      "y": 153
+    },
+    {
+      "id": "pullup-p3-2",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "x": 650,
+      "y": 85
+    },
+    {
+      "id": "switch-p3-2",
+      "kind": "switch",
+      "params": {
+        "closed": 0
+      },
+      "x": 650,
+      "y": 153
+    },
+    {
+      "id": "pullup-p3-3",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "x": 755,
+      "y": 85
+    },
+    {
+      "id": "switch-p3-3",
+      "kind": "switch",
+      "params": {
+        "closed": 0
+      },
+      "x": 755,
+      "y": 153
+    },
+    {
+      "id": "pullup-p3-4",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "x": 440,
+      "y": 225
+    },
+    {
+      "id": "switch-p3-4",
+      "kind": "switch",
+      "params": {
+        "closed": 0
+      },
+      "x": 440,
+      "y": 293
+    },
+    {
+      "id": "pullup-p3-5",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "x": 545,
+      "y": 225
+    },
+    {
+      "id": "switch-p3-5",
+      "kind": "switch",
+      "params": {
+        "closed": 0
+      },
+      "x": 545,
+      "y": 293
+    },
+    {
+      "id": "pullup-p3-6",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "x": 650,
+      "y": 225
+    },
+    {
+      "id": "switch-p3-6",
+      "kind": "switch",
+      "params": {
+        "closed": 0
+      },
+      "x": 650,
+      "y": 293
+    },
+    {
+      "id": "pullup-p3-7",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "x": 755,
+      "y": 225
+    },
+    {
+      "id": "switch-p3-7",
+      "kind": "switch",
+      "params": {
+        "closed": 0
+      },
+      "x": 755,
+      "y": 293
+    }
+  ],
+  "wires": [
+    {
+      "id": "cp1-ground",
+      "from": {
+        "part": "cp1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "supply-p3-0",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "pullup-p3-0",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "pull-p3-0",
+      "from": {
+        "part": "pullup-p3-0",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "cp1",
+        "terminal": "P3.0"
+      }
+    },
+    {
+      "id": "input-p3-0",
+      "from": {
+        "part": "cp1",
+        "terminal": "P3.0"
+      },
+      "to": {
+        "part": "switch-p3-0",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "return-p3-0",
+      "from": {
+        "part": "switch-p3-0",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "supply-p3-1",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "pullup-p3-1",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "pull-p3-1",
+      "from": {
+        "part": "pullup-p3-1",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "cp1",
+        "terminal": "P3.1"
+      }
+    },
+    {
+      "id": "input-p3-1",
+      "from": {
+        "part": "cp1",
+        "terminal": "P3.1"
+      },
+      "to": {
+        "part": "switch-p3-1",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "return-p3-1",
+      "from": {
+        "part": "switch-p3-1",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "supply-p3-2",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "pullup-p3-2",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "pull-p3-2",
+      "from": {
+        "part": "pullup-p3-2",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "cp1",
+        "terminal": "P3.2"
+      }
+    },
+    {
+      "id": "input-p3-2",
+      "from": {
+        "part": "cp1",
+        "terminal": "P3.2"
+      },
+      "to": {
+        "part": "switch-p3-2",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "return-p3-2",
+      "from": {
+        "part": "switch-p3-2",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "supply-p3-3",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "pullup-p3-3",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "pull-p3-3",
+      "from": {
+        "part": "pullup-p3-3",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "cp1",
+        "terminal": "P3.3"
+      }
+    },
+    {
+      "id": "input-p3-3",
+      "from": {
+        "part": "cp1",
+        "terminal": "P3.3"
+      },
+      "to": {
+        "part": "switch-p3-3",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "return-p3-3",
+      "from": {
+        "part": "switch-p3-3",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "supply-p3-4",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "pullup-p3-4",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "pull-p3-4",
+      "from": {
+        "part": "pullup-p3-4",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "cp1",
+        "terminal": "P3.4"
+      }
+    },
+    {
+      "id": "input-p3-4",
+      "from": {
+        "part": "cp1",
+        "terminal": "P3.4"
+      },
+      "to": {
+        "part": "switch-p3-4",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "return-p3-4",
+      "from": {
+        "part": "switch-p3-4",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "supply-p3-5",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "pullup-p3-5",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "pull-p3-5",
+      "from": {
+        "part": "pullup-p3-5",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "cp1",
+        "terminal": "P3.5"
+      }
+    },
+    {
+      "id": "input-p3-5",
+      "from": {
+        "part": "cp1",
+        "terminal": "P3.5"
+      },
+      "to": {
+        "part": "switch-p3-5",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "return-p3-5",
+      "from": {
+        "part": "switch-p3-5",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "supply-p3-6",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "pullup-p3-6",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "pull-p3-6",
+      "from": {
+        "part": "pullup-p3-6",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "cp1",
+        "terminal": "P3.6"
+      }
+    },
+    {
+      "id": "input-p3-6",
+      "from": {
+        "part": "cp1",
+        "terminal": "P3.6"
+      },
+      "to": {
+        "part": "switch-p3-6",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "return-p3-6",
+      "from": {
+        "part": "switch-p3-6",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "supply-p3-7",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "pullup-p3-7",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "pull-p3-7",
+      "from": {
+        "part": "pullup-p3-7",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "cp1",
+        "terminal": "P3.7"
+      }
+    },
+    {
+      "id": "input-p3-7",
+      "from": {
+        "part": "cp1",
+        "terminal": "P3.7"
+      },
+      "to": {
+        "part": "switch-p3-7",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "return-p3-7",
+      "from": {
+        "part": "switch-p3-7",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      }
+    }
+  ],
+  "holeWires": []
+}

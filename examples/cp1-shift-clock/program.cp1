@@ -1,0 +1,44 @@
+ORG 0
+Entry: AKO 23
+ABS Hour
+AKO 58
+ABS Minute
+Request: P1E 0
+VGL Stop
+SPB Done
+VGL Tick
+SPB Advance
+SPU Request
+Advance: LDA Minute
+ADD One
+VGL Sixty
+SPB NewHour
+SPU Show
+NewHour: AKO 0
+ABS Minute
+LDA Hour
+ADD One
+VGL Day
+SPB Midnight
+SPU SetHour
+Midnight: AKO 0
+SetHour: ABS Hour
+LDA Minute
+Show: ABS Minute
+LDA Hour
+P2A 0
+LDA Minute
+ANZ 0
+Release: P1E 1
+VGL One
+SPB Request
+SPU Release
+Done: LDA Minute
+HLT 0
+Hour: DATA 0
+Minute: DATA 0
+One: DATA 1
+Tick: DATA 254
+Stop: DATA 253
+Sixty: DATA 60
+Day: DATA 24

@@ -1,0 +1,48 @@
+ORG 0
+Entry: AKO 10
+ABS Left
+Request: P1E 0
+VGL Idle
+SPB Request
+VGL Zero
+SPB Release
+VGR MaxMove
+SPB Release
+VGR Left
+SPB Release
+ABS Move
+LDA Left
+SUB Move
+ABS Left
+VGL Zero
+SPB HumanWon
+LDA Four
+SUB Move
+VGR Left
+SPB ComputerWon
+ABS Move
+LDA Left
+SUB Move
+ABS Left
+VGL Zero
+SPB ComputerWon
+ANZ 0
+Release: P1E 0
+VGL Idle
+SPB Request
+SPU Release
+HumanWon: AKO 1
+SPU Verdict
+ComputerWon: AKO 0
+ABS Left
+AKO 2
+Verdict: ABS Result
+ANZ 0
+HLT 0
+Left: DATA 0
+Move: DATA 0
+Result: DATA 0
+Zero: DATA 0
+Four: DATA 4
+MaxMove: DATA 3
+Idle: DATA 255

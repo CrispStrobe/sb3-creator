@@ -1,0 +1,192 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "cp1",
+      "kind": "kosmos-cp1",
+      "params": {
+        "expansion": false,
+        "clockHz": 6000000
+      },
+      "x": 200,
+      "y": 180
+    },
+    {
+      "id": "ground",
+      "kind": "gnd",
+      "params": {},
+      "x": 660,
+      "y": 320
+    },
+    {
+      "id": "series0",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "x": 450,
+      "y": 85
+    },
+    {
+      "id": "led0",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "red"
+      },
+      "x": 575,
+      "y": 85
+    },
+    {
+      "id": "series1",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "x": 450,
+      "y": 165
+    },
+    {
+      "id": "led1",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "red"
+      },
+      "x": 575,
+      "y": 165
+    },
+    {
+      "id": "series2",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "x": 450,
+      "y": 245
+    },
+    {
+      "id": "led2",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "red"
+      },
+      "x": 575,
+      "y": 245
+    }
+  ],
+  "wires": [
+    {
+      "id": "machine-ground",
+      "from": {
+        "part": "cp1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "output0",
+      "from": {
+        "part": "cp1",
+        "terminal": "P2.0"
+      },
+      "to": {
+        "part": "series0",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "feed0",
+      "from": {
+        "part": "series0",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "led0",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "return0",
+      "from": {
+        "part": "led0",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "output1",
+      "from": {
+        "part": "cp1",
+        "terminal": "P2.1"
+      },
+      "to": {
+        "part": "series1",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "feed1",
+      "from": {
+        "part": "series1",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "led1",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "return1",
+      "from": {
+        "part": "led1",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "output2",
+      "from": {
+        "part": "cp1",
+        "terminal": "P2.2"
+      },
+      "to": {
+        "part": "series2",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "feed2",
+      "from": {
+        "part": "series2",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "led2",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "return2",
+      "from": {
+        "part": "led2",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      }
+    }
+  ],
+  "holeWires": []
+}

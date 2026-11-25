@@ -1,0 +1,1189 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "cp1",
+      "kind": "kosmos-cp1",
+      "params": {
+        "expansion": false,
+        "clockHz": 6000000
+      },
+      "x": 850,
+      "y": 330
+    },
+    {
+      "id": "driver",
+      "kind": "darlington_driver",
+      "params": {},
+      "declName": "8-channel LED driver",
+      "x": 360,
+      "y": 500
+    },
+    {
+      "id": "ground",
+      "kind": "gnd",
+      "params": {},
+      "x": 650,
+      "y": 610
+    },
+    {
+      "id": "switch1",
+      "kind": "switch",
+      "params": {
+        "closed": 1
+      },
+      "declName": "S1 (1)",
+      "x": 110,
+      "y": 80
+    },
+    {
+      "id": "pullup1",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "declName": "R1 10k",
+      "x": 110,
+      "y": 180,
+      "rotation": 90
+    },
+    {
+      "id": "led1",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "red"
+      },
+      "declName": "LED1 (1)",
+      "x": 110,
+      "y": 400,
+      "rotation": 90
+    },
+    {
+      "id": "series1",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "declName": "R9 1k",
+      "x": 110,
+      "y": 320,
+      "rotation": 90
+    },
+    {
+      "id": "switch2",
+      "kind": "switch",
+      "params": {
+        "closed": 1
+      },
+      "declName": "S2 (2)",
+      "x": 180,
+      "y": 80
+    },
+    {
+      "id": "pullup2",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "declName": "R2 10k",
+      "x": 180,
+      "y": 180,
+      "rotation": 90
+    },
+    {
+      "id": "led2",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "red"
+      },
+      "declName": "LED2 (2)",
+      "x": 180,
+      "y": 400,
+      "rotation": 90
+    },
+    {
+      "id": "series2",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "declName": "R10 1k",
+      "x": 180,
+      "y": 320,
+      "rotation": 90
+    },
+    {
+      "id": "switch3",
+      "kind": "switch",
+      "params": {
+        "closed": 1
+      },
+      "declName": "S3 (4)",
+      "x": 250,
+      "y": 80
+    },
+    {
+      "id": "pullup3",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "declName": "R3 10k",
+      "x": 250,
+      "y": 180,
+      "rotation": 90
+    },
+    {
+      "id": "led3",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "red"
+      },
+      "declName": "LED3 (4)",
+      "x": 250,
+      "y": 400,
+      "rotation": 90
+    },
+    {
+      "id": "series3",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "declName": "R11 1k",
+      "x": 250,
+      "y": 320,
+      "rotation": 90
+    },
+    {
+      "id": "switch4",
+      "kind": "switch",
+      "params": {
+        "closed": 1
+      },
+      "declName": "S4 (8)",
+      "x": 320,
+      "y": 80
+    },
+    {
+      "id": "pullup4",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "declName": "R4 10k",
+      "x": 320,
+      "y": 180,
+      "rotation": 90
+    },
+    {
+      "id": "led4",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "red"
+      },
+      "declName": "LED4 (8)",
+      "x": 320,
+      "y": 400,
+      "rotation": 90
+    },
+    {
+      "id": "series4",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "declName": "R12 1k",
+      "x": 320,
+      "y": 320,
+      "rotation": 90
+    },
+    {
+      "id": "switch5",
+      "kind": "switch",
+      "params": {
+        "closed": 1
+      },
+      "declName": "S5 (16)",
+      "x": 390,
+      "y": 80
+    },
+    {
+      "id": "pullup5",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "declName": "R5 10k",
+      "x": 390,
+      "y": 180,
+      "rotation": 90
+    },
+    {
+      "id": "led5",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "red"
+      },
+      "declName": "LED5 (16)",
+      "x": 390,
+      "y": 400,
+      "rotation": 90
+    },
+    {
+      "id": "series5",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "declName": "R13 1k",
+      "x": 390,
+      "y": 320,
+      "rotation": 90
+    },
+    {
+      "id": "switch6",
+      "kind": "switch",
+      "params": {
+        "closed": 1
+      },
+      "declName": "S6 (32)",
+      "x": 460,
+      "y": 80
+    },
+    {
+      "id": "pullup6",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "declName": "R6 10k",
+      "x": 460,
+      "y": 180,
+      "rotation": 90
+    },
+    {
+      "id": "led6",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "red"
+      },
+      "declName": "LED6 (32)",
+      "x": 460,
+      "y": 400,
+      "rotation": 90
+    },
+    {
+      "id": "series6",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "declName": "R14 1k",
+      "x": 460,
+      "y": 320,
+      "rotation": 90
+    },
+    {
+      "id": "switch7",
+      "kind": "switch",
+      "params": {
+        "closed": 1
+      },
+      "declName": "S7 (64)",
+      "x": 530,
+      "y": 80
+    },
+    {
+      "id": "pullup7",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "declName": "R7 10k",
+      "x": 530,
+      "y": 180,
+      "rotation": 90
+    },
+    {
+      "id": "led7",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "red"
+      },
+      "declName": "LED7 (64)",
+      "x": 530,
+      "y": 400,
+      "rotation": 90
+    },
+    {
+      "id": "series7",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "declName": "R15 1k",
+      "x": 530,
+      "y": 320,
+      "rotation": 90
+    },
+    {
+      "id": "switch8",
+      "kind": "switch",
+      "params": {
+        "closed": 1
+      },
+      "declName": "S8 (128)",
+      "x": 600,
+      "y": 80
+    },
+    {
+      "id": "pullup8",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "declName": "R8 10k",
+      "x": 600,
+      "y": 180,
+      "rotation": 90
+    },
+    {
+      "id": "led8",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "red"
+      },
+      "declName": "LED8 (128)",
+      "x": 600,
+      "y": 400,
+      "rotation": 90
+    },
+    {
+      "id": "series8",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "declName": "R16 1k",
+      "x": 600,
+      "y": 320,
+      "rotation": 90
+    }
+  ],
+  "wires": [
+    {
+      "id": "machine-ground",
+      "from": {
+        "part": "cp1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      },
+      "color": "#64748b"
+    },
+    {
+      "id": "driver-ground",
+      "from": {
+        "part": "driver",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      },
+      "color": "#64748b"
+    },
+    {
+      "id": "driver-common",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "driver",
+        "terminal": "com"
+      },
+      "color": "#dc2626"
+    },
+    {
+      "id": "pullup-supply-1",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "pullup1",
+        "terminal": "a"
+      },
+      "color": "#dc2626"
+    },
+    {
+      "id": "input-pullup-1",
+      "from": {
+        "part": "pullup1",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "cp1",
+        "terminal": "P1.0"
+      },
+      "color": "#b45309"
+    },
+    {
+      "id": "input-switch-1",
+      "from": {
+        "part": "switch1",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "cp1",
+        "terminal": "P1.0"
+      },
+      "color": "#b45309"
+    },
+    {
+      "id": "switch-ground-1",
+      "from": {
+        "part": "switch1",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      },
+      "color": "#64748b"
+    },
+    {
+      "id": "output-driver-1",
+      "from": {
+        "part": "cp1",
+        "terminal": "P2.0"
+      },
+      "to": {
+        "part": "driver",
+        "terminal": "in0"
+      },
+      "color": "#b45309"
+    },
+    {
+      "id": "led-supply-1",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "series1",
+        "terminal": "a"
+      },
+      "color": "#dc2626"
+    },
+    {
+      "id": "led-resistor-1",
+      "from": {
+        "part": "series1",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "led1",
+        "terminal": "anode"
+      },
+      "color": "#b45309"
+    },
+    {
+      "id": "led-driver-1",
+      "from": {
+        "part": "led1",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "driver",
+        "terminal": "out0"
+      },
+      "color": "#b45309"
+    },
+    {
+      "id": "pullup-supply-2",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "pullup2",
+        "terminal": "a"
+      },
+      "color": "#dc2626"
+    },
+    {
+      "id": "input-pullup-2",
+      "from": {
+        "part": "pullup2",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "cp1",
+        "terminal": "P1.1"
+      },
+      "color": "#c2410c"
+    },
+    {
+      "id": "input-switch-2",
+      "from": {
+        "part": "switch2",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "cp1",
+        "terminal": "P1.1"
+      },
+      "color": "#c2410c"
+    },
+    {
+      "id": "switch-ground-2",
+      "from": {
+        "part": "switch2",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      },
+      "color": "#64748b"
+    },
+    {
+      "id": "output-driver-2",
+      "from": {
+        "part": "cp1",
+        "terminal": "P2.1"
+      },
+      "to": {
+        "part": "driver",
+        "terminal": "in1"
+      },
+      "color": "#c2410c"
+    },
+    {
+      "id": "led-supply-2",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "series2",
+        "terminal": "a"
+      },
+      "color": "#dc2626"
+    },
+    {
+      "id": "led-resistor-2",
+      "from": {
+        "part": "series2",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "led2",
+        "terminal": "anode"
+      },
+      "color": "#c2410c"
+    },
+    {
+      "id": "led-driver-2",
+      "from": {
+        "part": "led2",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "driver",
+        "terminal": "out1"
+      },
+      "color": "#c2410c"
+    },
+    {
+      "id": "pullup-supply-3",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "pullup3",
+        "terminal": "a"
+      },
+      "color": "#dc2626"
+    },
+    {
+      "id": "input-pullup-3",
+      "from": {
+        "part": "pullup3",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "cp1",
+        "terminal": "P1.2"
+      },
+      "color": "#a16207"
+    },
+    {
+      "id": "input-switch-3",
+      "from": {
+        "part": "switch3",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "cp1",
+        "terminal": "P1.2"
+      },
+      "color": "#a16207"
+    },
+    {
+      "id": "switch-ground-3",
+      "from": {
+        "part": "switch3",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      },
+      "color": "#64748b"
+    },
+    {
+      "id": "output-driver-3",
+      "from": {
+        "part": "cp1",
+        "terminal": "P2.2"
+      },
+      "to": {
+        "part": "driver",
+        "terminal": "in2"
+      },
+      "color": "#a16207"
+    },
+    {
+      "id": "led-supply-3",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "series3",
+        "terminal": "a"
+      },
+      "color": "#dc2626"
+    },
+    {
+      "id": "led-resistor-3",
+      "from": {
+        "part": "series3",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "led3",
+        "terminal": "anode"
+      },
+      "color": "#a16207"
+    },
+    {
+      "id": "led-driver-3",
+      "from": {
+        "part": "led3",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "driver",
+        "terminal": "out2"
+      },
+      "color": "#a16207"
+    },
+    {
+      "id": "pullup-supply-4",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "pullup4",
+        "terminal": "a"
+      },
+      "color": "#dc2626"
+    },
+    {
+      "id": "input-pullup-4",
+      "from": {
+        "part": "pullup4",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "cp1",
+        "terminal": "P1.3"
+      },
+      "color": "#15803d"
+    },
+    {
+      "id": "input-switch-4",
+      "from": {
+        "part": "switch4",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "cp1",
+        "terminal": "P1.3"
+      },
+      "color": "#15803d"
+    },
+    {
+      "id": "switch-ground-4",
+      "from": {
+        "part": "switch4",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      },
+      "color": "#64748b"
+    },
+    {
+      "id": "output-driver-4",
+      "from": {
+        "part": "cp1",
+        "terminal": "P2.3"
+      },
+      "to": {
+        "part": "driver",
+        "terminal": "in3"
+      },
+      "color": "#15803d"
+    },
+    {
+      "id": "led-supply-4",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "series4",
+        "terminal": "a"
+      },
+      "color": "#dc2626"
+    },
+    {
+      "id": "led-resistor-4",
+      "from": {
+        "part": "series4",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "led4",
+        "terminal": "anode"
+      },
+      "color": "#15803d"
+    },
+    {
+      "id": "led-driver-4",
+      "from": {
+        "part": "led4",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "driver",
+        "terminal": "out3"
+      },
+      "color": "#15803d"
+    },
+    {
+      "id": "pullup-supply-5",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "pullup5",
+        "terminal": "a"
+      },
+      "color": "#dc2626"
+    },
+    {
+      "id": "input-pullup-5",
+      "from": {
+        "part": "pullup5",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "cp1",
+        "terminal": "P1.4"
+      },
+      "color": "#0f766e"
+    },
+    {
+      "id": "input-switch-5",
+      "from": {
+        "part": "switch5",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "cp1",
+        "terminal": "P1.4"
+      },
+      "color": "#0f766e"
+    },
+    {
+      "id": "switch-ground-5",
+      "from": {
+        "part": "switch5",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      },
+      "color": "#64748b"
+    },
+    {
+      "id": "output-driver-5",
+      "from": {
+        "part": "cp1",
+        "terminal": "P2.4"
+      },
+      "to": {
+        "part": "driver",
+        "terminal": "in4"
+      },
+      "color": "#0f766e"
+    },
+    {
+      "id": "led-supply-5",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "series5",
+        "terminal": "a"
+      },
+      "color": "#dc2626"
+    },
+    {
+      "id": "led-resistor-5",
+      "from": {
+        "part": "series5",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "led5",
+        "terminal": "anode"
+      },
+      "color": "#0f766e"
+    },
+    {
+      "id": "led-driver-5",
+      "from": {
+        "part": "led5",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "driver",
+        "terminal": "out4"
+      },
+      "color": "#0f766e"
+    },
+    {
+      "id": "pullup-supply-6",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "pullup6",
+        "terminal": "a"
+      },
+      "color": "#dc2626"
+    },
+    {
+      "id": "input-pullup-6",
+      "from": {
+        "part": "pullup6",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "cp1",
+        "terminal": "P1.5"
+      },
+      "color": "#0369a1"
+    },
+    {
+      "id": "input-switch-6",
+      "from": {
+        "part": "switch6",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "cp1",
+        "terminal": "P1.5"
+      },
+      "color": "#0369a1"
+    },
+    {
+      "id": "switch-ground-6",
+      "from": {
+        "part": "switch6",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      },
+      "color": "#64748b"
+    },
+    {
+      "id": "output-driver-6",
+      "from": {
+        "part": "cp1",
+        "terminal": "P2.5"
+      },
+      "to": {
+        "part": "driver",
+        "terminal": "in5"
+      },
+      "color": "#0369a1"
+    },
+    {
+      "id": "led-supply-6",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "series6",
+        "terminal": "a"
+      },
+      "color": "#dc2626"
+    },
+    {
+      "id": "led-resistor-6",
+      "from": {
+        "part": "series6",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "led6",
+        "terminal": "anode"
+      },
+      "color": "#0369a1"
+    },
+    {
+      "id": "led-driver-6",
+      "from": {
+        "part": "led6",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "driver",
+        "terminal": "out5"
+      },
+      "color": "#0369a1"
+    },
+    {
+      "id": "pullup-supply-7",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "pullup7",
+        "terminal": "a"
+      },
+      "color": "#dc2626"
+    },
+    {
+      "id": "input-pullup-7",
+      "from": {
+        "part": "pullup7",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "cp1",
+        "terminal": "P1.6"
+      },
+      "color": "#6d28d9"
+    },
+    {
+      "id": "input-switch-7",
+      "from": {
+        "part": "switch7",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "cp1",
+        "terminal": "P1.6"
+      },
+      "color": "#6d28d9"
+    },
+    {
+      "id": "switch-ground-7",
+      "from": {
+        "part": "switch7",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      },
+      "color": "#64748b"
+    },
+    {
+      "id": "output-driver-7",
+      "from": {
+        "part": "cp1",
+        "terminal": "P2.6"
+      },
+      "to": {
+        "part": "driver",
+        "terminal": "in6"
+      },
+      "color": "#6d28d9"
+    },
+    {
+      "id": "led-supply-7",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "series7",
+        "terminal": "a"
+      },
+      "color": "#dc2626"
+    },
+    {
+      "id": "led-resistor-7",
+      "from": {
+        "part": "series7",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "led7",
+        "terminal": "anode"
+      },
+      "color": "#6d28d9"
+    },
+    {
+      "id": "led-driver-7",
+      "from": {
+        "part": "led7",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "driver",
+        "terminal": "out6"
+      },
+      "color": "#6d28d9"
+    },
+    {
+      "id": "pullup-supply-8",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "pullup8",
+        "terminal": "a"
+      },
+      "color": "#dc2626"
+    },
+    {
+      "id": "input-pullup-8",
+      "from": {
+        "part": "pullup8",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "cp1",
+        "terminal": "P1.7"
+      },
+      "color": "#be185d"
+    },
+    {
+      "id": "input-switch-8",
+      "from": {
+        "part": "switch8",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "cp1",
+        "terminal": "P1.7"
+      },
+      "color": "#be185d"
+    },
+    {
+      "id": "switch-ground-8",
+      "from": {
+        "part": "switch8",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      },
+      "color": "#64748b"
+    },
+    {
+      "id": "output-driver-8",
+      "from": {
+        "part": "cp1",
+        "terminal": "P2.7"
+      },
+      "to": {
+        "part": "driver",
+        "terminal": "in7"
+      },
+      "color": "#be185d"
+    },
+    {
+      "id": "led-supply-8",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "series8",
+        "terminal": "a"
+      },
+      "color": "#dc2626"
+    },
+    {
+      "id": "led-resistor-8",
+      "from": {
+        "part": "series8",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "led8",
+        "terminal": "anode"
+      },
+      "color": "#be185d"
+    },
+    {
+      "id": "led-driver-8",
+      "from": {
+        "part": "led8",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "driver",
+        "terminal": "out7"
+      },
+      "color": "#be185d"
+    }
+  ],
+  "holeWires": []
+}

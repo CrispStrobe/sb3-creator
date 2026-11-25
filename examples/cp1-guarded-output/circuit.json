@@ -1,0 +1,212 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "cp1",
+      "kind": "kosmos-cp1",
+      "params": {
+        "expansion": false,
+        "clockHz": 6000000
+      },
+      "x": 200,
+      "y": 180
+    },
+    {
+      "id": "ground",
+      "kind": "gnd",
+      "params": {},
+      "x": 920,
+      "y": 320
+    },
+    {
+      "id": "series4",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "x": 710,
+      "y": 85
+    },
+    {
+      "id": "led4",
+      "kind": "led",
+      "params": {
+        "vf": 2,
+        "color": "red"
+      },
+      "x": 835,
+      "y": 85
+    },
+    {
+      "id": "pullup2",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "x": 430,
+      "y": 80
+    },
+    {
+      "id": "switch2",
+      "kind": "switch",
+      "params": {
+        "closed": 0
+      },
+      "x": 430,
+      "y": 165
+    },
+    {
+      "id": "pullup7",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "x": 545,
+      "y": 80
+    },
+    {
+      "id": "switch7",
+      "kind": "switch",
+      "params": {
+        "closed": 1
+      },
+      "x": 545,
+      "y": 165
+    }
+  ],
+  "wires": [
+    {
+      "id": "machine-ground",
+      "from": {
+        "part": "cp1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "output4",
+      "from": {
+        "part": "cp1",
+        "terminal": "P2.4"
+      },
+      "to": {
+        "part": "series4",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "feed4",
+      "from": {
+        "part": "series4",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "led4",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "return4",
+      "from": {
+        "part": "led4",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "supply2",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "pullup2",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "pullup-input2",
+      "from": {
+        "part": "pullup2",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "cp1",
+        "terminal": "P1.1"
+      }
+    },
+    {
+      "id": "switch-input2",
+      "from": {
+        "part": "cp1",
+        "terminal": "P1.1"
+      },
+      "to": {
+        "part": "switch2",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "switch-ground2",
+      "from": {
+        "part": "switch2",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "supply7",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "pullup7",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "pullup-input7",
+      "from": {
+        "part": "pullup7",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "cp1",
+        "terminal": "P1.6"
+      }
+    },
+    {
+      "id": "switch-input7",
+      "from": {
+        "part": "cp1",
+        "terminal": "P1.6"
+      },
+      "to": {
+        "part": "switch7",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "switch-ground7",
+      "from": {
+        "part": "switch7",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      }
+    }
+  ],
+  "holeWires": []
+}

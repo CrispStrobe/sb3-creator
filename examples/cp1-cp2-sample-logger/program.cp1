@@ -1,0 +1,38 @@
+ORG 0
+Entry: AKO RecordA
+ABS Cursor
+AKO 0
+ABS Total
+Wait: P3E 8
+VGL Zero
+SPB Read
+SPU Wait
+Read: P3E 0
+VGR Max
+SPB Release
+AIS Cursor
+ADD Total
+ABS Total
+LDA Cursor
+VGL Last
+SPB Done
+ADD One
+ABS Cursor
+Release: P3E 8
+VGL One
+SPB Wait
+SPU Release
+Done: LDA Total
+ANZ 0
+HLT 0
+Cursor: DATA 0
+Zero: DATA 0
+One: DATA 1
+Max: DATA 63
+Last: DATA 147
+ORG 144
+RecordA: DATA 0
+RecordB: DATA 0
+RecordC: DATA 0
+RecordD: DATA 0
+Total: DATA 0

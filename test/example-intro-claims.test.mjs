@@ -34,11 +34,11 @@ const EXAMPLES = join(import.meta.dirname, '..', 'examples');
 const CLAIMS = [
   { id: 'display', re: /\b(7[- ]?segment|seven[- ]segment|display shows|on the display|LCD|OLED|the display)\b/i,
     kinds: [/seven_segment/, /sevenseg/, /char_lcd/, /lcd/, /oled/, /ssd1306/, /led_matrix/,
-      /matrix8x8/, /max7219/, /ili9341/, /vdp/, /tm1637/, /display/, /hd44780/, /tms9918/, /ps2/] },
+      /matrix8x8/, /max7219/, /ili9341/, /vdp/, /tm1637/, /display/, /hd44780/, /tms9918/, /ps2/, /^kosmos-cp1$/] },
   { id: 'buzzer', re: /\b(buzzer|beeps?|buzzes|piezo|plays a (tone|note|melody)|sound the alarm)\b/i,
     kinds: [/buzzer/, /speaker/, /piezo/] },
   { id: 'button', re: /\b(press (the |a )?button|push(ing)? the button|button press)\b/i,
-    kinds: [/button/, /keypad/, /switch/] },
+    kinds: [/button/, /keypad/, /switch/, /^kosmos-cp1$/] },
   { id: 'pot', re: /\b(potentiometer|turn the knob|the knob|twist the dial)\b/i,
     kinds: [/potentiometer/, /pot\b/] },
   { id: 'ldr', re: /\b(photoresistor|light sensor|LDR|light-dependent)\b/i, kinds: [/ldr/, /photo/] },

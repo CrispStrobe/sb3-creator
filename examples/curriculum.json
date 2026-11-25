@@ -1317,6 +1317,1076 @@
      ]
     }
    ]
+  },
+  {
+   "id": "kosmos-cp1",
+   "title": {
+    "en": "Kosmos CP1 experiments",
+    "de": "Kosmos-CP1-Experimente"
+   },
+   "audience": "11+",
+   "chapters": [
+    {
+     "title": {
+      "en": "Read, step and measure",
+      "de": "Lesen, Einzelschritte und Messexperimente"
+     },
+     "stations": [
+      {
+       "example": "cp1-first-display",
+       "title": {
+        "en": "1.16 · Find the cell that stopped the run",
+        "de": "1.16 · Finde die Zelle, die den Lauf unterbricht"
+       },
+       "lead": {
+        "en": "Use a faulty live memory word to practice locating an unexpected stop. With the program loaded and stopped, enter 002 OUT, then 00000 INP to replace the selected word with data. Run with 000 PC RUN and record the error. Press PC to locate the fault, then use the reported address with OUT. Enter 09001 INP to repair the selected cell. Run again from 000 and stop with STP after checking the display. The fault is F002 at cell 002. OUT shows 00.000 there. Restoring the jump recovers the steady A00.042 display.",
+        "de": "Verändere ein Wort im RAM und finde damit die Ursache eines unerwarteten Stopps. Gib bei geladenem und angehaltenem Programm 002 OUT und danach 00000 INP ein. Damit speicherst du einen Datenwert in der gewählten Zelle. Starte mit 000 PC RUN und notiere den Fehler. Ermittle die Fehlerstelle mit PC und lies die angezeigte Adresse mit OUT aus. Repariere die gewählte Zelle mit 09001 INP. Starte erneut bei 000 und halte nach der Kontrolle der Anzeige mit STP an. Der Fehler F002 tritt in Zelle 002 auf. OUT zeigt dort 00.000. Nach der Reparatur des Sprungs bleibt A00.042 sichtbar."
+       }
+      },
+      {
+       "example": "cp1-ticket-draw",
+       "title": {
+        "en": "1.17 · Ticket draw",
+        "de": "1.17 · Los ziehen"
+       },
+       "lead": {
+        "en": "Connect a pushbutton from P1.3 to ground. Start with it open, run, and close it once to freeze and display a ticket from 1 through 11. The value advances by three between samples; timing chooses the ticket.",
+        "de": "Taster zwischen P1.3 und Masse anschließen. Offen starten, Programm ausführen und einmal drücken, um ein Los von 1 bis 11 festzuhalten und anzuzeigen. Zwischen den Abfragen steigt der Wert um drei."
+       }
+      },
+      {
+       "example": "cp1-first-display",
+       "title": {
+        "en": "1.18 · Give 42 two jobs",
+        "de": "1.18 · Gib der 42 zwei Aufgaben"
+       },
+       "lead": {
+        "en": "Compare 42 as an instruction operand and as a standalone data word. Add two lines at the end of the source, ORG 12 and DATA 42, and load the cells while the CPU is paused. Run the CPU. Inspect 000 OUT and 012 OUT, then try 000 PC STEP and 012 PC STEP. Use ACC after the first STEP. Cell 000 is 04.042 and cell 012 is 00.042. Starting at 000 loads 42 and reaches the display loop. Starting at 012 raises F002.",
+        "de": "Vergleiche die 42 als Befehlsoperand und als eigenständiges Datenwort. Ergänze am Quelltextende die Zeilen ORG 12 und DATA 42. Pausiere die CPU und lade die Zellen. Starte die CPU. Lies 000 OUT und 012 OUT aus. Probiere danach 000 PC STEP und 012 PC STEP. Rufe nach dem ersten STEP den Akkumulator mit ACC ab. Zelle 000 enthält 04.042, Zelle 012 enthält 00.042. Der Start bei 000 lädt die 42 und erreicht die Anzeigeschleife. Ein Start bei 012 führt zu F002."
+       }
+      },
+      {
+       "example": "cp1-first-display",
+       "title": {
+        "en": "1.19 · Predict the next cell",
+        "de": "1.19 · Sage die nächste Zelle voraus"
+       },
+       "lead": {
+        "en": "Read the program counter after each command and explain the first backward change. Keep the CPU running and select 000 PC. Before each STEP, find the current word and write down the next address you expect. Press keypad STEP, record the P display, and repeat. Use ACC after the first step and PC again to confirm that inspecting the accumulator leaves the address intact. The first four STEP presses lead to next addresses 001, 002, 001, 002. The accumulator after the first step is 00.042.",
+        "de": "Lies den Programmzähler nach jedem Befehl ab und erkläre den ersten Rücksprung. Lass die CPU laufen und wähle 000 PC. Suche vor jedem STEP den aktuellen Befehl und notiere die erwartete Folgeadresse. Drücke STEP am Tastenfeld, notiere die P-Anzeige und wiederhole den Vorgang. Prüfe nach dem ersten Schritt mit ACC den Akkumulator und danach mit PC die unveränderte Adresse. Die ersten vier STEP-Tastendrücke ergeben die Folgeadressen 001, 002, 001, 002. Nach dem ersten Schritt enthält der Akkumulator 00.042."
+       }
+      },
+      {
+       "example": "cp1-first-display",
+       "title": {
+        "en": "1.20 · Enter a three-word program by number",
+        "de": "1.20 · Gib ein Dreiwortprogramm als Zahlen ein"
+       },
+       "lead": {
+        "en": "Recreate the same operation in a spare area using decimal entry. Choose 58 as the value for this run. With the monitor idle, select the destination with 010 INP. Enter 04058 INP, 02000 INP and 09011 INP. Confirm the first word with 010 OUT and read the next two with bare OUT. Select 010 PC and press RUN on the keypad. Use STP after observing the result. The three new words read 04.058, 02.000 and 09.011. The program starting at 010 keeps A00.058 visible.",
+        "de": "Baue denselben Ablauf in freien Zellen mit Dezimaleingaben nach. Verwende für diesen Lauf den Wert 58. Wähle bei wartendem Monitor mit 010 INP die Zielzelle. Gib 04058 INP, 02000 INP und 09011 INP ein. Prüfe das erste Wort mit 010 OUT und lies die nächsten beiden jeweils mit OUT. Wähle 010 PC und drücke RUN am Tastenfeld. Halte nach der Beobachtung mit STP an. Die drei neuen Wörter lauten 04.058, 02.000 und 09.011. Das Programm ab 010 hält A00.058 auf der Anzeige."
+       }
+      },
+      {
+       "example": "cp1-descending-sum",
+       "title": {
+        "en": "1.21 · Descending sum",
+        "de": "1.21 · Absteigende Summe"
+       },
+       "lead": {
+        "en": "CP1: Descending sum",
+        "de": "CP1: Absteigende Summe"
+       }
+      },
+      {
+       "example": "cp1-instruction-patch",
+       "title": {
+        "en": "1.22 · Read the two fields of a word",
+        "de": "1.22 · Lies die beiden Felder eines Worts"
+       },
+       "lead": {
+        "en": "Classify the two words that can set the accumulator before running this example. Reload the untouched source. Use 069 OUT and 078 OUT to read the target word and replacement word. Identify the operation in both words, circle the operand of each, then enter 066 PC STEP ACC. The words 04.014 and 04.197 share operation 04. Their operands differ. The first STEP loads 04.197 as a full word, so ACC shows both fields.",
+        "de": "Untersuche vor dem Start die beiden Wörter, die den Akkumulator setzen können. Lade den unveränderten Quelltext. Lies mit 069 OUT und 078 OUT das Zielwort und das Ersatzwort. Bestimme die Operation in beiden Wörtern, markiere jeweils den Operanden und gib dann 066 PC STEP ACC ein. Die Wörter 04.014 und 04.197 haben beide die Befehlsnummer 04. Ihre Operanden unterscheiden sich. Der erste STEP lädt das ganze Wort 04.197, daher zeigt ACC beide Felder."
+       }
+      },
+      {
+       "example": "cp1-instruction-patch",
+       "title": {
+        "en": "1.23 · Instruction patch",
+        "de": "1.23 · Befehlswechsel"
+       },
+       "lead": {
+        "en": "CP1: Instruction patch",
+        "de": "CP1: Befehlswechsel"
+       }
+      },
+      {
+       "example": "cp1-expansion-step",
+       "title": {
+        "en": "1.24 · Separate reading, storing and output",
+        "de": "1.24 · Trenne Lesen, Speichern und Ausgeben"
+       },
+       "lead": {
+        "en": "With CP3 enabled, follow a byte through three destinations one teaching instruction at a time. Drive P3 to binary 00110101 using the connected switches or the port inputs. Keep the setting for the entire test. Load the source and select 196 PC with the CPU running. Press keypad STEP five times. Record PC at each pause, and inspect ACC, cell 212 and the port values at the steps that can change them. The five next addresses are 197, 198, 199, 200 and 201. ACC becomes 00.053 first, then cell 212 becomes 00.053, then P4 and P5 receive decimal 53 in that order.",
+        "de": "Aktiviere CP3 und verfolge ein Byte im Einzelschritt auf seinem Weg zu drei Zielen. Stelle P3 mit den verbundenen Schaltern oder den Porteingängen auf binär 00110101. Lass die Einstellung für den ganzen Versuch bestehen. Lade den Quelltext und wähle bei laufender CPU 196 PC. Drücke fünfmal STEP am Tastenfeld. Notiere jeweils PC und prüfe ACC, Zelle 212 und die Portwerte nach den Schritten, die sie ändern können. Die fünf Folgeadressen lauten 197, 198, 199, 200 und 201. Zuerst steht 00.053 im Akkumulator, dann 00.053 in Zelle 212, danach erhalten P4 und P5 nacheinander den Dezimalwert 53."
+       }
+      },
+      {
+       "example": "cp1-instruction-patch",
+       "title": {
+        "en": "1.25 · Track a word until it runs",
+        "de": "1.25 · Verfolge ein Wort bis zur Ausführung"
+       },
+       "lead": {
+        "en": "Watch the replacement move through the accumulator into RAM before the machine executes it. Load a fresh copy, select 066 PC, and record cell 069 with OUT. Take a STEP and inspect ACC. Take the next STEP and read cell 069 again. Verify the target with PC after one more STEP, then step the target and inspect ACC. LDA makes ACC 04.197 and ABS makes cell 069 equal 04.197. SPU puts 069 in PC. Executing the new word changes ACC to 00.197.",
+        "de": "Beobachte, wie das Ersatzwort über den Akkumulator ins RAM gelangt, bevor es ausgeführt wird. Lade eine frische Kopie, wähle 066 PC und lies Zelle 069 mit OUT aus. Führe einen STEP aus und prüfe ACC. Führe den nächsten STEP aus und lies Zelle 069 erneut. Prüfe nach einem weiteren STEP mit PC das Sprungziel. Führe dann den Zielbefehl aus und prüfe ACC. LDA lädt 04.197 in den Akkumulator und ABS schreibt 04.197 in Zelle 069. SPU setzt PC auf 069. Die Ausführung des neuen Worts bringt 00.197 in den Akkumulator."
+       }
+      },
+      {
+       "example": "cp1-first-display",
+       "title": {
+        "en": "1.26 · Keep a result on the panel",
+        "de": "1.26 · Halte ein Ergebnis auf der Anzeige"
+       },
+       "lead": {
+        "en": "Compare the steady display loop with a run that ends immediately after ANZ. Run the original from 000 until the A display is stable, then press STP. Change only the final SPU to HLT 0 in the source, pause the CPU, and load the edited cells. Resume the CPU and enter 000 PC RUN. Read the final panel frame and ACC. Restore and reload the original source to demonstrate the difference. The modified run settles on P 003. ACC still shows A00.042. Restoring the jump makes the A display persist during RUN.",
+        "de": "Vergleiche die dauerhafte Anzeigeschleife mit einem Lauf, der unmittelbar nach ANZ endet. Starte das Original bei 000, warte auf die stabile A-Anzeige und drücke STP. Ändere im Quelltext nur das letzte SPU in HLT 0. Pausiere die CPU und lade die geänderten Zellen. Setze die CPU fort und gib 000 PC RUN ein. Lies die Schlussanzeige und ACC ab. Lade den wiederhergestellten Quelltext und zeige den Unterschied. Der geänderte Lauf endet mit P 003. ACC zeigt weiterhin A00.042. Nach dem Wiedereinsetzen des Sprungs bleibt die A-Anzeige während RUN stehen."
+       }
+      },
+      {
+       "example": "cp1-display-postcard",
+       "title": {
+        "en": "1.27 · Three display captions",
+        "de": "1.27 · Drei Anzeigetexte"
+       },
+       "lead": {
+        "en": "Run and read 026, 148 and 073 in order. Each remains visible for its different programmed pause. HLT returns to the PC frame; ACC still shows 073.",
+        "de": "Programm starten und nacheinander 026, 148 und 073 lesen. Jede Zahl bleibt für eine andere programmierte Wartezeit sichtbar. HLT zeigt wieder den Programmzähler; ACC zeigt weiterhin 073."
+       }
+      },
+      {
+       "example": "cp1-descending-sum",
+       "title": {
+        "en": "1.28 · Choose how the calculation ends",
+        "de": "1.28 · Bestimme, wie die Rechnung endet"
+       },
+       "lead": {
+        "en": "Compare a deliberate HLT with a wait loop after the same calculation. Run from 010 with the original cells, record the stop and inspect 031 OUT. In a copy, replace the last HLT with SPU 24. Reload, rerun from 010 and check that the monitor has yet to return. Use STP, then read the result. The original returns to the monitor at PC 025 with ACC 00.028. A self-jump at 024 keeps CPU execution inside the teaching program until STP. The total in 031 is 00.028 in both runs.",
+        "de": "Vergleiche ein bewusst gesetztes HLT mit einer Warteschleife nach derselben Rechnung. Starte mit den Originalzellen bei 010, notiere den Stopp und lies 031 OUT. Ersetze in einer Kopie das letzte HLT durch SPU 24. Lade die Kopie, starte wieder bei 010 und prüfe, ob der Monitor noch im Programmlauf ist. Drücke STP und lies dann das Ergebnis ab. Das Original kehrt mit PC 025 und 00.028 im Akkumulator zum Monitor zurück. Ein Sprung von 024 auf sich selbst hält das Lernprogramm bis STP am Laufen. Die Summe in 031 ist in beiden Läufen 00.028."
+       }
+      },
+      {
+       "example": "cp1-first-display",
+       "title": {
+        "en": "1.29 · Compare mnemonics and decimal words",
+        "de": "1.29 · Vergleiche Befehlsnamen und Dezimalwörter"
+       },
+       "lead": {
+        "en": "Switch the listing between mnemonic and decimal forms while preserving the same RAM image. Export the listing from the loaded source. Match each decimal word to the corresponding source operation and resolved operand. Open the exported decimal listing as source, load it with the CPU paused, then compare the three cells in Memory and run from 000. The two forms yield 04.042, 02.000 and 09.001 in cells 000–002 and the same visible A00.042.",
+        "de": "Wechsle zwischen Befehlsnamen und Dezimallisting und behalte dasselbe RAM-Abbild bei. Exportiere das Listing aus dem geladenen Quelltext. Ordne jedem Dezimalwort den passenden Quellbefehl und den aufgelösten Operanden zu. Öffne das exportierte Dezimallisting als Quelle, lade es bei pausierter CPU, vergleiche die drei Zellen im Speicher und starte bei 000. Beide Formen ergeben 04.042, 02.000 und 09.001 in den Zellen 000–002 und dieselbe sichtbare Anzeige A00.042."
+       }
+      },
+      {
+       "example": "cp1-first-display",
+       "title": {
+        "en": "1.30 · Load source and start at a new origin",
+        "de": "1.30 · Lade Quelltext und starte an einer neuen Adresse"
+       },
+       "lead": {
+        "en": "Move the listing to a different start address and let the assembler resolve the label references. Replace ORG 0 with ORG 24 while keeping the labels in place. Pause the CPU and use Load cells. Resume the CPU. Read 026 OUT, then select 024 PC and use RUN on the keypad. Check the display before pressing STP. The three words occupy 024–026 and the final jump reads 09.025. Starting at 024 keeps A00.042 on the display.",
+        "de": "Verlege das Listing an eine andere Startadresse und lass den Assembler die Marken auflösen. Ersetze ORG 0 durch ORG 24 und belasse die Marken an ihren Befehlen. Pausiere die CPU und verwende Zellen laden. Setze die CPU fort. Lies 026 OUT und wähle danach 024 PC. Drücke RUN am Tastenfeld, prüfe die Anzeige und halte mit STP an. Die drei Wörter belegen 024–026 und der letzte Sprung lautet 09.025. Beim Start bei 024 bleibt A00.042 sichtbar."
+       }
+      },
+      {
+       "example": "cp1-descending-sum",
+       "title": {
+        "en": "1.31 · Predict the first pass through a sum",
+        "de": "1.31 · Sage den ersten Summendurchlauf voraus"
+       },
+       "lead": {
+        "en": "Make a small trace with PC, accumulator, remaining term and total. Predict each change before pressing STEP. Load a fresh copy and select 010 PC. STEP through the four setup words, checking ACC and cells 030 and 031. Continue from 014 through 021. Highlight the step that proves the branch fell through and the two writes that change memory. After initialization, 030 contains 7 and 031 contains 0. On the first pass, the untaken SPB leads to 017. After ABS at 018 the total is 7. After ABS at 021 the next term is 6.",
+        "de": "Lege ein kurzes Protokoll mit PC, Akkumulator, verbleibendem Summanden und Summe an. Sage jede Änderung vor STEP voraus. Lade eine frische Kopie und wähle 010 PC. Gehe mit STEP durch die vier Vorbereitungsbefehle und prüfe ACC sowie die Zellen 030 und 031. Gehe weiter von 014 bis 021. Markiere den Schritt, der das Weiterlaufen hinter dem bedingten Sprung zeigt, und die beiden Speicherbefehle, die Werte ändern. Nach der Initialisierung enthält 030 den Wert 7 und 031 den Wert 0. Im ersten Durchlauf führt der nicht ausgeführte SPB-Sprung zu 017. Nach ABS an Adresse 018 beträgt die Summe 7. Nach ABS an 021 ist der nächste Summand 6."
+       }
+      },
+      {
+       "example": "cp1-first-display",
+       "title": {
+        "en": "1.32 · First display",
+        "de": "1.32 · Erste Anzeige"
+       },
+       "lead": {
+        "en": "CP1: First display",
+        "de": "CP1: Erste Anzeige"
+       }
+      },
+      {
+       "example": "cp1-gray-indicator",
+       "title": {
+        "en": "1.33 · Gray indicator",
+        "de": "1.33 · Gray-Anzeige"
+       },
+       "lead": {
+        "en": "CP1: Gray indicator",
+        "de": "CP1: Gray-Anzeige"
+       }
+      },
+      {
+       "example": "cp1-blink",
+       "title": {
+        "en": "1.34 · Stop the blink two ways",
+        "de": "1.34 · Halte das Blinken auf zwei Arten an"
+       },
+       "lead": {
+        "en": "Compare stopping a repeating output with STP and making the program stop itself after one pass. Start the original at 000, observe repeated changes at P2 terminal 1, and press STP. Once the stop display appears, check the retained state in Ports. Replace the final SPU with HLT 0 and reload. Run from 000 without pressing STP. Find the new stop address and port state. STP stops the original loop and leaves the last written P2 value in place. With HLT at 006, the modified run drives terminal 1 high then low, stops at P 007, and leaves it low.",
+        "de": "Vergleiche STP bei einer wiederholten Ausgabe mit einem Programm, das sich nach einem Durchlauf selbst anhält. Starte das Original bei 000, beobachte mehrere Wechsel an P2-Anschluss 1 und drücke STP. Kontrolliere den gehaltenen Zustand unter Ports, sobald die Stoppanzeige erscheint. Ersetze das letzte SPU durch HLT 0 und lade die Zellen neu. Starte bei 000 und lass das Programm selbst anhalten. Ermittle die neue Stoppadresse und den Portzustand. STP beendet die ursprüngliche Schleife. Der zuletzt geschriebene P2-Wert bleibt bestehen. Mit HLT in 006 setzt der geänderte Lauf Anschluss 1 erst auf High, dann auf Low und endet mit P 007. Der Anschluss bleibt auf Low."
+       }
+      },
+      {
+       "example": "cp1-blink",
+       "title": {
+        "en": "1.35 · Read the monitor after an interruption",
+        "de": "1.35 · Lies den Monitor nach einer Unterbrechung"
+       },
+       "lead": {
+        "en": "Identify what the panel shows immediately after STP, then inspect the saved execution state separately. With the untouched blink running from 000, press STP. Wait for the stop display and record it before pressing anything else. Use PC and ACC and compare the initial C display with 000 OUT. Then press RUN without setting PC again. STP shows C04.001, the word in cell 000. PC shows a resume address in 000–006. ACC is 00.000 or 00.001 depending on where the stop occurred. RUN resumes the alternation.",
+        "de": "Bestimme, was die Anzeige unmittelbar nach STP zeigt, und lies anschließend den gespeicherten Ausführungszustand aus. Starte das unveränderte Blinkprogramm bei 000 und drücke STP. Warte auf die Stoppanzeige und notiere sie vor dem nächsten Tastendruck. Drücke PC und ACC und vergleiche die anfängliche C-Anzeige mit 000 OUT. Drücke dann RUN, ohne den PC neu zu setzen. STP zeigt C04.001, das Wort aus Zelle 000. PC zeigt eine Fortsetzungsadresse zwischen 000 und 006. Je nach Unterbrechungsstelle enthält der Akkumulator 00.000 oder 00.001. Mit RUN wechseln die Pegel wieder."
+       }
+      },
+      {
+       "example": "cp1-crate-division",
+       "title": {
+        "en": "1.36 · Continue past a planned halt",
+        "de": "1.36 · Setze nach einem geplanten Halt fort"
+       },
+       "lead": {
+        "en": "Add a second phase that retrieves the count after the original phase stops with the remainder. Insert LDA Crates and HLT 0 immediately after the original HLT, before the next ORG directive. Load the edited copy. Enter 020 PC RUN and note PC and ACC at the halt. From that monitor state press keypad RUN again without reloading or changing PC, then check PC and ACC. The original phase halts at PC 035 with ACC 00.002. Pressing RUN again executes the added phase, reaches PC 037, and leaves 00.009 in ACC.",
+        "de": "Ergänze eine zweite Phase, die nach dem Halt der ersten Phase die Anzahl ausliest. Füge direkt nach dem ursprünglichen HLT und vor der nächsten ORG-Anweisung LDA Crates und HLT 0 ein. Lade die bearbeitete Kopie. Gib 020 PC RUN ein und notiere beim Halt PC und ACC. Drücke in diesem Monitorzustand erneut RUN am Tastenfeld, ohne neu zu laden oder PC zu setzen. Prüfe danach PC und ACC. Die erste Phase hält mit PC 035 und 00.002 im Akkumulator. Ein weiterer Druck auf RUN führt die Ergänzung aus, erreicht PC 037 und hinterlässt 00.009 im Akkumulator."
+       }
+      },
+      {
+       "example": "cp1-descending-sum",
+       "title": {
+        "en": "1.37 · Descending sum",
+        "de": "1.37 · Absteigende Summe"
+       },
+       "lead": {
+        "en": "CP1: Descending sum",
+        "de": "CP1: Absteigende Summe"
+       }
+      },
+      {
+       "example": "cp1-first-display",
+       "title": {
+        "en": "1.38 · First display",
+        "de": "1.38 · Erste Anzeige"
+       },
+       "lead": {
+        "en": "CP1: First display",
+        "de": "CP1: Erste Anzeige"
+       }
+      }
+     ]
+    },
+    {
+     "title": {
+      "en": "Control flow and signals",
+      "de": "Programmablauf und Signale"
+     },
+     "stations": [
+      {
+       "example": "cp1-descending-sum",
+       "title": {
+        "en": "1.39 · Descending sum",
+        "de": "1.39 · Absteigende Summe"
+       },
+       "lead": {
+        "en": "CP1: Descending sum",
+        "de": "CP1: Absteigende Summe"
+       }
+      },
+      {
+       "example": "cp1-workshop-capacity",
+       "title": {
+        "en": "1.40 · Workshop capacity",
+        "de": "1.40 · Freie Werkstattplätze"
+       },
+       "lead": {
+        "en": "A full P1 byte of 1 means arrival and 2 means departure. Return P1 to 255 after each event. Code 0 ends the session. There are three free places initially; arrivals at zero and departures at three are ignored.",
+        "de": "P1-Byte 1 meldet eine Ankunft, 2 einen Abgang. Nach jedem Ereignis P1 auf 255 zurückstellen. Byte 0 beendet die Sitzung. Anfangs sind drei Plätze frei. Ankunft bei null und Abgang bei drei freien Plätzen bleiben wirkungslos."
+       }
+      },
+      {
+       "example": "cp1-descending-sum",
+       "title": {
+        "en": "1.41 · Descending sum",
+        "de": "1.41 · Absteigende Summe"
+       },
+       "lead": {
+        "en": "CP1: Descending sum",
+        "de": "CP1: Absteigende Summe"
+       }
+      },
+      {
+       "example": "cp1-crate-division",
+       "title": {
+        "en": "1.42 · Crate division",
+        "de": "1.42 · Kistenaufteilung"
+       },
+       "lead": {
+        "en": "CP1: Crate division",
+        "de": "CP1: Kistenaufteilung"
+       }
+      },
+      {
+       "example": "cp1-batch-ticker",
+       "title": {
+        "en": "1.43 · Batch ticker",
+        "de": "1.43 · Chargenzähler"
+       },
+       "lead": {
+        "en": "Run to display batch IDs 31, 34, and 37 at regular intervals. The branch returns the value to 31 and continues until STP.",
+        "de": "Programm starten. Die Chargennummern 31, 34 und 37 erscheinen in gleichmäßigen Abständen. Der Sprung setzt den Wert wieder auf 31. STP beendet die Wiederholung."
+       }
+      },
+      {
+       "example": "cp1-blink",
+       "title": {
+        "en": "1.44 · Blink an LED",
+        "de": "1.44 · Eine LED blinkt"
+       },
+       "lead": {
+        "en": "CP1: Blink an LED",
+        "de": "CP1: Eine LED blinkt"
+       }
+      },
+      {
+       "example": "cp1-lookup-card",
+       "title": {
+        "en": "1.45 · Map the space used by a lookup",
+        "de": "1.45 · Zeichne den Speicherplan einer Tabelle"
+       },
+       "lead": {
+        "en": "Mark the occupied code and data ranges, then relocate just the table to practice reserving separate space. Use the source and Memory to draw the occupied ranges. Run from 038 and read cell 051 and ACC. In the source, move the table's ORG 54 to ORG 60 and change the CardStart data value to 60. Keep the table's order and code origin. Reload and repeat. Code is in 038–042. Initially the constants and cursor occupy 050–051 and the table 054–059. After moving the table to 060–065, the cursor becomes 064 and ACC still shows 00.123.",
+        "de": "Markiere die belegten Bereiche für Befehle und Daten. Verlege danach nur die Tabelle, um Platz für getrennte Speicherbereiche einzuplanen. Zeichne anhand von Quelltext und Speicher die belegten Bereiche ein. Starte bei 038 und lies Zelle 051 sowie ACC ab. Ändere ORG 54 am Tabellenanfang in ORG 60 und den Datenwert von CardStart in 60. Belasse die Tabellenreihenfolge und den Befehlsanfang. Lade die Zellen neu und wiederhole den Test. Die Befehle liegen in 038–042. Anfangs belegen Konstante und Zeiger 050–051, die Tabelle belegt 054–059. Nach dem Umzug der Tabelle nach 060–065 steht 064 im Zeiger und ACC zeigt weiterhin 00.123."
+       }
+      },
+      {
+       "example": "cp1-guarded-output",
+       "title": {
+        "en": "1.46 · Guarded output",
+        "de": "1.46 · Bedingter Ausgang"
+       },
+       "lead": {
+        "en": "CP1: Guarded output",
+        "de": "CP1: Bedingter Ausgang"
+       }
+      },
+      {
+       "example": "cp1-descending-sum",
+       "title": {
+        "en": "1.47 · Descending sum",
+        "de": "1.47 · Absteigende Summe"
+       },
+       "lead": {
+        "en": "CP1: Descending sum",
+        "de": "CP1: Absteigende Summe"
+       }
+      },
+      {
+       "example": "cp1-status-dispatch",
+       "title": {
+        "en": "1.48 · Status dispatch",
+        "de": "1.48 · Statusverteiler"
+       },
+       "lead": {
+        "en": "CP1: Status dispatch",
+        "de": "CP1: Statusverteiler"
+       }
+      },
+      {
+       "example": "cp1-batch-ticker",
+       "title": {
+        "en": "1.49 · Batch ticker",
+        "de": "1.49 · Chargenzähler"
+       },
+       "lead": {
+        "en": "Run to display batch IDs 31, 34, and 37 at regular intervals. The branch returns the value to 31 and continues until STP.",
+        "de": "Programm starten. Die Chargennummern 31, 34 und 37 erscheinen in gleichmäßigen Abständen. Der Sprung setzt den Wert wieder auf 31. STP beendet die Wiederholung."
+       }
+      },
+      {
+       "example": "cp1-status-dispatch",
+       "title": {
+        "en": "1.50 · Match routes to the dispatch table",
+        "de": "1.50 · Ordne Wege der Sprungtabelle zu"
+       },
+       "lead": {
+        "en": "Draw four routes from input to result, then connect each route to the cells that implement it. Draw one decision for the largest valid input, followed by index calculation on the valid path and an independent fallback path. Drive all P1 bits to each value in turn. Select 082 PC and take STEP through the comparison and branch on at least one valid input and on 3. Run each case from 082 and read ACC after the halt. Inputs 0, 1 and 2 use table cells 114, 115 and 116 and return 17, 71 and 143. Input 3 branches to the fallback and returns 239.",
+        "de": "Zeichne vier Wege von der Eingabe zum Ergebnis. Ordne dann jedem Weg die beteiligten Zellen zu. Zeichne eine Entscheidung für die größte zulässige Eingabe. Zeichne für gültige Werte die Indexberechnung und für die übrigen den Ausweichpfad. Stelle alle P1-Bits nacheinander passend zu den vier Werten ein. Wähle 082 PC und gehe bei mindestens einer gültigen Eingabe und bei 3 mit STEP durch Vergleich und Sprung. Starte jeden Fall bei 082 und lies nach dem Halt ACC. Die Eingaben 0, 1 und 2 verwenden die Tabellenzellen 114, 115 und 116 und liefern 17, 71 und 143. Eingabe 3 verzweigt zur Ausweichroutine und liefert 239."
+       }
+      },
+      {
+       "example": "cp1-led-route-puzzle",
+       "title": {
+        "en": "1.51 · Two-relay route puzzle",
+        "de": "1.51 · Rätsel mit zwei Weichen"
+       },
+       "lead": {
+        "en": "Choose route switches on P1.1 and P1.2. P2.1 and P2.2 echo the two chosen branches. P2.3 lights only for the route that uses the right branch but leaves the left branch open. Predict and test all four settings.",
+        "de": "Weichen an P1.1 und P1.2 einstellen. P2.1 und P2.2 spiegeln die beiden gewählten Abzweige. P2.3 wird nur bei rechtem geschlossenem und linkem offenem Logikzweig High, also P1.2 High und P1.1 Low. Alle vier Einstellungen vorhersagen und prüfen."
+       }
+      },
+      {
+       "example": "cp1-cp5-binary",
+       "title": {
+        "en": "1.52 · Make the switch bank easy to read",
+        "de": "1.52 · Mache die Schaltergruppe verständlich"
+       },
+       "lead": {
+        "en": "Make a small operator card for entering a byte and checking the response. Run the CP5 circuit from 000. Work out which switch positions read as 0 and 1, then mark the terminal weights from 1 to 128. Write one target, 37, and one display check on the card. Ask someone to set the switches from the card and explain how they checked the result. If working alone, test the card after clearing the bank. A second person can set decimal 37 using terminals 1, 3 and 6 as ones. The matching indicators are on and the display shows A00.037.",
+        "de": "Schreibe eine kurze Bedienkarte zum Einstellen eines Bytes und zum Prüfen der Rückmeldung. Starte die CP5-Schaltung bei 000. Ermittle, welche Schalterstellungen als 0 und 1 gelesen werden, und beschrifte die Anschlüsse mit den Stellenwerten von 1 bis 128. Notiere den Zielwert 37 und eine Kontrolle der Anzeige auf der Karte. Lass jemanden die Schalter anhand der Karte einstellen und die Kontrolle erklären. Wenn du allein arbeitest, teste die Karte nach dem Schließen aller Schalter. Mit der Karte kann jemand anderes den Wert 37 einstellen, indem die Anschlüsse 1, 3 und 6 eine Eins liefern. Die zugehörigen LEDs leuchten und die Anzeige zeigt A00.037."
+       }
+      },
+      {
+       "example": "cp1-switch-input",
+       "title": {
+        "en": "1.53 · Read a switch",
+        "de": "1.53 · Einen Taster lesen"
+       },
+       "lead": {
+        "en": "CP1: Read a switch",
+        "de": "CP1: Einen Taster lesen"
+       }
+      },
+      {
+       "example": "cp1-cp5-binary",
+       "title": {
+        "en": "1.54 · CP5-style binary workbench",
+        "de": "1.54 · Binärzahlen mit acht Schaltern"
+       },
+       "lead": {
+        "en": "CP1: CP5-style binary workbench",
+        "de": "CP1: Binärzahlen mit acht Schaltern"
+       }
+      },
+      {
+       "example": "cp1-button-stopwatch",
+       "title": {
+        "en": "1.55 · Button stopwatch",
+        "de": "1.55 · Taster-Stoppuhr"
+       },
+       "lead": {
+        "en": "Ground P1.4 to count 100-unit intervals. Release the contact to stop and read Count with ACC. The counter stops automatically at nine even if the contact stays closed.",
+        "de": "P1.4 mit Masse verbinden, um Intervalle von 100 Einheiten zu zählen. Zum Anhalten den Kontakt öffnen und Count mit ACC ablesen. Bei neun endet die Zählung auch bei geschlossenem Kontakt."
+       }
+      },
+      {
+       "example": "cp1-bidirectional-beacon",
+       "title": {
+        "en": "1.56 · Sink and sample",
+        "de": "1.56 · Ziehen und Abtasten"
+       },
+       "lead": {
+        "en": "Observe P1.5 with a high-impedance probe. It is pulled low, P1.2 is sampled while the line is low, and P1.5 is released after 145 delay units. A contact on P1.2 gives 000 when grounded and 001 when open.",
+        "de": "P1.5 mit einem hochohmigen Tastkopf beobachten. Das Programm zieht ihn auf Low, liest P1.2 und gibt P1.5 nach 145 Warteeinheiten frei. Ein Massekontakt an P1.2 ergibt 000, ein offener Kontakt 001."
+       }
+      },
+      {
+       "example": "cp1-blink",
+       "title": {
+        "en": "1.57 · Blink an LED",
+        "de": "1.57 · Eine LED blinkt"
+       },
+       "lead": {
+        "en": "CP1: Blink an LED",
+        "de": "CP1: Eine LED blinkt"
+       }
+      },
+      {
+       "example": "cp1-gray-indicator",
+       "title": {
+        "en": "1.58 · Gray indicator",
+        "de": "1.58 · Gray-Anzeige"
+       },
+       "lead": {
+        "en": "CP1: Gray indicator",
+        "de": "CP1: Gray-Anzeige"
+       }
+      },
+      {
+       "example": "cp1-guarded-output",
+       "title": {
+        "en": "1.59 · Guarded output",
+        "de": "1.59 · Bedingter Ausgang"
+       },
+       "lead": {
+        "en": "CP1: Guarded output",
+        "de": "CP1: Bedingter Ausgang"
+       }
+      },
+      {
+       "example": "cp1-guarded-output",
+       "title": {
+        "en": "1.60 · Guarded output",
+        "de": "1.60 · Bedingter Ausgang"
+       },
+       "lead": {
+        "en": "CP1: Guarded output",
+        "de": "CP1: Bedingter Ausgang"
+       }
+      },
+      {
+       "example": "cp1-guarded-output",
+       "title": {
+        "en": "1.61 · Guarded output",
+        "de": "1.61 · Bedingter Ausgang"
+       },
+       "lead": {
+        "en": "CP1: Guarded output",
+        "de": "CP1: Bedingter Ausgang"
+       }
+      },
+      {
+       "example": "cp1-cp5-binary",
+       "title": {
+        "en": "1.62 · See one byte in three places",
+        "de": "1.62 · Sieh dasselbe Byte an drei Stellen"
+       },
+       "lead": {
+        "en": "Compare the switch pattern, the stored sample and the decimal display for one stable reading. In the CP5 circuit, ground all inputs except terminals 5 and 8. Run from 000 and wait for the LEDs and display to reflect the setting. Check A and the live memory cell before changing the switches. Alternatively press STP and read 032 OUT while keeping the switches unchanged. Binary 10010000 lights terminals 5 and 8, gives A00.144, and stores 00.144 in cell 032 after the circuit samples the setting.",
+        "de": "Vergleiche das Schalterbild, die gespeicherte Probe und die Dezimalanzeige bei einem stabilen Messwert. Schalte in der CP5-Schaltung alle Eingänge außer Anschluss 5 und 8 auf Masse. Starte bei 000 und beobachte die zur Einstellung passenden LEDs und die Anzeige. Prüfe die A-Anzeige und die aktuelle Speicherzelle, bevor du einen Schalter änderst. Alternativ drücke STP und lies bei unveränderten Schaltern 032 OUT. Binär 10010000 schaltet die LEDs an Anschluss 5 und 8 ein, ergibt A00.144 und speichert nach der Abfrage 00.144 in Zelle 032."
+       }
+      },
+      {
+       "example": "cp1-cp5-binary",
+       "title": {
+        "en": "1.63 · Walk one bit across the bank",
+        "de": "1.63 · Lass ein gesetztes Bit wandern"
+       },
+       "lead": {
+        "en": "Measure each terminal's contribution on its own, then predict a combination. Run the CP5 circuit and ground all switches. Starting with terminal 1, release exactly one switch and record the displayed value, then ground it again before moving to the next. Predict and test the value with only terminals 2, 5 and 8 high. Terminals 1–8 contribute 1, 2, 4, 8, 16, 32, 64 and 128. The combination of 2, 5 and 8 gives A00.146.",
+        "de": "Miss den Beitrag jedes Anschlusses einzeln und sage danach einen kombinierten Wert voraus. Starte die CP5-Schaltung und schalte alle Eingänge auf Masse. Öffne ab Anschluss 1 jeweils genau einen Schalter und notiere den angezeigten Wert. Schließe ihn vor dem nächsten Versuch wieder. Sage den Wert voraus und prüfe ihn für den Fall, dass nur Anschluss 2, 5 und 8 auf High liegen. Anschluss 1–8 trägt 1, 2, 4, 8, 16, 32, 64 und 128 bei. Die Kombination von 2, 5 und 8 ergibt A00.146."
+       }
+      },
+      {
+       "example": "cp1-cp5-binary",
+       "title": {
+        "en": "1.64 · Send a byte and its inverse",
+        "de": "1.64 · Sende ein Byte und sein Gegenbild"
+       },
+       "lead": {
+        "en": "Encode 166 from switch positions, then read its bit-by-bit inverse from the LEDs. Run the CP5 circuit and choose the switches that make 166. Read the LEDs from terminal 8 down to 1 and verify the decimal display. Reverse all eight switch positions. Predict the new decimal from the inverted pattern before reading the display. 166 is binary 10100110, with terminals 2, 3, 6 and 8 high. Inverting all eight positions produces binary 01011001, or 89. The two displayed decimals sum to 255.",
+        "de": "Stelle die 166 mit den Schaltern ein und lies danach das Bit-für-Bit-Gegenbild an den LEDs ab. Starte die CP5-Schaltung und wähle die Schalterstellung für 166. Lies die LEDs von Anschluss 8 bis 1 und überprüfe die Dezimalanzeige. Kehre alle acht Schalterstellungen um. Sage aus dem umgekehrten Bitmuster den neuen Dezimalwert voraus und lies erst dann die Anzeige. 166 ist binär 10100110. Anschluss 2, 3, 6 und 8 sind High. Das Umdrehen aller acht Positionen ergibt binär 01011001, also 89. Die beiden angezeigten Dezimalwerte ergeben zusammen 255."
+       }
+      },
+      {
+       "example": "cp1-instruction-patch",
+       "title": {
+        "en": "1.65 · Zoom from a word down to one bit",
+        "de": "1.65 · Betrachte ein Wort bis hinunter zum einzelnen Bit"
+       },
+       "lead": {
+        "en": "Read a full teaching word, resolve each byte into binary, then locate the least significant operand bit. Load the original and use 078 OUT. Write each decimal field as an eight-digit binary value and mark bit 0 in the operand. From 066 use STEP to load, copy and reach the new word at 069, then execute it. Compare ACC just after LDA with ACC just after the new word. 04.197 consists of 00000100 and 11000101. Operand bit 0 is 1. After AKO executes, ACC is 00.197. The operand stays the same and the high byte changes to zero.",
+        "de": "Lies ein ganzes Lernwort, stelle jedes Byte binär dar und finde das niederwertigste Bit des Operanden. Lade das Original und gib 078 OUT ein. Schreibe jedes Dezimalfeld als achtstellige Binärzahl und markiere Bit 0 im Operanden. Gehe von 066 aus mit STEP durch Laden und Kopieren bis zum neuen Wort in 069 und führe es aus. Vergleiche ACC direkt nach LDA mit ACC nach dem neuen Befehl. 04.197 besteht aus 00000100 und 11000101. Bit 0 des Operanden ist 1. Nach der Ausführung von AKO steht 00.197 im Akkumulator. Der Operand bleibt gleich und das obere Byte wird null."
+       }
+      }
+     ]
+    },
+    {
+     "title": {
+      "en": "Addresses and program layout",
+      "de": "Adressen und Programmaufbau"
+     },
+     "stations": [
+      {
+       "example": "cp1-sample-log",
+       "title": {
+        "en": "1.66 · Sample log",
+        "de": "1.66 · Messprotokoll"
+       },
+       "lead": {
+        "en": "CP1: Sample log",
+        "de": "CP1: Messprotokoll"
+       }
+      },
+      {
+       "example": "cp1-lookup-card",
+       "title": {
+        "en": "1.67 · Lookup card",
+        "de": "1.67 · Tabellenkarte"
+       },
+       "lead": {
+        "en": "CP1: Lookup card",
+        "de": "CP1: Tabellenkarte"
+       }
+      },
+      {
+       "example": "cp1-status-dispatch",
+       "title": {
+        "en": "1.68 · Status dispatch",
+        "de": "1.68 · Statusverteiler"
+       },
+       "lead": {
+        "en": "CP1: Status dispatch",
+        "de": "CP1: Statusverteiler"
+       }
+      },
+      {
+       "example": "cp1-tile-bundles",
+       "title": {
+        "en": "1.69 · Tile bundle counter",
+        "de": "1.69 · Fliesenpakete zählen"
+       },
+       "lead": {
+        "en": "Run to count seven bundles of thirteen tiles. Inspect Product and Remaining after halt, and single-step a loop to see that each pass adds one bundle.",
+        "de": "Programm starten, um sieben Pakete zu je dreizehn Fliesen zu zählen. Nach dem Halt Product und Remaining prüfen. Im Einzelschritt sieht man, wie jeder Durchlauf ein Paket addiert."
+       }
+      },
+      {
+       "example": "cp1-crate-division",
+       "title": {
+        "en": "1.70 · Crate division",
+        "de": "1.70 · Kistenaufteilung"
+       },
+       "lead": {
+        "en": "CP1: Crate division",
+        "de": "CP1: Kistenaufteilung"
+       }
+      },
+      {
+       "example": "cp1-descending-sum",
+       "title": {
+        "en": "1.71 · Repair a bad subtraction operand",
+        "de": "1.71 · Repariere einen falschen Operanden der Subtraktion"
+       },
+       "lead": {
+        "en": "Turn a constant into an instruction word and let the monitor show which arithmetic operation detects it. In a copy, replace One: DATA 1 with One: AKO 1 and load it. Run from 010 and read the failing address with PC. Read the culprit word with 032 OUT and compare it with the required data word. Repair the source, reload, rerun and inspect 031 OUT. The altered program raises F005 with PC 020. Cell 032 holds 04.001, whereas SUB expects numerical data. Restoring 00.001 produces total 28 in cell 031.",
+        "de": "Ersetze eine Konstante durch ein Befehlswort und lass dir vom Monitor zeigen, welche Rechenoperation den Fehler erkennt. Ersetze in einer Kopie One: DATA 1 durch One: AKO 1 und lade sie. Starte bei 010 und ermittle die Fehleradresse mit PC. Lies das auslösende Wort mit 032 OUT und vergleiche es mit dem benötigten Datenwort. Repariere den Quelltext, lade ihn neu, starte erneut und lies 031 OUT. Das geänderte Programm meldet F005 bei PC 020. In Zelle 032 steht 04.001, SUB erwartet dort aber einen Zahlenwert. Mit 00.001 ergibt sich in Zelle 031 wieder die Summe 28."
+       }
+      },
+      {
+       "example": "cp1-status-dispatch",
+       "title": {
+        "en": "1.72 · Replace three handlers with table data",
+        "de": "1.72 · Ersetze drei Routinen durch Tabellendaten"
+       },
+       "lead": {
+        "en": "Shorten the valid-input path by storing the answer bytes directly in the table. Record ACC for all five input bytes using the original listing, restarting at 082 each time. Keep the range check and fallback. Replace SIU Selector with LIA Selector followed by HLT 0. Remove the three valid-route handler pairs and replace the jump table with DATA 17, DATA 71 and DATA 143 on separate lines. Load the shorter version and rerun the same cases. Use the exported listings to count the occupied words. The revised listing uses five fewer occupied teaching cells. The accumulator results for 0, 1, 2, 3 and 255 remain 17, 71, 143, 239 and 239.",
+        "de": "Verkürze den Weg für gültige Eingaben, indem du die Ergebnisbytes direkt in der Tabelle speicherst. Notiere ACC für alle fünf Eingabebytes mit dem ursprünglichen Listing. Starte jedes Mal wieder bei 082. Lass die Bereichsprüfung und die Ausweichroutine stehen. Ersetze SIU Selector durch LIA Selector und direkt danach HLT 0. Entferne die drei Befehlspaare der gültigen Wege und schreibe anstelle der Sprungtabelle DATA 17, DATA 71 und DATA 143 auf getrennte Zeilen. Lade die kürzere Fassung und wiederhole dieselben Fälle. Zähle die belegten Wörter in den exportierten Listings. Das kürzere Listing belegt fünf Lernzellen weniger. Im Akkumulator stehen für 0, 1, 2, 3 und 255 weiterhin 17, 71, 143, 239 und 239."
+       }
+      },
+      {
+       "example": "cp1-delay-lab",
+       "title": {
+        "en": "1.73 · Nested timing lab",
+        "de": "1.73 · Zeitmessung mit zwei Schleifen"
+       },
+       "lead": {
+        "en": "Probe P2.4. Measure the low pulse across four outer iterations of six inner iterations. This delay uses only teaching instructions. Visits should read 024 after halt.",
+        "de": "P2.4 messen. Der Low-Impuls umfasst vier äußere Durchläufe mit je sechs inneren Durchläufen. Die Verzögerung besteht nur aus Lehrbefehlen. Visits muss am Ende 024 enthalten."
+       }
+      },
+      {
+       "example": "cp1-delay-lab",
+       "title": {
+        "en": "1.74 · Test a word that leaves working values intact",
+        "de": "1.74 · Prüfe ein Wort, das Arbeitswerte unverändert lässt"
+       },
+       "lead": {
+        "en": "Use a zero-delay word to distinguish progress through the program from a change in its data. Pick three unused, consecutive cells in the loaded lab. In a copy of the source add an ORG for that start and three lines, AKO 37, VZG 0 and HLT 0. Choose an existing data cell to observe. Load the copy and select the new start with PC. STEP once, then inspect ACC and the chosen data cell. STEP over VZG and compare PC, ACC and that cell. After VZG 0, PC advances by one and ACC still shows 00.037. The selected data cell is unchanged. The word still takes machine work to execute.",
+        "de": "Unterscheide mit einem Wartebefehl für null Einheiten den Programmfortschritt von einer Änderung der Daten. Wähle drei freie, aufeinanderfolgende Zellen im geladenen Versuch. Ergänze in einer Quellkopie ein ORG für diesen Anfang und die Zeilen AKO 37, VZG 0 und HLT 0. Wähle eine vorhandene Datenzelle zur Beobachtung. Lade die Kopie und wähle den neuen Start mit PC. Drücke einmal STEP und prüfe ACC und die gewählte Datenzelle. Führe VZG mit STEP aus und vergleiche PC, ACC und die Zelle. Nach VZG 0 rückt der PC um eins weiter und ACC zeigt weiterhin 00.037. Die beobachtete Datenzelle bleibt unverändert. Der Befehl benötigt trotzdem Rechenzeit."
+       }
+      },
+      {
+       "example": "cp1-dual-workbench",
+       "title": {
+        "en": "1.75 · Two workbench entries",
+        "de": "1.75 · Werkbank mit zwei Einstiegspunkten"
+       },
+       "lead": {
+        "en": "Use entry 000 to update Stock to 047, then use entry 016 without reloading to calculate Stock plus five. Entering directly at 016 after loading uses the initial stock of 018.",
+        "de": "Einstieg 000 setzt Stock auf 047. Danach Einstieg 016 ohne erneutes Laden wählen, um fünf zu Stock zu addieren. Wer direkt nach dem Laden bei 016 beginnt, rechnet mit dem Anfangsbestand 018."
+       }
+      },
+      {
+       "example": "cp1-dual-workbench",
+       "title": {
+        "en": "1.76 · Move one workbench without breaking either",
+        "de": "1.76 · Verlege einen Programmteil, ohne den anderen zu beschädigen"
+       },
+       "lead": {
+        "en": "Relocate one entry point together with its private data inside the installed address range. Use the listing to map both entry points, their code, private data and any shared cells. Run both from their existing starts and record an output or stored result from each. In a copy, move the chosen code and private data into free ranges using ORG. Check the labels and adjust hard-coded addresses that refer to moved cells. Leave any shared cells accessible from both starts. Reload and test the same inputs from the moved start and the untouched start. Check the resolved references in the decimal listing. Both entry points still produce their original observations for the same inputs. The exported listing shows the new entry and data positions, with references resolved to the intended cells.",
+        "de": "Verlege einen Programmeinstieg zusammen mit seinen eigenen Daten innerhalb des verfügbaren Adressraums. Markiere im Listing beide Einstiege, ihre Befehle, eigenen Daten und alle gemeinsam genutzten Zellen. Starte beide Abläufe an ihren bisherigen Adressen und notiere jeweils eine Ausgabe oder ein gespeichertes Ergebnis. Verlege in einer Kopie den gewählten Code und seine Daten mit ORG in freie Bereiche. Prüfe die Marken und passe feste Adressen an, die auf verlegte Zellen zeigen. Gemeinsame Zellen sollen für beide Einstiege erreichbar bleiben. Lade die Kopie und teste dieselben Eingaben am verlegten und am unveränderten Einstieg. Prüfe die aufgelösten Verweise im Dezimallisting. Beide Einstiege liefern bei denselben Eingaben weiterhin ihre ursprünglichen Ergebnisse. Das exportierte Listing zeigt die neuen Adressen für Einstieg und Daten sowie die aufgelösten Verweise auf die richtigen Zellen."
+       }
+      },
+      {
+       "example": "cp1-gray-indicator",
+       "title": {
+        "en": "1.77 · Separate delay from instruction overhead",
+        "de": "1.77 · Trenne Wartezeit vom Befehlsaufwand"
+       },
+       "lead": {
+        "en": "Compare machine-cycle counts for a port write and several delay operands while checking the output order. Set a command breakpoint at the first P2A. Run the CPU and start from 008 with keypad RUN. Use Step CP1 command to record the reported cycles for P2A and VZG 75. Repeat with VZG 0 and VZG 150 in separate loaded copies. If a step uses more than one slice, sum the reported cycles for that command. Verify the output values in Ports at the P2A steps. VZG takes more machine cycles with a larger operand. VZG 0 still takes cycles. The P2 values stay in the same order, so the timing edit changes pacing without changing the sequence.",
+        "de": "Vergleiche die Maschinenzyklen einer Portausgabe und mehrerer Warteoperanden. Prüfe dabei die Reihenfolge der Ausgaben. Setze einen Befehlshaltepunkt an der ersten P2A-Zelle. Starte die CPU und dann den Ablauf bei 008 mit RUN am Tastenfeld. Notiere mit CP1-Befehlsschritt die gemeldeten Zyklen für P2A und VZG 75. Wiederhole die Messung in getrennt geladenen Kopien mit VZG 0 und VZG 150. Wenn ein Befehl mehrere Teilschritte benötigt, addiere deren gemeldete Zyklen. Prüfe unter Ports die Werte bei den P2A-Schritten. VZG benötigt mit größerem Operanden mehr Maschinenzyklen. Auch VZG 0 benötigt Zyklen. Die P2-Werte bleiben in derselben Reihenfolge. Die Änderung beeinflusst damit das Tempo, während die Folge gleich bleibt."
+       }
+      }
+     ]
+    },
+    {
+     "title": {
+      "en": "Clocks, games and applications",
+      "de": "Uhren, Spiele und Anwendungen"
+     },
+     "stations": [
+      {
+       "example": "cp1-shift-clock",
+       "title": {
+        "en": "2.1 · Shift change clock",
+        "de": "2.1 · Uhr zum Schichtwechsel"
+       },
+       "lead": {
+        "en": "Start at 23:58. A low pulse on P1.1 advances a minute; release between pulses. P2 is the hour and the panel shows minutes. Ground P1.2 alone to finish. Three pulses cross midnight and end at 00:01.",
+        "de": "Start bei 23:58. Ein Low-Impuls an P1.1 schaltet eine Minute weiter. Zwischen den Impulsen freigeben. P2 zeigt die Stunde, die Anzeige die Minute. P1.2 allein auf Masse beendet den Lauf. Drei Impulse führen über Mitternacht zu 00:01."
+       }
+      },
+      {
+       "example": "cp1-signal-reaction",
+       "title": {
+        "en": "2.2 · Reaction signal",
+        "de": "2.2 · Reaktionssignal"
+       },
+       "lead": {
+        "en": "Choose the short cue wait by grounding P1.3 or the long wait by leaving it open. Keep P1.4 open until P2.6 goes high and then press the response button. The counter records completed 35-unit intervals after the cue, up to twelve.",
+        "de": "P1.3 auf Masse wählt die kurze Wartezeit, offen die lange. P1.4 offen lassen, bis P2.6 High wird, und dann den Antworttaster drücken. Der Zähler erfasst volle Intervalle von 35 Einheiten nach dem Signal, höchstens zwölf."
+       }
+      },
+      {
+       "example": "cp1-machine-time-meter",
+       "title": {
+        "en": "2.3 · Usage total meter",
+        "de": "2.3 · Nutzungszähler"
+       },
+       "lead": {
+        "en": "On P1, send 1 for a base-rate tick (7 credits), 2 for a peak-rate tick (11 credits), and 255 between ticks. Send 0 to finish early. Eight accepted ticks also end the session. Inspect Used and Cost.",
+        "de": "Über P1 meldet 1 einen Standardtakt (7 Einheiten) und 2 einen Hochtariftakt (11 Einheiten). Dazwischen 255 einstellen. 0 beendet vorzeitig, nach acht gültigen Takten endet das Programm ebenfalls. Used und Cost prüfen."
+       }
+      },
+      {
+       "example": "cp1-bench-voltmeter",
+       "title": {
+        "en": "2.4 · Calibrated bench readout",
+        "de": "2.4 · Kalibrierte Messanzeige"
+       },
+       "lead": {
+        "en": "Set an unsigned ADC sample on P1. Codes at or below 12 read zero; above 12, four codes equal a tenth of a volt. The program subtracts the offset and divides by four, leaving tenths of a volt in Reading.",
+        "de": "Einen vorzeichenlosen ADC-Wert an P1 einstellen. Bis einschließlich 12 bleibt die Anzeige null, darüber entsprechen vier Schritte einem Zehntelvolt. Das Programm zieht den Offset ab, teilt durch vier und speichert Zehntelvolt in Reading."
+       }
+      },
+      {
+       "example": "cp1-token-match",
+       "title": {
+        "en": "2.5 · Ten-token match",
+        "de": "2.5 · Spiel mit zehn Marken"
+       },
+       "lead": {
+        "en": "Take 1, 2, or 3 tokens by sending that byte on P1. Return to 255 between moves. The computer tries to make each pair of turns remove four, but takes only what remains. Result 1 means the player took the last token and 2 means the computer did.",
+        "de": "Mit P1-Byte 1, 2 oder 3 so viele Marken nehmen. Zwischen den Zügen 255 einstellen. Der Computer ergänzt jeden Zug möglichst auf vier, nimmt aber höchstens den Rest. Ergebnis 1 bedeutet Spielersieg, 2 Computersieg."
+       }
+      },
+      {
+       "example": "cp1-code-feedback",
+       "title": {
+        "en": "2.6 · Find the cabinet code",
+        "de": "2.6 · Schrankcode finden"
+       },
+       "lead": {
+        "en": "Guess a byte from 0 to 254 on P1. Return to 255 between guesses. P2 gives 1 for low, 2 for high, 3 for correct, or 4 after twelve unsuccessful guesses. Attempts counts the guesses.",
+        "de": "Über P1 ein Byte von 0 bis 254 raten, dazwischen 255 einstellen. P2 zeigt 1 für zu klein, 2 für zu groß, 3 für richtig und 4 nach zwölf Fehlversuchen. Attempts zählt die Versuche."
+       }
+      },
+      {
+       "example": "cp1-greenhouse-schedule",
+       "title": {
+        "en": "2.7 · Greenhouse vent schedule",
+        "de": "2.7 · Lüftungsplan fürs Gewächshaus"
+       },
+       "lead": {
+        "en": "Use active-low pulses on P1.1 as simulated minutes. P2.7 opens the vent at minutes 2 and 6 and closes it at 4 and 8. The schedule ends after minute 9. Each low pulse needs a high release before the next.",
+        "de": "Low-Impulse an P1.1 simulieren Minuten. P2.7 öffnet die Lüftung in Minute 2 und 6 und schließt in Minute 4 und 8. Der Plan endet nach Minute 9. Zwischen den Low-Impulsen den Eingang auf High freigeben."
+       }
+      },
+      {
+       "example": "cp1-signal-memory",
+       "title": {
+        "en": "2.8 · Signal sequence memory",
+        "de": "2.8 · Signalspeicher"
+       },
+       "lead": {
+        "en": "Run with P1.2 open, then ground it. The monitor generates four states by adding three modulo seven, stores them through a pointer, and replays them on P2 in order with 80-unit holds.",
+        "de": "Mit offenem P1.2 starten und den Eingang dann auf Masse ziehen. Das Programm erzeugt vier Zustände durch Addition von drei modulo sieben, speichert sie indirekt und gibt sie mit 80 Warteeinheiten pro Zustand auf P2 aus."
+       }
+      },
+      {
+       "example": "cp1-pair-grid",
+       "title": {
+        "en": "2.9 · Six-card memory grid",
+        "de": "2.9 · Gedächtnisraster mit sechs Karten"
+       },
+       "lead": {
+        "en": "Choose card indices 0–5 on P1, returning to 255 between choices. The panel reveals each chosen value; P2.1 reports whether two different cards matched. A matched pair is removed. Find all three pairs to halt.",
+        "de": "Kartenindizes 0–5 an P1 wählen und dazwischen 255 einstellen. Die Anzeige deckt den Kartenwert auf. P2.1 meldet, ob zwei verschiedene Karten zusammenpassen. Gefundene Paare werden entfernt. Nach drei Paaren hält das Programm an."
+       }
+      },
+      {
+       "example": "cp1-cabinet-panel",
+       "title": {
+        "en": "2.10 · Sequence cabinet",
+        "de": "2.10 · Schalttafel mit Eingabefolge"
+       },
+       "lead": {
+        "en": "P1 carries a key code and 255 means released. Enter 9, 4, 7 in order to open the model cabinet at P2.3. A wrong key resets the sequence to its first position. The display shows the number of correct consecutive keys.",
+        "de": "P1 überträgt einen Tastencode, 255 bedeutet freigegeben. Die Folge 9, 4, 7 schaltet das Modellschloss an P2.3 frei. Eine falsche Taste setzt die Folge zurück. Die Anzeige zählt die richtigen Tasten in Folge."
+       }
+      },
+      {
+       "example": "cp1-twin-samples",
+       "title": {
+        "en": "2.11 · Twin counters",
+        "de": "2.11 · Zwillingszähler"
+       },
+       "lead": {
+        "en": "Ground P1.2 to freeze the first cyclic counter, release it, then ground P1.5 to freeze the second. Both count modulo five with a 45-unit pause. P2.5 goes high only when the final samples agree.",
+        "de": "P1.2 auf Masse ziehen, um den ersten zyklischen Zähler festzuhalten. Danach den Kontakt öffnen und P1.5 auf Masse ziehen, um den zweiten Zähler festzuhalten. Beide zählen modulo fünf mit 45 Warteeinheiten. P2.5 ist nur bei gleichen Werten High."
+       }
+      },
+      {
+       "example": "cp1-descent-challenge",
+       "title": {
+        "en": "2.12 · Descent on three charges",
+        "de": "2.12 · Abstieg mit drei Bremsladungen"
+       },
+       "lead": {
+        "en": "Send P1 byte 0 to coast or 1 to brake, returning to 255 after each command. Start at height 15, speed 2, and three brake charges. Coasting increases speed; a charge decreases it to a minimum of one. A touchdown at speed one or two reports 1, otherwise 2.",
+        "de": "An P1 bedeutet 0 Rollen und 1 Bremsen, dazwischen jeweils 255 einstellen. Start bei Höhe 15, Tempo 2 und drei Bremsladungen. Rollen erhöht das Tempo, eine Ladung senkt es bis mindestens eins. Eine Landung mit Tempo eins oder zwei meldet 1, sonst 2."
+       }
+      },
+      {
+       "example": "cp1-signal-melody",
+       "title": {
+        "en": "2.13 · Table score",
+        "de": "2.13 · Melodie aus einer Tabelle"
+       },
+       "lead": {
+        "en": "Connect a digital tone decoder to P2. Notes use codes 3, 5, and 8; zero is silence. Run to hear or observe six slots, each held for 120 units. The final zero switches the sound off.",
+        "de": "Einen digitalen Tondecoder an P2 anschließen. Die Codes 3, 5 und 8 bezeichnen Töne, null bedeutet Stille. Das Programm gibt sechs Abschnitte mit je 120 Warteeinheiten aus und schaltet danach mit null ab."
+       }
+      }
+     ]
+    },
+    {
+     "title": {
+      "en": "Measurements and control",
+      "de": "Messung und Steuerung"
+     },
+     "stations": [
+      {
+       "example": "cp1-grid-escape",
+       "title": {
+        "en": "2.14 · Escape the nine-cell grid",
+        "de": "2.14 · Aus dem Neun-Felder-Raster"
+       },
+       "lead": {
+        "en": "The cells are numbered 0–8 row by row. Start at 0, select a destination on P1, then return to 255. Only horizontal or vertical neighbors are legal, and cell 4 is blocked. Reach cell 8 and use the panel to follow legal moves.",
+        "de": "Die Felder sind zeilenweise von 0 bis 8 nummeriert. Start bei 0, Zielfeld an P1 wählen, dann auf 255 zurückstellen. Nur waagerechte und senkrechte Nachbarfelder sind erlaubt, Feld 4 ist gesperrt. Erreiche Feld 8. Die Anzeige zeigt gültige Züge."
+       }
+      },
+      {
+       "example": "cp1-wide-tile-count",
+       "title": {
+        "en": "2.15 · Two-byte tile total",
+        "de": "2.15 · Fliesenzahl in zwei Bytes"
+       },
+       "lead": {
+        "en": "Count nine bundles of 73. The total is held in two numeric cells, High and Low, in base 256. Before an addition could overflow, replace it with the equivalent subtraction and increment High. The result is 2 × 256 + 145 = 657.",
+        "de": "Neun Pakete zu je 73 zählen. High und Low sind zwei Zahlenzellen zur Basis 256. Vor einem Additionsüberlauf zieht das Programm den passenden Betrag ab und erhöht High. Ergebnis: 2 × 256 + 145 = 657."
+       }
+      },
+      {
+       "example": "cp1-fraction-stream",
+       "title": {
+        "en": "2.16 · Six digits of 5/13",
+        "de": "2.16 · Sechs Stellen von 5/13"
+       },
+       "lead": {
+        "en": "Run long division for six decimal places. Each cycle multiplies the remainder by ten by addition, counts the possible subtractions of thirteen, then displays and stores the new digit. Inspect DigitA through DigitF for 3, 8, 4, 6, 1, 5.",
+        "de": "Die schriftliche Division für sechs Nachkommastellen ausführen. Jeder Zyklus addiert den Rest zehnmal, zählt die möglichen Abzüge von dreizehn und zeigt und speichert die neue Stelle. DigitA bis DigitF enthalten 3, 8, 4, 6, 1, 5."
+       }
+      },
+      {
+       "example": "cp1-studio-annunciator",
+       "title": {
+        "en": "2.17 · Studio call lamps",
+        "de": "2.17 · Ruflampen im Studio"
+       },
+       "lead": {
+        "en": "Choose station 0–3 on P1. Its lamp is selected through a mask table on P2 terminals 1, 3, 5, or 7. Any other input clears all lamps.",
+        "de": "Rufstelle 0–3 an P1 wählen. Eine Maskentabelle schaltet die passende Lampe an P2.1, P2.3, P2.5 oder P2.7. Jeder andere Eingangswert löscht alle Lampen."
+       }
+      },
+      {
+       "example": "cp1-number-drill",
+       "title": {
+        "en": "2.18 · Three quick sums",
+        "de": "2.18 · Drei Kopfrechenaufgaben"
+       },
+       "lead": {
+        "en": "Each round displays two addends, followed by a wait for an answer on P1. Use 255 while no answer is selected and between rounds. P2.1 shows whether the answer is correct. The final panel value is the score out of three.",
+        "de": "Jede Runde zeigt zwei Summanden und wartet dann auf die Antwort an P1. Ohne Antwort und zwischen den Runden 255 einstellen. P2.1 meldet, ob die Antwort stimmt. Am Ende zeigt die Anzeige die Punktzahl von drei Aufgaben."
+       }
+      },
+      {
+       "example": "cp1-conveyor-controller",
+       "title": {
+        "en": "2.19 · Conveyor changeover",
+        "de": "2.19 · Förderband mit Richtungswechsel"
+       },
+       "lead": {
+        "en": "Use a motor model with enable on P2.1 and reverse on P2.2. P1 commands are 0 stop, 1 forward, 2 reverse and 3 stop and halt. Return to 255 between commands. The program disables the motor before changing direction and waits 40 units before enabling again.",
+        "de": "Motormodell mit Freigabe an P2.1 und Rückwärtswahl an P2.2 anschließen. P1-Befehle sind 0 Stopp, 1 vorwärts, 2 rückwärts und 3 Stopp mit Programmhalt. Dazwischen 255 einstellen. Beim Richtungswechsel erst deaktivieren und vor der Freigabe 40 Einheiten warten."
+       }
+      },
+      {
+       "example": "cp1-pulse-bench",
+       "title": {
+        "en": "2.20 · Five-pulse counter",
+        "de": "2.20 · Zähler für fünf Impulse"
+       },
+       "lead": {
+        "en": "Start with P1.5 high. Send five low pulses, separated by a high level for each release. The program counts one pulse per low-to-high cycle and displays the running total.",
+        "de": "Mit P1.5 auf High beginnen. Fünf Low-Impulse senden und dazwischen jeweils auf High freigeben. Das Programm zählt jeden Low-High-Zyklus einmal und zeigt die laufende Summe."
+       }
+      },
+      {
+       "example": "cp1-beacon-code",
+       "title": {
+        "en": "2.21 · Short–long beacon",
+        "de": "2.21 · Bake mit kurzen und langen Zeichen"
+       },
+       "lead": {
+        "en": "Probe P2.2. Four pulses encode short, long, long, short from a symbol table. The initial quiet interval, each short pulse, and each off gap are 70 units, and each long pulse is 210 units. The output remains off at halt.",
+        "de": "P2.2 beobachten. Vier Impulse bilden die Folge kurz, lang, lang, kurz aus einer Zeichentabelle. Anfangspause, kurzer Impuls und jede Pause dauern je 70 Einheiten, ein langer Impuls 210 Einheiten. Nach dem Halt bleibt der Ausgang aus."
+       }
+      },
+      {
+       "example": "cp1-pulse-stretcher",
+       "title": {
+        "en": "2.22 · Two edge-triggered pulses",
+        "de": "2.22 · Zwei flankengesteuerte Impulse"
+       },
+       "lead": {
+        "en": "Starting high, pull P1.6 low to start a 200-unit pulse on P2.4. Holding the input low cannot make a second pulse. Release and pull low again for the second pulse, then the program halts.",
+        "de": "P1.6 zunächst auf High, dann auf Low ziehen. Das erzeugt an P2.4 einen Impuls von 200 Einheiten. Dauerhaftes Low löst keinen zweiten Impuls aus. Erst freigeben und erneut auf Low ziehen. Nach dem zweiten Impuls hält das Programm an."
+       }
+      },
+      {
+       "example": "cp1-gate-tally",
+       "title": {
+        "en": "2.23 · Two-sensor direction tally",
+        "de": "2.23 · Richtungszähler mit zwei Sensoren"
+       },
+       "lead": {
+        "en": "Use active-low sensors A on P1.1 and B on P1.2, releasing each after activation. A then B increases the count, B then A decreases it, and two identical events are ignored. The tally is limited to 0–4 and starts at one. P1.3 alone low ends the run.",
+        "de": "Die Low-aktiven Sensoren A an P1.1 und B an P1.2 nach jeder Aktivierung freigeben. A dann B erhöht den Zähler, B dann A senkt ihn, zwei gleiche Ereignisse bleiben wirkungslos. Der Zähler startet bei eins und bleibt zwischen 0 und 4. P1.3 allein auf Low beendet den Lauf."
+       }
+      },
+      {
+       "example": "cp1-yard-dispatch",
+       "title": {
+        "en": "2.24 · Model yard route setter",
+        "de": "2.24 · Fahrstraßenwahl im Modellbahnhof"
+       },
+       "lead": {
+        "en": "P1 codes 0 and 1 request route A or B, 2 sets both signals to stop, and 3 stops and halts. Return to 255 between commands. P2.1 selects the turnout; P2.2 and P2.3 are route-clear outputs. Both signals stop before the turnout moves, and a 120-unit settling delay precedes opening one route.",
+        "de": "P1-Code 0 oder 1 fordert Fahrstraße A oder B an, 2 setzt beide Signale auf Halt und 3 setzt Halt und beendet das Programm. Dazwischen 255 einstellen. P2.1 stellt die Weiche, P2.2 und P2.3 geben die Fahrstraßen frei. Vor der Bewegung beide Signale auf Halt setzen und vor der Freigabe 120 Einheiten warten."
+       }
+      },
+      {
+       "example": "cp1-ring-selector",
+       "title": {
+        "en": "2.25 · Six-lamp stop ring",
+        "de": "2.25 · Stoppring mit sechs Lampen"
+       },
+       "lead": {
+        "en": "Set a stop index 0–5 on P1. The running lamp starts at index 4 and advances clockwise to the requested position. Other input bytes wait for a valid index. P2 bits 1–6 drive the ring.",
+        "de": "Stoppindex 0–5 an P1 einstellen. Das Lauflicht beginnt bei Index 4 und läuft im Uhrzeigersinn zum Ziel. Bei anderen Eingabewerten wartet das Programm auf einen gültigen Index. P2.1 bis P2.6 treiben den Ring."
+       }
+      }
+     ]
+    },
+    {
+     "title": {
+      "en": "Build and connect",
+      "de": "Aufbauen und verbinden"
+     },
+     "stations": [
+      {
+       "example": "cp1-serial-transmit",
+       "title": {
+        "en": "Acknowledged serial transmitter",
+        "de": "Serieller Sender mit Quittung"
+       },
+       "lead": {
+        "en": "Start serial-receive on the other board first. Connect sender P2.1 to receiver P1.1 (data), sender P2.2 to receiver P1.2 (active-low strobe), receiver P2.3 to sender P1.3 (active-low acknowledgment), and join the grounds. The sender sends Payload MSB first plus even parity. It holds each bit until the receiver acknowledges it and waits for the acknowledgment to be released before changing data. Stop either board with STP if the peer is absent.",
+        "de": "Zuerst serial-receive auf der anderen Platine starten. Sender P2.1 mit Empfänger P1.1 (Daten), Sender P2.2 mit Empfänger P1.2 (Low-aktiver Takt) und Empfänger P2.3 mit Sender P1.3 (Low-aktive Quittung) verbinden. Masse gemeinsam führen. Der Sender überträgt Payload mit dem höchstwertigen Bit zuerst und gerader Parität. Er hält jedes Bit bis zur Quittung und wechselt es erst nach deren Freigabe. Bei fehlender Gegenstelle mit STP stoppen."
+       }
+      },
+      {
+       "example": "cp1-serial-receive",
+       "title": {
+        "en": "Acknowledged serial receiver",
+        "de": "Serieller Empfänger mit Quittung"
+       },
+       "lead": {
+        "en": "Use the three signal connections in serial-transmit. Run this board first. It samples the data while strobe is low, acknowledges each bit on P2.3 and releases that line after strobe goes high. After eight data bits and one even-parity bit, Valid is 1 for acceptance or 0 for a parity fault. The display gives the accepted byte or zero. Parity detects an odd number of altered bits.",
+        "de": "Die drei Signalleitungen wie in serial-transmit verbinden. Diese Platine zuerst starten. Sie liest bei Low am Takt, quittiert jedes Bit an P2.3 und gibt die Leitung nach High am Takt frei. Nach acht Datenbits und einem geraden Paritätsbit bedeutet Valid gleich 1 gültig oder 0 Paritätsfehler. Die Anzeige zeigt das angenommene Byte oder null. Parität erkennt eine ungerade Zahl veränderter Bits."
+       }
+      },
+      {
+       "example": "cp1-edge-trigger-capture",
+       "title": {
+        "en": "Five-sample edge capture",
+        "de": "Flankenspeicher für fünf Abtastwerte"
+       },
+       "lead": {
+        "en": "Supply digital samples on P1 at about 56 ms intervals. Bit P1.8 is the trigger. Keep it low for at least two samples, then raise it. Inspect BeforeA, BeforeB, Trigger, AfterA, and AfterB in order. The full pin bytes, including the trigger bit, are recorded. P2.1 marks capture.",
+        "de": "P1 ungefähr alle 56 ms digital abtasten lassen. P1.8 ist der Trigger. Den Eingang mindestens zwei Abtastwerte lang auf Low halten, dann auf High setzen. BeforeA, BeforeB, Trigger, AfterA und AfterB der Reihe nach prüfen. Gespeichert werden vollständige Bytes einschließlich Triggerbit. P2.1 markiert die Aufnahme."
+       }
+      },
+      {
+       "example": "cp1-fixed-point-filter",
+       "title": {
+        "en": "Quarter-step fixed-point filter",
+        "de": "Festkommafilter mit Viertelschritt"
+       },
+       "lead": {
+        "en": "Feed four unsigned samples to P1. A value from 0 to 63 represents quarter-units, and larger values are clipped to 63. The running result is floor((3 × previous + input) / 4), initialized at zero. Compare the P2 output of an impulse with that of a step input. The program emits four values with a 150-unit pause per sample.",
+        "de": "Vier vorzeichenlose Abtastwerte an P1 anlegen. Werte von 0 bis 63 stehen für Vierteleinheiten, größere werden auf 63 begrenzt. Das laufende Ergebnis ist abgerundet (3 × Vorgänger + Eingang) / 4, mit Startwert null. Die P2-Ausgabe für einen Impuls mit der für einen Sprung vergleichen. Das Programm gibt vier Werte mit je 150 Warteeinheiten aus."
+       }
+      },
+      {
+       "example": "cp1-cp2-sample-logger",
+       "title": {
+        "en": "Four samples to cassette",
+        "de": "Vier Messwerte auf Kassette"
+       },
+       "lead": {
+        "en": "Install CP3 and connect CP2 on P1.7 and P1.8. Use P3.8 as an active-low sample button and P3.1–P3.6 for sample values. Keep P3.7 low and release the button between samples. After four samples, inspect RecordA through RecordD and Total in upper RAM. Press CAS to save all installed RAM. After startup clears RAM, use CAL with the saved stream to recover the four samples and their total, then verify by OUT. CAS and CAL are monitor actions after the teaching program halts.",
+        "de": "CP3 einsetzen und CP2 an P1.7 und P1.8 anschließen. P3.8 dient als Low-aktiver Abtasttaster, P3.1 bis P3.6 liefern den Messwert. P3.7 auf Low halten und den Taster zwischen Messungen freigeben. Nach vier Messungen RecordA bis RecordD und Total im oberen Speicherbereich prüfen. CAS speichert den gesamten Speicher. Nach dem Löschen beim Neustart lädt CAL den gespeicherten Datenstrom. Danach die vier Werte und ihre Summe mit OUT prüfen. CAS und CAL sind Monitortasten nach dem Halt des Lehrprogramms."
+       }
+      }
+     ]
+    }
+   ]
   }
  ]
 }

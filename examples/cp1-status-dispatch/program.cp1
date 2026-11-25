@@ -1,0 +1,25 @@
+ORG 82
+P1E 0
+VGR Largest
+SPB Fallback
+ADD TableAddress
+ABS Selector
+SIU Selector
+RouteZero: AKO 17
+HLT 0
+RouteOne: AKO 71
+HLT 0
+RouteTwo: AKO 143
+HLT 0
+Fallback: AKO 239
+HLT 0
+
+ORG 110
+TableAddress: DATA 114
+Selector: DATA 0
+Largest: DATA 2
+
+ORG 114
+SPU RouteZero
+SPU RouteOne
+SPU RouteTwo

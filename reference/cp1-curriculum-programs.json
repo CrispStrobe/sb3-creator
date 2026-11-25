@@ -1,0 +1,6806 @@
+{
+  "authorRevision": "3e9db72afb2fcc42dcedf876616923b4e2329793",
+  "programs": [
+    {
+      "id": "batch-ticker",
+      "sections": [
+        "1.43",
+        "1.49"
+      ],
+      "title": {
+        "en": "Batch ticker",
+        "de": "Chargenzähler"
+      },
+      "setup": {
+        "en": "Run to display batch IDs 31, 34, and 37 at regular intervals. The branch returns the value to 31 and continues until STP.",
+        "de": "Programm starten. Die Chargennummern 31, 34 und 37 erscheinen in gleichmäßigen Abständen. Der Sprung setzt den Wert wieder auf 31. STP beendet die Wiederholung."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [],
+        "outputs": []
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "stopAfterInstructions": 26,
+          "expect": {
+            "instructions": 26,
+            "pc": 3,
+            "accumulator": [
+              0,
+              31
+            ],
+            "memory": {
+              "Batch": [
+                0,
+                31
+              ]
+            },
+            "display": [
+              [
+                0,
+                31
+              ],
+              [
+                0,
+                34
+              ],
+              [
+                0,
+                37
+              ],
+              [
+                0,
+                31
+              ]
+            ],
+            "delays": [
+              110,
+              110,
+              110
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "beacon-code",
+      "sections": [
+        "2.21"
+      ],
+      "title": {
+        "en": "Short–long beacon",
+        "de": "Bake mit kurzen und langen Zeichen"
+      },
+      "setup": {
+        "en": "Probe P2.2. Four pulses encode short, long, long, short from a symbol table. The initial quiet interval, each short pulse, and each off gap are 70 units, and each long pulse is 210 units. The output remains off at halt.",
+        "de": "P2.2 beobachten. Vier Impulse bilden die Folge kurz, lang, lang, kurz aus einer Zeichentabelle. Anfangspause, kurzer Impuls und jede Pause dauern je 70 Einheiten, ein langer Impuls 210 Einheiten. Nach dem Halt bleibt der Ausgang aus."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [],
+        "outputs": [
+          "P2.2"
+        ]
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "expect": {
+            "instructions": 65,
+            "pc": 23,
+            "accumulator": [
+              0,
+              33
+            ],
+            "p2": 253,
+            "writes": [
+              [
+                "P2",
+                253
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                253
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                253
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                253
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                253
+              ]
+            ],
+            "delays": [
+              70,
+              70,
+              70,
+              210,
+              70,
+              210,
+              70,
+              70,
+              70
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "bench-voltmeter",
+      "sections": [
+        "2.4"
+      ],
+      "title": {
+        "en": "Calibrated bench readout",
+        "de": "Kalibrierte Messanzeige"
+      },
+      "setup": {
+        "en": "Set an unsigned ADC sample on P1. Codes at or below 12 read zero; above 12, four codes equal a tenth of a volt. The program subtracts the offset and divides by four, leaving tenths of a volt in Reading.",
+        "de": "Einen vorzeichenlosen ADC-Wert an P1 einstellen. Bis einschließlich 12 bleibt die Anzeige null, darüber entsprechen vier Schritte einem Zehntelvolt. Das Programm zieht den Offset ab, teilt durch vier und speichert Zehntelvolt in Reading."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [
+          "P1"
+        ],
+        "outputs": []
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "inputs": [
+            {
+              "at": "Sample",
+              "port": "P1",
+              "value": 8
+            }
+          ],
+          "expect": {
+            "instructions": 8,
+            "pc": 19,
+            "accumulator": [
+              0,
+              0
+            ],
+            "memory": {
+              "Reading": [
+                0,
+                0
+              ]
+            },
+            "display": [
+              [
+                0,
+                0
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        },
+        {
+          "inputs": [
+            {
+              "at": "Sample",
+              "port": "P1",
+              "value": 54
+            }
+          ],
+          "expect": {
+            "instructions": 103,
+            "pc": 19,
+            "accumulator": [
+              0,
+              10
+            ],
+            "memory": {
+              "Reading": [
+                0,
+                10
+              ]
+            },
+            "display": [
+              [
+                0,
+                10
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        },
+        {
+          "inputs": [
+            {
+              "at": "Sample",
+              "port": "P1",
+              "value": 212
+            }
+          ],
+          "expect": {
+            "instructions": 463,
+            "pc": 19,
+            "accumulator": [
+              0,
+              50
+            ],
+            "memory": {
+              "Reading": [
+                0,
+                50
+              ]
+            },
+            "display": [
+              [
+                0,
+                50
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "bidirectional-beacon",
+      "sections": [
+        "1.56"
+      ],
+      "title": {
+        "en": "Sink and sample",
+        "de": "Ziehen und Abtasten"
+      },
+      "setup": {
+        "en": "Observe P1.5 with a high-impedance probe. It is pulled low, P1.2 is sampled while the line is low, and P1.5 is released after 145 delay units. A contact on P1.2 gives 000 when grounded and 001 when open.",
+        "de": "P1.5 mit einem hochohmigen Tastkopf beobachten. Das Programm zieht ihn auf Low, liest P1.2 und gibt P1.5 nach 145 Warteeinheiten frei. Ein Massekontakt an P1.2 ergibt 000, ein offener Kontakt 001."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [
+          "P1.2"
+        ],
+        "outputs": [
+          "P1.5"
+        ]
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "inputs": [
+            {
+              "at": "Probe",
+              "port": "P1",
+              "value": 253
+            }
+          ],
+          "expect": {
+            "instructions": 9,
+            "pc": 9,
+            "accumulator": [
+              0,
+              0
+            ],
+            "p1": 255,
+            "memory": {
+              "Sample": [
+                0,
+                0
+              ]
+            },
+            "writes": [
+              [
+                "P1",
+                239
+              ],
+              [
+                "P1",
+                255
+              ]
+            ],
+            "delays": [
+              145
+            ]
+          },
+          "maxInstructions": 2000
+        },
+        {
+          "inputs": [
+            {
+              "at": "Probe",
+              "port": "P1",
+              "value": 255
+            }
+          ],
+          "expect": {
+            "instructions": 9,
+            "pc": 9,
+            "accumulator": [
+              0,
+              1
+            ],
+            "p1": 255,
+            "memory": {
+              "Sample": [
+                0,
+                1
+              ]
+            },
+            "writes": [
+              [
+                "P1",
+                239
+              ],
+              [
+                "P1",
+                255
+              ]
+            ],
+            "delays": [
+              145
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "button-stopwatch",
+      "sections": [
+        "1.55"
+      ],
+      "title": {
+        "en": "Button stopwatch",
+        "de": "Taster-Stoppuhr"
+      },
+      "setup": {
+        "en": "Ground P1.4 to count 100-unit intervals. Release the contact to stop and read Count with ACC. The counter stops automatically at nine even if the contact stays closed.",
+        "de": "P1.4 mit Masse verbinden, um Intervalle von 100 Einheiten zu zählen. Zum Anhalten den Kontakt öffnen und Count mit ACC ablesen. Bei neun endet die Zählung auch bei geschlossenem Kontakt."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [
+          "P1.4"
+        ],
+        "outputs": []
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "inputs": [
+            {
+              "at": "Gate",
+              "port": "P1",
+              "value": 247
+            },
+            {
+              "at": "Gate",
+              "port": "P1",
+              "value": 247
+            },
+            {
+              "at": "Gate",
+              "port": "P1",
+              "value": 247
+            },
+            {
+              "at": "Gate",
+              "port": "P1",
+              "value": 255
+            }
+          ],
+          "expect": {
+            "instructions": 40,
+            "pc": 15,
+            "accumulator": [
+              0,
+              3
+            ],
+            "memory": {
+              "Count": [
+                0,
+                3
+              ]
+            },
+            "display": [
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                3
+              ]
+            ],
+            "delays": [
+              100,
+              100,
+              100
+            ]
+          },
+          "maxInstructions": 2000
+        },
+        {
+          "inputs": [
+            {
+              "at": "Gate",
+              "port": "P1",
+              "value": 247
+            }
+          ],
+          "expect": {
+            "instructions": 102,
+            "pc": 15,
+            "accumulator": [
+              0,
+              9
+            ],
+            "memory": {
+              "Count": [
+                0,
+                9
+              ]
+            },
+            "display": [
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                3
+              ],
+              [
+                0,
+                4
+              ],
+              [
+                0,
+                5
+              ],
+              [
+                0,
+                6
+              ],
+              [
+                0,
+                7
+              ],
+              [
+                0,
+                8
+              ],
+              [
+                0,
+                9
+              ]
+            ],
+            "delays": [
+              100,
+              100,
+              100,
+              100,
+              100,
+              100,
+              100,
+              100,
+              100
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "cabinet-panel",
+      "sections": [
+        "2.10"
+      ],
+      "title": {
+        "en": "Sequence cabinet",
+        "de": "Schalttafel mit Eingabefolge"
+      },
+      "setup": {
+        "en": "P1 carries a key code and 255 means released. Enter 9, 4, 7 in order to open the model cabinet at P2.3. A wrong key resets the sequence to its first position. The display shows the number of correct consecutive keys.",
+        "de": "P1 überträgt einen Tastencode, 255 bedeutet freigegeben. Die Folge 9, 4, 7 schaltet das Modellschloss an P2.3 frei. Eine falsche Taste setzt die Folge zurück. Die Anzeige zählt die richtigen Tasten in Folge."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [
+          "P1"
+        ],
+        "outputs": [
+          "P2.3"
+        ]
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "inputs": [
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 9
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 7
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 9
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 4
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 7
+            }
+          ],
+          "expect": {
+            "instructions": 96,
+            "pc": 36,
+            "accumulator": [
+              0,
+              3
+            ],
+            "p2": 255,
+            "memory": {
+              "Progress": [
+                0,
+                3
+              ]
+            },
+            "display": [
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                3
+              ]
+            ],
+            "writes": [
+              [
+                "P2",
+                251
+              ],
+              [
+                "P2",
+                255
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "code-feedback",
+      "sections": [
+        "2.6"
+      ],
+      "title": {
+        "en": "Find the cabinet code",
+        "de": "Schrankcode finden"
+      },
+      "setup": {
+        "en": "Guess a byte from 0 to 254 on P1. Return to 255 between guesses. P2 gives 1 for low, 2 for high, 3 for correct, or 4 after twelve unsuccessful guesses. Attempts counts the guesses.",
+        "de": "Über P1 ein Byte von 0 bis 254 raten, dazwischen 255 einstellen. P2 zeigt 1 für zu klein, 2 für zu groß, 3 für richtig und 4 nach zwölf Fehlversuchen. Attempts zählt die Versuche."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [
+          "P1"
+        ],
+        "outputs": [
+          "P2"
+        ]
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "inputs": [
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 56
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 128
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 102
+            }
+          ],
+          "expect": {
+            "instructions": 57,
+            "pc": 30,
+            "accumulator": [
+              0,
+              3
+            ],
+            "p2": 3,
+            "memory": {
+              "Attempts": [
+                0,
+                3
+              ]
+            },
+            "writes": [
+              [
+                "P2",
+                1
+              ],
+              [
+                "P2",
+                2
+              ],
+              [
+                "P2",
+                3
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        },
+        {
+          "inputs": [
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 101
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 101
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 101
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 101
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 101
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 101
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 101
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 101
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 101
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 101
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 101
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 101
+            }
+          ],
+          "expect": {
+            "instructions": 242,
+            "pc": 30,
+            "accumulator": [
+              0,
+              4
+            ],
+            "p2": 4,
+            "memory": {
+              "Attempts": [
+                0,
+                12
+              ]
+            },
+            "writes": [
+              [
+                "P2",
+                1
+              ],
+              [
+                "P2",
+                1
+              ],
+              [
+                "P2",
+                1
+              ],
+              [
+                "P2",
+                1
+              ],
+              [
+                "P2",
+                1
+              ],
+              [
+                "P2",
+                1
+              ],
+              [
+                "P2",
+                1
+              ],
+              [
+                "P2",
+                1
+              ],
+              [
+                "P2",
+                1
+              ],
+              [
+                "P2",
+                1
+              ],
+              [
+                "P2",
+                1
+              ],
+              [
+                "P2",
+                1
+              ],
+              [
+                "P2",
+                4
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "conveyor-controller",
+      "sections": [
+        "2.19"
+      ],
+      "title": {
+        "en": "Conveyor changeover",
+        "de": "Förderband mit Richtungswechsel"
+      },
+      "setup": {
+        "en": "Use a motor model with enable on P2.1 and reverse on P2.2. P1 commands are 0 stop, 1 forward, 2 reverse and 3 stop and halt. Return to 255 between commands. The program disables the motor before changing direction and waits 40 units before enabling again.",
+        "de": "Motormodell mit Freigabe an P2.1 und Rückwärtswahl an P2.2 anschließen. P1-Befehle sind 0 Stopp, 1 vorwärts, 2 rückwärts und 3 Stopp mit Programmhalt. Dazwischen 255 einstellen. Beim Richtungswechsel erst deaktivieren und vor der Freigabe 40 Einheiten warten."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [
+          "P1"
+        ],
+        "outputs": [
+          "P2.1",
+          "P2.2"
+        ]
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "inputs": [
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 1
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 2
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 0
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 3
+            }
+          ],
+          "expect": {
+            "instructions": 74,
+            "pc": 32,
+            "accumulator": [
+              0,
+              0
+            ],
+            "p2": 254,
+            "memory": {
+              "Mode": [
+                0,
+                0
+              ]
+            },
+            "writes": [
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                252
+              ],
+              [
+                "P2",
+                252
+              ],
+              [
+                "P2",
+                252
+              ],
+              [
+                "P2",
+                253
+              ],
+              [
+                "P2",
+                252
+              ],
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                254
+              ]
+            ],
+            "delays": [
+              40,
+              40
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "cp2-sample-logger",
+      "sections": [],
+      "title": {
+        "en": "Four samples to cassette",
+        "de": "Vier Messwerte auf Kassette"
+      },
+      "setup": {
+        "en": "Install CP3 and connect CP2 on P1.7 and P1.8. Use P3.8 as an active-low sample button and P3.1–P3.6 for sample values. Keep P3.7 low and release the button between samples. After four samples, inspect RecordA through RecordD and Total in upper RAM. Press CAS to save all installed RAM. After startup clears RAM, use CAL with the saved stream to recover the four samples and their total, then verify by OUT. CAS and CAL are monitor actions after the teaching program halts.",
+        "de": "CP3 einsetzen und CP2 an P1.7 und P1.8 anschließen. P3.8 dient als Low-aktiver Abtasttaster, P3.1 bis P3.6 liefern den Messwert. P3.7 auf Low halten und den Taster zwischen Messungen freigeben. Nach vier Messungen RecordA bis RecordD und Total im oberen Speicherbereich prüfen. CAS speichert den gesamten Speicher. Nach dem Löschen beim Neustart lädt CAL den gespeicherten Datenstrom. Danach die vier Werte und ihre Summe mit OUT prüfen. CAS und CAL sind Monitortasten nach dem Halt des Lehrprogramms."
+      },
+      "hardware": {
+        "cp3": true,
+        "inputs": [
+          "P3.1",
+          "P3.2",
+          "P3.3",
+          "P3.4",
+          "P3.5",
+          "P3.6",
+          "P3.7",
+          "P3.8"
+        ],
+        "outputs": []
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "inputs": [
+            {
+              "at": "Wait",
+              "port": "P3",
+              "value": 6
+            },
+            {
+              "at": "Release",
+              "port": "P3",
+              "value": 134
+            },
+            {
+              "at": "Wait",
+              "port": "P3",
+              "value": 39
+            },
+            {
+              "at": "Release",
+              "port": "P3",
+              "value": 167
+            },
+            {
+              "at": "Wait",
+              "port": "P3",
+              "value": 12
+            },
+            {
+              "at": "Release",
+              "port": "P3",
+              "value": 140
+            },
+            {
+              "at": "Wait",
+              "port": "P3",
+              "value": 55
+            }
+          ],
+          "expect": {
+            "instructions": 70,
+            "pc": 26,
+            "accumulator": [
+              0,
+              112
+            ],
+            "memory": {
+              "RecordA": [
+                0,
+                6
+              ],
+              "RecordB": [
+                0,
+                39
+              ],
+              "RecordC": [
+                0,
+                12
+              ],
+              "RecordD": [
+                0,
+                55
+              ],
+              "Total": [
+                0,
+                112
+              ]
+            },
+            "display": [
+              [
+                0,
+                112
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "delay-lab",
+      "sections": [
+        "1.73"
+      ],
+      "title": {
+        "en": "Nested timing lab",
+        "de": "Zeitmessung mit zwei Schleifen"
+      },
+      "setup": {
+        "en": "Probe P2.4. Measure the low pulse across four outer iterations of six inner iterations. This delay uses only teaching instructions. Visits should read 024 after halt.",
+        "de": "P2.4 messen. Der Low-Impuls umfasst vier äußere Durchläufe mit je sechs inneren Durchläufen. Die Verzögerung besteht nur aus Lehrbefehlen. Visits muss am Ende 024 enthalten."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [],
+        "outputs": [
+          "P2.4"
+        ]
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "expect": {
+            "instructions": 252,
+            "pc": 26,
+            "accumulator": [
+              0,
+              24
+            ],
+            "p2": 255,
+            "memory": {
+              "Visits": [
+                0,
+                24
+              ]
+            },
+            "writes": [
+              [
+                "P2",
+                247
+              ],
+              [
+                "P2",
+                255
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "descent-challenge",
+      "sections": [
+        "2.12"
+      ],
+      "title": {
+        "en": "Descent on three charges",
+        "de": "Abstieg mit drei Bremsladungen"
+      },
+      "setup": {
+        "en": "Send P1 byte 0 to coast or 1 to brake, returning to 255 after each command. Start at height 15, speed 2, and three brake charges. Coasting increases speed; a charge decreases it to a minimum of one. A touchdown at speed one or two reports 1, otherwise 2.",
+        "de": "An P1 bedeutet 0 Rollen und 1 Bremsen, dazwischen jeweils 255 einstellen. Start bei Höhe 15, Tempo 2 und drei Bremsladungen. Rollen erhöht das Tempo, eine Ladung senkt es bis mindestens eins. Eine Landung mit Tempo eins oder zwei meldet 1, sonst 2."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [
+          "P1"
+        ],
+        "outputs": []
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "inputs": [
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 0
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 0
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 1
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 1
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 1
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 0
+            }
+          ],
+          "expect": {
+            "instructions": 129,
+            "pc": 38,
+            "accumulator": [
+              0,
+              1
+            ],
+            "memory": {
+              "Height": [
+                0,
+                0
+              ],
+              "Speed": [
+                0,
+                2
+              ],
+              "Fuel": [
+                0,
+                0
+              ],
+              "Result": [
+                0,
+                1
+              ]
+            },
+            "display": [
+              [
+                0,
+                12
+              ],
+              [
+                0,
+                8
+              ],
+              [
+                0,
+                5
+              ],
+              [
+                0,
+                3
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                1
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        },
+        {
+          "inputs": [
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 0
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 0
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 0
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 0
+            }
+          ],
+          "expect": {
+            "instructions": 68,
+            "pc": 38,
+            "accumulator": [
+              0,
+              2
+            ],
+            "memory": {
+              "Height": [
+                0,
+                0
+              ],
+              "Speed": [
+                0,
+                6
+              ],
+              "Fuel": [
+                0,
+                3
+              ],
+              "Result": [
+                0,
+                2
+              ]
+            },
+            "display": [
+              [
+                0,
+                12
+              ],
+              [
+                0,
+                8
+              ],
+              [
+                0,
+                3
+              ],
+              [
+                0,
+                2
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "display-postcard",
+      "sections": [
+        "1.27"
+      ],
+      "title": {
+        "en": "Three display captions",
+        "de": "Drei Anzeigetexte"
+      },
+      "setup": {
+        "en": "Run and read 026, 148 and 073 in order. Each remains visible for its different programmed pause. HLT returns to the PC frame; ACC still shows 073.",
+        "de": "Programm starten und nacheinander 026, 148 und 073 lesen. Jede Zahl bleibt für eine andere programmierte Wartezeit sichtbar. HLT zeigt wieder den Programmzähler; ACC zeigt weiterhin 073."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [],
+        "outputs": []
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "expect": {
+            "instructions": 10,
+            "pc": 10,
+            "accumulator": [
+              0,
+              73
+            ],
+            "display": [
+              [
+                0,
+                26
+              ],
+              [
+                0,
+                148
+              ],
+              [
+                0,
+                73
+              ]
+            ],
+            "delays": [
+              215,
+              190,
+              230
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "dual-workbench",
+      "sections": [
+        "1.75"
+      ],
+      "title": {
+        "en": "Two workbench entries",
+        "de": "Werkbank mit zwei Einstiegspunkten"
+      },
+      "setup": {
+        "en": "Use entry 000 to update Stock to 047, then use entry 016 without reloading to calculate Stock plus five. Entering directly at 016 after loading uses the initial stock of 018.",
+        "de": "Einstieg 000 setzt Stock auf 047. Danach Einstieg 016 ohne erneutes Laden wählen, um fünf zu Stock zu addieren. Wer direkt nach dem Laden bei 016 beginnt, rechnet mit dem Anfangsbestand 018."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [],
+        "outputs": []
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "expect": {
+            "instructions": 3,
+            "pc": 3,
+            "accumulator": [
+              0,
+              47
+            ],
+            "memory": {
+              "Stock": [
+                0,
+                47
+              ],
+              "Total": [
+                0,
+                0
+              ]
+            }
+          },
+          "maxInstructions": 2000
+        },
+        {
+          "entry": "Inspect",
+          "expect": {
+            "instructions": 5,
+            "pc": 21,
+            "accumulator": [
+              0,
+              23
+            ],
+            "memory": {
+              "Stock": [
+                0,
+                18
+              ],
+              "Total": [
+                0,
+                23
+              ]
+            },
+            "display": [
+              [
+                0,
+                23
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        },
+        {
+          "entry": "Inspect",
+          "initialMemory": {
+            "Stock": [
+              0,
+              47
+            ]
+          },
+          "expect": {
+            "instructions": 5,
+            "pc": 21,
+            "accumulator": [
+              0,
+              52
+            ],
+            "memory": {
+              "Stock": [
+                0,
+                47
+              ],
+              "Total": [
+                0,
+                52
+              ]
+            },
+            "display": [
+              [
+                0,
+                52
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "edge-trigger-capture",
+      "sections": [],
+      "title": {
+        "en": "Five-sample edge capture",
+        "de": "Flankenspeicher für fünf Abtastwerte"
+      },
+      "setup": {
+        "en": "Supply digital samples on P1 at about 56 ms intervals. Bit P1.8 is the trigger. Keep it low for at least two samples, then raise it. Inspect BeforeA, BeforeB, Trigger, AfterA, and AfterB in order. The full pin bytes, including the trigger bit, are recorded. P2.1 marks capture.",
+        "de": "P1 ungefähr alle 56 ms digital abtasten lassen. P1.8 ist der Trigger. Den Eingang mindestens zwei Abtastwerte lang auf Low halten, dann auf High setzen. BeforeA, BeforeB, Trigger, AfterA und AfterB der Reihe nach prüfen. Gespeichert werden vollständige Bytes einschließlich Triggerbit. P2.1 markiert die Aufnahme."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [
+          "P1"
+        ],
+        "outputs": [
+          "P2.1"
+        ]
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "inputs": [
+            {
+              "at": "First",
+              "port": "P1",
+              "value": 246
+            },
+            {
+              "at": "First",
+              "port": "P1",
+              "value": 9
+            },
+            {
+              "at": "Second",
+              "port": "P1",
+              "value": 22
+            },
+            {
+              "at": "Read",
+              "port": "P1",
+              "value": 35
+            },
+            {
+              "at": "Read",
+              "port": "P1",
+              "value": 47
+            },
+            {
+              "at": "Read",
+              "port": "P1",
+              "value": 165
+            },
+            {
+              "at": "PostA",
+              "port": "P1",
+              "value": 171
+            },
+            {
+              "at": "PostB",
+              "port": "P1",
+              "value": 186
+            }
+          ],
+          "expect": {
+            "instructions": 52,
+            "pc": 30,
+            "accumulator": [
+              0,
+              165
+            ],
+            "p2": 255,
+            "memory": {
+              "BeforeA": [
+                0,
+                35
+              ],
+              "BeforeB": [
+                0,
+                47
+              ],
+              "Trigger": [
+                0,
+                165
+              ],
+              "AfterA": [
+                0,
+                171
+              ],
+              "AfterB": [
+                0,
+                186
+              ]
+            },
+            "display": [
+              [
+                0,
+                165
+              ]
+            ],
+            "writes": [
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                255
+              ]
+            ],
+            "delays": [
+              50,
+              50,
+              50,
+              50,
+              50,
+              50,
+              50
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "fixed-point-filter",
+      "sections": [],
+      "title": {
+        "en": "Quarter-step fixed-point filter",
+        "de": "Festkommafilter mit Viertelschritt"
+      },
+      "setup": {
+        "en": "Feed four unsigned samples to P1. A value from 0 to 63 represents quarter-units, and larger values are clipped to 63. The running result is floor((3 × previous + input) / 4), initialized at zero. Compare the P2 output of an impulse with that of a step input. The program emits four values with a 150-unit pause per sample.",
+        "de": "Vier vorzeichenlose Abtastwerte an P1 anlegen. Werte von 0 bis 63 stehen für Vierteleinheiten, größere werden auf 63 begrenzt. Das laufende Ergebnis ist abgerundet (3 × Vorgänger + Eingang) / 4, mit Startwert null. Die P2-Ausgabe für einen Impuls mit der für einen Sprung vergleichen. Das Programm gibt vier Werte mit je 150 Warteeinheiten aus."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [
+          "P1"
+        ],
+        "outputs": [
+          "P2"
+        ]
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "inputs": [
+            {
+              "at": "Read",
+              "port": "P1",
+              "value": 56
+            },
+            {
+              "at": "Read",
+              "port": "P1",
+              "value": 0
+            },
+            {
+              "at": "Read",
+              "port": "P1",
+              "value": 0
+            },
+            {
+              "at": "Read",
+              "port": "P1",
+              "value": 0
+            }
+          ],
+          "expect": {
+            "instructions": 424,
+            "pc": 36,
+            "accumulator": [
+              0,
+              5
+            ],
+            "p2": 5,
+            "memory": {
+              "Filtered": [
+                0,
+                5
+              ],
+              "Count": [
+                0,
+                4
+              ]
+            },
+            "display": [
+              [
+                0,
+                14
+              ],
+              [
+                0,
+                10
+              ],
+              [
+                0,
+                7
+              ],
+              [
+                0,
+                5
+              ]
+            ],
+            "writes": [
+              [
+                "P2",
+                14
+              ],
+              [
+                "P2",
+                10
+              ],
+              [
+                "P2",
+                7
+              ],
+              [
+                "P2",
+                5
+              ]
+            ],
+            "delays": [
+              150,
+              150,
+              150,
+              150
+            ]
+          },
+          "maxInstructions": 2000
+        },
+        {
+          "inputs": [
+            {
+              "at": "Read",
+              "port": "P1",
+              "value": 40
+            },
+            {
+              "at": "Read",
+              "port": "P1",
+              "value": 40
+            },
+            {
+              "at": "Read",
+              "port": "P1",
+              "value": 40
+            },
+            {
+              "at": "Read",
+              "port": "P1",
+              "value": 40
+            }
+          ],
+          "expect": {
+            "instructions": 775,
+            "pc": 36,
+            "accumulator": [
+              0,
+              26
+            ],
+            "p2": 26,
+            "memory": {
+              "Filtered": [
+                0,
+                26
+              ],
+              "Count": [
+                0,
+                4
+              ]
+            },
+            "display": [
+              [
+                0,
+                10
+              ],
+              [
+                0,
+                17
+              ],
+              [
+                0,
+                22
+              ],
+              [
+                0,
+                26
+              ]
+            ],
+            "writes": [
+              [
+                "P2",
+                10
+              ],
+              [
+                "P2",
+                17
+              ],
+              [
+                "P2",
+                22
+              ],
+              [
+                "P2",
+                26
+              ]
+            ],
+            "delays": [
+              150,
+              150,
+              150,
+              150
+            ]
+          },
+          "maxInstructions": 2000
+        },
+        {
+          "inputs": [
+            {
+              "at": "Read",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Read",
+              "port": "P1",
+              "value": 0
+            },
+            {
+              "at": "Read",
+              "port": "P1",
+              "value": 0
+            },
+            {
+              "at": "Read",
+              "port": "P1",
+              "value": 0
+            }
+          ],
+          "expect": {
+            "instructions": 460,
+            "pc": 36,
+            "accumulator": [
+              0,
+              6
+            ],
+            "p2": 6,
+            "memory": {
+              "Filtered": [
+                0,
+                6
+              ],
+              "Count": [
+                0,
+                4
+              ]
+            },
+            "display": [
+              [
+                0,
+                15
+              ],
+              [
+                0,
+                11
+              ],
+              [
+                0,
+                8
+              ],
+              [
+                0,
+                6
+              ]
+            ],
+            "writes": [
+              [
+                "P2",
+                15
+              ],
+              [
+                "P2",
+                11
+              ],
+              [
+                "P2",
+                8
+              ],
+              [
+                "P2",
+                6
+              ]
+            ],
+            "delays": [
+              150,
+              150,
+              150,
+              150
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "fraction-stream",
+      "sections": [
+        "2.16"
+      ],
+      "title": {
+        "en": "Six digits of 5/13",
+        "de": "Sechs Stellen von 5/13"
+      },
+      "setup": {
+        "en": "Run long division for six decimal places. Each cycle multiplies the remainder by ten by addition, counts the possible subtractions of thirteen, then displays and stores the new digit. Inspect DigitA through DigitF for 3, 8, 4, 6, 1, 5.",
+        "de": "Die schriftliche Division für sechs Nachkommastellen ausführen. Jeder Zyklus addiert den Rest zehnmal, zählt die möglichen Abzüge von dreizehn und zeigt und speichert die neue Stelle. DigitA bis DigitF enthalten 3, 8, 4, 6, 1, 5."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [],
+        "outputs": []
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "expect": {
+            "instructions": 894,
+            "pc": 40,
+            "accumulator": [
+              0,
+              5
+            ],
+            "memory": {
+              "DigitA": [
+                0,
+                3
+              ],
+              "DigitB": [
+                0,
+                8
+              ],
+              "DigitC": [
+                0,
+                4
+              ],
+              "DigitD": [
+                0,
+                6
+              ],
+              "DigitE": [
+                0,
+                1
+              ],
+              "DigitF": [
+                0,
+                5
+              ],
+              "Remainder": [
+                0,
+                5
+              ]
+            },
+            "display": [
+              [
+                0,
+                3
+              ],
+              [
+                0,
+                8
+              ],
+              [
+                0,
+                4
+              ],
+              [
+                0,
+                6
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                5
+              ]
+            ],
+            "delays": [
+              180,
+              180,
+              180,
+              180,
+              180,
+              180
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "gate-tally",
+      "sections": [
+        "2.23"
+      ],
+      "title": {
+        "en": "Two-sensor direction tally",
+        "de": "Richtungszähler mit zwei Sensoren"
+      },
+      "setup": {
+        "en": "Use active-low sensors A on P1.1 and B on P1.2, releasing each after activation. A then B increases the count, B then A decreases it, and two identical events are ignored. The tally is limited to 0–4 and starts at one. P1.3 alone low ends the run.",
+        "de": "Die Low-aktiven Sensoren A an P1.1 und B an P1.2 nach jeder Aktivierung freigeben. A dann B erhöht den Zähler, B dann A senkt ihn, zwei gleiche Ereignisse bleiben wirkungslos. Der Zähler startet bei eins und bleibt zwischen 0 und 4. P1.3 allein auf Low beendet den Lauf."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [
+          "P1.1",
+          "P1.2",
+          "P1.3"
+        ],
+        "outputs": []
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "inputs": [
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 254
+            },
+            {
+              "at": "ReleaseFirst",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Second",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "ReleaseRound",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "ReleaseFirst",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Second",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "ReleaseRound",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "ReleaseFirst",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Second",
+              "port": "P1",
+              "value": 254
+            },
+            {
+              "at": "ReleaseRound",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "ReleaseFirst",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Second",
+              "port": "P1",
+              "value": 254
+            },
+            {
+              "at": "ReleaseRound",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "ReleaseFirst",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Second",
+              "port": "P1",
+              "value": 254
+            },
+            {
+              "at": "ReleaseRound",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 251
+            }
+          ],
+          "expect": {
+            "instructions": 151,
+            "pc": 45,
+            "accumulator": [
+              0,
+              0
+            ],
+            "memory": {
+              "Tally": [
+                0,
+                0
+              ]
+            },
+            "display": [
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "greenhouse-schedule",
+      "sections": [
+        "2.7"
+      ],
+      "title": {
+        "en": "Greenhouse vent schedule",
+        "de": "Lüftungsplan fürs Gewächshaus"
+      },
+      "setup": {
+        "en": "Use active-low pulses on P1.1 as simulated minutes. P2.7 opens the vent at minutes 2 and 6 and closes it at 4 and 8. The schedule ends after minute 9. Each low pulse needs a high release before the next.",
+        "de": "Low-Impulse an P1.1 simulieren Minuten. P2.7 öffnet die Lüftung in Minute 2 und 6 und schließt in Minute 4 und 8. Der Plan endet nach Minute 9. Zwischen den Low-Impulsen den Eingang auf High freigeben."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [
+          "P1.1"
+        ],
+        "outputs": [
+          "P2.7"
+        ]
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "inputs": [
+            {
+              "at": "Tick",
+              "port": "P1",
+              "value": 254
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Tick",
+              "port": "P1",
+              "value": 254
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Tick",
+              "port": "P1",
+              "value": 254
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Tick",
+              "port": "P1",
+              "value": 254
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Tick",
+              "port": "P1",
+              "value": 254
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Tick",
+              "port": "P1",
+              "value": 254
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Tick",
+              "port": "P1",
+              "value": 254
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Tick",
+              "port": "P1",
+              "value": 254
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Tick",
+              "port": "P1",
+              "value": 254
+            }
+          ],
+          "expect": {
+            "instructions": 167,
+            "pc": 32,
+            "accumulator": [
+              0,
+              9
+            ],
+            "p2": 191,
+            "memory": {
+              "Minute": [
+                0,
+                9
+              ]
+            },
+            "writes": [
+              [
+                "P2",
+                191
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                191
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                191
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "grid-escape",
+      "sections": [
+        "2.14"
+      ],
+      "title": {
+        "en": "Escape the nine-cell grid",
+        "de": "Aus dem Neun-Felder-Raster"
+      },
+      "setup": {
+        "en": "The cells are numbered 0–8 row by row. Start at 0, select a destination on P1, then return to 255. Only horizontal or vertical neighbors are legal, and cell 4 is blocked. Reach cell 8 and use the panel to follow legal moves.",
+        "de": "Die Felder sind zeilenweise von 0 bis 8 nummeriert. Start bei 0, Zielfeld an P1 wählen, dann auf 255 zurückstellen. Nur waagerechte und senkrechte Nachbarfelder sind erlaubt, Feld 4 ist gesperrt. Erreiche Feld 8. Die Anzeige zeigt gültige Züge."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [
+          "P1"
+        ],
+        "outputs": []
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "inputs": [
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 1
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 4
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 2
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 3
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 5
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 8
+            }
+          ],
+          "expect": {
+            "instructions": 169,
+            "pc": 51,
+            "accumulator": [
+              0,
+              8
+            ],
+            "memory": {
+              "Position": [
+                0,
+                8
+              ]
+            },
+            "display": [
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                5
+              ],
+              [
+                0,
+                8
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        },
+        {
+          "inputs": [
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 3
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 6
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 7
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 8
+            }
+          ],
+          "expect": {
+            "instructions": 138,
+            "pc": 51,
+            "accumulator": [
+              0,
+              8
+            ],
+            "memory": {
+              "Position": [
+                0,
+                8
+              ]
+            },
+            "display": [
+              [
+                0,
+                3
+              ],
+              [
+                0,
+                6
+              ],
+              [
+                0,
+                7
+              ],
+              [
+                0,
+                8
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "led-route-puzzle",
+      "sections": [
+        "1.51"
+      ],
+      "title": {
+        "en": "Two-relay route puzzle",
+        "de": "Rätsel mit zwei Weichen"
+      },
+      "setup": {
+        "en": "Choose route switches on P1.1 and P1.2. P2.1 and P2.2 echo the two chosen branches. P2.3 lights only for the route that uses the right branch but leaves the left branch open. Predict and test all four settings.",
+        "de": "Weichen an P1.1 und P1.2 einstellen. P2.1 und P2.2 spiegeln die beiden gewählten Abzweige. P2.3 wird nur bei rechtem geschlossenem und linkem offenem Logikzweig High, also P1.2 High und P1.1 Low. Alle vier Einstellungen vorhersagen und prüfen."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [
+          "P1.1",
+          "P1.2"
+        ],
+        "outputs": [
+          "P2.1",
+          "P2.2",
+          "P2.3"
+        ]
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "inputs": [
+            {
+              "at": "Entry",
+              "port": "P1",
+              "value": 252
+            }
+          ],
+          "expect": {
+            "instructions": 10,
+            "pc": 10,
+            "accumulator": [
+              0,
+              0
+            ],
+            "p2": 248,
+            "display": [
+              [
+                0,
+                0
+              ]
+            ],
+            "writes": [
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                252
+              ],
+              [
+                "P2",
+                248
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        },
+        {
+          "inputs": [
+            {
+              "at": "Entry",
+              "port": "P1",
+              "value": 253
+            }
+          ],
+          "expect": {
+            "instructions": 10,
+            "pc": 10,
+            "accumulator": [
+              0,
+              0
+            ],
+            "p2": 249,
+            "display": [
+              [
+                0,
+                0
+              ]
+            ],
+            "writes": [
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                253
+              ],
+              [
+                "P2",
+                249
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        },
+        {
+          "inputs": [
+            {
+              "at": "Entry",
+              "port": "P1",
+              "value": 254
+            }
+          ],
+          "expect": {
+            "instructions": 10,
+            "pc": 10,
+            "accumulator": [
+              0,
+              1
+            ],
+            "p2": 254,
+            "display": [
+              [
+                0,
+                1
+              ]
+            ],
+            "writes": [
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                254
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        },
+        {
+          "inputs": [
+            {
+              "at": "Entry",
+              "port": "P1",
+              "value": 255
+            }
+          ],
+          "expect": {
+            "instructions": 10,
+            "pc": 10,
+            "accumulator": [
+              0,
+              0
+            ],
+            "p2": 251,
+            "display": [
+              [
+                0,
+                0
+              ]
+            ],
+            "writes": [
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                251
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "machine-time-meter",
+      "sections": [
+        "2.3"
+      ],
+      "title": {
+        "en": "Usage total meter",
+        "de": "Nutzungszähler"
+      },
+      "setup": {
+        "en": "On P1, send 1 for a base-rate tick (7 credits), 2 for a peak-rate tick (11 credits), and 255 between ticks. Send 0 to finish early. Eight accepted ticks also end the session. Inspect Used and Cost.",
+        "de": "Über P1 meldet 1 einen Standardtakt (7 Einheiten) und 2 einen Hochtariftakt (11 Einheiten). Dazwischen 255 einstellen. 0 beendet vorzeitig, nach acht gültigen Takten endet das Programm ebenfalls. Used und Cost prüfen."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [
+          "P1"
+        ],
+        "outputs": []
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "inputs": [
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 1
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 2
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 1
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 2
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 2
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 0
+            }
+          ],
+          "expect": {
+            "instructions": 101,
+            "pc": 29,
+            "accumulator": [
+              0,
+              47
+            ],
+            "memory": {
+              "Used": [
+                0,
+                5
+              ],
+              "Cost": [
+                0,
+                47
+              ]
+            },
+            "display": [
+              [
+                0,
+                7
+              ],
+              [
+                0,
+                18
+              ],
+              [
+                0,
+                25
+              ],
+              [
+                0,
+                36
+              ],
+              [
+                0,
+                47
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        },
+        {
+          "inputs": [
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 2
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 2
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 2
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 2
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 2
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 2
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 2
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 2
+            }
+          ],
+          "expect": {
+            "instructions": 154,
+            "pc": 29,
+            "accumulator": [
+              0,
+              88
+            ],
+            "memory": {
+              "Used": [
+                0,
+                8
+              ],
+              "Cost": [
+                0,
+                88
+              ]
+            },
+            "display": [
+              [
+                0,
+                11
+              ],
+              [
+                0,
+                22
+              ],
+              [
+                0,
+                33
+              ],
+              [
+                0,
+                44
+              ],
+              [
+                0,
+                55
+              ],
+              [
+                0,
+                66
+              ],
+              [
+                0,
+                77
+              ],
+              [
+                0,
+                88
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "number-drill",
+      "sections": [
+        "2.18"
+      ],
+      "title": {
+        "en": "Three quick sums",
+        "de": "Drei Kopfrechenaufgaben"
+      },
+      "setup": {
+        "en": "Each round displays two addends, followed by a wait for an answer on P1. Use 255 while no answer is selected and between rounds. P2.1 shows whether the answer is correct. The final panel value is the score out of three.",
+        "de": "Jede Runde zeigt zwei Summanden und wartet dann auf die Antwort an P1. Ohne Antwort und zwischen den Runden 255 einstellen. P2.1 meldet, ob die Antwort stimmt. Am Ende zeigt die Anzeige die Punktzahl von drei Aufgaben."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [
+          "P1"
+        ],
+        "outputs": [
+          "P2.1"
+        ]
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "inputs": [
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 7
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 11
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 17
+            }
+          ],
+          "expect": {
+            "instructions": 95,
+            "pc": 46,
+            "accumulator": [
+              0,
+              2
+            ],
+            "p2": 255,
+            "memory": {
+              "Score": [
+                0,
+                2
+              ],
+              "Round": [
+                0,
+                3
+              ]
+            },
+            "display": [
+              [
+                0,
+                5
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                7
+              ],
+              [
+                0,
+                5
+              ],
+              [
+                0,
+                9
+              ],
+              [
+                0,
+                8
+              ],
+              [
+                0,
+                2
+              ]
+            ],
+            "writes": [
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                255
+              ]
+            ],
+            "delays": [
+              200,
+              200,
+              200,
+              200,
+              200,
+              200
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "pair-grid",
+      "sections": [
+        "2.9"
+      ],
+      "title": {
+        "en": "Six-card memory grid",
+        "de": "Gedächtnisraster mit sechs Karten"
+      },
+      "setup": {
+        "en": "Choose card indices 0–5 on P1, returning to 255 between choices. The panel reveals each chosen value; P2.1 reports whether two different cards matched. A matched pair is removed. Find all three pairs to halt.",
+        "de": "Kartenindizes 0–5 an P1 wählen und dazwischen 255 einstellen. Die Anzeige deckt den Kartenwert auf. P2.1 meldet, ob zwei verschiedene Karten zusammenpassen. Gefundene Paare werden entfernt. Nach drei Paaren hält das Programm an."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [
+          "P1"
+        ],
+        "outputs": [
+          "P2.1"
+        ]
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "inputs": [
+            {
+              "at": "FirstRead",
+              "port": "P1",
+              "value": 0
+            },
+            {
+              "at": "ReleaseFirst",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "SecondRead",
+              "port": "P1",
+              "value": 1
+            },
+            {
+              "at": "ReleaseRound",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "FirstRead",
+              "port": "P1",
+              "value": 0
+            },
+            {
+              "at": "ReleaseFirst",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "SecondRead",
+              "port": "P1",
+              "value": 2
+            },
+            {
+              "at": "ReleaseRound",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "FirstRead",
+              "port": "P1",
+              "value": 1
+            },
+            {
+              "at": "ReleaseFirst",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "SecondRead",
+              "port": "P1",
+              "value": 4
+            },
+            {
+              "at": "ReleaseRound",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "FirstRead",
+              "port": "P1",
+              "value": 3
+            },
+            {
+              "at": "ReleaseFirst",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "SecondRead",
+              "port": "P1",
+              "value": 5
+            }
+          ],
+          "expect": {
+            "instructions": 149,
+            "pc": 47,
+            "accumulator": [
+              0,
+              3
+            ],
+            "p2": 255,
+            "memory": {
+              "Pairs": [
+                0,
+                3
+              ],
+              "CardA": [
+                0,
+                0
+              ],
+              "CardB": [
+                0,
+                0
+              ],
+              "CardC": [
+                0,
+                0
+              ],
+              "CardD": [
+                0,
+                0
+              ],
+              "CardE": [
+                0,
+                0
+              ],
+              "CardF": [
+                0,
+                0
+              ]
+            },
+            "display": [
+              [
+                0,
+                21
+              ],
+              [
+                0,
+                83
+              ],
+              [
+                0,
+                21
+              ],
+              [
+                0,
+                21
+              ],
+              [
+                0,
+                83
+              ],
+              [
+                0,
+                83
+              ],
+              [
+                0,
+                47
+              ],
+              [
+                0,
+                47
+              ]
+            ],
+            "writes": [
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                255
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "pulse-bench",
+      "sections": [
+        "2.20"
+      ],
+      "title": {
+        "en": "Five-pulse counter",
+        "de": "Zähler für fünf Impulse"
+      },
+      "setup": {
+        "en": "Start with P1.5 high. Send five low pulses, separated by a high level for each release. The program counts one pulse per low-to-high cycle and displays the running total.",
+        "de": "Mit P1.5 auf High beginnen. Fünf Low-Impulse senden und dazwischen jeweils auf High freigeben. Das Programm zählt jeden Low-High-Zyklus einmal und zeigt die laufende Summe."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [
+          "P1.5"
+        ],
+        "outputs": []
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "inputs": [
+            {
+              "at": "Arm",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Fall",
+              "port": "P1",
+              "value": 239
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 239
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Fall",
+              "port": "P1",
+              "value": 239
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 239
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Fall",
+              "port": "P1",
+              "value": 239
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 239
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Fall",
+              "port": "P1",
+              "value": 239
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 239
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Fall",
+              "port": "P1",
+              "value": 239
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 239
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            }
+          ],
+          "expect": {
+            "instructions": 90,
+            "pc": 22,
+            "accumulator": [
+              0,
+              5
+            ],
+            "memory": {
+              "Pulses": [
+                0,
+                5
+              ]
+            },
+            "display": [
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                3
+              ],
+              [
+                0,
+                4
+              ],
+              [
+                0,
+                5
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "pulse-stretcher",
+      "sections": [
+        "2.22"
+      ],
+      "title": {
+        "en": "Two edge-triggered pulses",
+        "de": "Zwei flankengesteuerte Impulse"
+      },
+      "setup": {
+        "en": "Starting high, pull P1.6 low to start a 200-unit pulse on P2.4. Holding the input low cannot make a second pulse. Release and pull low again for the second pulse, then the program halts.",
+        "de": "P1.6 zunächst auf High, dann auf Low ziehen. Das erzeugt an P2.4 einen Impuls von 200 Einheiten. Dauerhaftes Low löst keinen zweiten Impuls aus. Erst freigeben und erneut auf Low ziehen. Nach dem zweiten Impuls hält das Programm an."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [
+          "P1.6"
+        ],
+        "outputs": [
+          "P2.4"
+        ]
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "inputs": [
+            {
+              "at": "Arm",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Fall",
+              "port": "P1",
+              "value": 223
+            },
+            {
+              "at": "Arm",
+              "port": "P1",
+              "value": 223
+            },
+            {
+              "at": "Arm",
+              "port": "P1",
+              "value": 223
+            },
+            {
+              "at": "Arm",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Fall",
+              "port": "P1",
+              "value": 223
+            }
+          ],
+          "expect": {
+            "instructions": 45,
+            "pc": 23,
+            "accumulator": [
+              0,
+              2
+            ],
+            "p2": 247,
+            "memory": {
+              "Count": [
+                0,
+                2
+              ]
+            },
+            "writes": [
+              [
+                "P2",
+                247
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                247
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                247
+              ]
+            ],
+            "delays": [
+              200,
+              200
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "ring-selector",
+      "sections": [
+        "2.25"
+      ],
+      "title": {
+        "en": "Six-lamp stop ring",
+        "de": "Stoppring mit sechs Lampen"
+      },
+      "setup": {
+        "en": "Set a stop index 0–5 on P1. The running lamp starts at index 4 and advances clockwise to the requested position. Other input bytes wait for a valid index. P2 bits 1–6 drive the ring.",
+        "de": "Stoppindex 0–5 an P1 einstellen. Das Lauflicht beginnt bei Index 4 und läuft im Uhrzeigersinn zum Ziel. Bei anderen Eingabewerten wartet das Programm auf einen gültigen Index. P2.1 bis P2.6 treiben den Ring."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [
+          "P1"
+        ],
+        "outputs": [
+          "P2.1",
+          "P2.2",
+          "P2.3",
+          "P2.4",
+          "P2.5",
+          "P2.6"
+        ]
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "inputs": [
+            {
+              "at": "Select",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Select",
+              "port": "P1",
+              "value": 3
+            }
+          ],
+          "expect": {
+            "instructions": 90,
+            "pc": 22,
+            "accumulator": [
+              0,
+              3
+            ],
+            "p2": 8,
+            "memory": {
+              "Index": [
+                0,
+                3
+              ]
+            },
+            "writes": [
+              [
+                "P2",
+                16
+              ],
+              [
+                "P2",
+                32
+              ],
+              [
+                "P2",
+                1
+              ],
+              [
+                "P2",
+                2
+              ],
+              [
+                "P2",
+                4
+              ],
+              [
+                "P2",
+                8
+              ]
+            ],
+            "delays": [
+              75,
+              75,
+              75,
+              75,
+              75,
+              75
+            ]
+          },
+          "maxInstructions": 2000
+        },
+        {
+          "inputs": [
+            {
+              "at": "Select",
+              "port": "P1",
+              "value": 4
+            }
+          ],
+          "expect": {
+            "instructions": 16,
+            "pc": 22,
+            "accumulator": [
+              0,
+              4
+            ],
+            "p2": 16,
+            "memory": {
+              "Index": [
+                0,
+                4
+              ]
+            },
+            "writes": [
+              [
+                "P2",
+                16
+              ]
+            ],
+            "delays": [
+              75
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "serial-receive",
+      "sections": [],
+      "title": {
+        "en": "Acknowledged serial receiver",
+        "de": "Serieller Empfänger mit Quittung"
+      },
+      "setup": {
+        "en": "Use the three signal connections in serial-transmit. Run this board first. It samples the data while strobe is low, acknowledges each bit on P2.3 and releases that line after strobe goes high. After eight data bits and one even-parity bit, Valid is 1 for acceptance or 0 for a parity fault. The display gives the accepted byte or zero. Parity detects an odd number of altered bits.",
+        "de": "Die drei Signalleitungen wie in serial-transmit verbinden. Diese Platine zuerst starten. Sie liest bei Low am Takt, quittiert jedes Bit an P2.3 und gibt die Leitung nach High am Takt frei. Nach acht Datenbits und einem geraden Paritätsbit bedeutet Valid gleich 1 gültig oder 0 Paritätsfehler. Die Anzeige zeigt das angenommene Byte oder null. Parität erkennt eine ungerade Zahl veränderter Bits."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [
+          "P1.1",
+          "P1.2"
+        ],
+        "outputs": [
+          "P2.3"
+        ]
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "inputs": [
+            {
+              "at": "WaitStrobeLow",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitStrobeLow",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitStrobeLow",
+              "port": "P1",
+              "value": 252
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 252
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 254
+            },
+            {
+              "at": "WaitStrobeLow",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitStrobeLow",
+              "port": "P1",
+              "value": 252
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 252
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 254
+            },
+            {
+              "at": "WaitStrobeLow",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitStrobeLow",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitStrobeLow",
+              "port": "P1",
+              "value": 252
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 252
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 254
+            },
+            {
+              "at": "WaitStrobeLow",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitStrobeLow",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 255
+            }
+          ],
+          "expect": {
+            "instructions": 307,
+            "pc": 47,
+            "accumulator": [
+              0,
+              173
+            ],
+            "p2": 255,
+            "memory": {
+              "Received": [
+                0,
+                173
+              ],
+              "Valid": [
+                0,
+                1
+              ],
+              "Parity": [
+                0,
+                0
+              ]
+            },
+            "display": [
+              [
+                0,
+                173
+              ]
+            ],
+            "writes": [
+              [
+                "P2",
+                251
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                251
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                251
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                251
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                251
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                251
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                251
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                251
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                251
+              ],
+              [
+                "P2",
+                255
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        },
+        {
+          "inputs": [
+            {
+              "at": "WaitStrobeLow",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitStrobeLow",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitStrobeLow",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitStrobeLow",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitStrobeLow",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitStrobeLow",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitStrobeLow",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitStrobeLow",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitStrobeLow",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitStrobeLow",
+              "port": "P1",
+              "value": 252
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 252
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 254
+            }
+          ],
+          "expect": {
+            "instructions": 313,
+            "pc": 47,
+            "accumulator": [
+              0,
+              255
+            ],
+            "p2": 255,
+            "memory": {
+              "Received": [
+                0,
+                255
+              ],
+              "Valid": [
+                0,
+                1
+              ],
+              "Parity": [
+                0,
+                0
+              ]
+            },
+            "display": [
+              [
+                0,
+                255
+              ]
+            ],
+            "writes": [
+              [
+                "P2",
+                251
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                251
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                251
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                251
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                251
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                251
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                251
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                251
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                251
+              ],
+              [
+                "P2",
+                255
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        },
+        {
+          "inputs": [
+            {
+              "at": "WaitStrobeLow",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitStrobeLow",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitStrobeLow",
+              "port": "P1",
+              "value": 252
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 252
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 254
+            },
+            {
+              "at": "WaitStrobeLow",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitStrobeLow",
+              "port": "P1",
+              "value": 252
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 252
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 254
+            },
+            {
+              "at": "WaitStrobeLow",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitStrobeLow",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitStrobeLow",
+              "port": "P1",
+              "value": 252
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 252
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 254
+            },
+            {
+              "at": "WaitStrobeLow",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitStrobeLow",
+              "port": "P1",
+              "value": 252
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 252
+            },
+            {
+              "at": "WaitStrobeHigh",
+              "port": "P1",
+              "value": 254
+            }
+          ],
+          "expect": {
+            "instructions": 303,
+            "pc": 47,
+            "accumulator": [
+              0,
+              0
+            ],
+            "p2": 255,
+            "memory": {
+              "Received": [
+                0,
+                173
+              ],
+              "Valid": [
+                0,
+                0
+              ],
+              "Parity": [
+                0,
+                1
+              ]
+            },
+            "display": [
+              [
+                0,
+                0
+              ]
+            ],
+            "writes": [
+              [
+                "P2",
+                251
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                251
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                251
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                251
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                251
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                251
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                251
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                251
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                251
+              ],
+              [
+                "P2",
+                255
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "serial-transmit",
+      "sections": [],
+      "title": {
+        "en": "Acknowledged serial transmitter",
+        "de": "Serieller Sender mit Quittung"
+      },
+      "setup": {
+        "en": "Start serial-receive on the other board first. Connect sender P2.1 to receiver P1.1 (data), sender P2.2 to receiver P1.2 (active-low strobe), receiver P2.3 to sender P1.3 (active-low acknowledgment), and join the grounds. The sender sends Payload MSB first plus even parity. It holds each bit until the receiver acknowledges it and waits for the acknowledgment to be released before changing data. Stop either board with STP if the peer is absent.",
+        "de": "Zuerst serial-receive auf der anderen Platine starten. Sender P2.1 mit Empfänger P1.1 (Daten), Sender P2.2 mit Empfänger P1.2 (Low-aktiver Takt) und Empfänger P2.3 mit Sender P1.3 (Low-aktive Quittung) verbinden. Masse gemeinsam führen. Der Sender überträgt Payload mit dem höchstwertigen Bit zuerst und gerader Parität. Er hält jedes Bit bis zur Quittung und wechselt es erst nach deren Freigabe. Bei fehlender Gegenstelle mit STP stoppen."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [
+          "P1.3"
+        ],
+        "outputs": [
+          "P2.1",
+          "P2.2"
+        ]
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "inputs": [
+            {
+              "at": "WaitAckLow",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitAckLow",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitAckLow",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitAckLow",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitAckLow",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitAckLow",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitAckLow",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitAckLow",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitAckLow",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitAckLow",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 255
+            }
+          ],
+          "initialMemory": {
+            "Payload": [
+              0,
+              173
+            ]
+          },
+          "expect": {
+            "instructions": 293,
+            "pc": 44,
+            "accumulator": [
+              0,
+              173
+            ],
+            "p2": 255,
+            "memory": {
+              "Payload": [
+                0,
+                173
+              ],
+              "Parity": [
+                0,
+                1
+              ]
+            },
+            "writes": [
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                253
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                252
+              ],
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                253
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                252
+              ],
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                253
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                253
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                252
+              ],
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                253
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                253
+              ],
+              [
+                "P2",
+                255
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        },
+        {
+          "inputs": [
+            {
+              "at": "WaitAckLow",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitAckLow",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitAckLow",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitAckLow",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitAckLow",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitAckLow",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitAckLow",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitAckLow",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitAckLow",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitAckLow",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 255
+            }
+          ],
+          "initialMemory": {
+            "Payload": [
+              0,
+              0
+            ]
+          },
+          "expect": {
+            "instructions": 263,
+            "pc": 44,
+            "accumulator": [
+              0,
+              0
+            ],
+            "p2": 254,
+            "memory": {
+              "Payload": [
+                0,
+                0
+              ],
+              "Parity": [
+                0,
+                0
+              ]
+            },
+            "writes": [
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                252
+              ],
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                252
+              ],
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                252
+              ],
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                252
+              ],
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                252
+              ],
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                252
+              ],
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                252
+              ],
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                252
+              ],
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                252
+              ],
+              [
+                "P2",
+                254
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        },
+        {
+          "inputs": [
+            {
+              "at": "WaitAckLow",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitAckLow",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitAckLow",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitAckLow",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitAckLow",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitAckLow",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitAckLow",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitAckLow",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitAckLow",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "WaitAckLow",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "WaitAckHigh",
+              "port": "P1",
+              "value": 255
+            }
+          ],
+          "initialMemory": {
+            "Payload": [
+              0,
+              255
+            ]
+          },
+          "expect": {
+            "instructions": 311,
+            "pc": 44,
+            "accumulator": [
+              0,
+              255
+            ],
+            "p2": 254,
+            "memory": {
+              "Payload": [
+                0,
+                255
+              ],
+              "Parity": [
+                0,
+                0
+              ]
+            },
+            "writes": [
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                253
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                253
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                253
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                253
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                253
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                253
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                253
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                253
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                254
+              ],
+              [
+                "P2",
+                252
+              ],
+              [
+                "P2",
+                254
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "shift-clock",
+      "sections": [
+        "2.1"
+      ],
+      "title": {
+        "en": "Shift change clock",
+        "de": "Uhr zum Schichtwechsel"
+      },
+      "setup": {
+        "en": "Start at 23:58. A low pulse on P1.1 advances a minute; release between pulses. P2 is the hour and the panel shows minutes. Ground P1.2 alone to finish. Three pulses cross midnight and end at 00:01.",
+        "de": "Start bei 23:58. Ein Low-Impuls an P1.1 schaltet eine Minute weiter. Zwischen den Impulsen freigeben. P2 zeigt die Stunde, die Anzeige die Minute. P1.2 allein auf Masse beendet den Lauf. Drei Impulse führen über Mitternacht zu 00:01."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [
+          "P1.1",
+          "P1.2"
+        ],
+        "outputs": [
+          "P2"
+        ]
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "inputs": [
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 254
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 254
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 254
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 253
+            }
+          ],
+          "expect": {
+            "instructions": 71,
+            "pc": 36,
+            "accumulator": [
+              0,
+              1
+            ],
+            "p2": 0,
+            "memory": {
+              "Hour": [
+                0,
+                0
+              ],
+              "Minute": [
+                0,
+                1
+              ]
+            },
+            "display": [
+              [
+                0,
+                59
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "writes": [
+              [
+                "P2",
+                23
+              ],
+              [
+                "P2",
+                0
+              ],
+              [
+                "P2",
+                0
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "signal-melody",
+      "sections": [
+        "2.13"
+      ],
+      "title": {
+        "en": "Table score",
+        "de": "Melodie aus einer Tabelle"
+      },
+      "setup": {
+        "en": "Connect a digital tone decoder to P2. Notes use codes 3, 5, and 8; zero is silence. Run to hear or observe six slots, each held for 120 units. The final zero switches the sound off.",
+        "de": "Einen digitalen Tondecoder an P2 anschließen. Die Codes 3, 5 und 8 bezeichnen Töne, null bedeutet Stille. Das Programm gibt sechs Abschnitte mit je 120 Warteeinheiten aus und schaltet danach mit null ab."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [],
+        "outputs": [
+          "P2"
+        ]
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "expect": {
+            "instructions": 56,
+            "pc": 14,
+            "accumulator": [
+              0,
+              0
+            ],
+            "p2": 0,
+            "memory": {
+              "Cursor": [
+                0,
+                35
+              ]
+            },
+            "writes": [
+              [
+                "P2",
+                5
+              ],
+              [
+                "P2",
+                0
+              ],
+              [
+                "P2",
+                8
+              ],
+              [
+                "P2",
+                8
+              ],
+              [
+                "P2",
+                0
+              ],
+              [
+                "P2",
+                3
+              ],
+              [
+                "P2",
+                0
+              ]
+            ],
+            "delays": [
+              120,
+              120,
+              120,
+              120,
+              120,
+              120
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "signal-memory",
+      "sections": [
+        "2.8"
+      ],
+      "title": {
+        "en": "Signal sequence memory",
+        "de": "Signalspeicher"
+      },
+      "setup": {
+        "en": "Run with P1.2 open, then ground it. The monitor generates four states by adding three modulo seven, stores them through a pointer, and replays them on P2 in order with 80-unit holds.",
+        "de": "Mit offenem P1.2 starten und den Eingang dann auf Masse ziehen. Das Programm erzeugt vier Zustände durch Addition von drei modulo sieben, speichert sie indirekt und gibt sie mit 80 Warteeinheiten pro Zustand auf P2 aus."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [
+          "P1.2"
+        ],
+        "outputs": [
+          "P2"
+        ]
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "inputs": [
+            {
+              "at": "Wait",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Wait",
+              "port": "P1",
+              "value": 253
+            }
+          ],
+          "expect": {
+            "instructions": 93,
+            "pc": 35,
+            "accumulator": [
+              0,
+              4
+            ],
+            "p2": 4,
+            "memory": {
+              "Memory": [
+                0,
+                2
+              ],
+              "Second": [
+                0,
+                5
+              ],
+              "Third": [
+                0,
+                1
+              ],
+              "Fourth": [
+                0,
+                4
+              ]
+            },
+            "writes": [
+              [
+                "P2",
+                2
+              ],
+              [
+                "P2",
+                5
+              ],
+              [
+                "P2",
+                1
+              ],
+              [
+                "P2",
+                4
+              ]
+            ],
+            "delays": [
+              80,
+              80,
+              80,
+              80
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "signal-reaction",
+      "sections": [
+        "2.2"
+      ],
+      "title": {
+        "en": "Reaction signal",
+        "de": "Reaktionssignal"
+      },
+      "setup": {
+        "en": "Choose the short cue wait by grounding P1.3 or the long wait by leaving it open. Keep P1.4 open until P2.6 goes high and then press the response button. The counter records completed 35-unit intervals after the cue, up to twelve.",
+        "de": "P1.3 auf Masse wählt die kurze Wartezeit, offen die lange. P1.4 offen lassen, bis P2.6 High wird, und dann den Antworttaster drücken. Der Zähler erfasst volle Intervalle von 35 Einheiten nach dem Signal, höchstens zwölf."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [
+          "P1.3",
+          "P1.4"
+        ],
+        "outputs": [
+          "P2.6"
+        ]
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "inputs": [
+            {
+              "at": "Select",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "ReadButton",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "ReadButton",
+              "port": "P1",
+              "value": 251
+            },
+            {
+              "at": "ReadButton",
+              "port": "P1",
+              "value": 243
+            }
+          ],
+          "expect": {
+            "instructions": 37,
+            "pc": 26,
+            "accumulator": [
+              0,
+              2
+            ],
+            "p2": 223,
+            "memory": {
+              "Count": [
+                0,
+                2
+              ]
+            },
+            "display": [
+              [
+                0,
+                2
+              ]
+            ],
+            "writes": [
+              [
+                "P2",
+                223
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                223
+              ]
+            ],
+            "delays": [
+              90,
+              35,
+              35
+            ]
+          },
+          "maxInstructions": 2000
+        },
+        {
+          "inputs": [
+            {
+              "at": "Select",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "ReadButton",
+              "port": "P1",
+              "value": 247
+            }
+          ],
+          "expect": {
+            "instructions": 18,
+            "pc": 26,
+            "accumulator": [
+              0,
+              0
+            ],
+            "p2": 223,
+            "memory": {
+              "Count": [
+                0,
+                0
+              ]
+            },
+            "display": [
+              [
+                0,
+                0
+              ]
+            ],
+            "writes": [
+              [
+                "P2",
+                223
+              ],
+              [
+                "P2",
+                255
+              ],
+              [
+                "P2",
+                223
+              ]
+            ],
+            "delays": [
+              190
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "studio-annunciator",
+      "sections": [
+        "2.17"
+      ],
+      "title": {
+        "en": "Studio call lamps",
+        "de": "Ruflampen im Studio"
+      },
+      "setup": {
+        "en": "Choose station 0–3 on P1. Its lamp is selected through a mask table on P2 terminals 1, 3, 5, or 7. Any other input clears all lamps.",
+        "de": "Rufstelle 0–3 an P1 wählen. Eine Maskentabelle schaltet die passende Lampe an P2.1, P2.3, P2.5 oder P2.7. Jeder andere Eingangswert löscht alle Lampen."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [
+          "P1"
+        ],
+        "outputs": [
+          "P2.1",
+          "P2.3",
+          "P2.5",
+          "P2.7"
+        ]
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "inputs": [
+            {
+              "at": "Entry",
+              "port": "P1",
+              "value": 0
+            }
+          ],
+          "expect": {
+            "instructions": 9,
+            "pc": 10,
+            "accumulator": [
+              0,
+              1
+            ],
+            "p2": 1,
+            "writes": [
+              [
+                "P2",
+                1
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        },
+        {
+          "inputs": [
+            {
+              "at": "Entry",
+              "port": "P1",
+              "value": 1
+            }
+          ],
+          "expect": {
+            "instructions": 9,
+            "pc": 10,
+            "accumulator": [
+              0,
+              4
+            ],
+            "p2": 4,
+            "writes": [
+              [
+                "P2",
+                4
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        },
+        {
+          "inputs": [
+            {
+              "at": "Entry",
+              "port": "P1",
+              "value": 2
+            }
+          ],
+          "expect": {
+            "instructions": 9,
+            "pc": 10,
+            "accumulator": [
+              0,
+              16
+            ],
+            "p2": 16,
+            "writes": [
+              [
+                "P2",
+                16
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        },
+        {
+          "inputs": [
+            {
+              "at": "Entry",
+              "port": "P1",
+              "value": 3
+            }
+          ],
+          "expect": {
+            "instructions": 9,
+            "pc": 10,
+            "accumulator": [
+              0,
+              64
+            ],
+            "p2": 64,
+            "writes": [
+              [
+                "P2",
+                64
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        },
+        {
+          "inputs": [
+            {
+              "at": "Entry",
+              "port": "P1",
+              "value": 9
+            }
+          ],
+          "expect": {
+            "instructions": 6,
+            "pc": 10,
+            "accumulator": [
+              0,
+              0
+            ],
+            "p2": 0,
+            "writes": [
+              [
+                "P2",
+                0
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "ticket-draw",
+      "sections": [
+        "1.17"
+      ],
+      "title": {
+        "en": "Ticket draw",
+        "de": "Los ziehen"
+      },
+      "setup": {
+        "en": "Connect a pushbutton from P1.3 to ground. Start with it open, run, and close it once to freeze and display a ticket from 1 through 11. The value advances by three between samples; timing chooses the ticket.",
+        "de": "Taster zwischen P1.3 und Masse anschließen. Offen starten, Programm ausführen und einmal drücken, um ein Los von 1 bis 11 festzuhalten und anzuzeigen. Zwischen den Abfragen steigt der Wert um drei."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [
+          "P1.3"
+        ],
+        "outputs": []
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "inputs": [
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "ReadButton",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "ReadButton",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "ReadButton",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "ReadButton",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "ReadButton",
+              "port": "P1",
+              "value": 251
+            }
+          ],
+          "expect": {
+            "instructions": 54,
+            "pc": 22,
+            "accumulator": [
+              0,
+              4
+            ],
+            "memory": {
+              "Result": [
+                0,
+                4
+              ]
+            },
+            "display": [
+              [
+                0,
+                4
+              ]
+            ],
+            "delays": [
+              55,
+              55,
+              55,
+              55
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "tile-bundles",
+      "sections": [
+        "1.69"
+      ],
+      "title": {
+        "en": "Tile bundle counter",
+        "de": "Fliesenpakete zählen"
+      },
+      "setup": {
+        "en": "Run to count seven bundles of thirteen tiles. Inspect Product and Remaining after halt, and single-step a loop to see that each pass adds one bundle.",
+        "de": "Programm starten, um sieben Pakete zu je dreizehn Fliesen zu zählen. Nach dem Halt Product und Remaining prüfen. Im Einzelschritt sieht man, wie jeder Durchlauf ein Paket addiert."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [],
+        "outputs": []
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "expect": {
+            "instructions": 68,
+            "pc": 15,
+            "accumulator": [
+              0,
+              91
+            ],
+            "memory": {
+              "Product": [
+                0,
+                91
+              ],
+              "Remaining": [
+                0,
+                0
+              ]
+            }
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "token-match",
+      "sections": [
+        "2.5"
+      ],
+      "title": {
+        "en": "Ten-token match",
+        "de": "Spiel mit zehn Marken"
+      },
+      "setup": {
+        "en": "Take 1, 2, or 3 tokens by sending that byte on P1. Return to 255 between moves. The computer tries to make each pair of turns remove four, but takes only what remains. Result 1 means the player took the last token and 2 means the computer did.",
+        "de": "Mit P1-Byte 1, 2 oder 3 so viele Marken nehmen. Zwischen den Zügen 255 einstellen. Der Computer ergänzt jeden Zug möglichst auf vier, nimmt aber höchstens den Rest. Ergebnis 1 bedeutet Spielersieg, 2 Computersieg."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [
+          "P1"
+        ],
+        "outputs": []
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "inputs": [
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 4
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 3
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 1
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 2
+            }
+          ],
+          "expect": {
+            "instructions": 90,
+            "pc": 40,
+            "accumulator": [
+              0,
+              1
+            ],
+            "memory": {
+              "Left": [
+                0,
+                0
+              ],
+              "Result": [
+                0,
+                1
+              ]
+            },
+            "display": [
+              [
+                0,
+                6
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                1
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        },
+        {
+          "inputs": [
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 2
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 3
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 1
+            }
+          ],
+          "expect": {
+            "instructions": 85,
+            "pc": 40,
+            "accumulator": [
+              0,
+              2
+            ],
+            "memory": {
+              "Left": [
+                0,
+                0
+              ],
+              "Result": [
+                0,
+                2
+              ]
+            },
+            "display": [
+              [
+                0,
+                6
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                2
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "twin-samples",
+      "sections": [
+        "2.11"
+      ],
+      "title": {
+        "en": "Twin counters",
+        "de": "Zwillingszähler"
+      },
+      "setup": {
+        "en": "Ground P1.2 to freeze the first cyclic counter, release it, then ground P1.5 to freeze the second. Both count modulo five with a 45-unit pause. P2.5 goes high only when the final samples agree.",
+        "de": "P1.2 auf Masse ziehen, um den ersten zyklischen Zähler festzuhalten. Danach den Kontakt öffnen und P1.5 auf Masse ziehen, um den zweiten Zähler festzuhalten. Beide zählen modulo fünf mit 45 Warteeinheiten. P2.5 ist nur bei gleichen Werten High."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [
+          "P1.2",
+          "P1.5"
+        ],
+        "outputs": [
+          "P2.5"
+        ]
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "inputs": [
+            {
+              "at": "First",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "First",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "First",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "First",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Second",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Second",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Second",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Second",
+              "port": "P1",
+              "value": 239
+            }
+          ],
+          "expect": {
+            "instructions": 80,
+            "pc": 39,
+            "accumulator": [
+              0,
+              1
+            ],
+            "p2": 255,
+            "memory": {
+              "SampleA": [
+                0,
+                3
+              ],
+              "SampleB": [
+                0,
+                3
+              ]
+            },
+            "display": [
+              [
+                0,
+                1
+              ]
+            ],
+            "writes": [
+              [
+                "P2",
+                239
+              ],
+              [
+                "P2",
+                255
+              ]
+            ],
+            "delays": [
+              45,
+              45,
+              45,
+              45,
+              45,
+              45
+            ]
+          },
+          "maxInstructions": 2000
+        },
+        {
+          "inputs": [
+            {
+              "at": "First",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "First",
+              "port": "P1",
+              "value": 253
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Second",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Second",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Second",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Second",
+              "port": "P1",
+              "value": 239
+            }
+          ],
+          "expect": {
+            "instructions": 61,
+            "pc": 39,
+            "accumulator": [
+              0,
+              0
+            ],
+            "p2": 239,
+            "memory": {
+              "SampleA": [
+                0,
+                1
+              ],
+              "SampleB": [
+                0,
+                3
+              ]
+            },
+            "display": [
+              [
+                0,
+                0
+              ]
+            ],
+            "writes": [
+              [
+                "P2",
+                239
+              ],
+              [
+                "P2",
+                239
+              ]
+            ],
+            "delays": [
+              45,
+              45,
+              45,
+              45
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "wide-tile-count",
+      "sections": [
+        "2.15"
+      ],
+      "title": {
+        "en": "Two-byte tile total",
+        "de": "Fliesenzahl in zwei Bytes"
+      },
+      "setup": {
+        "en": "Count nine bundles of 73. The total is held in two numeric cells, High and Low, in base 256. Before an addition could overflow, replace it with the equivalent subtraction and increment High. The result is 2 × 256 + 145 = 657.",
+        "de": "Neun Pakete zu je 73 zählen. High und Low sind zwei Zahlenzellen zur Basis 256. Vor einem Additionsüberlauf zieht das Programm den passenden Betrag ab und erhöht High. Ergebnis: 2 × 256 + 145 = 657."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [],
+        "outputs": []
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "expect": {
+            "instructions": 125,
+            "pc": 29,
+            "accumulator": [
+              0,
+              145
+            ],
+            "memory": {
+              "High": [
+                0,
+                2
+              ],
+              "Low": [
+                0,
+                145
+              ],
+              "Remaining": [
+                0,
+                0
+              ]
+            },
+            "display": [
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                145
+              ]
+            ],
+            "delays": [
+              200,
+              200
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "workshop-capacity",
+      "sections": [
+        "1.40"
+      ],
+      "title": {
+        "en": "Workshop capacity",
+        "de": "Freie Werkstattplätze"
+      },
+      "setup": {
+        "en": "A full P1 byte of 1 means arrival and 2 means departure. Return P1 to 255 after each event. Code 0 ends the session. There are three free places initially; arrivals at zero and departures at three are ignored.",
+        "de": "P1-Byte 1 meldet eine Ankunft, 2 einen Abgang. Nach jedem Ereignis P1 auf 255 zurückstellen. Byte 0 beendet die Sitzung. Anfangs sind drei Plätze frei. Ankunft bei null und Abgang bei drei freien Plätzen bleiben wirkungslos."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [
+          "P1"
+        ],
+        "outputs": []
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "inputs": [
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 1
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 1
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 1
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 1
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 2
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 2
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 2
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 2
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 0
+            }
+          ],
+          "expect": {
+            "instructions": 144,
+            "pc": 29,
+            "accumulator": [
+              0,
+              3
+            ],
+            "memory": {
+              "Free": [
+                0,
+                3
+              ]
+            },
+            "display": [
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                3
+              ],
+              [
+                0,
+                3
+              ]
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    },
+    {
+      "id": "yard-dispatch",
+      "sections": [
+        "2.24"
+      ],
+      "title": {
+        "en": "Model yard route setter",
+        "de": "Fahrstraßenwahl im Modellbahnhof"
+      },
+      "setup": {
+        "en": "P1 codes 0 and 1 request route A or B, 2 sets both signals to stop, and 3 stops and halts. Return to 255 between commands. P2.1 selects the turnout; P2.2 and P2.3 are route-clear outputs. Both signals stop before the turnout moves, and a 120-unit settling delay precedes opening one route.",
+        "de": "P1-Code 0 oder 1 fordert Fahrstraße A oder B an, 2 setzt beide Signale auf Halt und 3 setzt Halt und beendet das Programm. Dazwischen 255 einstellen. P2.1 stellt die Weiche, P2.2 und P2.3 geben die Fahrstraßen frei. Vor der Bewegung beide Signale auf Halt setzen und vor der Freigabe 120 Einheiten warten."
+      },
+      "hardware": {
+        "cp3": false,
+        "inputs": [
+          "P1"
+        ],
+        "outputs": [
+          "P2.1",
+          "P2.2",
+          "P2.3"
+        ]
+      },
+      "entry": "Entry",
+      "cases": [
+        {
+          "inputs": [
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 0
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 1
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 2
+            },
+            {
+              "at": "Release",
+              "port": "P1",
+              "value": 255
+            },
+            {
+              "at": "Request",
+              "port": "P1",
+              "value": 3
+            }
+          ],
+          "expect": {
+            "instructions": 74,
+            "pc": 30,
+            "accumulator": [
+              0,
+              3
+            ],
+            "p2": 249,
+            "writes": [
+              [
+                "P2",
+                253
+              ],
+              [
+                "P2",
+                249
+              ],
+              [
+                "P2",
+                249
+              ],
+              [
+                "P2",
+                249
+              ],
+              [
+                "P2",
+                248
+              ],
+              [
+                "P2",
+                250
+              ],
+              [
+                "P2",
+                248
+              ],
+              [
+                "P2",
+                248
+              ],
+              [
+                "P2",
+                249
+              ],
+              [
+                "P2",
+                253
+              ],
+              [
+                "P2",
+                253
+              ],
+              [
+                "P2",
+                249
+              ],
+              [
+                "P2",
+                249
+              ],
+              [
+                "P2",
+                249
+              ]
+            ],
+            "delays": [
+              120,
+              120
+            ]
+          },
+          "maxInstructions": 2000
+        }
+      ]
+    }
+  ]
+}

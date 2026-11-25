@@ -1,0 +1,46 @@
+ORG 0
+Entry: AKO 0
+P2A 3
+Reset: AKO 0
+ABS Progress
+AKO Sequence
+ABS Cursor
+Request: P1E 0
+VGL Idle
+SPB Request
+ABS Key
+LIA Cursor
+VGL Key
+SPB Correct
+AKO 0
+ABS Progress
+ANZ 0
+AKO Sequence
+ABS Cursor
+SPU Release
+Correct: LDA Progress
+ADD One
+ABS Progress
+ANZ 0
+VGL Length
+SPB Open
+LDA Cursor
+ADD One
+ABS Cursor
+Release: P1E 0
+VGL Idle
+SPB Request
+SPU Release
+Open: AKO 1
+P2A 3
+LDA Progress
+HLT 0
+Progress: DATA 0
+Cursor: DATA 0
+Key: DATA 0
+One: DATA 1
+Length: DATA 3
+Idle: DATA 255
+Sequence: DATA 9
+DATA 4
+DATA 7

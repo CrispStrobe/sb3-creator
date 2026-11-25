@@ -1,0 +1,37 @@
+ORG 0
+Entry: AKO 0
+ABS Attempts
+Request: P1E 0
+VGL Idle
+SPB Request
+ABS Guess
+LDA Attempts
+ADD One
+ABS Attempts
+LDA Guess
+VGL Secret
+SPB Found
+VKL Secret
+SPB Low
+AKO 2
+SPU Show
+Low: AKO 1
+Show: P2A 0
+LDA Attempts
+VGL Limit
+SPB Exhausted
+Release: P1E 0
+VGL Idle
+SPB Request
+SPU Release
+Found: AKO 3
+SPU Done
+Exhausted: AKO 4
+Done: P2A 0
+HLT 0
+Attempts: DATA 0
+Guess: DATA 0
+Secret: DATA 102
+Idle: DATA 255
+One: DATA 1
+Limit: DATA 12

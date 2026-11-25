@@ -1,0 +1,48 @@
+ORG 0
+Entry: AKO Memory
+ABS Cursor
+AKO 2
+ABS State
+Generate: LDA State
+AIS Cursor
+LDA Cursor
+VGL Last
+SPB Wait
+ADD One
+ABS Cursor
+LDA State
+ADD Three
+VKL Seven
+SPB Keep
+SUB Seven
+Keep: ABS State
+SPU Generate
+Wait: P1E 2
+VGL Zero
+SPB Begin
+SPU Wait
+Begin: AKO Memory
+ABS Cursor
+Replay: LIA Cursor
+P2A 0
+VZG 80
+LDA Cursor
+VGL Last
+SPB Done
+ADD One
+ABS Cursor
+SPU Replay
+Done: LIA Cursor
+HLT 0
+Cursor: DATA 0
+State: DATA 0
+Zero: DATA 0
+One: DATA 1
+Three: DATA 3
+Seven: DATA 7
+Last: DATA 67
+ORG 64
+Memory: DATA 0
+Second: DATA 0
+Third: DATA 0
+Fourth: DATA 0

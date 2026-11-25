@@ -1,0 +1,63 @@
+ORG 0
+Entry: AKO 0
+ABS Position
+Request: P1E 0
+VGL Idle
+SPB Request
+VGR Eight
+SPB Release
+VGL Four
+SPB Release
+ABS Target
+LDA Position
+VKL Three
+SPB CheckDown
+SUB Three
+VGL Target
+SPB Move
+CheckDown: LDA Position
+ADD Three
+VGL Target
+SPB Move
+LDA Position
+VGL Zero
+SPB CheckRight
+VGL Three
+SPB CheckRight
+VGL Six
+SPB CheckRight
+SUB One
+VGL Target
+SPB Move
+CheckRight: LDA Position
+VGL Two
+SPB Release
+VGL Five
+SPB Release
+VGL Eight
+SPB Release
+ADD One
+VGL Target
+SPB Move
+SPU Release
+Move: LDA Target
+ABS Position
+ANZ 0
+VGL Eight
+SPB Done
+Release: P1E 0
+VGL Idle
+SPB Request
+SPU Release
+Done: HLT 0
+Position: DATA 0
+Target: DATA 0
+Zero: DATA 0
+One: DATA 1
+Two: DATA 2
+Three: DATA 3
+Four: DATA 4
+Five: DATA 5
+Six: DATA 6
+Eight: DATA 8
+Idle: DATA 255

@@ -1,0 +1,63 @@
+ORG 0
+Entry: AKO Weights
+ABS Cursor
+LDA Payload
+ABS Remaining
+AKO 0
+ABS Parity
+Bit: LIA Cursor
+ABS Weight
+LDA Remaining
+VKL Weight
+SPB ZeroBit
+SUB Weight
+ABS Remaining
+LDA Parity
+NEG 0
+ABS Parity
+AKO 1
+SPU Send
+ZeroBit: AKO 0
+Send: P2A 1
+AKO 0
+P2A 2
+WaitAckLow: P1E 3
+VGL Zero
+SPB ReleaseClock
+SPU WaitAckLow
+ReleaseClock: AKO 1
+P2A 2
+WaitAckHigh: P1E 3
+VGL One
+SPB Advance
+SPU WaitAckHigh
+Advance: LDA Cursor
+VGL EndSlot
+SPB Done
+ADD One
+ABS Cursor
+VGL EndSlot
+SPB SendParity
+SPU Bit
+SendParity: LDA Parity
+SPU Send
+Done: LDA Payload
+HLT 0
+Payload: DATA 173
+Cursor: DATA 0
+Remaining: DATA 0
+Weight: DATA 0
+Parity: DATA 0
+Zero: DATA 0
+One: DATA 1
+EndSlot: DATA 72
+ORG 64
+Weights: DATA 128
+DATA 64
+DATA 32
+DATA 16
+DATA 8
+DATA 4
+DATA 2
+DATA 1
+DATA 0

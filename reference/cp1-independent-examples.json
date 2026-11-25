@@ -1,0 +1,108 @@
+{
+  "descending-sum": {
+    "entry": 10,
+    "requiresCp3": false,
+    "cases": [
+      {"instructions": 72, "pc": 25, "accumulator": [0, 28], "words": {"30": [0, 0], "31": [0, 28]}}
+    ]
+  },
+  "crate-division": {
+    "entry": 20,
+    "requiresCp3": false,
+    "cases": [
+      {"instructions": 90, "pc": 35, "accumulator": [0, 2], "words": {"39": [0, 2], "40": [0, 9]}}
+    ]
+  },
+  "lookup-card": {
+    "entry": 38,
+    "requiresCp3": false,
+    "cases": [
+      {"instructions": 5, "pc": 43, "accumulator": [0, 123], "words": {"51": [0, 58]}}
+    ]
+  },
+  "instruction-patch": {
+    "entry": 66,
+    "requiresCp3": false,
+    "cases": [
+      {"instructions": 5, "pc": 71, "accumulator": [0, 197], "words": {"69": [4, 197]}}
+    ]
+  },
+  "guarded-output": {
+    "entry": 30,
+    "requiresCp3": false,
+    "cases": [
+      {"p1": 189, "instructions": 7, "pc": 37, "accumulator": [0, 0], "p2": 239},
+      {"p1": 253, "instructions": 7, "pc": 37, "accumulator": [0, 0], "p2": 239},
+      {"p1": 191, "instructions": 7, "pc": 37, "accumulator": [0, 1], "p2": 255},
+      {"p1": 255, "instructions": 7, "pc": 37, "accumulator": [0, 0], "p2": 239}
+    ]
+  },
+  "expansion-step": {
+    "entry": 196,
+    "requiresCp3": true,
+    "cases": [
+      {
+        "mode": "step",
+        "p3": 182,
+        "instructions": 5,
+        "pc": 201,
+        "accumulator": [0, 182],
+        "words": {"212": [0, 182]},
+        "p4": 182,
+        "p5": 54,
+        "checkpoints": [
+          {"pc": 197, "accumulator": [0, 182]},
+          {"pc": 198, "words": {"212": [0, 182]}},
+          {"pc": 199, "p4": 182},
+          {"pc": 200, "p5": 54},
+          {"pc": 201, "accumulator": [0, 182]}
+        ]
+      }
+    ]
+  },
+  "sample-log": {
+    "entry": 35,
+    "requiresCp3": false,
+    "cases": [
+      {
+        "mode": "step",
+        "p1Reads": [
+          {"pc": 37, "value": 53},
+          {"pc": 37, "value": 138},
+          {"pc": 37, "value": 199}
+        ],
+        "instructions": 25,
+        "pc": 47,
+        "accumulator": [0, 199],
+        "words": {"76": [0, 53], "77": [0, 138], "78": [0, 199]}
+      }
+    ]
+  },
+  "gray-indicator": {
+    "entry": 8,
+    "requiresCp3": false,
+    "cases": [
+      {
+        "instructions": 72,
+        "pc": 20,
+        "accumulator": [0, 51],
+        "p2": 252,
+        "p2Writes": [248, 249, 251, 250, 254, 255, 253, 252],
+        "delayOperands": [75, 75, 75, 75, 75, 75, 75, 75],
+        "edgeIntervalMilliseconds": [70, 105],
+        "haltWithinMillisecondsOfFirstWrite": 1000
+      }
+    ]
+  },
+  "status-dispatch": {
+    "entry": 82,
+    "requiresCp3": false,
+    "cases": [
+      {"p1": 0, "instructions": 9, "pc": 90, "accumulator": [0, 17]},
+      {"p1": 1, "instructions": 9, "pc": 92, "accumulator": [0, 71]},
+      {"p1": 2, "instructions": 9, "pc": 94, "accumulator": [0, 143]},
+      {"p1": 3, "instructions": 5, "pc": 96, "accumulator": [0, 239]},
+      {"p1": 255, "instructions": 5, "pc": 96, "accumulator": [0, 239]}
+    ]
+  }
+}

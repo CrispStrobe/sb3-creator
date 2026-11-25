@@ -1,0 +1,11 @@
+ORG 0
+Entry: AKO 0
+P1A 5
+Probe: P1E 2
+ABS Sample
+VZG 145
+AKO 1
+P1A 5
+LDA Sample
+HLT 0
+Sample: DATA 0

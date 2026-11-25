@@ -1,0 +1,5 @@
+# Lookup card / Tabellenkarte
+
+**EN.** Read index 4 from a six-value calibration table, where index 0 is the first entry. Enter `038 PC RUN`. The program adds the index to the start address and saves the resulting pointer `00.058` in cell 051. The indirect load fetches `00.123` from cell 058. Expect `P  043`, then `A00.123` on **ACC**. The run executes five teaching instructions, with no programmed delay. Base memory suffices. The program occupies 038–042, 050–051, and 054–059 and needs no terminal connections.
+
+**DE.** Lies den Eintrag mit Index 4 aus einer Kalibriertabelle mit sechs Werten. Der erste Eintrag hat Index 0. `038 PC RUN` eingeben. Das Programm addiert den Index zur Tabellenadresse und speichert den Zeiger `00.058` in Zelle 051. Der indirekte Ladebefehl holt `00.123` aus Zelle 058. Am Ende erscheint `P  043`, mit **ACC** dann `A00.123`. Der Ablauf umfasst fünf Lehrbefehle ohne programmierte Wartezeit. Der Grundspeicher genügt. Belegt sind 038–042, 050–051 und 054–059. Externe Anschlüsse sind nicht erforderlich.
