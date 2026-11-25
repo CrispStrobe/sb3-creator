@@ -36,7 +36,7 @@ net npn_17.collector V 9.00 +-0.02
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@2965782` and `bw-circuit-ui@e3441d2` — the revisions pinned in
+> `bw-board@9de91e3` and `bw-circuit-ui@3084f35` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **11 of this page's 35** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;

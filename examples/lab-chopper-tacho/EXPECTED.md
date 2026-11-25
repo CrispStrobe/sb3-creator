@@ -27,3 +27,12 @@ bw-board r9/engine-robust-20261125 / bw-circuit-ui e3441d2, `test/lab-circuits-r
 net resistor_5.a V 9.0 +-0.01
 net led_6.anode V 1.84 +-0.05
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@9de91e3` and `bw-circuit-ui@3084f35` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **13 of this page's 18** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-chopper-tacho` prints them one by one.
+<!-- engine-provenance -->

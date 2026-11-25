@@ -27,3 +27,12 @@ net ptc_sensor_4.a V 0.724 +-0.01
 net potentiometer_5.wiper V 0.713 +-0.01
 net lm386_7.vout V 5.07 +-0.1
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@9de91e3` and `bw-circuit-ui@3084f35` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **14 of this page's 25** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-ptc-fibre-tone` prints them one by one.
+<!-- engine-provenance -->

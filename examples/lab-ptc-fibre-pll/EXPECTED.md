@@ -27,3 +27,12 @@ bw-board r9/engine-robust-20261125 / bw-circuit-ui e3441d2, `test/lab-circuits-r
 net ptc_sensor_4.a V 0.724 +-0.01
 net lm386_7.vout V 5.07 +-0.1
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@9de91e3` and `bw-circuit-ui@3084f35` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **22 of this page's 34** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-ptc-fibre-pll` prints them one by one.
+<!-- engine-provenance -->

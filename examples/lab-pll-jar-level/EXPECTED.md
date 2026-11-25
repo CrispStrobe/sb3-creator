@@ -31,3 +31,12 @@ net cd4046_3.vco_in V 4.50 +-0.01
 net resistor_23.b V 0.19 +-0.01
 net npn_33.collector V 0.02 +-0.02
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@9de91e3` and `bw-circuit-ui@3084f35` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **27 of this page's 31** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-pll-jar-level` prints them one by one.
+<!-- engine-provenance -->
