@@ -12692,5 +12692,413 @@
       "introDE": "lab-light-volume-am/intro.de.md"
     },
     "devices": []
+  },
+  {
+    "id": "lab-amp-blinker",
+    "title": {
+      "en": "Amplifier chip as a blinker",
+      "de": "Verstärker-Chip als Blinker"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-amp-blinker/program.bw",
+      "circuit": "lab-amp-blinker/circuit.json",
+      "expected": "lab-amp-blinker/EXPECTED.md",
+      "intro": "lab-amp-blinker/intro.md",
+      "introDE": "lab-amp-blinker/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-amp-probe-harp",
+    "title": {
+      "en": "Probe tone and touch harp",
+      "de": "Prüftongeber und Berührungsharfe"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-amp-probe-harp/program.bw",
+      "circuit": "lab-amp-probe-harp/circuit.json",
+      "expected": "lab-amp-probe-harp/EXPECTED.md",
+      "intro": "lab-amp-probe-harp/intro.md",
+      "introDE": "lab-amp-probe-harp/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-touch-morse",
+    "title": {
+      "en": "Touch Morse key",
+      "de": "Morsetaste zum Berühren"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-touch-morse/program.bw",
+      "circuit": "lab-touch-morse/circuit.json",
+      "expected": "lab-touch-morse/EXPECTED.md",
+      "intro": "lab-touch-morse/intro.md",
+      "introDE": "lab-touch-morse/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-trip-wire-siren",
+    "title": {
+      "en": "Trip-wire alarm with a two-tone siren",
+      "de": "Stolperdraht-Alarm mit Zweiton-Sirene"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 4,
+    "files": {
+      "program": "lab-trip-wire-siren/program.bw",
+      "circuit": "lab-trip-wire-siren/circuit.json",
+      "expected": "lab-trip-wire-siren/EXPECTED.md",
+      "intro": "lab-trip-wire-siren/intro.md",
+      "introDE": "lab-trip-wire-siren/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-steered-toggle-toss",
+    "title": {
+      "en": "Toggle flip-flop with steering diodes, and a coin toss",
+      "de": "Kipp-Flipflop mit Steuerdioden und Münzwurf"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 4,
+    "files": {
+      "program": "lab-steered-toggle-toss/program.bw",
+      "circuit": "lab-steered-toggle-toss/circuit.json",
+      "expected": "lab-steered-toggle-toss/EXPECTED.md",
+      "intro": "lab-steered-toggle-toss/intro.md",
+      "introDE": "lab-steered-toggle-toss/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-amp-touch-latch",
+    "title": {
+      "en": "Amplifier chip as a memory and a monoflop",
+      "de": "Verstärker-Chip als Speicher und Monoflop"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-amp-touch-latch/program.bw",
+      "circuit": "lab-amp-touch-latch/circuit.json",
+      "expected": "lab-amp-touch-latch/EXPECTED.md",
+      "intro": "lab-amp-touch-latch/intro.md",
+      "introDE": "lab-amp-touch-latch/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-clap-toggle-relay",
+    "title": {
+      "en": "Clap on, clap off",
+      "de": "Klatsch an, klatsch aus"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 4,
+    "files": {
+      "program": "lab-clap-toggle-relay/program.bw",
+      "circuit": "lab-clap-toggle-relay/circuit.json",
+      "expected": "lab-clap-toggle-relay/EXPECTED.md",
+      "intro": "lab-clap-toggle-relay/intro.md",
+      "introDE": "lab-clap-toggle-relay/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-amp-audiometer",
+    "title": {
+      "en": "Hearing-range tester",
+      "de": "Hörbereich-Tester"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-amp-audiometer/program.bw",
+      "circuit": "lab-amp-audiometer/circuit.json",
+      "expected": "lab-amp-audiometer/EXPECTED.md",
+      "intro": "lab-amp-audiometer/intro.md",
+      "introDE": "lab-amp-audiometer/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-amp-struck-note",
+    "title": {
+      "en": "Struck note that dies away",
+      "de": "Angeschlagener Ton, der verklingt"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-amp-struck-note/program.bw",
+      "circuit": "lab-amp-struck-note/circuit.json",
+      "expected": "lab-amp-struck-note/EXPECTED.md",
+      "intro": "lab-amp-struck-note/intro.md",
+      "introDE": "lab-amp-struck-note/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-eq-preamp",
+    "title": {
+      "en": "Preamplifier with equalising feedback",
+      "de": "Vorverstärker mit Entzerrer-Gegenkopplung"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 4,
+    "files": {
+      "program": "lab-eq-preamp/program.bw",
+      "circuit": "lab-eq-preamp/circuit.json",
+      "expected": "lab-eq-preamp/EXPECTED.md",
+      "intro": "lab-eq-preamp/intro.md",
+      "introDE": "lab-eq-preamp/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-amp-baby-monitor",
+    "title": {
+      "en": "Baby monitor that howls when held too close",
+      "de": "Babyfon, das zu nah heult"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 4,
+    "files": {
+      "program": "lab-amp-baby-monitor/program.bw",
+      "circuit": "lab-amp-baby-monitor/circuit.json",
+      "expected": "lab-amp-baby-monitor/EXPECTED.md",
+      "intro": "lab-amp-baby-monitor/intro.md",
+      "introDE": "lab-amp-baby-monitor/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-diff-pair-amp",
+    "title": {
+      "en": "Differential pair and amplifier chip: comparator and blinker",
+      "de": "Differenzverstärker und Verstärker-Chip: Komparator und Blinker"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 4,
+    "files": {
+      "program": "lab-diff-pair-amp/program.bw",
+      "circuit": "lab-diff-pair-amp/circuit.json",
+      "expected": "lab-diff-pair-amp/EXPECTED.md",
+      "intro": "lab-diff-pair-amp/intro.md",
+      "introDE": "lab-diff-pair-amp/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-schmitt-supply-watch",
+    "title": {
+      "en": "Schmitt trigger as a battery watchdog",
+      "de": "Schmitt-Trigger als Batteriewächter"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-schmitt-supply-watch/program.bw",
+      "circuit": "lab-schmitt-supply-watch/circuit.json",
+      "expected": "lab-schmitt-supply-watch/EXPECTED.md",
+      "intro": "lab-schmitt-supply-watch/intro.md",
+      "introDE": "lab-schmitt-supply-watch/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-dusk-parking-light",
+    "title": {
+      "en": "Parking light that waits for real dusk",
+      "de": "Parklicht, das auf echte Dämmerung wartet"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-dusk-parking-light/program.bw",
+      "circuit": "lab-dusk-parking-light/circuit.json",
+      "expected": "lab-dusk-parking-light/EXPECTED.md",
+      "intro": "lab-dusk-parking-light/intro.md",
+      "introDE": "lab-dusk-parking-light/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-auto-dip-beam",
+    "title": {
+      "en": "Automatic headlight dipping",
+      "de": "Automatisches Abblendlicht"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-auto-dip-beam/program.bw",
+      "circuit": "lab-auto-dip-beam/circuit.json",
+      "expected": "lab-auto-dip-beam/EXPECTED.md",
+      "intro": "lab-auto-dip-beam/intro.md",
+      "introDE": "lab-auto-dip-beam/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-mirror-thermo-alarm",
+    "title": {
+      "en": "Current mirror as a heat and frost alarm",
+      "de": "Stromspiegel als Hitze- und Frostalarm"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 4,
+    "files": {
+      "program": "lab-mirror-thermo-alarm/program.bw",
+      "circuit": "lab-mirror-thermo-alarm/circuit.json",
+      "expected": "lab-mirror-thermo-alarm/EXPECTED.md",
+      "intro": "lab-mirror-thermo-alarm/intro.md",
+      "introDE": "lab-mirror-thermo-alarm/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-freezer-diode-alarm",
+    "title": {
+      "en": "Freezer watchdog with a sensor diode",
+      "de": "Gefrierschrank-Wächter mit Fühlerdiode"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 4,
+    "files": {
+      "program": "lab-freezer-diode-alarm/program.bw",
+      "circuit": "lab-freezer-diode-alarm/circuit.json",
+      "expected": "lab-freezer-diode-alarm/EXPECTED.md",
+      "intro": "lab-freezer-diode-alarm/intro.md",
+      "introDE": "lab-freezer-diode-alarm/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-diff-pair-charging",
+    "title": {
+      "en": "Differential pair watching a charging capacitor",
+      "de": "Differenzverstärker beobachtet einen Ladekondensator"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-diff-pair-charging/program.bw",
+      "circuit": "lab-diff-pair-charging/circuit.json",
+      "expected": "lab-diff-pair-charging/EXPECTED.md",
+      "intro": "lab-diff-pair-charging/intro.md",
+      "introDE": "lab-diff-pair-charging/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-ir-barrier-alarm",
+    "title": {
+      "en": "Infrared light barrier",
+      "de": "Infrarot-Lichtschranke"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-ir-barrier-alarm/program.bw",
+      "circuit": "lab-ir-barrier-alarm/circuit.json",
+      "expected": "lab-ir-barrier-alarm/EXPECTED.md",
+      "intro": "lab-ir-barrier-alarm/intro.md",
+      "introDE": "lab-ir-barrier-alarm/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-ir-flash-toggle",
+    "title": {
+      "en": "Infrared remote switch",
+      "de": "Infrarot-Fernschalter"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 4,
+    "files": {
+      "program": "lab-ir-flash-toggle/program.bw",
+      "circuit": "lab-ir-flash-toggle/circuit.json",
+      "expected": "lab-ir-flash-toggle/EXPECTED.md",
+      "intro": "lab-ir-flash-toggle/intro.md",
+      "introDE": "lab-ir-flash-toggle/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-ir-tone-link",
+    "title": {
+      "en": "Morse over an infrared beam",
+      "de": "Morsen über einen Infrarotstrahl"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-ir-tone-link/program.bw",
+      "circuit": "lab-ir-tone-link/circuit.json",
+      "expected": "lab-ir-tone-link/EXPECTED.md",
+      "intro": "lab-ir-tone-link/intro.md",
+      "introDE": "lab-ir-tone-link/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-ir-pulse-dimmer",
+    "title": {
+      "en": "Pulsed infrared and a wireless dimmer",
+      "de": "Gepulstes Infrarot und ein drahtloser Dimmer"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 4,
+    "files": {
+      "program": "lab-ir-pulse-dimmer/program.bw",
+      "circuit": "lab-ir-pulse-dimmer/circuit.json",
+      "expected": "lab-ir-pulse-dimmer/EXPECTED.md",
+      "intro": "lab-ir-pulse-dimmer/intro.md",
+      "introDE": "lab-ir-pulse-dimmer/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-ir-music-link",
+    "title": {
+      "en": "Music on an infrared beam",
+      "de": "Musik auf einem Infrarotstrahl"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-ir-music-link/program.bw",
+      "circuit": "lab-ir-music-link/circuit.json",
+      "expected": "lab-ir-music-link/EXPECTED.md",
+      "intro": "lab-ir-music-link/intro.md",
+      "introDE": "lab-ir-music-link/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-optical-astable",
+    "title": {
+      "en": "Astable coupled by light",
+      "de": "Kippschaltung mit Lichtkopplung"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 4,
+    "files": {
+      "program": "lab-optical-astable/program.bw",
+      "circuit": "lab-optical-astable/circuit.json",
+      "expected": "lab-optical-astable/EXPECTED.md",
+      "intro": "lab-optical-astable/intro.md",
+      "introDE": "lab-optical-astable/intro.de.md"
+    }
   }
 ]
