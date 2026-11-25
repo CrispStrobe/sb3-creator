@@ -27,3 +27,12 @@ net lm386_8.vout V 8.1 +-0.05
 net lm386_8.inp V 5.116 +-0.03
 net timer_555_3.control V 6.0 +-0.01
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@2965782` and `bw-circuit-ui@e3441d2` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **12 of this page's 34** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-555-amp-beats` prints them one by one.
+<!-- engine-provenance -->
