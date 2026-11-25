@@ -1,0 +1,597 @@
+{
+  "vcc": 9,
+  "parts": [
+    {
+      "id": "breadboard_1",
+      "kind": "breadboard",
+      "params": {},
+      "terminals": [],
+      "x": 520,
+      "y": 420,
+      "rotation": 0
+    },
+    {
+      "id": "vsource_2",
+      "kind": "vsource",
+      "params": {
+        "volts": 9,
+        "variant": "9v"
+      },
+      "x": 83,
+      "y": 213,
+      "rotation": 0,
+      "terminals": [
+        "pos",
+        "neg"
+      ]
+    },
+    {
+      "id": "button_3",
+      "kind": "button",
+      "params": {},
+      "x": 114,
+      "y": 420,
+      "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "a": "e3",
+          "b": "f3"
+        }
+      },
+      "terminals": [
+        "a",
+        "b"
+      ]
+    },
+    {
+      "id": "npn_4",
+      "kind": "npn",
+      "params": {
+        "beta": 100
+      },
+      "x": 156,
+      "y": 345,
+      "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "emitter": "a5",
+          "base": "a6",
+          "collector": "a7"
+        }
+      },
+      "terminals": [
+        "base",
+        "collector",
+        "emitter"
+      ]
+    },
+    {
+      "id": "npn_5",
+      "kind": "npn",
+      "params": {
+        "beta": 100
+      },
+      "x": 156,
+      "y": 495,
+      "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "emitter": "j5",
+          "base": "j6",
+          "collector": "j7"
+        }
+      },
+      "terminals": [
+        "base",
+        "collector",
+        "emitter"
+      ]
+    },
+    {
+      "id": "resistor_6",
+      "kind": "resistor",
+      "params": {
+        "ohms": 2200
+      },
+      "x": 226,
+      "y": 345,
+      "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "a": "a9",
+          "b": "a13"
+        }
+      },
+      "terminals": [
+        "a",
+        "b"
+      ]
+    },
+    {
+      "id": "resistor_7",
+      "kind": "resistor",
+      "params": {
+        "ohms": 2200
+      },
+      "x": 226,
+      "y": 495,
+      "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "a": "j9",
+          "b": "j13"
+        }
+      },
+      "terminals": [
+        "a",
+        "b"
+      ]
+    },
+    {
+      "id": "capacitor_8",
+      "kind": "capacitor",
+      "params": {
+        "farads": 1e-7
+      },
+      "x": 289,
+      "y": 345,
+      "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "a": "a15",
+          "b": "a16"
+        }
+      },
+      "terminals": [
+        "a",
+        "b"
+      ]
+    },
+    {
+      "id": "capacitor_9",
+      "kind": "capacitor",
+      "params": {
+        "farads": 1e-7
+      },
+      "x": 289,
+      "y": 495,
+      "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "a": "j15",
+          "b": "j16"
+        }
+      },
+      "terminals": [
+        "a",
+        "b"
+      ]
+    },
+    {
+      "id": "resistor_10",
+      "kind": "resistor",
+      "params": {
+        "ohms": 47000
+      },
+      "x": 352,
+      "y": 345,
+      "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "a": "a18",
+          "b": "a22"
+        }
+      },
+      "terminals": [
+        "a",
+        "b"
+      ]
+    },
+    {
+      "id": "resistor_11",
+      "kind": "resistor",
+      "params": {
+        "ohms": 47000
+      },
+      "x": 352,
+      "y": 495,
+      "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "a": "j18",
+          "b": "j22"
+        }
+      },
+      "terminals": [
+        "a",
+        "b"
+      ]
+    },
+    {
+      "id": "diode_12",
+      "kind": "diode",
+      "params": {
+        "part": "1N34A"
+      },
+      "x": 422,
+      "y": 345,
+      "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "anode": "a24",
+          "cathode": "a26"
+        }
+      },
+      "terminals": [
+        "anode",
+        "cathode"
+      ]
+    },
+    {
+      "id": "switch_13",
+      "kind": "switch",
+      "params": {
+        "closed": true
+      },
+      "x": 429,
+      "y": 495,
+      "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "a": "j24",
+          "b": "j27"
+        }
+      },
+      "terminals": [
+        "a",
+        "b"
+      ]
+    },
+    {
+      "id": "resistor_14",
+      "kind": "resistor",
+      "params": {
+        "ohms": 47000
+      },
+      "x": 492,
+      "y": 345,
+      "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "a": "a28",
+          "b": "a32"
+        }
+      },
+      "terminals": [
+        "a",
+        "b"
+      ]
+    },
+    {
+      "id": "resistor_15",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "x": 506,
+      "y": 495,
+      "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "a": "j29",
+          "b": "j33"
+        }
+      },
+      "terminals": [
+        "a",
+        "b"
+      ]
+    },
+    {
+      "id": "npn_16",
+      "kind": "npn",
+      "params": {
+        "beta": 100
+      },
+      "x": 562,
+      "y": 345,
+      "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "emitter": "a34",
+          "base": "a35",
+          "collector": "a36"
+        }
+      },
+      "terminals": [
+        "base",
+        "collector",
+        "emitter"
+      ]
+    },
+    {
+      "id": "earphone_17",
+      "kind": "earphone",
+      "params": {
+        "type": "magnetic",
+        "ohms": 2000,
+        "henrys": 0.1
+      },
+      "x": 569,
+      "y": 495,
+      "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "a": "j35",
+          "b": "j36"
+        }
+      },
+      "terminals": [
+        "a",
+        "b"
+      ]
+    },
+    {
+      "id": "diode_18",
+      "kind": "diode",
+      "params": {
+        "part": "1N4148"
+      },
+      "x": 618,
+      "y": 345,
+      "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "anode": "a38",
+          "cathode": "a40"
+        }
+      },
+      "terminals": [
+        "anode",
+        "cathode"
+      ]
+    }
+  ],
+  "wires": [
+    {
+      "id": "w_3",
+      "netId": "net_3",
+      "from": {
+        "part": "vsource_2",
+        "terminal": "pos"
+      },
+      "to": {
+        "board": "breadboard_1",
+        "hole": "t+1"
+      },
+      "color": "red"
+    },
+    {
+      "id": "w_30",
+      "netId": "net_30",
+      "from": {
+        "part": "vsource_2",
+        "terminal": "neg"
+      },
+      "to": {
+        "board": "breadboard_1",
+        "hole": "t-1"
+      },
+      "color": "black"
+    }
+  ],
+  "holeWires": [
+    {
+      "ref": "bbw:breadboard_1:bbw_1",
+      "boardId": "breadboard_1",
+      "a": "t-2",
+      "b": "b-2",
+      "color": "black"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_2",
+      "boardId": "breadboard_1",
+      "a": "b3",
+      "b": "t+3",
+      "color": "red"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_4",
+      "boardId": "breadboard_1",
+      "a": "g3",
+      "b": "e9",
+      "color": "blue"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_5",
+      "boardId": "breadboard_1",
+      "a": "d9",
+      "b": "f9",
+      "color": "blue"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_6",
+      "boardId": "breadboard_1",
+      "a": "g9",
+      "b": "e18",
+      "color": "blue"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_7",
+      "boardId": "breadboard_1",
+      "a": "d18",
+      "b": "f18",
+      "color": "blue"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_8",
+      "boardId": "breadboard_1",
+      "a": "g18",
+      "b": "f35",
+      "color": "blue"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_9",
+      "boardId": "breadboard_1",
+      "a": "g35",
+      "b": "e40",
+      "color": "blue"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_10",
+      "boardId": "breadboard_1",
+      "a": "e7",
+      "b": "e13",
+      "color": "green"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_11",
+      "boardId": "breadboard_1",
+      "a": "d13",
+      "b": "e15",
+      "color": "green"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_12",
+      "boardId": "breadboard_1",
+      "a": "f6",
+      "b": "e16",
+      "color": "yellow"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_13",
+      "boardId": "breadboard_1",
+      "a": "d16",
+      "b": "f22",
+      "color": "yellow"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_14",
+      "boardId": "breadboard_1",
+      "a": "f7",
+      "b": "f13",
+      "color": "orange"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_15",
+      "boardId": "breadboard_1",
+      "a": "g13",
+      "b": "f15",
+      "color": "orange"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_16",
+      "boardId": "breadboard_1",
+      "a": "g15",
+      "b": "f29",
+      "color": "orange"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_17",
+      "boardId": "breadboard_1",
+      "a": "f16",
+      "b": "f24",
+      "color": "purple"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_18",
+      "boardId": "breadboard_1",
+      "a": "g24",
+      "b": "e26",
+      "color": "purple"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_19",
+      "boardId": "breadboard_1",
+      "a": "d26",
+      "b": "e28",
+      "color": "purple"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_20",
+      "boardId": "breadboard_1",
+      "a": "e6",
+      "b": "e22",
+      "color": "white"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_21",
+      "boardId": "breadboard_1",
+      "a": "d22",
+      "b": "e24",
+      "color": "white"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_22",
+      "boardId": "breadboard_1",
+      "a": "d24",
+      "b": "f27",
+      "color": "white"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_23",
+      "boardId": "breadboard_1",
+      "a": "f33",
+      "b": "e35",
+      "color": "blue"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_24",
+      "boardId": "breadboard_1",
+      "a": "f36",
+      "b": "e36",
+      "color": "green"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_25",
+      "boardId": "breadboard_1",
+      "a": "d36",
+      "b": "e38",
+      "color": "green"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_26",
+      "boardId": "breadboard_1",
+      "a": "b5",
+      "b": "t-5",
+      "color": "black"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_27",
+      "boardId": "breadboard_1",
+      "a": "i5",
+      "b": "b-5",
+      "color": "black"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_28",
+      "boardId": "breadboard_1",
+      "a": "b32",
+      "b": "t-32",
+      "color": "black"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_29",
+      "boardId": "breadboard_1",
+      "a": "b34",
+      "b": "t-34",
+      "color": "black"
+    }
+  ]
+}
