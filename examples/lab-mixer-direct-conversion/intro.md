@@ -10,9 +10,9 @@ Click **Sim** and listen. Turn the transmitter's tuning knob a tiny bit (0.302).
 
 ## What you should see
 
-- A whistle of almost 4 kHz.
-- At 0.302 a much lower whistle, about 1.2 kHz: the transmitter has moved towards the receiver.
-- On 6 V the whistle jumps up by more than 1 kHz: the transmitter's frequency depends on its supply.
+- A whistle of almost 6 kHz.
+- At 0.302 a higher whistle, about 7 kHz: the transmitter has moved away from the receiver. Turn it the other way and the whistle falls to a growl and rises again.
+- On 6 V the whistle drops to about 1.2 kHz: the transmitter's frequency depends on its supply.
 
 ## Why it works
 

@@ -7,12 +7,12 @@
 - Output A (22 nF to ground) through 100 nF into the LM386 (10 kΩ at +IN), 220 µF into an 8 Ω loudspeaker.
 
 ## Observable behaviour
-- As authored: the two oscillators are a few kHz apart; the loudspeaker whistles at their difference, about 3.8 kHz.
-- Tuning the transmitter (or the receiver) moves the whistle: at 0.302 it drops to about 1.2 kHz; through zero beat it falls to a growl and rises again.
-- The transmitter switched to 6 V: its transistor runs at a smaller current, its capacitances change, and its frequency moves — the whistle rises by more than 1 kHz. (Hand capacity on the tuning capacitor or a warmed transistor shift it the same way.)
+- As authored: the two oscillators are a few kHz apart; the loudspeaker whistles at their difference, about 5.8 kHz.
+- Tuning the transmitter (or the receiver) moves the whistle: at 0.302 (more capacitance, the transmitter lower, further from the receiver) it rises to about 7.2 kHz; tuned the other way it falls through a growl to zero beat and rises again.
+- The transmitter switched to 6 V: its transistor runs at a smaller current, its capacitances change, and its frequency moves up, towards the receiver — the whistle falls by more than 4 kHz, to about 1.2 kHz. (Hand capacity on the tuning capacitor or a warmed transistor shift it the same way.)
 
 ## Measured on the engine
-bw-board RF envelope front end (both oscillators in one band; the sa612's in-band product turns their beat into audio), `test/lab-circuits-r7mix.test.mjs`, 2 ms to settle, then 3 ms at the loudspeaker: as authored 3846 Hz at 3.64 V peak-to-peak; transmitter at 0.302 → 1171 Hz; transmitter on 6 V → 5518 Hz.
+bw-board RF envelope front end (both oscillators in one band; the sa612's in-band product turns their beat into audio), `test/lab-circuits-r7mix.test.mjs`, 2 ms to settle, then 3 ms at the loudspeaker: as authored 5833 Hz at 4.2 V peak-to-peak; transmitter at 0.302 → 7167 Hz; transmitter on 6 V → 1167 Hz (measured 2026-11-25 on bw-board b094eb22; the first build's 3846 / 1171 / 5518 Hz came from an engine before the radiator fix, bw-board #755).
 
 ## What this verifies
 1. A mixer with its own oscillator converts a carrier straight to audio (direct conversion): the pitch is the difference frequency.
