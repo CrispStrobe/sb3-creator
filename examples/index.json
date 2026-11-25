@@ -14313,5 +14313,23 @@
       "intro": "lab-magnet-code-lock/intro.md",
       "introDE": "lab-magnet-code-lock/intro.de.md"
     }
+  },
+  {
+    "id": "lab-dipole-turn",
+    "title": {
+      "en": "Turning a dipole",
+      "de": "Einen Dipol drehen"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-dipole-turn/program.bw",
+      "circuit": "lab-dipole-turn/circuit.json",
+      "expected": "lab-dipole-turn/EXPECTED.md",
+      "intro": "lab-dipole-turn/intro.md",
+      "introDE": "lab-dipole-turn/intro.de.md"
+    },
+    "devices": []
   }
 ]
