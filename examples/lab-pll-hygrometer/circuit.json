@@ -17,7 +17,7 @@
         "volts": 9,
         "variant": "9v"
       },
-      "x": 227,
+      "x": 83,
       "y": 213,
       "rotation": 0,
       "terminals": [
@@ -29,9 +29,16 @@
       "id": "humidity_comb_3",
       "kind": "humidity_comb",
       "params": {},
-      "x": 83,
-      "y": 217,
+      "x": 128,
+      "y": 345,
       "rotation": 0,
+      "seat": {
+        "boardId": "breadboard_1",
+        "leadMap": {
+          "a": "a3",
+          "b": "a5"
+        }
+      },
       "terminals": [
         "a",
         "b"
@@ -44,14 +51,14 @@
         "position": 0
       },
       "x": 128,
-      "y": 345,
+      "y": 495,
       "rotation": 0,
       "seat": {
         "boardId": "breadboard_1",
         "leadMap": {
-          "a": "a3",
-          "com": "a4",
-          "b": "a5"
+          "a": "j3",
+          "com": "j4",
+          "b": "j5"
         }
       },
       "terminals": [
@@ -353,22 +360,9 @@
       },
       "to": {
         "board": "breadboard_1",
-        "hole": "t+11"
+        "hole": "t+2"
       },
       "color": "red"
-    },
-    {
-      "id": "w_9",
-      "netId": "net_9",
-      "from": {
-        "part": "humidity_comb_3",
-        "terminal": "a"
-      },
-      "to": {
-        "board": "breadboard_1",
-        "hole": "e4"
-      },
-      "color": "blue"
     },
     {
       "id": "w_12",
@@ -379,7 +373,7 @@
       },
       "to": {
         "board": "breadboard_1",
-        "hole": "d5"
+        "hole": "g5"
       },
       "color": "yellow"
     },
@@ -397,24 +391,11 @@
       "color": "orange"
     },
     {
-      "id": "w_31",
-      "netId": "net_31",
-      "from": {
-        "part": "vsource_2",
-        "terminal": "neg"
-      },
-      "to": {
-        "board": "breadboard_1",
-        "hole": "t-11"
-      },
-      "color": "black"
-    },
-    {
       "id": "w_32",
       "netId": "net_32",
       "from": {
-        "part": "humidity_comb_3",
-        "terminal": "b"
+        "part": "vsource_2",
+        "terminal": "neg"
       },
       "to": {
         "board": "breadboard_1",
@@ -474,16 +455,23 @@
       "color": "red"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_10",
+      "ref": "bbw:breadboard_1:bbw_9",
       "boardId": "breadboard_1",
       "a": "e3",
+      "b": "f4",
+      "color": "blue"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_10",
+      "boardId": "breadboard_1",
+      "a": "f3",
       "b": "d12",
       "color": "green"
     },
     {
       "ref": "bbw:breadboard_1:bbw_11",
       "boardId": "breadboard_1",
-      "a": "e5",
+      "a": "f5",
       "b": "f38",
       "color": "yellow"
     },
@@ -553,54 +541,61 @@
     {
       "ref": "bbw:breadboard_1:bbw_23",
       "boardId": "breadboard_1",
+      "a": "b5",
+      "b": "t-5",
+      "color": "black"
+    },
+    {
+      "ref": "bbw:breadboard_1:bbw_24",
+      "boardId": "breadboard_1",
       "a": "i11",
       "b": "b-11",
       "color": "black"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_24",
+      "ref": "bbw:breadboard_1:bbw_25",
       "boardId": "breadboard_1",
       "a": "i14",
       "b": "b-14",
       "color": "black"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_25",
+      "ref": "bbw:breadboard_1:bbw_26",
       "boardId": "breadboard_1",
       "a": "b23",
       "b": "t-23",
       "color": "black"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_26",
+      "ref": "bbw:breadboard_1:bbw_27",
       "boardId": "breadboard_1",
       "a": "i26",
       "b": "b-26",
       "color": "black"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_27",
+      "ref": "bbw:breadboard_1:bbw_28",
       "boardId": "breadboard_1",
       "a": "i28",
       "b": "b-28",
       "color": "black"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_28",
+      "ref": "bbw:breadboard_1:bbw_29",
       "boardId": "breadboard_1",
       "a": "b32",
       "b": "t-32",
       "color": "black"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_29",
+      "ref": "bbw:breadboard_1:bbw_30",
       "boardId": "breadboard_1",
       "a": "b36",
       "b": "t-36",
       "color": "black"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_30",
+      "ref": "bbw:breadboard_1:bbw_31",
       "boardId": "breadboard_1",
       "a": "i44",
       "b": "b-44",
