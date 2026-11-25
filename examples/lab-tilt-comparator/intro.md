@@ -9,7 +9,7 @@ An op-amp with nothing between its output and its inputs. One input sits at half
 
 ## Try this
 1. Click **Sim**. The knob is tilted a little to the left: red is lit.
-2. Turn the knob slowly past the middle. Somewhere just past it the light jumps to green.
+2. Turn the knob slowly towards the middle. A little before it (near 0.45) the light jumps to green: the op-amp's own tiny input currents shift the balance point.
 3. Try to stop exactly where both LEDs glow. You need a very steady hand: the whole change happens within a thousandth of the knob's turn.
 4. Hover over the knob's wiper and the − input to see how few millivolts apart they are.
 

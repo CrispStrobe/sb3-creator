@@ -25,11 +25,14 @@ A divide-by-two can only be in step with every second edge, so its high and low 
 The on-screen LED is drawn at the screen's frame rate, so the flicker you see on screen is not the flicker a real LED would show; the frequencies above are the circuit's.
 
 ```assert
-# t = 1 ms: oscillator output high, divider started with the second transistor off
+# t = 1 ms: oscillator output high, divider started with the first transistor
+# off (which side wins at power-up is decided by the smallest asymmetry; the
+# LM358's input bias current is enough to tip it)
 net vsource_2.pos V 9.00 +-0.01
 net lm358_3.1_out V 7.49 +-0.05
 net lm358_3.1_pos V 5.50 +-0.05
-net npn_16.collector V 0.06 +-0.05
+net npn_16.collector V 3.98 +-0.1
+net npn_17.collector V 0.09 +-0.05
 ```
 
 <!-- engine-provenance -->

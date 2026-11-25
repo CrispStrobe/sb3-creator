@@ -9,7 +9,7 @@ Ein Operationsverstärker, bei dem nichts vom Ausgang zu den Eingängen zurückf
 
 ## Probier das
 1. Klick auf **Sim**. Der Knopf ist ein wenig nach links gekippt: Rot leuchtet.
-2. Dreh den Knopf langsam über die Mitte. Kurz dahinter springt das Licht auf Grün.
+2. Dreh den Knopf langsam zur Mitte hin. Kurz davor (bei etwa 0,45) springt das Licht auf Grün: Die winzigen Eingangsströme des Operationsverstärkers verschieben den Kipppunkt.
 3. Versuch genau dort anzuhalten, wo beide LEDs glimmen. Dafür brauchst du eine sehr ruhige Hand: Der ganze Wechsel passiert innerhalb eines Tausendstels der Drehung.
 4. Fahr mit der Maus über den Schleifer des Knopfs und den Minus-Eingang und sieh nach, wie wenige Millivolt sie trennen.
 

@@ -28,7 +28,7 @@
 2. Averaging two logarithms is taking the square root of a product; weighting them 1 : 2 takes the cube root.
 
 ## Simulation notes
-The transistors are matched and at one temperature, so Is and Vt cancel exactly; real ones need a matched pair and temperature compensation. The reference current is (9 V − reference)/4.3 MΩ ≈ 0.99 µA, which the test uses as measured.
+The transistors are matched and at one temperature, so Is and Vt cancel exactly; real ones need a matched pair and temperature compensation. The reference current is (9 V − reference)/4.3 MΩ ≈ 0.99 µA, which the test uses as measured. The LM324's input bias currents (about 45 nA out of each input) put close to 1 % on every result: they add to the reference current and lift the buffer's input a quarter of a millivolt, which the antilog transistor multiplies by exp(0.24 mV / Vt).
 
 ```assert
 # as authored: INPUT at half, x ≈ 45 µA, square root ≈ 6.7 µA (0.67 V)

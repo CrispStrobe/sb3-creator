@@ -135,7 +135,8 @@ describe('round-6 r6f benches behave as documented', { skip: SKIP }, () => {
         const x = bench('lab-led-colour-blind');
         const out = () => x.v('u', '1_out');
         x.run(2);
-        near(out(), 0.452, 0.02, 'as built: red lamp, red sensor (V)');
+        // Photocurrent x 1 MΩ less the LM358's − input bias current (42.5 nA) x 1 MΩ.
+        near(out(), 0.409, 0.02, 'as built: red lamp, red sensor (V)');
         x.set('swr', 0); x.run(2);
         // MEASURED 2026-11-24: out() < 0.02 -> observed 0.005 (both lamps off).
         assert.ok(seen('colour dark', out()) < 0.02, `dark: ${out()}`);
@@ -144,9 +145,9 @@ describe('round-6 r6f benches behave as documented', { skip: SKIP }, () => {
         // MEASURED 2026-11-24: out() < 0.02 -> observed 0.005 (red lamp, green sensor).
         assert.ok(seen('colour red->green sensor', out()) < 0.02, `red lamp, green sensor: ${out()}`);
         x.set('swr', 0); x.set('swg', 1); x.run(2);
-        near(out(), 0.162, 0.01, 'green lamp, green sensor (V)');
+        near(out(), 0.120, 0.01, 'green lamp, green sensor (V)');
         x.set('sel', 0); x.run(2);
-        near(out(), 0.888, 0.03, 'green lamp, red sensor (V)');
+        near(out(), 0.846, 0.03, 'green lamp, red sensor (V)');
     });
 
     test('lab-led-power-curve: radiated power grows in proportion to the LED current', () => {

@@ -23,7 +23,7 @@
 # 1 ms after switch-on, running: the ladder taps, the output already a few
 # millivolts above its 1 V start, the first comparator still low
 net lm324_3.1_pos V 1.000 +-0.002
-net lm324_3.2_neg V 3.000 +-0.002
+net lm324_3.2_neg V 3.002 +-0.002
 net lm324_3.4_neg V 7.000 +-0.002
 net lm324_3.1_out V 1.0045 +-0.0015
 net lm324_3.2_out V 0.005 +-0.01

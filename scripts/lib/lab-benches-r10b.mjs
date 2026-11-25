@@ -24,7 +24,8 @@
  * it above CV, the trigger wins when both hold, and reset below 0.3·Vcc
  * forces the output low. CV sits at 2/3·Vcc on an internal 5 k / 10 k
  * divider, so a resistor from CV to ground narrows the window and a voltage
- * driven onto CV moves both thresholds. Its inputs draw no current.
+ * driven onto CV moves both thresholds. Its inputs draw nothing inside the
+ * rails and are clamped a diode drop beyond them (input junctions).
  */
 import { benchIds } from './lab-benches-4.mjs';
 export { benchIds };

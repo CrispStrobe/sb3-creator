@@ -440,7 +440,11 @@ describe('lab round-6 x4 benches behave as documented', { skip: SKIP }, () => {
         const phrase = rising(0).map(i => rows[i][0]);
         near(phrase[1] - phrase[0], 117, 5, 'phrase period (ms)');
         let inPause = 0;
-        for (const i of voice) if (rows[i][1][0] < 2.5) inPause++;
+        // A voice edge in the very sample where the phrase ends is gate 1 being
+        // disabled: a NAND whose enable drops goes HIGH, so a voice caught low
+        // at that instant rises once. Only edges with the phrase already off in
+        // the previous sample are voice in a pause.
+        for (const i of voice) if (rows[i][1][0] < 2.5 && rows[i - 1][1][0] < 2.5) inPause++;
         assert.equal(inPause, 0, 'the voice never sounds in a pause');
     });
 });

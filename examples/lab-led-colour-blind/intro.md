@@ -10,8 +10,8 @@ Click **Sim**. The red lamp is on and the red receiver is selected. Use the slid
 
 ## What you should see
 
-- Red lamp: the red receiver gives about 0.45 V, the green receiver nothing at all.
-- Green lamp: the red receiver gives about 0.9 V, the green one only 0.16 V.
+- Red lamp: the red receiver gives about 0.4 V, the green receiver nothing at all.
+- Green lamp: the red receiver gives about 0.85 V, the green one only 0.12 V.
 
 ## Why it works
 

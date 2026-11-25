@@ -30,7 +30,7 @@ The assert block reads the start-up instant, 1 ms after power-on, while the 10 Â
 ```assert
 # t = 1 ms, start-up: the bias capacitor charging
 net polarized_cap_6.pos V 0.391 +-0.03
-net lm358_7.1_out V 0.364 +-0.03
+net lm358_7.1_out V 0.331 +-0.03
 net vsource_2.pos V 9.00 +-0.01
 ```
 
