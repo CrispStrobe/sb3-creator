@@ -13100,5 +13100,329 @@
       "intro": "lab-optical-astable/intro.md",
       "introDE": "lab-optical-astable/intro.de.md"
     }
+  },
+  {
+    "id": "lab-amp-ic-dimmer",
+    "title": {
+      "en": "LED dimmer: an amplifier follows the pot",
+      "de": "LED-Dimmer: ein Verstärker folgt dem Poti"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-amp-ic-dimmer/program.bw",
+      "circuit": "lab-amp-ic-dimmer/circuit.json",
+      "expected": "lab-amp-ic-dimmer/EXPECTED.md",
+      "intro": "lab-amp-ic-dimmer/intro.md",
+      "introDE": "lab-amp-ic-dimmer/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-amp-ic-balance",
+    "title": {
+      "en": "Red-green balance with an amplifier",
+      "de": "Rot-Grün-Balance mit einem Verstärker"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-amp-ic-balance/program.bw",
+      "circuit": "lab-amp-ic-balance/circuit.json",
+      "expected": "lab-amp-ic-balance/EXPECTED.md",
+      "intro": "lab-amp-ic-balance/intro.md",
+      "introDE": "lab-amp-ic-balance/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-resistor-heat",
+    "title": {
+      "en": "A resistor turns into a heater",
+      "de": "Ein Widerstand wird zur Heizung"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "files": {
+      "program": "lab-resistor-heat/program.bw",
+      "circuit": "lab-resistor-heat/circuit.json",
+      "expected": "lab-resistor-heat/EXPECTED.md",
+      "intro": "lab-resistor-heat/intro.md",
+      "introDE": "lab-resistor-heat/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-amp-ic-pedestrian",
+    "title": {
+      "en": "Slow pedestrian light with an amplifier",
+      "de": "Langsame Fußgängerampel mit einem Verstärker"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-amp-ic-pedestrian/program.bw",
+      "circuit": "lab-amp-ic-pedestrian/circuit.json",
+      "expected": "lab-amp-ic-pedestrian/EXPECTED.md",
+      "intro": "lab-amp-ic-pedestrian/intro.md",
+      "introDE": "lab-amp-ic-pedestrian/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-amp-ic-exposure",
+    "title": {
+      "en": "Exposure timer: light sets the time",
+      "de": "Belichtungsuhr: Das Licht bestimmt die Zeit"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-amp-ic-exposure/program.bw",
+      "circuit": "lab-amp-ic-exposure/circuit.json",
+      "expected": "lab-amp-ic-exposure/EXPECTED.md",
+      "intro": "lab-amp-ic-exposure/intro.md",
+      "introDE": "lab-amp-ic-exposure/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-amp-ic-blinker",
+    "title": {
+      "en": "Amplifier blinker: an LM386 flashes two LEDs",
+      "de": "Verstärker-Blinker: Ein LM386 lässt zwei LEDs blinken"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-amp-ic-blinker/program.bw",
+      "circuit": "lab-amp-ic-blinker/circuit.json",
+      "expected": "lab-amp-ic-blinker/EXPECTED.md",
+      "intro": "lab-amp-ic-blinker/intro.md",
+      "introDE": "lab-amp-ic-blinker/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-amp-ic-ticker",
+    "title": {
+      "en": "Ticking double blinker",
+      "de": "Tickender Doppelblinker"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-amp-ic-ticker/program.bw",
+      "circuit": "lab-amp-ic-ticker/circuit.json",
+      "expected": "lab-amp-ic-ticker/EXPECTED.md",
+      "intro": "lab-amp-ic-ticker/intro.md",
+      "introDE": "lab-amp-ic-ticker/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-amp-ic-spokes",
+    "title": {
+      "en": "Spoke rattle: from ticks to a buzz",
+      "de": "Speichenrattern: vom Ticken zum Brummen"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-amp-ic-spokes/program.bw",
+      "circuit": "lab-amp-ic-spokes/circuit.json",
+      "expected": "lab-amp-ic-spokes/EXPECTED.md",
+      "intro": "lab-amp-ic-spokes/intro.md",
+      "introDE": "lab-amp-ic-spokes/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-amp-ic-colour-pitch",
+    "title": {
+      "en": "Colour to pitch: an LED sets the tone",
+      "de": "Farbe zu Tonhöhe: Eine LED bestimmt den Ton"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-amp-ic-colour-pitch/program.bw",
+      "circuit": "lab-amp-ic-colour-pitch/circuit.json",
+      "expected": "lab-amp-ic-colour-pitch/EXPECTED.md",
+      "intro": "lab-amp-ic-colour-pitch/intro.md",
+      "introDE": "lab-amp-ic-colour-pitch/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-amp-ic-light-tone",
+    "title": {
+      "en": "Light-controlled tone",
+      "de": "Lichtgesteuerter Ton"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-amp-ic-light-tone/program.bw",
+      "circuit": "lab-amp-ic-light-tone/circuit.json",
+      "expected": "lab-amp-ic-light-tone/EXPECTED.md",
+      "intro": "lab-amp-ic-light-tone/intro.md",
+      "introDE": "lab-amp-ic-light-tone/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-amp-ic-baby-monitor",
+    "title": {
+      "en": "Baby monitor with a power amplifier",
+      "de": "Babyfon mit einem Leistungsverstärker"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-amp-ic-baby-monitor/program.bw",
+      "circuit": "lab-amp-ic-baby-monitor/circuit.json",
+      "expected": "lab-amp-ic-baby-monitor/EXPECTED.md",
+      "intro": "lab-amp-ic-baby-monitor/intro.md",
+      "introDE": "lab-amp-ic-baby-monitor/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-morse-power-amp",
+    "title": {
+      "en": "Morse buzzer with a power amplifier",
+      "de": "Morsesummer mit einem Leistungsverstärker"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-morse-power-amp/program.bw",
+      "circuit": "lab-morse-power-amp/circuit.json",
+      "expected": "lab-morse-power-amp/EXPECTED.md",
+      "intro": "lab-morse-power-amp/intro.md",
+      "introDE": "lab-morse-power-amp/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-amp-ic-siren",
+    "title": {
+      "en": "Two-tone siren with blinking lights",
+      "de": "Zweiton-Sirene mit Blinklicht"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-amp-ic-siren/program.bw",
+      "circuit": "lab-amp-ic-siren/circuit.json",
+      "expected": "lab-amp-ic-siren/EXPECTED.md",
+      "intro": "lab-amp-ic-siren/intro.md",
+      "introDE": "lab-amp-ic-siren/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-amp-ic-beeps",
+    "title": {
+      "en": "Busy-signal beeps",
+      "de": "Besetztzeichen-Pieptöne"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-amp-ic-beeps/program.bw",
+      "circuit": "lab-amp-ic-beeps/circuit.json",
+      "expected": "lab-amp-ic-beeps/EXPECTED.md",
+      "intro": "lab-amp-ic-beeps/intro.md",
+      "introDE": "lab-amp-ic-beeps/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-warm-stops-blinker",
+    "title": {
+      "en": "Warmth stops the blinker",
+      "de": "Wärme stoppt den Blinker"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 4,
+    "files": {
+      "program": "lab-warm-stops-blinker/program.bw",
+      "circuit": "lab-warm-stops-blinker/circuit.json",
+      "expected": "lab-warm-stops-blinker/EXPECTED.md",
+      "intro": "lab-warm-stops-blinker/intro.md",
+      "introDE": "lab-warm-stops-blinker/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-ultrasonic-sweep",
+    "title": {
+      "en": "Hearing limit: a whistle that climbs out of earshot",
+      "de": "Hörgrenze: ein Pfeifen, das aus dem Hörbereich steigt"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-ultrasonic-sweep/program.bw",
+      "circuit": "lab-ultrasonic-sweep/circuit.json",
+      "expected": "lab-ultrasonic-sweep/EXPECTED.md",
+      "intro": "lab-ultrasonic-sweep/intro.md",
+      "introDE": "lab-ultrasonic-sweep/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-amp-ic-coin-toss",
+    "title": {
+      "en": "Electronic coin toss",
+      "de": "Elektronischer Münzwurf"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-amp-ic-coin-toss/program.bw",
+      "circuit": "lab-amp-ic-coin-toss/circuit.json",
+      "expected": "lab-amp-ic-coin-toss/EXPECTED.md",
+      "intro": "lab-amp-ic-coin-toss/intro.md",
+      "introDE": "lab-amp-ic-coin-toss/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-amp-ic-chirp",
+    "title": {
+      "en": "Bird chirps from a kicked tone",
+      "de": "Vogelzwitschern aus einem angestoßenen Ton"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 4,
+    "files": {
+      "program": "lab-amp-ic-chirp/program.bw",
+      "circuit": "lab-amp-ic-chirp/circuit.json",
+      "expected": "lab-amp-ic-chirp/EXPECTED.md",
+      "intro": "lab-amp-ic-chirp/intro.md",
+      "introDE": "lab-amp-ic-chirp/intro.de.md"
+    },
+    "devices": []
   }
 ]
