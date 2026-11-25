@@ -26,3 +26,12 @@ At TONE (47 nF), knob up, the loudspeaker plays 344 Hz.
 net pnp_8.base V 7.38 +-0.03
 net polarized_cap_6.pos V 0.01 +-0.02
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@2965782` and `bw-circuit-ui@e3441d2` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **10 of this page's 30** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-relax-metronome` prints them one by one.
+<!-- engine-provenance -->

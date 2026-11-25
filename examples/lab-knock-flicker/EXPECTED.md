@@ -25,3 +25,12 @@ The knock is the engine's `ring` sound at the pickup (strikeHz 4, decayS 0.02, s
 # 1 ms after switch-on, no knocking: Q3 off
 net npn_19.collector V 7.92 +-0.1
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@2965782` and `bw-circuit-ui@e3441d2` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **10 of this page's 23** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-knock-flicker` prints them one by one.
+<!-- engine-provenance -->

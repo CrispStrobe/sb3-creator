@@ -26,3 +26,12 @@ The diode detector here drives the 2 kΩ earphone directly from a 1 nF coupling,
 net npn_10.base V 0.19 +-0.03
 net npn_10.collector V 9.00 +-0.02
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@2965782` and `bw-circuit-ui@e3441d2` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **10 of this page's 27** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-rf-preamp-radio` prints them one by one.
+<!-- engine-provenance -->

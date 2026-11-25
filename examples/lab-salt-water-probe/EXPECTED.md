@@ -24,3 +24,12 @@ The two glasses are two `electrolysis_cell` parts with fixed resistances (500 kÎ
 net led_4.anode V 8.99 +-0.01
 net led_4.cathode V 7.63 +-0.1
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@2965782` and `bw-circuit-ui@e3441d2` â€” the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **4 of this page's 16** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-salt-water-probe` prints them one by one.
+<!-- engine-provenance -->

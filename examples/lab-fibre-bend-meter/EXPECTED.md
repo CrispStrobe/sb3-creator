@@ -25,3 +25,12 @@ net led_4.anode V 1.73 +-0.03
 net phototransistor_5.emitter V 4.46 +-0.1
 net npn_7.emitter V 3.78 +-0.1
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@2965782` and `bw-circuit-ui@e3441d2` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **6 of this page's 12** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-fibre-bend-meter` prints them one by one.
+<!-- engine-provenance -->
