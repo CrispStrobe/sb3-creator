@@ -1,23 +1,24 @@
 {
   "note": "Which gates enrol which example, computed from scripts/lib/example-enrolment.mjs. A diff here is a change in COVERAGE — read it before regenerating.",
   "measuredOn": "2026-11-25",
-  "examples": 770,
+  "examples": 772,
   "gates": {
-    "gallery": 700,
-    "example-kind-matches-content": 770,
-    "index-metadata-matches-disk": 770,
+    "gallery": 702,
+    "example-kind-matches-content": 772,
+    "index-metadata-matches-disk": 772,
+    "cp1-program": 55,
     "retarget-gallery": 66,
     "retarget-amplification": 66,
     "gen-device-benches": 148,
-    "example-corpus-contract": 402,
+    "example-corpus-contract": 404,
     "assert-physics": 634,
     "debug-micropython": 10,
     "debug-trace-audit": 18,
-    "circuit-params-are-read": 738,
-    "program-reads-what-it-writes": 696,
+    "circuit-params-are-read": 740,
+    "program-reads-what-it-writes": 698,
     "vm-and-c-agree-on-arithmetic": 168,
     "documented-tables-are-derived": 4,
-    "vm": 700,
+    "vm": 702,
     "simulator-driver-controls-respond": 44,
     "school-circuit-projects": 3,
     "gallery-e2e": 27
@@ -6728,6 +6729,7 @@
     ],
     "cp1-first-display": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -6737,6 +6739,7 @@
     ],
     "cp1-switch-input": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -6746,6 +6749,27 @@
     ],
     "cp1-blink": [
       "circuit-params-are-read",
+      "cp1-program",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "cp1-cp4-relay-signals": [
+      "circuit-params-are-read",
+      "cp1-program",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "cp1-cp4-relay-bank": [
+      "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -6755,6 +6779,7 @@
     ],
     "cp1-cp5-binary": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -6764,6 +6789,7 @@
     ],
     "cp1-descending-sum": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -6773,6 +6799,7 @@
     ],
     "cp1-crate-division": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -6782,6 +6809,7 @@
     ],
     "cp1-lookup-card": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -6791,6 +6819,7 @@
     ],
     "cp1-instruction-patch": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -6800,6 +6829,7 @@
     ],
     "cp1-guarded-output": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -6809,6 +6839,7 @@
     ],
     "cp1-expansion-step": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -6818,6 +6849,7 @@
     ],
     "cp1-sample-log": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -6827,6 +6859,7 @@
     ],
     "cp1-gray-indicator": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -6836,6 +6869,7 @@
     ],
     "cp1-status-dispatch": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -6845,6 +6879,7 @@
     ],
     "cp1-batch-ticker": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -6854,6 +6889,7 @@
     ],
     "cp1-beacon-code": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -6863,6 +6899,7 @@
     ],
     "cp1-bench-voltmeter": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -6872,6 +6909,7 @@
     ],
     "cp1-bidirectional-beacon": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -6881,6 +6919,7 @@
     ],
     "cp1-button-stopwatch": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -6890,6 +6929,7 @@
     ],
     "cp1-cabinet-panel": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -6899,6 +6939,7 @@
     ],
     "cp1-code-feedback": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -6908,6 +6949,7 @@
     ],
     "cp1-conveyor-controller": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -6917,6 +6959,7 @@
     ],
     "cp1-cp2-sample-logger": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -6926,6 +6969,7 @@
     ],
     "cp1-delay-lab": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -6935,6 +6979,7 @@
     ],
     "cp1-descent-challenge": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -6944,6 +6989,7 @@
     ],
     "cp1-display-postcard": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -6953,6 +6999,7 @@
     ],
     "cp1-dual-workbench": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -6962,6 +7009,7 @@
     ],
     "cp1-edge-trigger-capture": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -6971,6 +7019,7 @@
     ],
     "cp1-fixed-point-filter": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -6980,6 +7029,7 @@
     ],
     "cp1-fraction-stream": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -6989,6 +7039,7 @@
     ],
     "cp1-gate-tally": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -6998,6 +7049,7 @@
     ],
     "cp1-greenhouse-schedule": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -7007,6 +7059,7 @@
     ],
     "cp1-grid-escape": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -7016,6 +7069,7 @@
     ],
     "cp1-led-route-puzzle": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -7025,6 +7079,7 @@
     ],
     "cp1-machine-time-meter": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -7034,6 +7089,7 @@
     ],
     "cp1-number-drill": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -7043,6 +7099,7 @@
     ],
     "cp1-pair-grid": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -7052,6 +7109,7 @@
     ],
     "cp1-pulse-bench": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -7061,6 +7119,7 @@
     ],
     "cp1-pulse-stretcher": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -7070,6 +7129,7 @@
     ],
     "cp1-ring-selector": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -7079,6 +7139,7 @@
     ],
     "cp1-serial-receive": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -7088,6 +7149,7 @@
     ],
     "cp1-serial-transmit": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -7097,6 +7159,7 @@
     ],
     "cp1-shift-clock": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -7106,6 +7169,7 @@
     ],
     "cp1-signal-melody": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -7115,6 +7179,7 @@
     ],
     "cp1-signal-memory": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -7124,6 +7189,7 @@
     ],
     "cp1-signal-reaction": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -7133,6 +7199,7 @@
     ],
     "cp1-studio-annunciator": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -7142,6 +7209,7 @@
     ],
     "cp1-ticket-draw": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -7151,6 +7219,7 @@
     ],
     "cp1-tile-bundles": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -7160,6 +7229,7 @@
     ],
     "cp1-token-match": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -7169,6 +7239,7 @@
     ],
     "cp1-twin-samples": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -7178,6 +7249,7 @@
     ],
     "cp1-wide-tile-count": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -7187,6 +7259,7 @@
     ],
     "cp1-workshop-capacity": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
@@ -7196,6 +7269,7 @@
     ],
     "cp1-yard-dispatch": [
       "circuit-params-are-read",
+      "cp1-program",
       "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",

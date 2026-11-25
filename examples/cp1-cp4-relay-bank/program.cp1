@@ -1,0 +1,12 @@
+; Energize each relay when its own request switch is closed.
+ORG 0
+sample: P1E 0
+        ABS inputs
+        LDA all_bits
+        SUB inputs
+        P2A 0
+        ANZ
+        VZG 50
+        SPU sample
+inputs: DATA 0
+all_bits: DATA 255
