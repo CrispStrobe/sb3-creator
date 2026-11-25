@@ -1,23 +1,23 @@
 {
   "note": "Which gates enrol which example, computed from scripts/lib/example-enrolment.mjs. A diff here is a change in COVERAGE — read it before regenerating.",
-  "measuredOn": "2026-08-23",
-  "examples": 477,
+  "measuredOn": "2026-11-24",
+  "examples": 671,
   "gates": {
-    "gallery": 407,
-    "example-kind-matches-content": 477,
-    "index-metadata-matches-disk": 477,
+    "gallery": 601,
+    "example-kind-matches-content": 671,
+    "index-metadata-matches-disk": 671,
     "retarget-gallery": 66,
     "retarget-amplification": 66,
     "gen-device-benches": 148,
-    "example-corpus-contract": 218,
-    "assert-physics": 394,
+    "example-corpus-contract": 349,
+    "assert-physics": 588,
     "debug-micropython": 10,
     "debug-trace-audit": 18,
-    "circuit-params-are-read": 445,
-    "program-reads-what-it-writes": 403,
+    "circuit-params-are-read": 639,
+    "program-reads-what-it-writes": 597,
     "vm-and-c-agree-on-arithmetic": 168,
     "documented-tables-are-derived": 4,
-    "vm": 407,
+    "vm": 601,
     "simulator-driver-controls-respond": 44,
     "school-circuit-projects": 3,
     "gallery-e2e": 27
@@ -3595,6 +3595,306 @@
       "school-circuit-projects",
       "vm"
     ],
+    "lab-barrier-counter": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-battery-monitor": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-bridge-meter": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-buffered-voltmeter": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-button-volume": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-diff-blinker": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-diff-comparator": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-dual-gate": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-humidity-comb": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-hygrometer": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-inverting-stages": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-ir-beam-alarm": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-ir-light-meter": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-ir-remote-toggle": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-led-sensor-colours": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-linear-ohmmeter": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-loud-counter": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-mosfet-current-source": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-mosfet-nand": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-mosfet-vcr": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-octave-divider": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-opamp-ammeter": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-phototransistor-or-ir-led": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-radio-level": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-ramp-timer": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-relax-tone": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-sound-meter": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-tap-integrator": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-tilt-comparator": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-tone-thermometer": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
     "lab-touch-darlington": [
       "assert-physics",
       "circuit-params-are-read",
@@ -3625,6 +3925,16 @@
     "lab-shunt-gates": [
       "assert-physics",
       "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-two-followers": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
       "example-kind-matches-content",
       "gallery",
       "index-metadata-matches-disk",
@@ -4750,6 +5060,1573 @@
       "vm"
     ],
     "lab-broadcast-pickup": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-npn-two-tone-bell": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-npn-four-tone-keys": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-npn-police-siren": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-npn-swell-siren": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-npn-probe-tone": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-npn-diode-horn": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-earphone-click": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-npn-heat-alarm": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-npn-astable-states": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-npn-fade": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-npn-shunt-pair": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-npn-and-gate": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-cable-tracer": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-pendulum-kick": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-wireless-click": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-crossing-latch": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-fusion-divider": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-opamp-monoflop": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-potato-x10": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-opamp-add-subtract": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-tone-mux": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-gate-pump": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-heat-watchdog": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-xor-reflect": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-scr-flash": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-scr-dimmer": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-amp-classes": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-common-base": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-bird-chirps": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-transistor-v-to-f": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-mirror-thermometer": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-light-volume-am": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-amp-blinker": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-amp-probe-harp": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-touch-morse": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-trip-wire-siren": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-steered-toggle-toss": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-amp-touch-latch": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-clap-toggle-relay": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-amp-audiometer": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-amp-struck-note": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-eq-preamp": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-amp-baby-monitor": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-diff-pair-amp": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-schmitt-supply-watch": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-dusk-parking-light": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-auto-dip-beam": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-mirror-thermo-alarm": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-freezer-diode-alarm": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-diff-pair-charging": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-ir-barrier-alarm": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-ir-flash-toggle": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-ir-tone-link": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-ir-pulse-dimmer": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-ir-music-link": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-optical-astable": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-amp-ic-dimmer": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-amp-ic-balance": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-resistor-heat": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-amp-ic-pedestrian": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-amp-ic-exposure": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-amp-ic-blinker": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-amp-ic-ticker": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-amp-ic-spokes": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-amp-ic-colour-pitch": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-amp-ic-light-tone": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-amp-ic-baby-monitor": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-morse-power-amp": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-amp-ic-siren": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-amp-ic-beeps": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-warm-stops-blinker": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-ultrasonic-sweep": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-amp-ic-coin-toss": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-amp-ic-chirp": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-opamp-crossing": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-opamp-touch-latch": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-opamp-click-whistle": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-resistor-heating": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-ammeter-overload": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-opamp-adder-subtractor": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-amp-configurations": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-hartley-oscillator": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-transistor-phase-shift": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-ac-voltmeter": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-opamp-flash-adc": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-log-roots": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-opamp-binary-counter": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-tone-control": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-siren-canary": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-transistor-thermometer": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-two-tone-horn": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-led-tester": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-moisture-beeper": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-voice-canceller": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-bounce-counter": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-comb-jet-spark": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-lamp-hum": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-light-remote": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-pll-light-tone": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-led-power-curve": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-led-colour-blind": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-pll-vco": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-pll-sound-machine": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-pll-beats": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-pll-lock": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-pll-fsk": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-barcode-pen": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-fibre-proximity": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-light-thyristor": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-tail-light-fibre": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-lens-beam-link": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-pll-light-gate": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-ruler-scale": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-pll-hygrometer": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-ptc-bridge": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-ptc-tone-bridge": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-ptc-alarm": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-ptc-fibre-alarm": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-ptc-thermometer": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-abs-alarm": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-hall-tacho": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-brake-light-check": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-motor-throttle": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-motor-stall-cutout": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-magnet-code-lock": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-dipole-turn": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-mixer-points": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-mixer-strobe": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-mixer-beat-rx": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-mixer-direct-conversion": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-mixer-metal-detector": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-mixer-diff-amp": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-sync-detector": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-spark-transmitter": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-chopped-spark": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-sliding-winding": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-superhet": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-ce-audio-bias": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-bias-drift": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-cb-button": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-meissner-squegg": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-dawn-mosfet": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-radio-preamp": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-whistle-fm": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-trf-mosfet": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-wobble-astable": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-rf-remote": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-am-voice-dual-gate": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-fibre-morse-music": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-fibre-loss-receivers": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-colour-amp-comparator": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-solar-tone-switch": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-hall-door-tone": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-hall-changeover-pitch": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-lux-meter-pnp": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-noise-level-meter": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-draught-alarm": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-thermocouple-millivolts": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-npn-horn-follower": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-amp-ic-light-organ": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-amp-ic-applause": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-amp-ic-clap-latch": [
+      "assert-physics",
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "gallery",
+      "index-metadata-matches-disk",
+      "program-reads-what-it-writes",
+      "vm"
+    ],
+    "lab-amp-ic-pot-piano": [
       "assert-physics",
       "circuit-params-are-read",
       "example-corpus-contract",

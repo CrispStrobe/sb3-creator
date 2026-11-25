@@ -12,6 +12,23 @@ import { BENCHES as SET8 } from './lab-benches-8.mjs';
 import { BENCHES as SET_OPTICS } from './lab-benches-optics.mjs';
 import { BENCHES as SET_FIELDS } from './lab-benches-fields.mjs';
 import { BENCHES as SET_RF } from './lab-benches-rf.mjs';
+import { BENCHES as SET_R6G } from './lab-benches-r6g.mjs';
+import { BENCHES as SET_R6I } from './lab-benches-r6i.mjs';
+import { BENCHES as SET_R6F } from './lab-benches-r6f.mjs';
+import { BENCHES as SET_R6E } from './lab-benches-r6e.mjs';
+import { BENCHES as SET_R6B } from './lab-benches-r6b.mjs';
+import { BENCHES as SET_R6C } from './lab-benches-r6c.mjs';
+import { BENCHES as SET_R6D } from './lab-benches-r6d.mjs';
+import { BENCHES as SET_R6XN1 } from './lab-benches-r6a.mjs';
+import { BENCHES as SET_MOSFET } from './lab-benches-mosfet.mjs';
+import { BENCHES as SET_DISCRETE } from './lab-benches-discrete.mjs';
+import { BENCHES as SET_OPAMP } from './lab-benches-opamp.mjs';
+import { BENCHES as SET_COUNTING } from './lab-benches-counting.mjs';
+import { BENCHES as SET_R7MECH } from './lab-benches-r7mech.mjs';
+import { BENCHES as SET_R7VHF } from './lab-benches-r7vhf.mjs';
+import { BENCHES as SET_R7MIX } from './lab-benches-r7mix.mjs';
+import { BENCHES as SET_R7MW } from './lab-benches-r7mw.mjs';
+import { BENCHES as SET_R7B } from './lab-benches-r7b.mjs';
 
 /** scripts/gen-lab-batch2.mjs — kept in step with its `B[...]` table. */
 export const BATCH2_BENCHES = Object.freeze([
@@ -22,10 +39,23 @@ export const BATCH2_BENCHES = Object.freeze([
     'lab-listening-amp', 'lab-lc-ringing',
 ]);
 
-/** scripts/gen-lab-circuits-4.mjs --set=4|5|6|8|optics|fields|rf */
+/** scripts/gen-lab-circuits-4.mjs --set=4|5|6|8|optics|fields|rf|r6a|r7mech|mosfet|discrete|opamp|counting|r7vhf|r7mix|r7mw|r7b */
 export const CIRCUITS4_BENCHES = Object.freeze({
     4: Object.keys(SET4), 5: Object.keys(SET5), 6: Object.keys(SET6), 8: Object.keys(SET8), optics: Object.keys(SET_OPTICS),
     fields: Object.keys(SET_FIELDS), rf: Object.keys(SET_RF),
+    r6g: Object.keys(SET_R6G),
+    r6i: Object.keys(SET_R6I),
+    r6f: Object.keys(SET_R6F),
+    r6e: Object.keys(SET_R6E),
+    r6b: Object.keys(SET_R6B),
+    r6c: Object.keys(SET_R6C),
+    r6d: Object.keys(SET_R6D), r6a: Object.keys(SET_R6XN1),
+    r7mech: Object.keys(SET_R7MECH), r7vhf: Object.keys(SET_R7VHF),
+    mosfet: Object.keys(SET_MOSFET), discrete: Object.keys(SET_DISCRETE), opamp: Object.keys(SET_OPAMP),
+    counting: Object.keys(SET_COUNTING),
+    r7mix: Object.keys(SET_R7MIX),
+    r7mw: Object.keys(SET_R7MW),
+    r7b: Object.keys(SET_R7B),
 });
 
 export const GENERATED_LAB_BENCHES = new Set([
