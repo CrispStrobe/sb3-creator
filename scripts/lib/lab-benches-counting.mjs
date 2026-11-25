@@ -219,10 +219,10 @@ export const BENCHES = resolveRefs({
     // there and drops when it is broken: a falling edge per interruption.
     // That signal goes through the first changeover contact of a two-pole
     // relay (rest side) to the counter's clock (100 k holds the input low
-    // when the contact opens). Two diodes decode 6 (QB and QC both high):
+    // when the contact opens). Two diodes decode 5 (QA and QC both high):
     // only then does 4.7 k lift their junction above the extra diode in the
     // base lead, and Q3 pulls the relay in. Pole 1 cuts the clock, so the
-    // count stays at 6; pole 2 lights the lamp. The button clears the
+    // count stays at 5; pole 2 lights the lamp. The button clears the
     // counter and the relay drops out. The light path's knob is how much
     // of the beam an object blocks (0 .. 1).
     'lab-barrier-counter': {
@@ -248,7 +248,7 @@ export const BENCHES = resolveRefs({
             ['pt.collector', 'rpc.b', 'cp.a'], ['cp.b', 'dp2.cathode', 'dp1.anode'], ['dp1.cathode', 'ch.a', 'rh.a', 'rb1.a'],
             ['rb1.b', 'q1.base', 'rfb.a'], ['q1.collector', 'rc1.b', 'rb2.a'], ['rb2.b', 'q2.base'],
             ['q2.collector', 'rc2.b', 'rfb.b', 'k.com1'], ['k.nc1', 'rpd.a', 'cclk.a', 'cnt.clk_a'],
-            ['cnt.qa', 'cnt.clk_b', 'r0.a'], ['cnt.qb', 'db.cathode', 'r1.a'], ['cnt.qc', 'dc.cathode', 'r2.a'],
+            ['cnt.qa', 'cnt.clk_b', 'db.cathode', 'r0.a'], ['cnt.qb', 'r1.a'], ['cnt.qc', 'dc.cathode', 'r2.a'],
             ['db.anode', 'dc.anode', 'rd.b', 'ds.anode'], ['ds.cathode', 'rb3.a'], ['rb3.b', 'rbq.a', 'q3.base'],
             ['clr.b', 'rcl.a', 'cnt.r0_1', 'cnt.r0_2'],
             ['r0.b', 'l0.anode'], ['r1.b', 'l1.anode'], ['r2.b', 'l2.anode'],
