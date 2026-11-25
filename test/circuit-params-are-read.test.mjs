@@ -303,6 +303,10 @@ const KNOWN_INERT = new Map([
     ['air_coil.magnetAm2', 'BLIND SPOT: same as dropHeightM: without a drop the magnet never moves and its moment induces nothing. lab-circuits-8 drops it and times the pulse.'],
     ['speaker.ringOnS', 'BLIND SPOT: a ring cadence starts with a burst at t = 0 and lab-ring-relay rings for 1 s; the probe reads 1 and 20 ms, inside the first burst, where neither the burst length nor the pause can show. lab-circuits-8 runs the cadence for seconds.'],
     ['speaker.ringOffS', 'BLIND SPOT: the pause after the first 1 s burst; the probe never leaves the first burst (see ringOnS). lab-circuits-8 runs the cadence for seconds.'],
+    ['earphone.strikeHz', 'BLIND SPOT: lab-knock-flicker authors its crystal pickup silent (soundDb 0, the Sound slider at zero), so no knock reaches it at either probe instant and the knock rate has nothing to time. test/lab-circuits-r10a.test.mjs raises the slider and measures the LED flashes.'],
+    ['earphone.decayS', 'BLIND SPOT: as earphone.strikeHz — how fast a knock dies away, on a pickup authored silent.'],
+    ['earphone.ringOnS', 'BLIND SPOT: as earphone.strikeHz — the knocking cadence of a pickup authored silent.'],
+    ['earphone.ringOffS', 'BLIND SPOT: as earphone.strikeHz — the pause in the knocking cadence of a pickup authored silent.'],
     ['thermocouple.ohms', 'BLIND SPOT: lab-thermocouple feeds the junction straight into an LM358 input, which draws no current, so the series resistance drops nothing. Read whenever the thermocouple drives a load.'],
     ['ds18b20.temperature', 'BLIND SPOT: read when a READ SCRATCHPAD follows a conversion; the probe drives no 1-Wire. chain-sensors moves it.'],
     // Round-6 r6e benches (2026-11-24). Each key is read by bw-board but only
