@@ -264,6 +264,9 @@ export const SIDECAR_FOOTPRINT_KINDS = Object.freeze([
     // the round-6 benches; no other shipped circuit carries either kind, so
     // no existing net partition moves.
     'cd4046', 'cd4093',
+    // The double-balanced mixer IC (DIP-8 across the gutter): its footprint
+    // is its sidecar's.
+    'sa612',
 ]);
 
 /**

@@ -1,10 +1,10 @@
 # lab-mixer-points — expected behaviour
 
 ## Circuit
-- A double-balanced mixer IC (SA612 type) on 6 V, used at DC. Its two inputs sit on an internal bias (0.23 of the supply) through 1.5 kΩ each; its outputs hang on 1.5 kΩ each from the supply, and its 1 mA tail current is steered between them by the product of tanh(input) and tanh(LO).
+- A double-balanced mixer IC (SA612 type) on 6 V, used at DC. Its two inputs sit on an internal bias (0.23 of the supply) through the chip's own input resistors; its outputs hang on the chip's own load resistors from the supply, and its 1 mA tail current is steered between them by the product of tanh(input) and tanh(LO).
 - An LM386 relaxation oscillator (output → 2.2 µF → +IN, 22 kΩ to ground; −IN grounded) drives input A through 4.7 kΩ; input B sits on a 10 k / 10 k half-supply divider through 4.7 kΩ.
-- The LO pin (the oscillator transistor's base, biased internally through 18 kΩ) is pulled down by 10 kΩ; the STEER button pulls it up through 4.7 kΩ.
-- Each output drives a PNP through 2.2 kΩ whose emitter sits a diode below the supply: the lamp lights only when that output takes most of the tail current (the 1.5 kΩ load drops more than ~1.3 V). Red on output A, green on output B.
+- The LO pin (the oscillator transistor's base, biased internally) is pulled down by 10 kΩ; the STEER button pulls it up through 4.7 kΩ.
+- Each output drives a PNP through 2.2 kΩ whose emitter sits a diode below the supply: the lamp lights only when that output takes most of the tail current. Red on output A, green on output B.
 
 ## Observable behaviour
 - The LM386 square wave runs at a few hertz.
@@ -20,8 +20,17 @@ bw-board sa612 (src/mixer-ic.js), `test/lab-circuits-r7mix.test.mjs`, 0.7 s with
 2. Neither input alone decides the output (balanced).
 
 ```assert
-# the LO pin pulled low against its internal bias (18 kΩ to 1.62 V vs 10 kΩ to ground)
+# the LO pin pulled low against its internal bias (to 0.27 of the supply) by 10 kΩ to ground
 net sa612_6.osc_b V 0.579 +-0.02
-# input B on the half-supply divider against the input bias (1.38 V through 1.5 kΩ)
+# input B on the half-supply divider against the chip's input bias
 net sa612_6.in_b V 1.597 +-0.02
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@d4113b4` and `bw-circuit-ui@0b594d6` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **9 of this page's 20** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-mixer-points` prints them one by one.
+<!-- engine-provenance -->

@@ -3,7 +3,7 @@
 ## Circuit
 - A ferrite-rod tank (250 µH main winding, tuning capacitor at 0.5317) tuned to an AM station at 612 kHz (0.02 V/m, 50 % modulation with a 1 kHz tone); the antenna on the tap, earth on ground. The rod's own pickup is off (`rodHeightM` 0): the antenna brings the station.
 - The coupling winding (10 % of the turns) across the mixer IC's inputs A and B (6 V supply).
-- The tank's top, through the SYNC switch and 47 pF, onto the mixer's LO pin (its oscillator transistor's base; the emitter is left to its internal 4 kΩ, so nothing oscillates).
+- The tank's top, through the SYNC switch and 47 pF, onto the mixer's LO pin (its oscillator transistor's base; the emitter is left to its internal resistor, so nothing oscillates).
 - Output A through 100 nF into the LM386 (+IN 10 kΩ to ground, −IN grounded, gain 20), 220 µF into an 8 Ω loudspeaker.
 
 ## Observable behaviour
@@ -20,6 +20,15 @@ bw-board RF envelope bands with the sa612's same-band product (RF and LO in one 
 ```assert
 # input A on the chip's internal bias (0.23 × 6 V; the coupling winding joins A and B)
 net sa612_9.in_a V 1.38 +-0.02
-# the LO pin at its own bias, the oscillator transistor's base current through 18 kΩ
+# the LO pin at its own bias, a little below it by the oscillator transistor's base current
 net sa612_9.osc_b V 1.580 +-0.02
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@d4113b4` and `bw-circuit-ui@0b594d6` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **6 of this page's 23** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-sync-detector` prints them one by one.
+<!-- engine-provenance -->

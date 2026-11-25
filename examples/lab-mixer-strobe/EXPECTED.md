@@ -21,3 +21,12 @@ bw-board (sa612 tanh·tanh law, field probe at the mains' 50 Hz), `test/lab-circ
 # input B on the half-supply divider against the chip's input bias
 net sa612_13.in_b V 1.597 +-0.02
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@d4113b4` and `bw-circuit-ui@0b594d6` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **15 of this page's 29** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-mixer-strobe` prints them one by one.
+<!-- engine-provenance -->

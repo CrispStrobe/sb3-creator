@@ -1,7 +1,7 @@
 # lab-mixer-metal-detector — expected behaviour
 
 ## Circuit
-- 6 V. A Colpitts search oscillator around a hand-wound coil (30 turns, 10 cm across, ≈ 137 µH): 22 nF collector-to-emitter, 220 nF emitter-to-ground, 4.7 kΩ emitter resistor, base on 22 k / 10 k held by 100 nF. It runs near 96 kHz.
+- 6 V. A Colpitts search oscillator around a hand-wound coil (30 turns, 10 cm across): 22 nF collector-to-emitter, 220 nF emitter-to-ground, 4.7 kΩ emitter resistor, base on 22 k / 10 k held by 100 nF. It runs near 96 kHz.
 - A wire from its collector runs past the receiver: 4.7 pF onto the mixer IC's input A (input B bypassed by 100 nF).
 - The mixer's own oscillator: a second ferrite coil (272 µH, its pickup off) with 10 nF and the tuning capacitor across it, top to the oscillator base through 10 nF, tap to the emitter through 10 nF — about 94–97 kHz over the knob (authored 0.5).
 - Output A into a crystal earphone with 22 nF across it.
@@ -23,3 +23,12 @@ bw-board RF envelope bands (both oscillators in one band; the sa612 turns their 
 net sa612_13.in_a V 1.38 +-0.02
 net sa612_13.in_b V 1.38 +-0.02
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@d4113b4` and `bw-circuit-ui@0b594d6` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **11 of this page's 24** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-mixer-metal-detector` prints them one by one.
+<!-- engine-provenance -->
