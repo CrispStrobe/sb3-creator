@@ -32,6 +32,7 @@ import { BENCHES as SET_R7MW } from './lab-benches-r7mw.mjs';
 import { BENCHES as SET_R7B } from './lab-benches-r7b.mjs';
 import { BENCHES as SET_R10B } from './lab-benches-r10b.mjs';
 import { BENCHES as SET_R10C } from './lab-benches-r10c.mjs';
+import { BENCHES as SET_R10D } from './lab-benches-r10d.mjs';
 
 /** scripts/gen-lab-batch2.mjs — kept in step with its `B[...]` table. */
 export const BATCH2_BENCHES = Object.freeze([
@@ -42,7 +43,7 @@ export const BATCH2_BENCHES = Object.freeze([
     'lab-listening-amp', 'lab-lc-ringing',
 ]);
 
-/** scripts/gen-lab-circuits-4.mjs --set=4|5|6|8|optics|fields|rf|r6a|r7mech|mosfet|discrete|opamp|counting|r7vhf|r7mix|r7mw|r7b|r10b */
+/** scripts/gen-lab-circuits-4.mjs --set=4|5|6|8|optics|fields|rf|r6a|r7mech|mosfet|discrete|opamp|counting|r7vhf|r7mix|r7mw|r7b|r10b|r10c|r10d */
 export const CIRCUITS4_BENCHES = Object.freeze({
     4: Object.keys(SET4), 5: Object.keys(SET5), 6: Object.keys(SET6), 8: Object.keys(SET8), optics: Object.keys(SET_OPTICS),
     fields: Object.keys(SET_FIELDS), rf: Object.keys(SET_RF),
@@ -62,6 +63,7 @@ export const CIRCUITS4_BENCHES = Object.freeze({
     r7b: Object.keys(SET_R7B),
     r10b: Object.keys(SET_R10B),
     r10c: Object.keys(SET_R10C),
+    r10d: Object.keys(SET_R10D),
 });
 
 export const GENERATED_LAB_BENCHES = new Set([
