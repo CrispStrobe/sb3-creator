@@ -31,3 +31,4 @@ net vsource_2.pos V 9.00 +-0.01
 net lm386_6.vout V 4.50 +-0.05
 net lm386_6.inp V 0.00 +-0.01
 ```
+

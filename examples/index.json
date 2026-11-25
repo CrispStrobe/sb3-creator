@@ -15192,1126 +15192,1126 @@
       "introDE": "lab-opamp-shift-register/intro.de.md"
     }
   },
-  {
-    "id": "cp1-first-display",
-    "title": {
-      "en": "CP1: First display",
-      "de": "CP1: Erste Anzeige"
-    },
-    "category": "digital",
-    "difficulty": 1,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-first-display/program.bw",
-      "cp1": "cp1-first-display/program.cp1",
-      "circuit": "cp1-first-display/circuit.json",
-      "intro": "cp1-first-display/intro.md",
-      "introDE": "cp1-first-display/intro.de.md",
-      "expected": "cp1-first-display/EXPECTED.md"
-    },
-    "devices": []
+ {
+  "id": "cp1-first-display",
+  "title": {
+   "en": "CP1: First display",
+   "de": "CP1: Erste Anzeige"
   },
-  {
-    "id": "cp1-switch-input",
-    "title": {
-      "en": "CP1: Read a switch",
-      "de": "CP1: Einen Taster lesen"
-    },
-    "category": "digital",
-    "difficulty": 1,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-switch-input/program.bw",
-      "cp1": "cp1-switch-input/program.cp1",
-      "circuit": "cp1-switch-input/circuit.json",
-      "intro": "cp1-switch-input/intro.md",
-      "introDE": "cp1-switch-input/intro.de.md",
-      "expected": "cp1-switch-input/EXPECTED.md"
-    },
-    "devices": []
+  "category": "digital",
+  "difficulty": 1,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-first-display/program.bw",
+   "cp1": "cp1-first-display/program.cp1",
+   "circuit": "cp1-first-display/circuit.json",
+   "intro": "cp1-first-display/intro.md",
+   "introDE": "cp1-first-display/intro.de.md",
+   "expected": "cp1-first-display/EXPECTED.md"
   },
-  {
-    "id": "cp1-blink",
-    "title": {
-      "en": "CP1: Blink an LED",
-      "de": "CP1: Eine LED blinkt"
-    },
-    "category": "digital",
-    "difficulty": 1,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-blink/program.bw",
-      "cp1": "cp1-blink/program.cp1",
-      "circuit": "cp1-blink/circuit.json",
-      "intro": "cp1-blink/intro.md",
-      "introDE": "cp1-blink/intro.de.md",
-      "expected": "cp1-blink/EXPECTED.md"
-    },
-    "devices": []
+  "devices": []
+ },
+ {
+  "id": "cp1-switch-input",
+  "title": {
+   "en": "CP1: Read a switch",
+   "de": "CP1: Einen Taster lesen"
   },
-  {
-    "id": "cp1-cp3-cp4-relay-sequence",
-    "title": {
-      "en": "CP1: CP3 relay sequencer",
-      "de": "CP1: Relaisfolge aus dem CP3-Speicher"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-cp3-cp4-relay-sequence/program.bw",
-      "cp1": "cp1-cp3-cp4-relay-sequence/program.cp1",
-      "circuit": "cp1-cp3-cp4-relay-sequence/circuit.json",
-      "intro": "cp1-cp3-cp4-relay-sequence/intro.md",
-      "introDE": "cp1-cp3-cp4-relay-sequence/intro.de.md",
-      "expected": "cp1-cp3-cp4-relay-sequence/EXPECTED.md"
-    },
-    "devices": []
+  "category": "digital",
+  "difficulty": 1,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-switch-input/program.bw",
+   "cp1": "cp1-switch-input/program.cp1",
+   "circuit": "cp1-switch-input/circuit.json",
+   "intro": "cp1-switch-input/intro.md",
+   "introDE": "cp1-switch-input/intro.de.md",
+   "expected": "cp1-switch-input/EXPECTED.md"
   },
-  {
-    "id": "cp1-cp4-relay-signals",
-    "title": {
-      "en": "CP1: CP4 relay signals",
-      "de": "CP1: Signale mit CP4-Relais"
-    },
-    "category": "digital",
-    "difficulty": 2,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-cp4-relay-signals/program.bw",
-      "cp1": "cp1-cp4-relay-signals/program.cp1",
-      "circuit": "cp1-cp4-relay-signals/circuit.json",
-      "intro": "cp1-cp4-relay-signals/intro.md",
-      "introDE": "cp1-cp4-relay-signals/intro.de.md",
-      "expected": "cp1-cp4-relay-signals/EXPECTED.md"
-    },
-    "devices": []
+  "devices": []
+ },
+ {
+  "id": "cp1-blink",
+  "title": {
+   "en": "CP1: Blink an LED",
+   "de": "CP1: Eine LED blinkt"
   },
-  {
-    "id": "cp1-cp4-relay-bank",
-    "title": {
-      "en": "CP1: Eight-channel CP4 relay bank",
-      "de": "CP1: CP4-Relaisbank mit acht Kanälen"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-cp4-relay-bank/program.bw",
-      "cp1": "cp1-cp4-relay-bank/program.cp1",
-      "circuit": "cp1-cp4-relay-bank/circuit.json",
-      "intro": "cp1-cp4-relay-bank/intro.md",
-      "introDE": "cp1-cp4-relay-bank/intro.de.md",
-      "expected": "cp1-cp4-relay-bank/EXPECTED.md"
-    },
-    "devices": []
+  "category": "digital",
+  "difficulty": 1,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-blink/program.bw",
+   "cp1": "cp1-blink/program.cp1",
+   "circuit": "cp1-blink/circuit.json",
+   "intro": "cp1-blink/intro.md",
+   "introDE": "cp1-blink/intro.de.md",
+   "expected": "cp1-blink/EXPECTED.md"
   },
-  {
-    "id": "cp1-cp5-binary",
-    "title": {
-      "en": "CP1: CP5-style binary workbench",
-      "de": "CP1: Binärzahlen mit acht Schaltern"
-    },
-    "category": "digital",
-    "difficulty": 2,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-cp5-binary/program.bw",
-      "cp1": "cp1-cp5-binary/program.cp1",
-      "circuit": "cp1-cp5-binary/circuit.json",
-      "intro": "cp1-cp5-binary/intro.md",
-      "introDE": "cp1-cp5-binary/intro.de.md",
-      "expected": "cp1-cp5-binary/EXPECTED.md"
-    },
-    "devices": []
+  "devices": []
+ },
+ {
+  "id": "cp1-cp3-cp4-relay-sequence",
+  "title": {
+   "en": "CP1: CP3 relay sequencer",
+   "de": "CP1: Relaisfolge aus dem CP3-Speicher"
   },
-  {
-    "id": "cp1-descending-sum",
-    "title": {
-      "en": "CP1: Descending sum",
-      "de": "CP1: Absteigende Summe"
-    },
-    "category": "digital",
-    "difficulty": 1,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-descending-sum/program.bw",
-      "cp1": "cp1-descending-sum/program.cp1",
-      "circuit": "cp1-descending-sum/circuit.json",
-      "intro": "cp1-descending-sum/intro.md",
-      "introDE": "cp1-descending-sum/intro.de.md",
-      "expected": "cp1-descending-sum/EXPECTED.md"
-    },
-    "devices": []
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-cp3-cp4-relay-sequence/program.bw",
+   "cp1": "cp1-cp3-cp4-relay-sequence/program.cp1",
+   "circuit": "cp1-cp3-cp4-relay-sequence/circuit.json",
+   "intro": "cp1-cp3-cp4-relay-sequence/intro.md",
+   "introDE": "cp1-cp3-cp4-relay-sequence/intro.de.md",
+   "expected": "cp1-cp3-cp4-relay-sequence/EXPECTED.md"
   },
-  {
-    "id": "cp1-crate-division",
-    "title": {
-      "en": "CP1: Crate division",
-      "de": "CP1: Kistenaufteilung"
-    },
-    "category": "digital",
-    "difficulty": 2,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-crate-division/program.bw",
-      "cp1": "cp1-crate-division/program.cp1",
-      "circuit": "cp1-crate-division/circuit.json",
-      "intro": "cp1-crate-division/intro.md",
-      "introDE": "cp1-crate-division/intro.de.md",
-      "expected": "cp1-crate-division/EXPECTED.md"
-    },
-    "devices": []
+  "devices": []
+ },
+ {
+  "id": "cp1-cp4-relay-signals",
+  "title": {
+   "en": "CP1: CP4 relay signals",
+   "de": "CP1: Signale mit CP4-Relais"
   },
-  {
-    "id": "cp1-lookup-card",
-    "title": {
-      "en": "CP1: Lookup card",
-      "de": "CP1: Tabellenkarte"
-    },
-    "category": "digital",
-    "difficulty": 2,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-lookup-card/program.bw",
-      "cp1": "cp1-lookup-card/program.cp1",
-      "circuit": "cp1-lookup-card/circuit.json",
-      "intro": "cp1-lookup-card/intro.md",
-      "introDE": "cp1-lookup-card/intro.de.md",
-      "expected": "cp1-lookup-card/EXPECTED.md"
-    },
-    "devices": []
+  "category": "digital",
+  "difficulty": 2,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-cp4-relay-signals/program.bw",
+   "cp1": "cp1-cp4-relay-signals/program.cp1",
+   "circuit": "cp1-cp4-relay-signals/circuit.json",
+   "intro": "cp1-cp4-relay-signals/intro.md",
+   "introDE": "cp1-cp4-relay-signals/intro.de.md",
+   "expected": "cp1-cp4-relay-signals/EXPECTED.md"
   },
-  {
-    "id": "cp1-instruction-patch",
-    "title": {
-      "en": "CP1: Instruction patch",
-      "de": "CP1: Befehlswechsel"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-instruction-patch/program.bw",
-      "cp1": "cp1-instruction-patch/program.cp1",
-      "circuit": "cp1-instruction-patch/circuit.json",
-      "intro": "cp1-instruction-patch/intro.md",
-      "introDE": "cp1-instruction-patch/intro.de.md",
-      "expected": "cp1-instruction-patch/EXPECTED.md"
-    },
-    "devices": []
+  "devices": []
+ },
+ {
+  "id": "cp1-cp4-relay-bank",
+  "title": {
+   "en": "CP1: Eight-channel CP4 relay bank",
+   "de": "CP1: CP4-Relaisbank mit acht Kanälen"
   },
-  {
-    "id": "cp1-guarded-output",
-    "title": {
-      "en": "CP1: Guarded output",
-      "de": "CP1: Bedingter Ausgang"
-    },
-    "category": "digital",
-    "difficulty": 2,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-guarded-output/program.bw",
-      "cp1": "cp1-guarded-output/program.cp1",
-      "circuit": "cp1-guarded-output/circuit.json",
-      "intro": "cp1-guarded-output/intro.md",
-      "introDE": "cp1-guarded-output/intro.de.md",
-      "expected": "cp1-guarded-output/EXPECTED.md"
-    },
-    "devices": []
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-cp4-relay-bank/program.bw",
+   "cp1": "cp1-cp4-relay-bank/program.cp1",
+   "circuit": "cp1-cp4-relay-bank/circuit.json",
+   "intro": "cp1-cp4-relay-bank/intro.md",
+   "introDE": "cp1-cp4-relay-bank/intro.de.md",
+   "expected": "cp1-cp4-relay-bank/EXPECTED.md"
   },
-  {
-    "id": "cp1-expansion-step",
-    "title": {
-      "en": "CP1: Expansion step",
-      "de": "CP1: Erweiterung im Einzelschritt"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-expansion-step/program.bw",
-      "cp1": "cp1-expansion-step/program.cp1",
-      "circuit": "cp1-expansion-step/circuit.json",
-      "intro": "cp1-expansion-step/intro.md",
-      "introDE": "cp1-expansion-step/intro.de.md",
-      "expected": "cp1-expansion-step/EXPECTED.md"
-    },
-    "devices": []
+  "devices": []
+ },
+ {
+  "id": "cp1-cp5-binary",
+  "title": {
+   "en": "CP1: CP5-style binary workbench",
+   "de": "CP1: Binärzahlen mit acht Schaltern"
   },
-  {
-    "id": "cp1-sample-log",
-    "title": {
-      "en": "CP1: Sample log",
-      "de": "CP1: Messprotokoll"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-sample-log/program.bw",
-      "cp1": "cp1-sample-log/program.cp1",
-      "circuit": "cp1-sample-log/circuit.json",
-      "intro": "cp1-sample-log/intro.md",
-      "introDE": "cp1-sample-log/intro.de.md",
-      "expected": "cp1-sample-log/EXPECTED.md"
-    },
-    "devices": []
+  "category": "digital",
+  "difficulty": 2,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-cp5-binary/program.bw",
+   "cp1": "cp1-cp5-binary/program.cp1",
+   "circuit": "cp1-cp5-binary/circuit.json",
+   "intro": "cp1-cp5-binary/intro.md",
+   "introDE": "cp1-cp5-binary/intro.de.md",
+   "expected": "cp1-cp5-binary/EXPECTED.md"
   },
-  {
-    "id": "cp1-gray-indicator",
-    "title": {
-      "en": "CP1: Gray indicator",
-      "de": "CP1: Gray-Anzeige"
-    },
-    "category": "digital",
-    "difficulty": 2,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-gray-indicator/program.bw",
-      "cp1": "cp1-gray-indicator/program.cp1",
-      "circuit": "cp1-gray-indicator/circuit.json",
-      "intro": "cp1-gray-indicator/intro.md",
-      "introDE": "cp1-gray-indicator/intro.de.md",
-      "expected": "cp1-gray-indicator/EXPECTED.md"
-    },
-    "devices": []
+  "devices": []
+ },
+ {
+  "id": "cp1-descending-sum",
+  "title": {
+   "en": "CP1: Descending sum",
+   "de": "CP1: Absteigende Summe"
   },
-  {
-    "id": "cp1-status-dispatch",
-    "title": {
-      "en": "CP1: Status dispatch",
-      "de": "CP1: Statusverteiler"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-status-dispatch/program.bw",
-      "cp1": "cp1-status-dispatch/program.cp1",
-      "circuit": "cp1-status-dispatch/circuit.json",
-      "intro": "cp1-status-dispatch/intro.md",
-      "introDE": "cp1-status-dispatch/intro.de.md",
-      "expected": "cp1-status-dispatch/EXPECTED.md"
-    },
-    "devices": []
+  "category": "digital",
+  "difficulty": 1,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-descending-sum/program.bw",
+   "cp1": "cp1-descending-sum/program.cp1",
+   "circuit": "cp1-descending-sum/circuit.json",
+   "intro": "cp1-descending-sum/intro.md",
+   "introDE": "cp1-descending-sum/intro.de.md",
+   "expected": "cp1-descending-sum/EXPECTED.md"
   },
-  {
-    "id": "cp1-batch-ticker",
-    "title": {
-      "en": "CP1: Batch ticker",
-      "de": "CP1: Chargenzähler"
-    },
-    "category": "digital",
-    "difficulty": 2,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-batch-ticker/program.bw",
-      "cp1": "cp1-batch-ticker/program.cp1",
-      "circuit": "cp1-batch-ticker/circuit.json",
-      "intro": "cp1-batch-ticker/intro.md",
-      "introDE": "cp1-batch-ticker/intro.de.md",
-      "expected": "cp1-batch-ticker/EXPECTED.md"
-    },
-    "devices": []
+  "devices": []
+ },
+ {
+  "id": "cp1-crate-division",
+  "title": {
+   "en": "CP1: Crate division",
+   "de": "CP1: Kistenaufteilung"
   },
-  {
-    "id": "cp1-beacon-code",
-    "title": {
-      "en": "CP1: Short–long beacon",
-      "de": "CP1: Bake mit kurzen und langen Zeichen"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-beacon-code/program.bw",
-      "cp1": "cp1-beacon-code/program.cp1",
-      "circuit": "cp1-beacon-code/circuit.json",
-      "intro": "cp1-beacon-code/intro.md",
-      "introDE": "cp1-beacon-code/intro.de.md",
-      "expected": "cp1-beacon-code/EXPECTED.md"
-    },
-    "devices": []
+  "category": "digital",
+  "difficulty": 2,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-crate-division/program.bw",
+   "cp1": "cp1-crate-division/program.cp1",
+   "circuit": "cp1-crate-division/circuit.json",
+   "intro": "cp1-crate-division/intro.md",
+   "introDE": "cp1-crate-division/intro.de.md",
+   "expected": "cp1-crate-division/EXPECTED.md"
   },
-  {
-    "id": "cp1-bench-voltmeter",
-    "title": {
-      "en": "CP1: Calibrated bench readout",
-      "de": "CP1: Kalibrierte Messanzeige"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-bench-voltmeter/program.bw",
-      "cp1": "cp1-bench-voltmeter/program.cp1",
-      "circuit": "cp1-bench-voltmeter/circuit.json",
-      "intro": "cp1-bench-voltmeter/intro.md",
-      "introDE": "cp1-bench-voltmeter/intro.de.md",
-      "expected": "cp1-bench-voltmeter/EXPECTED.md"
-    },
-    "devices": []
+  "devices": []
+ },
+ {
+  "id": "cp1-lookup-card",
+  "title": {
+   "en": "CP1: Lookup card",
+   "de": "CP1: Tabellenkarte"
   },
-  {
-    "id": "cp1-bidirectional-beacon",
-    "title": {
-      "en": "CP1: Sink and sample",
-      "de": "CP1: Ziehen und Abtasten"
-    },
-    "category": "digital",
-    "difficulty": 2,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-bidirectional-beacon/program.bw",
-      "cp1": "cp1-bidirectional-beacon/program.cp1",
-      "circuit": "cp1-bidirectional-beacon/circuit.json",
-      "intro": "cp1-bidirectional-beacon/intro.md",
-      "introDE": "cp1-bidirectional-beacon/intro.de.md",
-      "expected": "cp1-bidirectional-beacon/EXPECTED.md"
-    },
-    "devices": []
+  "category": "digital",
+  "difficulty": 2,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-lookup-card/program.bw",
+   "cp1": "cp1-lookup-card/program.cp1",
+   "circuit": "cp1-lookup-card/circuit.json",
+   "intro": "cp1-lookup-card/intro.md",
+   "introDE": "cp1-lookup-card/intro.de.md",
+   "expected": "cp1-lookup-card/EXPECTED.md"
   },
-  {
-    "id": "cp1-button-stopwatch",
-    "title": {
-      "en": "CP1: Button stopwatch",
-      "de": "CP1: Taster-Stoppuhr"
-    },
-    "category": "digital",
-    "difficulty": 2,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-button-stopwatch/program.bw",
-      "cp1": "cp1-button-stopwatch/program.cp1",
-      "circuit": "cp1-button-stopwatch/circuit.json",
-      "intro": "cp1-button-stopwatch/intro.md",
-      "introDE": "cp1-button-stopwatch/intro.de.md",
-      "expected": "cp1-button-stopwatch/EXPECTED.md"
-    },
-    "devices": []
+  "devices": []
+ },
+ {
+  "id": "cp1-instruction-patch",
+  "title": {
+   "en": "CP1: Instruction patch",
+   "de": "CP1: Befehlswechsel"
   },
-  {
-    "id": "cp1-cabinet-panel",
-    "title": {
-      "en": "CP1: Sequence cabinet",
-      "de": "CP1: Schalttafel mit Eingabefolge"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-cabinet-panel/program.bw",
-      "cp1": "cp1-cabinet-panel/program.cp1",
-      "circuit": "cp1-cabinet-panel/circuit.json",
-      "intro": "cp1-cabinet-panel/intro.md",
-      "introDE": "cp1-cabinet-panel/intro.de.md",
-      "expected": "cp1-cabinet-panel/EXPECTED.md"
-    },
-    "devices": []
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-instruction-patch/program.bw",
+   "cp1": "cp1-instruction-patch/program.cp1",
+   "circuit": "cp1-instruction-patch/circuit.json",
+   "intro": "cp1-instruction-patch/intro.md",
+   "introDE": "cp1-instruction-patch/intro.de.md",
+   "expected": "cp1-instruction-patch/EXPECTED.md"
   },
-  {
-    "id": "cp1-code-feedback",
-    "title": {
-      "en": "CP1: Find the cabinet code",
-      "de": "CP1: Schrankcode finden"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-code-feedback/program.bw",
-      "cp1": "cp1-code-feedback/program.cp1",
-      "circuit": "cp1-code-feedback/circuit.json",
-      "intro": "cp1-code-feedback/intro.md",
-      "introDE": "cp1-code-feedback/intro.de.md",
-      "expected": "cp1-code-feedback/EXPECTED.md"
-    },
-    "devices": []
+  "devices": []
+ },
+ {
+  "id": "cp1-guarded-output",
+  "title": {
+   "en": "CP1: Guarded output",
+   "de": "CP1: Bedingter Ausgang"
   },
-  {
-    "id": "cp1-conveyor-controller",
-    "title": {
-      "en": "CP1: Conveyor changeover",
-      "de": "CP1: Förderband mit Richtungswechsel"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-conveyor-controller/program.bw",
-      "cp1": "cp1-conveyor-controller/program.cp1",
-      "circuit": "cp1-conveyor-controller/circuit.json",
-      "intro": "cp1-conveyor-controller/intro.md",
-      "introDE": "cp1-conveyor-controller/intro.de.md",
-      "expected": "cp1-conveyor-controller/EXPECTED.md"
-    },
-    "devices": []
+  "category": "digital",
+  "difficulty": 2,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-guarded-output/program.bw",
+   "cp1": "cp1-guarded-output/program.cp1",
+   "circuit": "cp1-guarded-output/circuit.json",
+   "intro": "cp1-guarded-output/intro.md",
+   "introDE": "cp1-guarded-output/intro.de.md",
+   "expected": "cp1-guarded-output/EXPECTED.md"
   },
-  {
-    "id": "cp1-cp2-sample-logger",
-    "title": {
-      "en": "CP1: Four samples to cassette",
-      "de": "CP1: Vier Messwerte auf Kassette"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-cp2-sample-logger/program.bw",
-      "cp1": "cp1-cp2-sample-logger/program.cp1",
-      "circuit": "cp1-cp2-sample-logger/circuit.json",
-      "intro": "cp1-cp2-sample-logger/intro.md",
-      "introDE": "cp1-cp2-sample-logger/intro.de.md",
-      "expected": "cp1-cp2-sample-logger/EXPECTED.md"
-    },
-    "devices": []
+  "devices": []
+ },
+ {
+  "id": "cp1-expansion-step",
+  "title": {
+   "en": "CP1: Expansion step",
+   "de": "CP1: Erweiterung im Einzelschritt"
   },
-  {
-    "id": "cp1-delay-lab",
-    "title": {
-      "en": "CP1: Nested timing lab",
-      "de": "CP1: Zeitmessung mit zwei Schleifen"
-    },
-    "category": "digital",
-    "difficulty": 2,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-delay-lab/program.bw",
-      "cp1": "cp1-delay-lab/program.cp1",
-      "circuit": "cp1-delay-lab/circuit.json",
-      "intro": "cp1-delay-lab/intro.md",
-      "introDE": "cp1-delay-lab/intro.de.md",
-      "expected": "cp1-delay-lab/EXPECTED.md"
-    },
-    "devices": []
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-expansion-step/program.bw",
+   "cp1": "cp1-expansion-step/program.cp1",
+   "circuit": "cp1-expansion-step/circuit.json",
+   "intro": "cp1-expansion-step/intro.md",
+   "introDE": "cp1-expansion-step/intro.de.md",
+   "expected": "cp1-expansion-step/EXPECTED.md"
   },
-  {
-    "id": "cp1-descent-challenge",
-    "title": {
-      "en": "CP1: Descent on three charges",
-      "de": "CP1: Abstieg mit drei Bremsladungen"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-descent-challenge/program.bw",
-      "cp1": "cp1-descent-challenge/program.cp1",
-      "circuit": "cp1-descent-challenge/circuit.json",
-      "intro": "cp1-descent-challenge/intro.md",
-      "introDE": "cp1-descent-challenge/intro.de.md",
-      "expected": "cp1-descent-challenge/EXPECTED.md"
-    },
-    "devices": []
+  "devices": []
+ },
+ {
+  "id": "cp1-sample-log",
+  "title": {
+   "en": "CP1: Sample log",
+   "de": "CP1: Messprotokoll"
   },
-  {
-    "id": "cp1-display-postcard",
-    "title": {
-      "en": "CP1: Three display captions",
-      "de": "CP1: Drei Anzeigetexte"
-    },
-    "category": "digital",
-    "difficulty": 2,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-display-postcard/program.bw",
-      "cp1": "cp1-display-postcard/program.cp1",
-      "circuit": "cp1-display-postcard/circuit.json",
-      "intro": "cp1-display-postcard/intro.md",
-      "introDE": "cp1-display-postcard/intro.de.md",
-      "expected": "cp1-display-postcard/EXPECTED.md"
-    },
-    "devices": []
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-sample-log/program.bw",
+   "cp1": "cp1-sample-log/program.cp1",
+   "circuit": "cp1-sample-log/circuit.json",
+   "intro": "cp1-sample-log/intro.md",
+   "introDE": "cp1-sample-log/intro.de.md",
+   "expected": "cp1-sample-log/EXPECTED.md"
   },
-  {
-    "id": "cp1-dual-workbench",
-    "title": {
-      "en": "CP1: Two workbench entries",
-      "de": "CP1: Werkbank mit zwei Einstiegspunkten"
-    },
-    "category": "digital",
-    "difficulty": 2,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-dual-workbench/program.bw",
-      "cp1": "cp1-dual-workbench/program.cp1",
-      "circuit": "cp1-dual-workbench/circuit.json",
-      "intro": "cp1-dual-workbench/intro.md",
-      "introDE": "cp1-dual-workbench/intro.de.md",
-      "expected": "cp1-dual-workbench/EXPECTED.md"
-    },
-    "devices": []
+  "devices": []
+ },
+ {
+  "id": "cp1-gray-indicator",
+  "title": {
+   "en": "CP1: Gray indicator",
+   "de": "CP1: Gray-Anzeige"
   },
-  {
-    "id": "cp1-edge-trigger-capture",
-    "title": {
-      "en": "CP1: Five-sample edge capture",
-      "de": "CP1: Flankenspeicher für fünf Abtastwerte"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-edge-trigger-capture/program.bw",
-      "cp1": "cp1-edge-trigger-capture/program.cp1",
-      "circuit": "cp1-edge-trigger-capture/circuit.json",
-      "intro": "cp1-edge-trigger-capture/intro.md",
-      "introDE": "cp1-edge-trigger-capture/intro.de.md",
-      "expected": "cp1-edge-trigger-capture/EXPECTED.md"
-    },
-    "devices": []
+  "category": "digital",
+  "difficulty": 2,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-gray-indicator/program.bw",
+   "cp1": "cp1-gray-indicator/program.cp1",
+   "circuit": "cp1-gray-indicator/circuit.json",
+   "intro": "cp1-gray-indicator/intro.md",
+   "introDE": "cp1-gray-indicator/intro.de.md",
+   "expected": "cp1-gray-indicator/EXPECTED.md"
   },
-  {
-    "id": "cp1-fixed-point-filter",
-    "title": {
-      "en": "CP1: Quarter-step fixed-point filter",
-      "de": "CP1: Festkommafilter mit Viertelschritt"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-fixed-point-filter/program.bw",
-      "cp1": "cp1-fixed-point-filter/program.cp1",
-      "circuit": "cp1-fixed-point-filter/circuit.json",
-      "intro": "cp1-fixed-point-filter/intro.md",
-      "introDE": "cp1-fixed-point-filter/intro.de.md",
-      "expected": "cp1-fixed-point-filter/EXPECTED.md"
-    },
-    "devices": []
+  "devices": []
+ },
+ {
+  "id": "cp1-status-dispatch",
+  "title": {
+   "en": "CP1: Status dispatch",
+   "de": "CP1: Statusverteiler"
   },
-  {
-    "id": "cp1-fraction-stream",
-    "title": {
-      "en": "CP1: Six digits of 5/13",
-      "de": "CP1: Sechs Stellen von 5/13"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-fraction-stream/program.bw",
-      "cp1": "cp1-fraction-stream/program.cp1",
-      "circuit": "cp1-fraction-stream/circuit.json",
-      "intro": "cp1-fraction-stream/intro.md",
-      "introDE": "cp1-fraction-stream/intro.de.md",
-      "expected": "cp1-fraction-stream/EXPECTED.md"
-    },
-    "devices": []
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-status-dispatch/program.bw",
+   "cp1": "cp1-status-dispatch/program.cp1",
+   "circuit": "cp1-status-dispatch/circuit.json",
+   "intro": "cp1-status-dispatch/intro.md",
+   "introDE": "cp1-status-dispatch/intro.de.md",
+   "expected": "cp1-status-dispatch/EXPECTED.md"
   },
-  {
-    "id": "cp1-gate-tally",
-    "title": {
-      "en": "CP1: Two-sensor direction tally",
-      "de": "CP1: Richtungszähler mit zwei Sensoren"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-gate-tally/program.bw",
-      "cp1": "cp1-gate-tally/program.cp1",
-      "circuit": "cp1-gate-tally/circuit.json",
-      "intro": "cp1-gate-tally/intro.md",
-      "introDE": "cp1-gate-tally/intro.de.md",
-      "expected": "cp1-gate-tally/EXPECTED.md"
-    },
-    "devices": []
+  "devices": []
+ },
+ {
+  "id": "cp1-batch-ticker",
+  "title": {
+   "en": "CP1: Batch ticker",
+   "de": "CP1: Chargenzähler"
   },
-  {
-    "id": "cp1-greenhouse-schedule",
-    "title": {
-      "en": "CP1: Greenhouse vent schedule",
-      "de": "CP1: Lüftungsplan fürs Gewächshaus"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-greenhouse-schedule/program.bw",
-      "cp1": "cp1-greenhouse-schedule/program.cp1",
-      "circuit": "cp1-greenhouse-schedule/circuit.json",
-      "intro": "cp1-greenhouse-schedule/intro.md",
-      "introDE": "cp1-greenhouse-schedule/intro.de.md",
-      "expected": "cp1-greenhouse-schedule/EXPECTED.md"
-    },
-    "devices": []
+  "category": "digital",
+  "difficulty": 2,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-batch-ticker/program.bw",
+   "cp1": "cp1-batch-ticker/program.cp1",
+   "circuit": "cp1-batch-ticker/circuit.json",
+   "intro": "cp1-batch-ticker/intro.md",
+   "introDE": "cp1-batch-ticker/intro.de.md",
+   "expected": "cp1-batch-ticker/EXPECTED.md"
   },
-  {
-    "id": "cp1-grid-escape",
-    "title": {
-      "en": "CP1: Escape the nine-cell grid",
-      "de": "CP1: Aus dem Neun-Felder-Raster"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-grid-escape/program.bw",
-      "cp1": "cp1-grid-escape/program.cp1",
-      "circuit": "cp1-grid-escape/circuit.json",
-      "intro": "cp1-grid-escape/intro.md",
-      "introDE": "cp1-grid-escape/intro.de.md",
-      "expected": "cp1-grid-escape/EXPECTED.md"
-    },
-    "devices": []
+  "devices": []
+ },
+ {
+  "id": "cp1-beacon-code",
+  "title": {
+   "en": "CP1: Short–long beacon",
+   "de": "CP1: Bake mit kurzen und langen Zeichen"
   },
-  {
-    "id": "cp1-led-route-puzzle",
-    "title": {
-      "en": "CP1: Two-relay route puzzle",
-      "de": "CP1: Rätsel mit zwei Weichen"
-    },
-    "category": "digital",
-    "difficulty": 2,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-led-route-puzzle/program.bw",
-      "cp1": "cp1-led-route-puzzle/program.cp1",
-      "circuit": "cp1-led-route-puzzle/circuit.json",
-      "intro": "cp1-led-route-puzzle/intro.md",
-      "introDE": "cp1-led-route-puzzle/intro.de.md",
-      "expected": "cp1-led-route-puzzle/EXPECTED.md"
-    },
-    "devices": []
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-beacon-code/program.bw",
+   "cp1": "cp1-beacon-code/program.cp1",
+   "circuit": "cp1-beacon-code/circuit.json",
+   "intro": "cp1-beacon-code/intro.md",
+   "introDE": "cp1-beacon-code/intro.de.md",
+   "expected": "cp1-beacon-code/EXPECTED.md"
   },
-  {
-    "id": "cp1-machine-time-meter",
-    "title": {
-      "en": "CP1: Usage total meter",
-      "de": "CP1: Nutzungszähler"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-machine-time-meter/program.bw",
-      "cp1": "cp1-machine-time-meter/program.cp1",
-      "circuit": "cp1-machine-time-meter/circuit.json",
-      "intro": "cp1-machine-time-meter/intro.md",
-      "introDE": "cp1-machine-time-meter/intro.de.md",
-      "expected": "cp1-machine-time-meter/EXPECTED.md"
-    },
-    "devices": []
+  "devices": []
+ },
+ {
+  "id": "cp1-bench-voltmeter",
+  "title": {
+   "en": "CP1: Calibrated bench readout",
+   "de": "CP1: Kalibrierte Messanzeige"
   },
-  {
-    "id": "cp1-number-drill",
-    "title": {
-      "en": "CP1: Three quick sums",
-      "de": "CP1: Drei Kopfrechenaufgaben"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-number-drill/program.bw",
-      "cp1": "cp1-number-drill/program.cp1",
-      "circuit": "cp1-number-drill/circuit.json",
-      "intro": "cp1-number-drill/intro.md",
-      "introDE": "cp1-number-drill/intro.de.md",
-      "expected": "cp1-number-drill/EXPECTED.md"
-    },
-    "devices": []
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-bench-voltmeter/program.bw",
+   "cp1": "cp1-bench-voltmeter/program.cp1",
+   "circuit": "cp1-bench-voltmeter/circuit.json",
+   "intro": "cp1-bench-voltmeter/intro.md",
+   "introDE": "cp1-bench-voltmeter/intro.de.md",
+   "expected": "cp1-bench-voltmeter/EXPECTED.md"
   },
-  {
-    "id": "cp1-pair-grid",
-    "title": {
-      "en": "CP1: Six-card memory grid",
-      "de": "CP1: Gedächtnisraster mit sechs Karten"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-pair-grid/program.bw",
-      "cp1": "cp1-pair-grid/program.cp1",
-      "circuit": "cp1-pair-grid/circuit.json",
-      "intro": "cp1-pair-grid/intro.md",
-      "introDE": "cp1-pair-grid/intro.de.md",
-      "expected": "cp1-pair-grid/EXPECTED.md"
-    },
-    "devices": []
+  "devices": []
+ },
+ {
+  "id": "cp1-bidirectional-beacon",
+  "title": {
+   "en": "CP1: Sink and sample",
+   "de": "CP1: Ziehen und Abtasten"
   },
-  {
-    "id": "cp1-pulse-bench",
-    "title": {
-      "en": "CP1: Five-pulse counter",
-      "de": "CP1: Zähler für fünf Impulse"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-pulse-bench/program.bw",
-      "cp1": "cp1-pulse-bench/program.cp1",
-      "circuit": "cp1-pulse-bench/circuit.json",
-      "intro": "cp1-pulse-bench/intro.md",
-      "introDE": "cp1-pulse-bench/intro.de.md",
-      "expected": "cp1-pulse-bench/EXPECTED.md"
-    },
-    "devices": []
+  "category": "digital",
+  "difficulty": 2,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-bidirectional-beacon/program.bw",
+   "cp1": "cp1-bidirectional-beacon/program.cp1",
+   "circuit": "cp1-bidirectional-beacon/circuit.json",
+   "intro": "cp1-bidirectional-beacon/intro.md",
+   "introDE": "cp1-bidirectional-beacon/intro.de.md",
+   "expected": "cp1-bidirectional-beacon/EXPECTED.md"
   },
-  {
-    "id": "cp1-pulse-stretcher",
-    "title": {
-      "en": "CP1: Two edge-triggered pulses",
-      "de": "CP1: Zwei flankengesteuerte Impulse"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-pulse-stretcher/program.bw",
-      "cp1": "cp1-pulse-stretcher/program.cp1",
-      "circuit": "cp1-pulse-stretcher/circuit.json",
-      "intro": "cp1-pulse-stretcher/intro.md",
-      "introDE": "cp1-pulse-stretcher/intro.de.md",
-      "expected": "cp1-pulse-stretcher/EXPECTED.md"
-    },
-    "devices": []
+  "devices": []
+ },
+ {
+  "id": "cp1-button-stopwatch",
+  "title": {
+   "en": "CP1: Button stopwatch",
+   "de": "CP1: Taster-Stoppuhr"
   },
-  {
-    "id": "cp1-ring-selector",
-    "title": {
-      "en": "CP1: Six-lamp stop ring",
-      "de": "CP1: Stoppring mit sechs Lampen"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-ring-selector/program.bw",
-      "cp1": "cp1-ring-selector/program.cp1",
-      "circuit": "cp1-ring-selector/circuit.json",
-      "intro": "cp1-ring-selector/intro.md",
-      "introDE": "cp1-ring-selector/intro.de.md",
-      "expected": "cp1-ring-selector/EXPECTED.md"
-    },
-    "devices": []
+  "category": "digital",
+  "difficulty": 2,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-button-stopwatch/program.bw",
+   "cp1": "cp1-button-stopwatch/program.cp1",
+   "circuit": "cp1-button-stopwatch/circuit.json",
+   "intro": "cp1-button-stopwatch/intro.md",
+   "introDE": "cp1-button-stopwatch/intro.de.md",
+   "expected": "cp1-button-stopwatch/EXPECTED.md"
   },
-  {
-    "id": "cp1-serial-receive",
-    "title": {
-      "en": "CP1: Acknowledged serial receiver",
-      "de": "CP1: Serieller Empfänger mit Quittung"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-serial-receive/program.bw",
-      "cp1": "cp1-serial-receive/program.cp1",
-      "circuit": "cp1-serial-receive/circuit.json",
-      "intro": "cp1-serial-receive/intro.md",
-      "introDE": "cp1-serial-receive/intro.de.md",
-      "expected": "cp1-serial-receive/EXPECTED.md"
-    },
-    "devices": []
+  "devices": []
+ },
+ {
+  "id": "cp1-cabinet-panel",
+  "title": {
+   "en": "CP1: Sequence cabinet",
+   "de": "CP1: Schalttafel mit Eingabefolge"
   },
-  {
-    "id": "cp1-serial-transmit",
-    "title": {
-      "en": "CP1: Acknowledged serial transmitter",
-      "de": "CP1: Serieller Sender mit Quittung"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-serial-transmit/program.bw",
-      "cp1": "cp1-serial-transmit/program.cp1",
-      "circuit": "cp1-serial-transmit/circuit.json",
-      "intro": "cp1-serial-transmit/intro.md",
-      "introDE": "cp1-serial-transmit/intro.de.md",
-      "expected": "cp1-serial-transmit/EXPECTED.md"
-    },
-    "devices": []
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-cabinet-panel/program.bw",
+   "cp1": "cp1-cabinet-panel/program.cp1",
+   "circuit": "cp1-cabinet-panel/circuit.json",
+   "intro": "cp1-cabinet-panel/intro.md",
+   "introDE": "cp1-cabinet-panel/intro.de.md",
+   "expected": "cp1-cabinet-panel/EXPECTED.md"
   },
-  {
-    "id": "cp1-shift-clock",
-    "title": {
-      "en": "CP1: Shift change clock",
-      "de": "CP1: Uhr zum Schichtwechsel"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-shift-clock/program.bw",
-      "cp1": "cp1-shift-clock/program.cp1",
-      "circuit": "cp1-shift-clock/circuit.json",
-      "intro": "cp1-shift-clock/intro.md",
-      "introDE": "cp1-shift-clock/intro.de.md",
-      "expected": "cp1-shift-clock/EXPECTED.md"
-    },
-    "devices": []
+  "devices": []
+ },
+ {
+  "id": "cp1-code-feedback",
+  "title": {
+   "en": "CP1: Find the cabinet code",
+   "de": "CP1: Schrankcode finden"
   },
-  {
-    "id": "cp1-signal-melody",
-    "title": {
-      "en": "CP1: Table score",
-      "de": "CP1: Melodie aus einer Tabelle"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-signal-melody/program.bw",
-      "cp1": "cp1-signal-melody/program.cp1",
-      "circuit": "cp1-signal-melody/circuit.json",
-      "intro": "cp1-signal-melody/intro.md",
-      "introDE": "cp1-signal-melody/intro.de.md",
-      "expected": "cp1-signal-melody/EXPECTED.md"
-    },
-    "devices": []
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-code-feedback/program.bw",
+   "cp1": "cp1-code-feedback/program.cp1",
+   "circuit": "cp1-code-feedback/circuit.json",
+   "intro": "cp1-code-feedback/intro.md",
+   "introDE": "cp1-code-feedback/intro.de.md",
+   "expected": "cp1-code-feedback/EXPECTED.md"
   },
-  {
-    "id": "cp1-signal-memory",
-    "title": {
-      "en": "CP1: Signal sequence memory",
-      "de": "CP1: Signalspeicher"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-signal-memory/program.bw",
-      "cp1": "cp1-signal-memory/program.cp1",
-      "circuit": "cp1-signal-memory/circuit.json",
-      "intro": "cp1-signal-memory/intro.md",
-      "introDE": "cp1-signal-memory/intro.de.md",
-      "expected": "cp1-signal-memory/EXPECTED.md"
-    },
-    "devices": []
+  "devices": []
+ },
+ {
+  "id": "cp1-conveyor-controller",
+  "title": {
+   "en": "CP1: Conveyor changeover",
+   "de": "CP1: Förderband mit Richtungswechsel"
   },
-  {
-    "id": "cp1-signal-reaction",
-    "title": {
-      "en": "CP1: Reaction signal",
-      "de": "CP1: Reaktionssignal"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-signal-reaction/program.bw",
-      "cp1": "cp1-signal-reaction/program.cp1",
-      "circuit": "cp1-signal-reaction/circuit.json",
-      "intro": "cp1-signal-reaction/intro.md",
-      "introDE": "cp1-signal-reaction/intro.de.md",
-      "expected": "cp1-signal-reaction/EXPECTED.md"
-    },
-    "devices": []
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-conveyor-controller/program.bw",
+   "cp1": "cp1-conveyor-controller/program.cp1",
+   "circuit": "cp1-conveyor-controller/circuit.json",
+   "intro": "cp1-conveyor-controller/intro.md",
+   "introDE": "cp1-conveyor-controller/intro.de.md",
+   "expected": "cp1-conveyor-controller/EXPECTED.md"
   },
-  {
-    "id": "cp1-studio-annunciator",
-    "title": {
-      "en": "CP1: Studio call lamps",
-      "de": "CP1: Ruflampen im Studio"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-studio-annunciator/program.bw",
-      "cp1": "cp1-studio-annunciator/program.cp1",
-      "circuit": "cp1-studio-annunciator/circuit.json",
-      "intro": "cp1-studio-annunciator/intro.md",
-      "introDE": "cp1-studio-annunciator/intro.de.md",
-      "expected": "cp1-studio-annunciator/EXPECTED.md"
-    },
-    "devices": []
+  "devices": []
+ },
+ {
+  "id": "cp1-cp2-sample-logger",
+  "title": {
+   "en": "CP1: Four samples to cassette",
+   "de": "CP1: Vier Messwerte auf Kassette"
   },
-  {
-    "id": "cp1-ticket-draw",
-    "title": {
-      "en": "CP1: Ticket draw",
-      "de": "CP1: Los ziehen"
-    },
-    "category": "digital",
-    "difficulty": 2,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-ticket-draw/program.bw",
-      "cp1": "cp1-ticket-draw/program.cp1",
-      "circuit": "cp1-ticket-draw/circuit.json",
-      "intro": "cp1-ticket-draw/intro.md",
-      "introDE": "cp1-ticket-draw/intro.de.md",
-      "expected": "cp1-ticket-draw/EXPECTED.md"
-    },
-    "devices": []
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-cp2-sample-logger/program.bw",
+   "cp1": "cp1-cp2-sample-logger/program.cp1",
+   "circuit": "cp1-cp2-sample-logger/circuit.json",
+   "intro": "cp1-cp2-sample-logger/intro.md",
+   "introDE": "cp1-cp2-sample-logger/intro.de.md",
+   "expected": "cp1-cp2-sample-logger/EXPECTED.md"
   },
-  {
-    "id": "cp1-tile-bundles",
-    "title": {
-      "en": "CP1: Tile bundle counter",
-      "de": "CP1: Fliesenpakete zählen"
-    },
-    "category": "digital",
-    "difficulty": 2,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-tile-bundles/program.bw",
-      "cp1": "cp1-tile-bundles/program.cp1",
-      "circuit": "cp1-tile-bundles/circuit.json",
-      "intro": "cp1-tile-bundles/intro.md",
-      "introDE": "cp1-tile-bundles/intro.de.md",
-      "expected": "cp1-tile-bundles/EXPECTED.md"
-    },
-    "devices": []
+  "devices": []
+ },
+ {
+  "id": "cp1-delay-lab",
+  "title": {
+   "en": "CP1: Nested timing lab",
+   "de": "CP1: Zeitmessung mit zwei Schleifen"
   },
-  {
-    "id": "cp1-token-match",
-    "title": {
-      "en": "CP1: Ten-token match",
-      "de": "CP1: Spiel mit zehn Marken"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-token-match/program.bw",
-      "cp1": "cp1-token-match/program.cp1",
-      "circuit": "cp1-token-match/circuit.json",
-      "intro": "cp1-token-match/intro.md",
-      "introDE": "cp1-token-match/intro.de.md",
-      "expected": "cp1-token-match/EXPECTED.md"
-    },
-    "devices": []
+  "category": "digital",
+  "difficulty": 2,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-delay-lab/program.bw",
+   "cp1": "cp1-delay-lab/program.cp1",
+   "circuit": "cp1-delay-lab/circuit.json",
+   "intro": "cp1-delay-lab/intro.md",
+   "introDE": "cp1-delay-lab/intro.de.md",
+   "expected": "cp1-delay-lab/EXPECTED.md"
   },
-  {
-    "id": "cp1-twin-samples",
-    "title": {
-      "en": "CP1: Twin counters",
-      "de": "CP1: Zwillingszähler"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-twin-samples/program.bw",
-      "cp1": "cp1-twin-samples/program.cp1",
-      "circuit": "cp1-twin-samples/circuit.json",
-      "intro": "cp1-twin-samples/intro.md",
-      "introDE": "cp1-twin-samples/intro.de.md",
-      "expected": "cp1-twin-samples/EXPECTED.md"
-    },
-    "devices": []
+  "devices": []
+ },
+ {
+  "id": "cp1-descent-challenge",
+  "title": {
+   "en": "CP1: Descent on three charges",
+   "de": "CP1: Abstieg mit drei Bremsladungen"
   },
-  {
-    "id": "cp1-wide-tile-count",
-    "title": {
-      "en": "CP1: Two-byte tile total",
-      "de": "CP1: Fliesenzahl in zwei Bytes"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-wide-tile-count/program.bw",
-      "cp1": "cp1-wide-tile-count/program.cp1",
-      "circuit": "cp1-wide-tile-count/circuit.json",
-      "intro": "cp1-wide-tile-count/intro.md",
-      "introDE": "cp1-wide-tile-count/intro.de.md",
-      "expected": "cp1-wide-tile-count/EXPECTED.md"
-    },
-    "devices": []
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-descent-challenge/program.bw",
+   "cp1": "cp1-descent-challenge/program.cp1",
+   "circuit": "cp1-descent-challenge/circuit.json",
+   "intro": "cp1-descent-challenge/intro.md",
+   "introDE": "cp1-descent-challenge/intro.de.md",
+   "expected": "cp1-descent-challenge/EXPECTED.md"
   },
-  {
-    "id": "cp1-workshop-capacity",
-    "title": {
-      "en": "CP1: Workshop capacity",
-      "de": "CP1: Freie Werkstattplätze"
-    },
-    "category": "digital",
-    "difficulty": 2,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-workshop-capacity/program.bw",
-      "cp1": "cp1-workshop-capacity/program.cp1",
-      "circuit": "cp1-workshop-capacity/circuit.json",
-      "intro": "cp1-workshop-capacity/intro.md",
-      "introDE": "cp1-workshop-capacity/intro.de.md",
-      "expected": "cp1-workshop-capacity/EXPECTED.md"
-    },
-    "devices": []
+  "devices": []
+ },
+ {
+  "id": "cp1-display-postcard",
+  "title": {
+   "en": "CP1: Three display captions",
+   "de": "CP1: Drei Anzeigetexte"
   },
-  {
-    "id": "cp1-yard-dispatch",
-    "title": {
-      "en": "CP1: Model yard route setter",
-      "de": "CP1: Fahrstraßenwahl im Modellbahnhof"
-    },
-    "category": "digital",
-    "difficulty": 3,
-    "kind": "circuit",
-    "target": "kosmos-cp1",
-    "files": {
-      "program": "cp1-yard-dispatch/program.bw",
-      "cp1": "cp1-yard-dispatch/program.cp1",
-      "circuit": "cp1-yard-dispatch/circuit.json",
-      "intro": "cp1-yard-dispatch/intro.md",
-      "introDE": "cp1-yard-dispatch/intro.de.md",
-      "expected": "cp1-yard-dispatch/EXPECTED.md"
-    },
-    "devices": []
+  "category": "digital",
+  "difficulty": 2,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-display-postcard/program.bw",
+   "cp1": "cp1-display-postcard/program.cp1",
+   "circuit": "cp1-display-postcard/circuit.json",
+   "intro": "cp1-display-postcard/intro.md",
+   "introDE": "cp1-display-postcard/intro.de.md",
+   "expected": "cp1-display-postcard/EXPECTED.md"
   },
+  "devices": []
+ },
+ {
+  "id": "cp1-dual-workbench",
+  "title": {
+   "en": "CP1: Two workbench entries",
+   "de": "CP1: Werkbank mit zwei Einstiegspunkten"
+  },
+  "category": "digital",
+  "difficulty": 2,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-dual-workbench/program.bw",
+   "cp1": "cp1-dual-workbench/program.cp1",
+   "circuit": "cp1-dual-workbench/circuit.json",
+   "intro": "cp1-dual-workbench/intro.md",
+   "introDE": "cp1-dual-workbench/intro.de.md",
+   "expected": "cp1-dual-workbench/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-edge-trigger-capture",
+  "title": {
+   "en": "CP1: Five-sample edge capture",
+   "de": "CP1: Flankenspeicher für fünf Abtastwerte"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-edge-trigger-capture/program.bw",
+   "cp1": "cp1-edge-trigger-capture/program.cp1",
+   "circuit": "cp1-edge-trigger-capture/circuit.json",
+   "intro": "cp1-edge-trigger-capture/intro.md",
+   "introDE": "cp1-edge-trigger-capture/intro.de.md",
+   "expected": "cp1-edge-trigger-capture/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-fixed-point-filter",
+  "title": {
+   "en": "CP1: Quarter-step fixed-point filter",
+   "de": "CP1: Festkommafilter mit Viertelschritt"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-fixed-point-filter/program.bw",
+   "cp1": "cp1-fixed-point-filter/program.cp1",
+   "circuit": "cp1-fixed-point-filter/circuit.json",
+   "intro": "cp1-fixed-point-filter/intro.md",
+   "introDE": "cp1-fixed-point-filter/intro.de.md",
+   "expected": "cp1-fixed-point-filter/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-fraction-stream",
+  "title": {
+   "en": "CP1: Six digits of 5/13",
+   "de": "CP1: Sechs Stellen von 5/13"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-fraction-stream/program.bw",
+   "cp1": "cp1-fraction-stream/program.cp1",
+   "circuit": "cp1-fraction-stream/circuit.json",
+   "intro": "cp1-fraction-stream/intro.md",
+   "introDE": "cp1-fraction-stream/intro.de.md",
+   "expected": "cp1-fraction-stream/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-gate-tally",
+  "title": {
+   "en": "CP1: Two-sensor direction tally",
+   "de": "CP1: Richtungszähler mit zwei Sensoren"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-gate-tally/program.bw",
+   "cp1": "cp1-gate-tally/program.cp1",
+   "circuit": "cp1-gate-tally/circuit.json",
+   "intro": "cp1-gate-tally/intro.md",
+   "introDE": "cp1-gate-tally/intro.de.md",
+   "expected": "cp1-gate-tally/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-greenhouse-schedule",
+  "title": {
+   "en": "CP1: Greenhouse vent schedule",
+   "de": "CP1: Lüftungsplan fürs Gewächshaus"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-greenhouse-schedule/program.bw",
+   "cp1": "cp1-greenhouse-schedule/program.cp1",
+   "circuit": "cp1-greenhouse-schedule/circuit.json",
+   "intro": "cp1-greenhouse-schedule/intro.md",
+   "introDE": "cp1-greenhouse-schedule/intro.de.md",
+   "expected": "cp1-greenhouse-schedule/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-grid-escape",
+  "title": {
+   "en": "CP1: Escape the nine-cell grid",
+   "de": "CP1: Aus dem Neun-Felder-Raster"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-grid-escape/program.bw",
+   "cp1": "cp1-grid-escape/program.cp1",
+   "circuit": "cp1-grid-escape/circuit.json",
+   "intro": "cp1-grid-escape/intro.md",
+   "introDE": "cp1-grid-escape/intro.de.md",
+   "expected": "cp1-grid-escape/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-led-route-puzzle",
+  "title": {
+   "en": "CP1: Two-relay route puzzle",
+   "de": "CP1: Rätsel mit zwei Weichen"
+  },
+  "category": "digital",
+  "difficulty": 2,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-led-route-puzzle/program.bw",
+   "cp1": "cp1-led-route-puzzle/program.cp1",
+   "circuit": "cp1-led-route-puzzle/circuit.json",
+   "intro": "cp1-led-route-puzzle/intro.md",
+   "introDE": "cp1-led-route-puzzle/intro.de.md",
+   "expected": "cp1-led-route-puzzle/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-machine-time-meter",
+  "title": {
+   "en": "CP1: Usage total meter",
+   "de": "CP1: Nutzungszähler"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-machine-time-meter/program.bw",
+   "cp1": "cp1-machine-time-meter/program.cp1",
+   "circuit": "cp1-machine-time-meter/circuit.json",
+   "intro": "cp1-machine-time-meter/intro.md",
+   "introDE": "cp1-machine-time-meter/intro.de.md",
+   "expected": "cp1-machine-time-meter/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-number-drill",
+  "title": {
+   "en": "CP1: Three quick sums",
+   "de": "CP1: Drei Kopfrechenaufgaben"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-number-drill/program.bw",
+   "cp1": "cp1-number-drill/program.cp1",
+   "circuit": "cp1-number-drill/circuit.json",
+   "intro": "cp1-number-drill/intro.md",
+   "introDE": "cp1-number-drill/intro.de.md",
+   "expected": "cp1-number-drill/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-pair-grid",
+  "title": {
+   "en": "CP1: Six-card memory grid",
+   "de": "CP1: Gedächtnisraster mit sechs Karten"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-pair-grid/program.bw",
+   "cp1": "cp1-pair-grid/program.cp1",
+   "circuit": "cp1-pair-grid/circuit.json",
+   "intro": "cp1-pair-grid/intro.md",
+   "introDE": "cp1-pair-grid/intro.de.md",
+   "expected": "cp1-pair-grid/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-pulse-bench",
+  "title": {
+   "en": "CP1: Five-pulse counter",
+   "de": "CP1: Zähler für fünf Impulse"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-pulse-bench/program.bw",
+   "cp1": "cp1-pulse-bench/program.cp1",
+   "circuit": "cp1-pulse-bench/circuit.json",
+   "intro": "cp1-pulse-bench/intro.md",
+   "introDE": "cp1-pulse-bench/intro.de.md",
+   "expected": "cp1-pulse-bench/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-pulse-stretcher",
+  "title": {
+   "en": "CP1: Two edge-triggered pulses",
+   "de": "CP1: Zwei flankengesteuerte Impulse"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-pulse-stretcher/program.bw",
+   "cp1": "cp1-pulse-stretcher/program.cp1",
+   "circuit": "cp1-pulse-stretcher/circuit.json",
+   "intro": "cp1-pulse-stretcher/intro.md",
+   "introDE": "cp1-pulse-stretcher/intro.de.md",
+   "expected": "cp1-pulse-stretcher/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-ring-selector",
+  "title": {
+   "en": "CP1: Six-lamp stop ring",
+   "de": "CP1: Stoppring mit sechs Lampen"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-ring-selector/program.bw",
+   "cp1": "cp1-ring-selector/program.cp1",
+   "circuit": "cp1-ring-selector/circuit.json",
+   "intro": "cp1-ring-selector/intro.md",
+   "introDE": "cp1-ring-selector/intro.de.md",
+   "expected": "cp1-ring-selector/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-serial-receive",
+  "title": {
+   "en": "CP1: Acknowledged serial receiver",
+   "de": "CP1: Serieller Empfänger mit Quittung"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-serial-receive/program.bw",
+   "cp1": "cp1-serial-receive/program.cp1",
+   "circuit": "cp1-serial-receive/circuit.json",
+   "intro": "cp1-serial-receive/intro.md",
+   "introDE": "cp1-serial-receive/intro.de.md",
+   "expected": "cp1-serial-receive/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-serial-transmit",
+  "title": {
+   "en": "CP1: Acknowledged serial transmitter",
+   "de": "CP1: Serieller Sender mit Quittung"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-serial-transmit/program.bw",
+   "cp1": "cp1-serial-transmit/program.cp1",
+   "circuit": "cp1-serial-transmit/circuit.json",
+   "intro": "cp1-serial-transmit/intro.md",
+   "introDE": "cp1-serial-transmit/intro.de.md",
+   "expected": "cp1-serial-transmit/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-shift-clock",
+  "title": {
+   "en": "CP1: Shift change clock",
+   "de": "CP1: Uhr zum Schichtwechsel"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-shift-clock/program.bw",
+   "cp1": "cp1-shift-clock/program.cp1",
+   "circuit": "cp1-shift-clock/circuit.json",
+   "intro": "cp1-shift-clock/intro.md",
+   "introDE": "cp1-shift-clock/intro.de.md",
+   "expected": "cp1-shift-clock/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-signal-melody",
+  "title": {
+   "en": "CP1: Table score",
+   "de": "CP1: Melodie aus einer Tabelle"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-signal-melody/program.bw",
+   "cp1": "cp1-signal-melody/program.cp1",
+   "circuit": "cp1-signal-melody/circuit.json",
+   "intro": "cp1-signal-melody/intro.md",
+   "introDE": "cp1-signal-melody/intro.de.md",
+   "expected": "cp1-signal-melody/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-signal-memory",
+  "title": {
+   "en": "CP1: Signal sequence memory",
+   "de": "CP1: Signalspeicher"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-signal-memory/program.bw",
+   "cp1": "cp1-signal-memory/program.cp1",
+   "circuit": "cp1-signal-memory/circuit.json",
+   "intro": "cp1-signal-memory/intro.md",
+   "introDE": "cp1-signal-memory/intro.de.md",
+   "expected": "cp1-signal-memory/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-signal-reaction",
+  "title": {
+   "en": "CP1: Reaction signal",
+   "de": "CP1: Reaktionssignal"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-signal-reaction/program.bw",
+   "cp1": "cp1-signal-reaction/program.cp1",
+   "circuit": "cp1-signal-reaction/circuit.json",
+   "intro": "cp1-signal-reaction/intro.md",
+   "introDE": "cp1-signal-reaction/intro.de.md",
+   "expected": "cp1-signal-reaction/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-studio-annunciator",
+  "title": {
+   "en": "CP1: Studio call lamps",
+   "de": "CP1: Ruflampen im Studio"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-studio-annunciator/program.bw",
+   "cp1": "cp1-studio-annunciator/program.cp1",
+   "circuit": "cp1-studio-annunciator/circuit.json",
+   "intro": "cp1-studio-annunciator/intro.md",
+   "introDE": "cp1-studio-annunciator/intro.de.md",
+   "expected": "cp1-studio-annunciator/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-ticket-draw",
+  "title": {
+   "en": "CP1: Ticket draw",
+   "de": "CP1: Los ziehen"
+  },
+  "category": "digital",
+  "difficulty": 2,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-ticket-draw/program.bw",
+   "cp1": "cp1-ticket-draw/program.cp1",
+   "circuit": "cp1-ticket-draw/circuit.json",
+   "intro": "cp1-ticket-draw/intro.md",
+   "introDE": "cp1-ticket-draw/intro.de.md",
+   "expected": "cp1-ticket-draw/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-tile-bundles",
+  "title": {
+   "en": "CP1: Tile bundle counter",
+   "de": "CP1: Fliesenpakete zählen"
+  },
+  "category": "digital",
+  "difficulty": 2,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-tile-bundles/program.bw",
+   "cp1": "cp1-tile-bundles/program.cp1",
+   "circuit": "cp1-tile-bundles/circuit.json",
+   "intro": "cp1-tile-bundles/intro.md",
+   "introDE": "cp1-tile-bundles/intro.de.md",
+   "expected": "cp1-tile-bundles/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-token-match",
+  "title": {
+   "en": "CP1: Ten-token match",
+   "de": "CP1: Spiel mit zehn Marken"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-token-match/program.bw",
+   "cp1": "cp1-token-match/program.cp1",
+   "circuit": "cp1-token-match/circuit.json",
+   "intro": "cp1-token-match/intro.md",
+   "introDE": "cp1-token-match/intro.de.md",
+   "expected": "cp1-token-match/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-twin-samples",
+  "title": {
+   "en": "CP1: Twin counters",
+   "de": "CP1: Zwillingszähler"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-twin-samples/program.bw",
+   "cp1": "cp1-twin-samples/program.cp1",
+   "circuit": "cp1-twin-samples/circuit.json",
+   "intro": "cp1-twin-samples/intro.md",
+   "introDE": "cp1-twin-samples/intro.de.md",
+   "expected": "cp1-twin-samples/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-wide-tile-count",
+  "title": {
+   "en": "CP1: Two-byte tile total",
+   "de": "CP1: Fliesenzahl in zwei Bytes"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-wide-tile-count/program.bw",
+   "cp1": "cp1-wide-tile-count/program.cp1",
+   "circuit": "cp1-wide-tile-count/circuit.json",
+   "intro": "cp1-wide-tile-count/intro.md",
+   "introDE": "cp1-wide-tile-count/intro.de.md",
+   "expected": "cp1-wide-tile-count/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-workshop-capacity",
+  "title": {
+   "en": "CP1: Workshop capacity",
+   "de": "CP1: Freie Werkstattplätze"
+  },
+  "category": "digital",
+  "difficulty": 2,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-workshop-capacity/program.bw",
+   "cp1": "cp1-workshop-capacity/program.cp1",
+   "circuit": "cp1-workshop-capacity/circuit.json",
+   "intro": "cp1-workshop-capacity/intro.md",
+   "introDE": "cp1-workshop-capacity/intro.de.md",
+   "expected": "cp1-workshop-capacity/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cp1-yard-dispatch",
+  "title": {
+   "en": "CP1: Model yard route setter",
+   "de": "CP1: Fahrstraßenwahl im Modellbahnhof"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-yard-dispatch/program.bw",
+   "cp1": "cp1-yard-dispatch/program.cp1",
+   "circuit": "cp1-yard-dispatch/circuit.json",
+   "intro": "cp1-yard-dispatch/intro.md",
+   "introDE": "cp1-yard-dispatch/intro.de.md",
+   "expected": "cp1-yard-dispatch/EXPECTED.md"
+  },
+  "devices": []
+ },
   {
     "id": "lab-555-humidity-switch",
     "title": {
@@ -17384,221 +17384,5 @@
       "intro": "lab-relay-hysteresis/intro.md",
       "introDE": "lab-relay-hysteresis/intro.de.md"
     }
-  },
-  {
-    "id": "lab-speaker-click",
-    "title": {
-      "en": "A loudspeaker on a battery only clicks",
-      "de": "Ein Lautsprecher an der Batterie knackt nur"
-    },
-    "kind": "circuit",
-    "category": "pure-circuit",
-    "difficulty": 1,
-    "files": {
-      "program": "lab-speaker-click/program.bw",
-      "circuit": "lab-speaker-click/circuit.json",
-      "expected": "lab-speaker-click/EXPECTED.md",
-      "intro": "lab-speaker-click/intro.md",
-      "introDE": "lab-speaker-click/intro.de.md"
-    },
-    "devices": []
-  },
-  {
-    "id": "lab-amp-timbre",
-    "title": {
-      "en": "Same note, different sound: filters after an oscillator",
-      "de": "Derselbe Ton, anderer Klang: Filter hinter einem Oszillator"
-    },
-    "kind": "circuit",
-    "category": "pure-circuit",
-    "difficulty": 2,
-    "files": {
-      "program": "lab-amp-timbre/program.bw",
-      "circuit": "lab-amp-timbre/circuit.json",
-      "expected": "lab-amp-timbre/EXPECTED.md",
-      "intro": "lab-amp-timbre/intro.md",
-      "introDE": "lab-amp-timbre/intro.de.md"
-    },
-    "devices": []
-  },
-  {
-    "id": "lab-mic-preamp",
-    "title": {
-      "en": "Microphone amplifier: a transistor preamp in front of the amp chip",
-      "de": "Mikrofonverstärker: ein Transistor-Vorverstärker vor dem Verstärkerchip"
-    },
-    "kind": "circuit",
-    "category": "pure-circuit",
-    "difficulty": 3,
-    "files": {
-      "program": "lab-mic-preamp/program.bw",
-      "circuit": "lab-mic-preamp/circuit.json",
-      "expected": "lab-mic-preamp/EXPECTED.md",
-      "intro": "lab-mic-preamp/intro.md",
-      "introDE": "lab-mic-preamp/intro.de.md"
-    },
-    "devices": []
-  },
-  {
-    "id": "lab-preamp-howl",
-    "title": {
-      "en": "Earphone, preamp, amplifier: the feedback whistle",
-      "de": "Ohrhörer, Vorverstärker, Verstärker: das Rückkopplungspfeifen"
-    },
-    "kind": "circuit",
-    "category": "pure-circuit",
-    "difficulty": 3,
-    "files": {
-      "program": "lab-preamp-howl/program.bw",
-      "circuit": "lab-preamp-howl/circuit.json",
-      "expected": "lab-preamp-howl/EXPECTED.md",
-      "intro": "lab-preamp-howl/intro.md",
-      "introDE": "lab-preamp-howl/intro.de.md"
-    },
-    "devices": []
-  },
-  {
-    "id": "lab-rod-pickup",
-    "title": {
-      "en": "An untuned ferrite rod hears all stations at once",
-      "de": "Ein unabgestimmter Ferritstab hört alle Sender auf einmal"
-    },
-    "kind": "circuit",
-    "category": "pure-circuit",
-    "difficulty": 3,
-    "files": {
-      "program": "lab-rod-pickup/program.bw",
-      "circuit": "lab-rod-pickup/circuit.json",
-      "expected": "lab-rod-pickup/EXPECTED.md",
-      "intro": "lab-rod-pickup/intro.md",
-      "introDE": "lab-rod-pickup/intro.de.md"
-    },
-    "devices": []
-  },
-  {
-    "id": "lab-magnet-speed",
-    "title": {
-      "en": "Faster magnet, bigger pulse",
-      "de": "Schnellerer Magnet, größerer Impuls"
-    },
-    "kind": "circuit",
-    "category": "pure-circuit",
-    "difficulty": 2,
-    "files": {
-      "program": "lab-magnet-speed/program.bw",
-      "circuit": "lab-magnet-speed/circuit.json",
-      "expected": "lab-magnet-speed/EXPECTED.md",
-      "intro": "lab-magnet-speed/intro.md",
-      "introDE": "lab-magnet-speed/intro.de.md"
-    },
-    "devices": []
-  },
-  {
-    "id": "lab-magnet-monostable",
-    "title": {
-      "en": "A falling magnet starts a timer",
-      "de": "Ein fallender Magnet startet einen Zeitschalter"
-    },
-    "kind": "circuit",
-    "category": "pure-circuit",
-    "difficulty": 3,
-    "files": {
-      "program": "lab-magnet-monostable/program.bw",
-      "circuit": "lab-magnet-monostable/circuit.json",
-      "expected": "lab-magnet-monostable/EXPECTED.md",
-      "intro": "lab-magnet-monostable/intro.md",
-      "introDE": "lab-magnet-monostable/intro.de.md"
-    },
-    "devices": []
-  },
-  {
-    "id": "lab-pulse-flipflop",
-    "title": {
-      "en": "A pulse across a transformer sets a flip-flop",
-      "de": "Ein Impuls über einen Transformator setzt ein Flipflop"
-    },
-    "kind": "circuit",
-    "category": "pure-circuit",
-    "difficulty": 3,
-    "files": {
-      "program": "lab-pulse-flipflop/program.bw",
-      "circuit": "lab-pulse-flipflop/circuit.json",
-      "expected": "lab-pulse-flipflop/EXPECTED.md",
-      "intro": "lab-pulse-flipflop/intro.md",
-      "introDE": "lab-pulse-flipflop/intro.de.md"
-    },
-    "devices": []
-  },
-  {
-    "id": "lab-coil-audio-link",
-    "title": {
-      "en": "Sound through two windings, and the turns ratio",
-      "de": "Ton durch zwei Wicklungen, und das Windungsverhältnis"
-    },
-    "kind": "circuit",
-    "category": "pure-circuit",
-    "difficulty": 3,
-    "files": {
-      "program": "lab-coil-audio-link/program.bw",
-      "circuit": "lab-coil-audio-link/circuit.json",
-      "expected": "lab-coil-audio-link/EXPECTED.md",
-      "intro": "lab-coil-audio-link/intro.md",
-      "introDE": "lab-coil-audio-link/intro.de.md"
-    },
-    "devices": []
-  },
-  {
-    "id": "lab-threshold-tester",
-    "title": {
-      "en": "Junction threshold tester with a twin transistor",
-      "de": "Schwellenprüfer für Übergänge mit einem Zwillingstransistor"
-    },
-    "kind": "circuit",
-    "category": "pure-circuit",
-    "difficulty": 4,
-    "files": {
-      "program": "lab-threshold-tester/program.bw",
-      "circuit": "lab-threshold-tester/circuit.json",
-      "expected": "lab-threshold-tester/EXPECTED.md",
-      "intro": "lab-threshold-tester/intro.md",
-      "introDE": "lab-threshold-tester/intro.de.md"
-    },
-    "devices": []
-  },
-  {
-    "id": "lab-depletion-touch",
-    "title": {
-      "en": "A transistor that is on until a charge comes near",
-      "de": "Ein Transistor, der leitet, bis eine Ladung kommt"
-    },
-    "kind": "circuit",
-    "category": "pure-circuit",
-    "difficulty": 3,
-    "files": {
-      "program": "lab-depletion-touch/program.bw",
-      "circuit": "lab-depletion-touch/circuit.json",
-      "expected": "lab-depletion-touch/EXPECTED.md",
-      "intro": "lab-depletion-touch/intro.md",
-      "introDE": "lab-depletion-touch/intro.de.md"
-    },
-    "devices": []
-  },
-  {
-    "id": "lab-dual-gate-pinch",
-    "title": {
-      "en": "Two gates, one channel: either one can close it",
-      "de": "Zwei Gates, ein Kanal: jedes kann ihn schließen"
-    },
-    "kind": "circuit",
-    "category": "pure-circuit",
-    "difficulty": 3,
-    "files": {
-      "program": "lab-dual-gate-pinch/program.bw",
-      "circuit": "lab-dual-gate-pinch/circuit.json",
-      "expected": "lab-dual-gate-pinch/EXPECTED.md",
-      "intro": "lab-dual-gate-pinch/intro.md",
-      "introDE": "lab-dual-gate-pinch/intro.de.md"
-    },
-    "devices": []
   }
 ]
