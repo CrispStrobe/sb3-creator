@@ -2,7 +2,7 @@
 
 ## Circuit
 - 9 V supply. A 500-turn air coil (`air_coil_3`); a 0.2 A·m² magnet falls through it from 20 cm. Its pulse reaches Q1's base (`npn_8`) through 1 µF.
-- Sensitivity: 82 kΩ and a 10 kΩ pot (`potentiometer_6`, set to 0.9) from the supply to ground give 0–1 V on the wiper, which feeds Q1's base through 22 kΩ.
+- Sensitivity: 82 kΩ and a 10 kΩ pot (`potentiometer_6`, set to 0.9) from the supply to ground give the wiper a range from ground to under one volt; the wiper feeds Q1's base through 22 kΩ.
 - Q1: 1 kΩ and the red LED in its collector, and 10 µF from its collector to Q2's base (`npn_13`). Q2: base held up by 47 kΩ, 2.2 kΩ collector load, 47 kΩ from its collector back to Q1's base.
 
 ## Observable behaviour
@@ -27,3 +27,4 @@ net potentiometer_6.a V 0.75 +-0.02
 net potentiometer_6.wiper V 0.65 +-0.02
 net npn_13.collector V 0.03 +-0.05
 ```
+

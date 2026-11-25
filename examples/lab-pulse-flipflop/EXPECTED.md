@@ -7,11 +7,11 @@
 
 ## Observable behaviour
 - Rest: Q2 conducts (collector 0.09 V), green on; Q1's collector at 7.2 V, red off.
-- Press "pulse": a pulse of about 5 V in the large winding; Q1 switches on (collector 0.09 V), red on, green off, and it stays so after the button is released.
+- Press "pulse": a pulse of about five volts in the large winding; Q1 switches on (collector 0.09 V), red on, green off, and it stays so after the button is released.
 - Reset: green again. By then the 100 µF has recharged (about 0.5 s).
 
 ## Measured on the engine
-bw-board f4aaec43, `test/lab-circuits-r7a.test.mjs`: pulse peak 5.02 V at `transformer_7.s1`.
+bw-board f4aaec43, `test/lab-circuits-r7a.test.mjs`, which also reads the pulse's peak at `transformer_7.s1`.
 
 ## What this verifies
 1. A changing current in one winding induces a pulse in the other, with no connection between them.
@@ -27,3 +27,4 @@ net npn_13.collector V 0.09 +-0.05
 net npn_12.collector V 7.20 +-0.1
 net npn_12.base V 0.00 +-0.05
 ```
+

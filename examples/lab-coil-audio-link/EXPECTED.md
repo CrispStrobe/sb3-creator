@@ -25,3 +25,4 @@ net vsource_2.pos V 9.00 +-0.01
 net lm386_14.bypass V 4.50 +-0.05
 net npn_10.emitter V 0.00 +-0.01
 ```
+

@@ -18,7 +18,6 @@ bw-board f4aaec43, `test/lab-circuits-r7a.test.mjs`.
 | open | 0 | 0 |
 | first 40 ms of the press | 0.1485 A | peak ≈ 0.17 |
 | held 400 ms | 0.1485 A | 0 |
-| reversed, held | −0.1485 A | — |
 
 ## What this verifies
 1. A loudspeaker responds to changes of current; a steady current only displaces the cone.
@@ -33,3 +32,4 @@ net vsource_2.pos V 4.50 +-0.01
 net speaker_8.a V 0.00 +-0.01
 net resistor_4.b V 0.00 +-0.01
 ```
+
