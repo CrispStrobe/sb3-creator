@@ -31,6 +31,8 @@ The channel numbers count from 1, while circuit terminals count from 0:
 4. Open the **Instruments** panel and use its **Switches** buttons to open switches 1, 3, 6 and 8. Each button reports the live contact as **Open** or **Closed**. Predict `1 + 4 + 32 + 128 = 165`. After the next sample, LEDs 1, 3, 6 and 8 light and the display shows `A00.165`. Cell 32 holds `00.165`, the last sampled byte.
 5. Try only switch 8 open, then all switches open. Predict 128 and 255 before looking. Read the LED row in channel order; conventional written binary lists bit 7 first, so 165 is `10100101`.
 
+In **Circuits**, trace S1 from its pull-up and ground contact to P1.0. Then follow P2.0 to the Darlington input and follow its output through LED1 and its series resistor to the CP1 5 V terminal. The keypad in **Widgets** runs the monitor. The switches in **Circuits → Instruments** act on the electrical circuit. The CP2 cassette uses P1.6 and P1.7 during transfers, so use a separate CP2 circuit to record or replay a tape while learning these eight inputs.
+
 ## Follow the signal through the program
 
 `P1E 0` samples all eight inputs. `ABS observed` keeps that sample in cell 32 for inspection. `P2A 0` writes the same byte to all eight outputs, and `ANZ` asks the monitor to display it. The loop requests a 100 ms delay before sampling again; instruction execution and display scanning add time, so this is not an exact 100 ms sampling-period claim.
