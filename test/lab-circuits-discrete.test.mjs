@@ -125,6 +125,9 @@ describe('discrete-stage lab benches behave as documented', { skip: SKIP }, () =
             assert.ok(Math.abs(l1[k] - l1[k - 1]) < 1 && Math.abs(l2[k] - l2[k - 1]) < 1, `smooth at step ${k}`);
         }
         // Lit over most of the travel: both lamps above 0.5 mA from 0.25 to 0.75.
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): l2[k] > 0.5 -> observed
+        // 0.6034615230969895…2.6639122292522095 over 11 reaches; l1[k] > 0.5 -> observed
+        // 0.8511900117384701…3.7654349362849855 over 11 reaches.
         for (let k = 5; k <= 15; k++) assert.ok(l1[k] > 0.5 && l2[k] > 0.5, `both glow at ${k / 20}`);
     });
 
@@ -177,6 +180,7 @@ describe('discrete-stage lab benches behave as documented', { skip: SKIP }, () =
         x.run(6);
         let hi = 0, lo = 99;
         const d = x.drops(() => { const v = ct(); hi = Math.max(hi, v); lo = Math.min(lo, v); return v; }, 10, 0.05, 0.3, 0.3);
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): d.length >= 4 -> observed 5.
         assert.ok(d.length >= 4, `${d.length} cycles in 10 ms`);
         const mid = 1000 / period(d);
         near(hi, 6.86, 0.1, 'capacitor peak: the trigger point (V)');
@@ -187,6 +191,7 @@ describe('discrete-stage lab benches behave as documented', { skip: SKIP }, () =
         x.set('pitch', 1);
         x.run(2);
         const e = x.drops(ct, 6, 0.05, 0.3, 0.3);
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): e.length >= 4 -> observed 4.
         assert.ok(e.length >= 4, `${e.length} cycles in 6 ms`);
         const top = 1000 / period(e);
         near(top, TOP_HZ, TOP_HZ * 0.12, 'pitch with only the 22 k minimum (Hz)');
@@ -213,7 +218,11 @@ describe('discrete-stage lab benches behave as documented', { skip: SKIP }, () =
         // Every setting that leaves the output between its limits lies within half a millivolt of balance.
         // MEASURED (bw-board eb3ec0a7): only 0.485 (-0.21 mV, 0.96 V) and 0.49 (+0.06 mV, 5.73 V) are off the limits.
         const between = sweep.filter(s => s.o > 1.0 && s.o < 8.0);
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): between.length <= 2 -> observed
+        // 2.
         assert.ok(between.length >= 1 && between.length <= 2, `${between.length} settings in the transition`);
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): Math.abs(s.d) < 0.5 -> observed
+        // 0.05930320280977952…0.07439686409238533 over 2 reaches.
         for (const s of between) assert.ok(Math.abs(s.d) < 0.5, `transition point ${s.d.toFixed(3)} mV from the reference`);
         x.set('fine', 0.47); x.run(3);
         near(x.mA('rr'), 6.39, 0.3, 'red LED with the input low (mA)');
@@ -244,6 +253,8 @@ describe('discrete-stage lab benches behave as documented', { skip: SKIP }, () =
         // MEASURED (bw-board eb3ec0a7): 4 rises in 1.2 s, swing 0.90..8.10 V (LM386 output limits).
         assert.ok(a.e.length >= 3, `${a.e.length} blinks in 1.2 s`);
         near(period(a.e), BLINK_MS, 30, 'blink period (ms)');
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): a.hi > 8.0 -> observed
+        // 8.098436162265205; a.lo < 1.0 -> observed 0.8998930333870283.
         assert.ok(a.lo < 1.0 && a.hi > 8.0, `the output swings between its limits: ${a.lo.toFixed(2)}..${a.hi.toFixed(2)} V`);
         x.set('sw', 1);
         x.run(3200);
@@ -251,6 +262,8 @@ describe('discrete-stage lab benches behave as documented', { skip: SKIP }, () =
         // MEASURED (bw-board eb3ec0a7): the output first creeps up (the capacitor limits how fast it
         // can move), overshoots once and settles: 0 rises, 4.45..4.49 V 3.2 s after the switch.
         assert.equal(b.e.length, 0, 'with the Miller capacitor: no more blinks');
+        // MEASURED 2026-11-25 (scripts/threshold-observe.mjs): b.hi - b.lo < 0.25 -> observed
+        // 0.04556588274893336.
         assert.ok(b.hi - b.lo < 0.25, `output steady: ${b.lo.toFixed(2)}..${b.hi.toFixed(2)} V`);
         near(x.v('q1', 'base'), x.v('q2', 'base'), 0.05, 'the loop holds the delayed base at the set point (V)');
         near(x.mA('rl'), BLINK_LED_MA, 0.3, 'LED at a steady part brightness (mA)');
