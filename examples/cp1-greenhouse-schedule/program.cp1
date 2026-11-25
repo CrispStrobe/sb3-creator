@@ -1,0 +1,41 @@
+ORG 0
+Entry: AKO 0
+ABS Minute
+P2A 7
+Tick: P1E 1
+VGL Zero
+SPB Advance
+SPU Tick
+Advance: LDA Minute
+ADD One
+ABS Minute
+VGL End
+SPB Done
+VGL OpenA
+SPB Open
+VGL OpenB
+SPB Open
+VGL ShutA
+SPB Shut
+VGL ShutB
+SPB Shut
+SPU Release
+Open: AKO 1
+P2A 7
+SPU Release
+Shut: AKO 0
+P2A 7
+Release: P1E 1
+VGL One
+SPB Tick
+SPU Release
+Done: LDA Minute
+HLT 0
+Minute: DATA 0
+Zero: DATA 0
+One: DATA 1
+OpenA: DATA 2
+ShutA: DATA 4
+OpenB: DATA 6
+ShutB: DATA 8
+End: DATA 9

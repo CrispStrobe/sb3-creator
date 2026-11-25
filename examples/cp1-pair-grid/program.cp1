@@ -1,0 +1,65 @@
+ORG 0
+Entry: AKO 0
+ABS Pairs
+FirstRead: P1E 0
+VGR Five
+SPB FirstRead
+ADD Start
+ABS FirstAddress
+LIA FirstAddress
+VGL Zero
+SPB FirstRead
+ABS FirstValue
+ANZ 0
+ReleaseFirst: P1E 0
+VGL Idle
+SPB SecondRead
+SPU ReleaseFirst
+SecondRead: P1E 0
+VGR Five
+SPB SecondRead
+ADD Start
+VGL FirstAddress
+SPB SecondRead
+ABS SecondAddress
+LIA SecondAddress
+VGL Zero
+SPB SecondRead
+ANZ 0
+VGL FirstValue
+SPB Match
+AKO 0
+P2A 1
+SPU ReleaseRound
+Match: AKO 0
+AIS FirstAddress
+AIS SecondAddress
+AKO 1
+P2A 1
+LDA Pairs
+ADD One
+ABS Pairs
+VGL Three
+SPB Done
+ReleaseRound: P1E 0
+VGL Idle
+SPB FirstRead
+SPU ReleaseRound
+Done: HLT 0
+Pairs: DATA 0
+FirstAddress: DATA 0
+FirstValue: DATA 0
+SecondAddress: DATA 0
+Zero: DATA 0
+One: DATA 1
+Three: DATA 3
+Five: DATA 5
+Idle: DATA 255
+Start: DATA 76
+ORG 76
+CardA: DATA 21
+CardB: DATA 83
+CardC: DATA 21
+CardD: DATA 47
+CardE: DATA 83
+CardF: DATA 47

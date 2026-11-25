@@ -1,0 +1,44 @@
+ORG 0
+Entry: AKO 0
+ABS Filtered
+ABS Count
+Read: P1E 0
+VGR Max
+SPB Clip
+SPU Mix
+Clip: LDA Max
+Mix: ADD Filtered
+ADD Filtered
+ADD Filtered
+ABS Residue
+AKO 0
+ABS Quotient
+Divide: LDA Residue
+VKL Four
+SPB Publish
+SUB Four
+ABS Residue
+LDA Quotient
+ADD One
+ABS Quotient
+SPU Divide
+Publish: LDA Quotient
+ABS Filtered
+P2A 0
+ANZ 0
+VZG 150
+LDA Count
+ADD One
+ABS Count
+VGL Four
+SPB Done
+SPU Read
+Done: LDA Filtered
+HLT 0
+Filtered: DATA 0
+Count: DATA 0
+Residue: DATA 0
+Quotient: DATA 0
+One: DATA 1
+Four: DATA 4
+Max: DATA 63

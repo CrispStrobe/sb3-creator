@@ -1,0 +1,28 @@
+ORG 0
+Entry: AKO 0
+ABS Count
+P2A 4
+Arm: P1E 6
+VGL One
+SPB Fall
+SPU Arm
+Fall: P1E 6
+VGL Zero
+SPB Trigger
+SPU Fall
+Trigger: AKO 1
+P2A 4
+VZG 200
+AKO 0
+P2A 4
+LDA Count
+ADD One
+ABS Count
+VGL Two
+SPB Done
+SPU Arm
+Done: HLT 0
+Count: DATA 0
+Zero: DATA 0
+One: DATA 1
+Two: DATA 2

@@ -1,0 +1,25 @@
+ORG 0
+Entry: AKO Score
+ABS Cursor
+Play: LIA Cursor
+P2A 0
+VZG 120
+LDA Cursor
+VGL Last
+SPB Done
+ADD One
+ABS Cursor
+SPU Play
+Done: AKO 0
+P2A 0
+HLT 0
+Cursor: DATA 0
+One: DATA 1
+Last: DATA 35
+ORG 30
+Score: DATA 5
+DATA 0
+DATA 8
+DATA 8
+DATA 0
+DATA 3

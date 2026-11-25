@@ -1,0 +1,44 @@
+ORG 0
+Entry: AKO 0
+P2A 1
+First: P1E 0
+VKL Mark
+SPB StartHistory
+VZG 50
+SPU First
+StartHistory: ABS BeforeA
+VZG 50
+Second: P1E 0
+VKL Mark
+SPB Seed
+SPU First
+Seed: ABS BeforeB
+Poll: VZG 50
+Read: P1E 0
+VKL Mark
+SPB Roll
+ABS Trigger
+AKO 1
+P2A 1
+VZG 50
+PostA: P1E 0
+ABS AfterA
+VZG 50
+PostB: P1E 0
+ABS AfterB
+LDA Trigger
+ANZ 0
+HLT 0
+Roll: ABS Next
+LDA BeforeB
+ABS BeforeA
+LDA Next
+ABS BeforeB
+SPU Poll
+BeforeA: DATA 0
+BeforeB: DATA 0
+Trigger: DATA 0
+AfterA: DATA 0
+AfterB: DATA 0
+Next: DATA 0
+Mark: DATA 128

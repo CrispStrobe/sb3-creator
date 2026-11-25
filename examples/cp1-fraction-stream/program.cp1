@@ -1,0 +1,57 @@
+ORG 0
+Entry: AKO 5
+ABS Remainder
+AKO DigitA
+ABS Cursor
+Digit: AKO 10
+ABS Times
+AKO 0
+ABS Scaled
+ABS Quotient
+Multiply: LDA Scaled
+ADD Remainder
+ABS Scaled
+LDA Times
+SUB One
+ABS Times
+VGL Zero
+SPB Divide
+SPU Multiply
+Divide: LDA Scaled
+VKL Divisor
+SPB Record
+SUB Divisor
+ABS Scaled
+LDA Quotient
+ADD One
+ABS Quotient
+SPU Divide
+Record: ABS Remainder
+LDA Quotient
+AIS Cursor
+ANZ 0
+VZG 180
+LDA Cursor
+VGL Last
+SPB Done
+ADD One
+ABS Cursor
+SPU Digit
+Done: LDA Quotient
+HLT 0
+Remainder: DATA 0
+Cursor: DATA 0
+Times: DATA 0
+Scaled: DATA 0
+Quotient: DATA 0
+Divisor: DATA 13
+One: DATA 1
+Zero: DATA 0
+Last: DATA 75
+ORG 70
+DigitA: DATA 0
+DigitB: DATA 0
+DigitC: DATA 0
+DigitD: DATA 0
+DigitE: DATA 0
+DigitF: DATA 0

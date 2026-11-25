@@ -1,0 +1,15 @@
+ORG 0
+Entry: LDA First
+ABS Batch
+Show: ANZ 0
+VZG 110
+LDA Batch
+VGL Last
+SPB Entry
+ADD Stride
+ABS Batch
+SPU Show
+Batch: DATA 0
+First: DATA 31
+Last: DATA 37
+Stride: DATA 3

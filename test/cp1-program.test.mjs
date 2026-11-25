@@ -4,6 +4,11 @@ import {readFileSync} from 'node:fs';
 import {parseCp1Program, assembleCp1Program, exportCp1Program, CP1_MNEMONICS} from '../src/utils/cp1Program.js';
 import {CP1_EXAMPLES} from '../src/utils/examples.js';
 
+const readJson = path => JSON.parse(readFileSync(new URL(`../${path}`, import.meta.url), 'utf8'));
+const curriculumPrograms = readJson('reference/cp1-curriculum-programs.json').programs;
+const expandedExamples = new Set(['cp1-expansion-step', ...curriculumPrograms
+    .filter(program => program.hardware.cp3).map(program => `cp1-${program.id}`)]);
+
 const bytesAt = (result, start, count) => [...result.bytes.slice(start * 2, (start + count) * 2)];
 const errors = (source, options) => {
     const result = parseCp1Program(source, options);
@@ -117,7 +122,7 @@ test('source size, expression depth and non-text inputs are bounded without exec
 test('original examples assemble and retain the documented blink cell sequence', () => {
     for (const name of Object.keys(CP1_EXAMPLES)) {
         const source = readFileSync(new URL(`../examples/${name}/program.cp1`, import.meta.url), 'utf8');
-        const expansion = name === 'cp1-expansion-step';
+        const expansion = expandedExamples.has(name);
         assert.equal(assembleCp1Program(source, {expansion}).ok, true, name);
         if (expansion) assert.equal(parseCp1Program(source).ok, false, 'upper RAM requires CP3');
         assert.equal(CP1_EXAMPLES[name], source, 'named CP1 examples retain the canonical source');
@@ -190,10 +195,33 @@ test('CP1 gallery entries link the actual sources and declared machine terminals
         const circuit = JSON.parse(readFileSync(new URL(`../examples/${entry.files.circuit}`, import.meta.url), 'utf8'));
         const machine = circuit.parts.find(part => part.kind === 'kosmos-cp1');
         assert.ok(machine);
-        assert.equal(machine.params.expansion, name === 'cp1-expansion-step');
+        assert.equal(machine.params.expansion, expandedExamples.has(name));
         assert.equal(machine.params.clockHz, 6000000);
         assert.equal(circuit.parts.some(part => part.kind === 'vsource'), false, 'examples use the CP1 connector supply');
         if (name === 'cp1-blink') assert.ok(circuit.wires.some(wire => wire.from.part === 'cp1' && wire.from.terminal === 'P2.0'));
         if (name === 'cp1-switch-input') assert.ok(circuit.wires.some(wire => wire.to.part === 'cp1' && wire.to.terminal === 'P1.0'));
     }
+});
+
+
+test('the CP1 trail connects every mapped section and advanced activity to an original example', () => {
+    const coverage = readJson('reference/cp1-curriculum-coverage.json').sections;
+    const guides = readJson('reference/cp1-guided-labs.json').labs;
+    const trail = readJson('examples/curriculum.json').trails.find(item => item.id === 'kosmos-cp1');
+    const stations = trail.chapters.slice(0, -1).flatMap(chapter => chapter.stations);
+    assert.equal(stations.length, 87);
+    assert.deepEqual(stations.map(station => station.title.en.split(' · ')[0]), coverage.map(row => row.section));
+    assert.equal(guides.length, 27);
+    assert.deepEqual(guides.map(lab => lab.section), coverage.filter(row => row.coverage === 'guided').map(row => row.section));
+    for (const [i, row] of coverage.entries()) {
+        const name = row.exercise.startsWith('cp1-') ? row.exercise : `cp1-${row.exercise}`;
+        assert.equal(stations[i].example, name);
+        assert.ok(CP1_EXAMPLES[name], row.section);
+        assert.ok(stations[i].lead.en && stations[i].lead.de, row.section);
+    }
+    assert.equal(curriculumPrograms.filter(program => program.sections.length).length, 35);
+    const advanced = trail.chapters.at(-1).stations.map(station => station.example).sort();
+    assert.deepEqual(advanced, ['cp1-cp2-sample-logger', 'cp1-edge-trigger-capture', 'cp1-fixed-point-filter',
+        'cp1-serial-receive', 'cp1-serial-transmit']);
+    for (const id of advanced) assert.ok(CP1_EXAMPLES[id]);
 });

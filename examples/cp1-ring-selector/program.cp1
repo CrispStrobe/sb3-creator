@@ -1,0 +1,37 @@
+ORG 0
+Entry: AKO 4
+ABS Index
+Select: P1E 0
+VGR Five
+SPB Select
+ABS Target
+Show: LDA Index
+ADD LampsStart
+ABS Cursor
+LIA Cursor
+P2A 0
+VZG 75
+LDA Index
+VGL Target
+SPB Done
+ADD One
+VKL Six
+SPB Keep
+AKO 0
+Keep: ABS Index
+SPU Show
+Done: HLT 0
+Index: DATA 0
+Target: DATA 0
+Cursor: DATA 0
+One: DATA 1
+Five: DATA 5
+Six: DATA 6
+LampsStart: DATA 40
+ORG 40
+Lamps: DATA 1
+DATA 2
+DATA 4
+DATA 8
+DATA 16
+DATA 32

@@ -1,0 +1,16 @@
+ORG 0
+Entry: AKO 47
+ABS Stock
+HLT 0
+
+ORG 16
+Inspect: LDA Stock
+ADD Reserve
+ABS Total
+ANZ 0
+HLT 0
+
+ORG 30
+Stock: DATA 18
+Reserve: DATA 5
+Total: DATA 0

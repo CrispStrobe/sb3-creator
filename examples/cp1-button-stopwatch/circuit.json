@@ -1,0 +1,98 @@
+{
+  "vcc": 5,
+  "parts": [
+    {
+      "id": "cp1",
+      "kind": "kosmos-cp1",
+      "params": {
+        "expansion": false,
+        "clockHz": 6000000
+      },
+      "x": 210,
+      "y": 195
+    },
+    {
+      "id": "ground",
+      "kind": "gnd",
+      "params": {},
+      "x": 650,
+      "y": 540
+    },
+    {
+      "id": "pullup-p1-3",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "x": 440,
+      "y": 85
+    },
+    {
+      "id": "switch-p1-3",
+      "kind": "switch",
+      "params": {
+        "closed": 0
+      },
+      "x": 440,
+      "y": 153
+    }
+  ],
+  "wires": [
+    {
+      "id": "cp1-ground",
+      "from": {
+        "part": "cp1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "supply-p1-3",
+      "from": {
+        "part": "cp1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "pullup-p1-3",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "pull-p1-3",
+      "from": {
+        "part": "pullup-p1-3",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "cp1",
+        "terminal": "P1.3"
+      }
+    },
+    {
+      "id": "input-p1-3",
+      "from": {
+        "part": "cp1",
+        "terminal": "P1.3"
+      },
+      "to": {
+        "part": "switch-p1-3",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "return-p1-3",
+      "from": {
+        "part": "switch-p1-3",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "ground",
+        "terminal": "gnd"
+      }
+    }
+  ],
+  "holeWires": []
+}

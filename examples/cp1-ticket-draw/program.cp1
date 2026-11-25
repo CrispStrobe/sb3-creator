@@ -1,0 +1,29 @@
+ORG 0
+Entry: AKO 2
+ABS Ticket
+Release: P1E 3
+VGL One
+SPB ReadButton
+SPU Release
+ReadButton: P1E 3
+VGL Zero
+SPB Draw
+LDA Ticket
+ADD Three
+VKL Eleven
+SPB Keep
+SUB Eleven
+Keep: ABS Ticket
+VZG 55
+SPU ReadButton
+Draw: LDA Ticket
+ADD One
+ABS Result
+ANZ 0
+HLT 0
+Ticket: DATA 0
+Result: DATA 0
+One: DATA 1
+Zero: DATA 0
+Three: DATA 3
+Eleven: DATA 11

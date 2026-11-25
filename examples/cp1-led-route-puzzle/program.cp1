@@ -1,0 +1,12 @@
+ORG 0
+Entry: P1E 1
+P2A 1
+NEG 0
+ABS LeftClear
+ReadRight: P1E 2
+P2A 2
+UND LeftClear
+P2A 3
+ANZ 0
+HLT 0
+LeftClear: DATA 0

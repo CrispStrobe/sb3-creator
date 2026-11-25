@@ -1,0 +1,25 @@
+ORG 0
+Entry: AKO 0
+ABS Reading
+Sample: P1E 0
+VKL Offset
+SPB Done
+SUB Offset
+ABS Residue
+Loop: LDA Residue
+VKL Gain
+SPB Done
+SUB Gain
+ABS Residue
+LDA Reading
+ADD One
+ABS Reading
+SPU Loop
+Done: LDA Reading
+ANZ 0
+HLT 0
+Reading: DATA 0
+Residue: DATA 0
+Offset: DATA 12
+Gain: DATA 4
+One: DATA 1
