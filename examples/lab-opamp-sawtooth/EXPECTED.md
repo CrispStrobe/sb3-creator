@@ -1,7 +1,7 @@
 # lab-opamp-sawtooth — expected behaviour
 
 ## Circuit
-- 9 V supply; 10 kΩ / 10 kΩ make a 4.5 V reference for both sections of an LM324.
+- 9 V supply; 10 kΩ / 10 kΩ make a half-supply reference for both sections of an LM324.
 - Section 2: Schmitt trigger, − input on 4.5 V, + input fed through 10 kΩ from the integrator output and through 22 kΩ from its own output.
 - Section 1: integrator, 470 nF (capacitor_10) from output to − input, + input on 4.5 V, charged from the trigger's output through 47 kΩ (resistor_6).
 - SHAPE (switch_7, open as built): closes a 1N4148 (diode_8) in series with 2.2 kΩ beside the 47 kΩ, so it conducts only while the trigger's output is low.

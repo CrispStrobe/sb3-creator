@@ -1,9 +1,9 @@
 # lab-opamp-meter-stages — expected behaviour
 
 ## Circuit
-- 9 V supply; LM324 section 4 buffers a 4.5 V midpoint.
-- ×10 stage (section 1, 91 kΩ / 10 kΩ) for small voltages against the midpoint; its + input hangs on 1 MΩ to the midpoint. isource_8 (45 nA into the input) is the bias current a real LM324 drives out of its input: the engine's op-amp has none of its own, so the bench draws it. ZERO (potentiometer_9, as built at half) feeds an opposing current through 10 MΩ. PROBE (button_11) connects a 50 mV source (330 Ω) to the input. Voltmeter_16 reads output minus midpoint.
-- Ammeter (section 2): the circuit under test is a 4.5 V source driving 47 Ω and a 10 Ω sensing resistor; POLARITY (slide_switch_19) connects it the right way (left) or backwards (right). The sensing voltage reaches the + input through 10 kΩ, a 1N34A germanium diode from ground clamps it; gain ×5 (40 kΩ / 10 kΩ) onto voltmeter_26 (1 V = 20 mA).
+- 9 V supply; LM324 section 4 buffers a midpoint at half the supply.
+- ×10 stage (section 1, 91 kΩ / 10 kΩ) for small voltages against the midpoint; its + input hangs on 1 MΩ to the midpoint. isource_8 (45 nA into the input) is the bias current a real LM324 drives out of its input: the engine's op-amp has none of its own, so the bench draws it. ZERO (potentiometer_9, as built at half) feeds an opposing current through 10 MΩ. PROBE (button_11) connects a source of about fifty millivolts (330 Ω) to the input. Voltmeter_16 reads output minus midpoint.
+- Ammeter (section 2): the circuit under test is a 4.5 V source driving 47 Ω and a 10 Ω sensing resistor; POLARITY (slide_switch_19) connects it the right way (left) or backwards (right). The sensing voltage reaches the + input through 10 kΩ, a 1N34A germanium diode from ground clamps it; gain ×5 (40 kΩ / 10 kΩ) onto voltmeter_26 (one volt per 20 mA).
 
 ## Observable behaviour
 - Nothing connected: the ×10 meter shows +0.41 V: 45 nA through 1 MΩ ‖ 10 MΩ is 41 mV at the input, times ten.

@@ -1,7 +1,7 @@
 # lab-opamp-gates — expected behaviour
 
 ## Circuit
-- 9 V supply. Buttons A (button_4) and B (button_7) each lift a line to 6.13 V (22 kΩ from +9 V against 47 kΩ to ground).
+- 9 V supply. Buttons A (button_4) and B (button_7) each lift a line through 22 kΩ from +9 V against 47 kΩ to ground.
 - LM324 sections 1 and 2 buffer the two lines (followers); two 10 kΩ average the buffered lines: 0 V, 3.07 V or 6.13 V.
 - A 10 kΩ / 6.8 kΩ / 3.3 kΩ chain gives 4.5 V and 1.5 V; MODE (slide_switch_15) picks 4.5 V (left) or 1.5 V (right) as the reference.
 - Section 3: average on +, reference on −; green LED (led_17). Section 4: the other way round; red LED (led_19).

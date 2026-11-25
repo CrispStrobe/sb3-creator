@@ -1,7 +1,7 @@
 # lab-opamp-baby-monitor — expected behaviour
 
 ## Circuit
-- 9 V supply. Section 4 of an LM324 buffers a 4.5 V midpoint (10 kΩ / 10 kΩ, 1 µF).
+- 9 V supply. Section 4 of an LM324 buffers the midpoint of 10 kΩ / 10 kΩ (half the supply, with 1 µF).
 - The loudspeaker in the nursery (speaker_3) is the microphone, between the midpoint and the first stage's input.
 - Sections 1 and 2: inverting amplifiers, 1 kΩ in through 4.7 µF, 100 kΩ back: ×100 each.
 - Section 3: 10 kΩ in, 10 kΩ back (×1); GAIN (switch_17) puts 1.1 kΩ beside its input resistor (×10). Total 10^4 or 10^5.

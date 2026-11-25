@@ -1,9 +1,9 @@
 # lab-opamp-key-finder — expected behaviour
 
 ## Circuit
-- 9 V supply; a 4.5 V midpoint (10 kΩ / 10 kΩ, 1 µF) for the + inputs of the gain stages.
+- 9 V supply; a midpoint at half the supply (10 kΩ / 10 kΩ, 1 µF) for the + inputs of the gain stages.
 - The loudspeaker (speaker_3) is the microphone. LM324 section 1: ×100 (1 kΩ in through 4.7 µF, 100 kΩ back); section 2: ×30 (3.3 kΩ in, 100 kΩ back); SENSITIVE (slide_switch_17, right) adds section 3, ×10.
-- Section 4: the latch. The signal's positive peaks reach its + input through a 1N4148 (1 MΩ to ground); THRESHOLD (potentiometer_20, as built at 0.55: 4.95 V) sets its − input. Once over, its output holds the + input high through a diode and 47 kΩ. RESET (button_24) pulls the + input to ground through 1 kΩ. Red ALARM LED (led_27) on the output. Voltmeter_27 reads + input minus threshold.
+- Section 4: the latch. The signal's positive peaks reach its + input through a 1N4148 (1 MΩ to ground); THRESHOLD (potentiometer_20, as built at 0.55: 4.95 V) sets its − input. Once over, its output holds the + input high through a diode and 47 kΩ. RESET (button_24) pulls the + input to ground through 1 kΩ. Red ALARM LED (led_27) on the output. voltmeter_21 reads + input minus threshold.
 
 ## Observable behaviour
 - Quiet: the meter reads about −0.8 V (the peak line sits below the threshold); alarm off.

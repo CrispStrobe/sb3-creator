@@ -1,9 +1,9 @@
 # lab-opamp-toggle — expected behaviour
 
 ## Circuit
-- 9 V supply; a 47 kΩ / 10 kΩ / 10 kΩ chain gives 2.7 V (both latches' reference) and 1.3 V (their feedback tap).
-- Latch 1 (LM324 section 1): + input between its output (100 kΩ) and the 1.3 V tap (47 kΩ), − input on 2.7 V. SET (button_9) pulls the + input to +9 V through 4.7 kΩ, RESET (button_11) to ground through 4.7 kΩ. Yellow LED (led_14): latch 1 on.
-- Latch 2 (section 2): the same latch, its − input reaching 2.7 V through 10 kΩ. Its output charges 1 µF (polarized_cap_20) through 220 kΩ, so the capacitor holds the output's level of a moment ago. TOGGLE (button_18) connects the capacitor to the − input. Red LED (led_22): latch 2 on.
+- 9 V supply; a 47 kΩ / 10 kΩ / 10 kΩ chain gives both latches' reference (upper tap) and their feedback tap (lower tap).
+- Latch 1 (LM324 section 1): + input between its output (100 kΩ) and the feedback tap (47 kΩ), − input on the reference. SET (button_9) pulls the + input to +9 V through 4.7 kΩ, RESET (button_11) to ground through 4.7 kΩ. Yellow LED (led_14): latch 1 on.
+- Latch 2 (section 2): the same latch, its − input reaching the reference through 10 kΩ. Its output charges 1 µF (polarized_cap_20) through 220 kΩ, so the capacitor holds the output's level of a moment ago. TOGGLE (button_18) connects the capacitor to the − input. Red LED (led_22): latch 2 on.
 
 ## Observable behaviour
 - Switched on, both latches are off.

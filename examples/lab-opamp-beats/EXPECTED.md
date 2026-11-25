@@ -1,7 +1,7 @@
 # lab-opamp-beats — expected behaviour
 
 ## Circuit
-- 9 V supply. LM324 sections 1 and 2: two relaxation oscillators (thresholds 3 V and 5.5 V, 10 nF each), one charged through 68 kΩ, the other through 56 kΩ plus the DETUNE rheostat (potentiometer_15, 22 kΩ; as built at half).
+- 9 V supply. LM324 sections 1 and 2: two relaxation oscillators (Schmitt triggers on three 10 kΩ each, 10 nF each), one charged through 68 kΩ, the other through 56 kΩ plus the DETUNE rheostat (potentiometer_15, 22 kΩ; as built at half).
 - Section 3: inverting adder around a 4.5 V midpoint, 100 kΩ from each oscillator's capacitor, 47 kΩ back. Loudspeaker through 10 µF and 1 kΩ.
 
 ## Observable behaviour
