@@ -10,9 +10,9 @@ Klick auf **Sim** und hör zu. Dreh den Abstimmknopf des Senders ein klein wenig
 
 ## Was du sehen solltest
 
-- Einen Pfeifton von fast 4 kHz.
-- Bei 0,302 einen viel tieferen Ton, etwa 1,2 kHz: Der Sender ist näher an den Empfänger gerückt.
-- An 6 V springt der Ton um mehr als 1 kHz nach oben: Die Frequenz des Senders hängt von seiner Spannung ab.
+- Einen Pfeifton von fast 6 kHz.
+- Bei 0,302 einen höheren Ton, etwa 7 kHz: Der Sender hat sich vom Empfänger entfernt. Drehst du andersherum, sinkt der Ton zu einem Brummen und steigt wieder.
+- An 6 V fällt der Ton auf etwa 1,2 kHz: Die Frequenz des Senders hängt von seiner Spannung ab.
 
 ## Warum es funktioniert
 
