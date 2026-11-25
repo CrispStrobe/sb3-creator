@@ -38,7 +38,7 @@ net lm386_3.inp V 0.901 +-0.05
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@f4aaec4` and `bw-circuit-ui@141b2cc` — the revisions pinned in
+> `bw-board@2c62bd5` and `bw-circuit-ui@15b936d` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **8 of this page's 13** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;
