@@ -114,8 +114,8 @@ test('source size, expression depth and non-text inputs are bounded without exec
     assert.throws(() => exportCp1Program(new Uint8Array(3)), RangeError);
 });
 
-test('three original examples assemble and retain the documented blink cell sequence', () => {
-    for (const name of ['cp1-first-display', 'cp1-switch-input', 'cp1-blink']) {
+test('original examples assemble and retain the documented blink cell sequence', () => {
+    for (const name of Object.keys(CP1_EXAMPLES)) {
         const source = readFileSync(new URL(`../examples/${name}/program.cp1`, import.meta.url), 'utf8');
         assert.equal(assembleCp1Program(source).ok, true, name);
         assert.equal(CP1_EXAMPLES[name], source, 'named CP1 examples retain the canonical source');
@@ -124,6 +124,55 @@ test('three original examples assemble and retain the documented blink cell sequ
     assert.deepEqual(bytesAt(blink, 0, 7), [4, 1, 18, 1, 3, 200, 4, 0, 18, 1, 3, 200, 9, 0]);
     const display = assembleCp1Program(CP1_EXAMPLES['cp1-first-display']);
     assert.deepEqual(bytesAt(display, 0, 3), [4, 42, 2, 0, 9, 1], 'repeat ANZ so the monitor halt message does not replace the value');
+});
+
+test('the CP5 workbench clears outputs, saves the whole input byte and loops without touching its saved cell', () => {
+    const result = assembleCp1Program(CP1_EXAMPLES['cp1-cp5-binary']);
+    assert.deepEqual(bytesAt(result, 0, 9), [4, 0, 18, 0, 3, 200, 16, 0, 6, 32, 18, 0, 2, 0, 3, 100, 9, 3]);
+    assert.deepEqual(bytesAt(result, 32, 1), [0, 0]);
+    assert.equal(result.symbols.SAMPLE, 3);
+    assert.equal(result.symbols.OBSERVED, 32);
+    assert.equal(result.sourceMap[3].line, 10);
+    assert.equal(result.sourceMap[32].line, 17);
+    assert.equal(result.sourceMap[9], null, 'unused cells do not acquire invented source lines');
+    assert.deepEqual(assembleCp1Program(exportCp1Program(result)).bytes, result.bytes);
+});
+
+test('the eight CP5 channels have distinct switch, pull-up, driver and current-limited LED nets', () => {
+    const circuit = JSON.parse(readFileSync(new URL('../examples/cp1-cp5-binary/circuit.json', import.meta.url), 'utf8'));
+    const parts = new Map(circuit.parts.map(part => [part.id, part]));
+    assert.equal(parts.size, circuit.parts.length, 'part identities are unique');
+    assert.equal(parts.get('driver').kind, 'darlington_driver');
+    assert.equal(circuit.parts.filter(part => part.kind === 'switch').length, 8);
+    assert.equal(circuit.parts.filter(part => part.kind === 'led').length, 8);
+    const net = new Map();
+    const endpoint = value => `${value.part}.${value.terminal}`;
+    function root(key) {
+        if (!net.has(key)) net.set(key, key);
+        if (net.get(key) !== key) net.set(key, root(net.get(key)));
+        return net.get(key);
+    }
+    for (const wire of circuit.wires) {
+        assert.ok(parts.has(wire.from.part) && parts.has(wire.to.part), 'every wire joins actual parts');
+        net.set(root(endpoint(wire.from)), root(endpoint(wire.to)));
+    }
+    const group = first => [...net.keys()].filter(key => root(key) === root(first)).sort();
+    const expectedGround = ['cp1.gnd', 'driver.gnd', 'ground.gnd'];
+    const expectedSupply = ['cp1.5v', 'driver.com'];
+    for (let bit = 0; bit < 8; bit++) {
+        const n = bit + 1;
+        assert.equal(parts.get(`switch${n}`).params.closed, true, 'initially closed switches request zero');
+        assert.equal(parts.get(`pullup${n}`).params.ohms, 10000);
+        assert.equal(parts.get(`series${n}`).params.ohms, 1000);
+        assert.deepEqual(group(`cp1.P1.${bit}`), [`cp1.P1.${bit}`, `pullup${n}.b`, `switch${n}.a`].sort());
+        assert.deepEqual(group(`cp1.P2.${bit}`), [`cp1.P2.${bit}`, `driver.in${bit}`].sort());
+        assert.deepEqual(group(`led${n}.anode`), [`led${n}.anode`, `series${n}.b`].sort());
+        assert.deepEqual(group(`led${n}.cathode`), [`led${n}.cathode`, `driver.out${bit}`].sort());
+        expectedGround.push(`switch${n}.b`);
+        expectedSupply.push(`pullup${n}.a`, `series${n}.a`);
+    }
+    assert.deepEqual(group('cp1.gnd'), expectedGround.sort());
+    assert.deepEqual(group('cp1.5v'), expectedSupply.sort());
 });
 
 test('CP1 gallery entries link the actual sources and declared machine terminals without a ROM', () => {

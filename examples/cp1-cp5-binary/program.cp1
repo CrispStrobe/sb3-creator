@@ -1,0 +1,17 @@
+; Original Brickwright CP5-style binary workbench.
+; A closed switch grounds its input (0); an open switch reads 1.
+; Terminal 1 / P1.0 / P2.0 is the least significant bit.
+SETTLE EQU 200
+POLL EQU 100
+ORG 0
+start:  AKO 0
+        P2A 0
+        VZG SETTLE
+sample: P1E 0
+        ABS observed
+        P2A 0
+        ANZ
+        VZG POLL
+        SPU sample
+ORG 32
+observed: DATA 0

@@ -2557,5 +2557,6 @@ export default examples;
 export const CP1_EXAMPLES = Object.freeze({
     "cp1-first-display": "; Original Brickwright CP1 example: keep a constant visible.\n; The dot in a listing separates opcode from operand: 04.042.\nVALUE EQU 42\nORG 0\nstart: AKO VALUE\ndisplay: ANZ\n         SPU display\n",
     "cp1-switch-input": "; Original Brickwright CP1 example: sample input line 1 repeatedly.\n; CP1 selector 1 corresponds to circuit terminal P1.0.\nORG 0\nsample: P1E 1\n        ANZ\n        VZG 100\n        SPU sample\n",
-    "cp1-blink": "; Original Brickwright CP1 example: alternate output line 1.\n; CP1 P2A selector 1 corresponds to circuit terminal P2.0.\nWAIT EQU 200\nORG 0\nagain: AKO 1\n       P2A 1\n       VZG WAIT\n       AKO 0\n       P2A 1\n       VZG WAIT\n       SPU again\n"
+    "cp1-blink": "; Original Brickwright CP1 example: alternate output line 1.\n; CP1 P2A selector 1 corresponds to circuit terminal P2.0.\nWAIT EQU 200\nORG 0\nagain: AKO 1\n       P2A 1\n       VZG WAIT\n       AKO 0\n       P2A 1\n       VZG WAIT\n       SPU again\n",
+    "cp1-cp5-binary": "; Original Brickwright CP5-style binary workbench.\n; A closed switch grounds its input (0); an open switch reads 1.\n; Terminal 1 / P1.0 / P2.0 is the least significant bit.\nSETTLE EQU 200\nPOLL EQU 100\nORG 0\nstart:  AKO 0\n        P2A 0\n        VZG SETTLE\nsample: P1E 0\n        ABS observed\n        P2A 0\n        ANZ\n        VZG POLL\n        SPU sample\nORG 32\nobserved: DATA 0\n"
 });

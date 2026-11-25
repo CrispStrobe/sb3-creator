@@ -11618,5 +11618,25 @@
    "expected": "cp1-blink/EXPECTED.md"
   },
   "devices": []
+ },
+{
+  "id": "cp1-cp5-binary",
+  "title": {
+   "en": "CP1: CP5-style binary workbench",
+   "de": "CP1: Binärzahlen mit acht Schaltern"
+  },
+  "category": "digital",
+  "difficulty": 2,
+  "kind": "circuit",
+  "target": "kosmos-cp1",
+  "files": {
+   "program": "cp1-cp5-binary/program.bw",
+   "cp1": "cp1-cp5-binary/program.cp1",
+   "circuit": "cp1-cp5-binary/circuit.json",
+   "intro": "cp1-cp5-binary/intro.md",
+   "introDE": "cp1-cp5-binary/intro.de.md",
+   "expected": "cp1-cp5-binary/EXPECTED.md"
+  },
+  "devices": []
  }
 ]
