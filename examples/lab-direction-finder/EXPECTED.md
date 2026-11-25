@@ -29,7 +29,7 @@ net tuning_cap_5.a V 0.00 +-0.01
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@7e0bf8c` and `bw-circuit-ui@4c57f3a` — the revisions pinned in
+> `bw-board@f4aaec4` and `bw-circuit-ui@141b2cc` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **6 of this page's 19** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;
