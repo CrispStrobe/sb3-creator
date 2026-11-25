@@ -16704,6 +16704,23 @@
     }
   },
   {
+    "id": "lab-opamp-chirp",
+    "title": {
+      "en": "Op-amp chirp: chick to crow",
+      "de": "Operationsverstärker-Zwitschern: vom Küken zur Krähe"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-opamp-chirp/program.bw",
+      "circuit": "lab-opamp-chirp/circuit.json",
+      "expected": "lab-opamp-chirp/EXPECTED.md",
+      "intro": "lab-opamp-chirp/intro.md",
+      "introDE": "lab-opamp-chirp/intro.de.md"
+    }
+  },
+  {
     "id": "lab-opamp-beats",
     "title": {
       "en": "Two op-amp tones in beat",
