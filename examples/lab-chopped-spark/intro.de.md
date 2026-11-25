@@ -15,4 +15,4 @@ Klicke auf **Sim** und höre auf den Lautsprecher des Radios. Drehe den Abstimmk
 
 ## Warum das so ist
 
-Jedes Mal, wenn der Transistor schaltet, springt der Strom in der Spule und damit ihr Magnetfeld. Die Empfangsspule spürt einen kurzen Impuls, und ein kurzer Impuls enthält alle Frequenzen: Der Schwingkreis des Empfängers klingt kurz an, worauf er auch abgestimmt ist. Der Detektor macht aus jedem Anklingen ein Knacken, und 1500 Knacke pro Sekunde klingen wie ein Ton. 47 Ω und 22 µF in der Versorgung des Oszillators halten seine Stromstöße vom Verstärker fern.
+Jedes Mal, wenn der Transistor schaltet, springt der Strom in der Spule und damit ihr Magnetfeld. Die Empfangsspule spürt einen kurzen Impuls, und ein kurzer Impuls enthält alle Frequenzen: Der Schwingkreis des Empfängers klingt kurz an, worauf er auch abgestimmt ist. Der Detektor macht aus jedem Anklingen ein Knacken, und 1500 Knacke pro Sekunde klingen wie ein Ton. Die Spule bezieht ihren Strom direkt aus der Batterie; 47 Ω und 22 µF versorgen den Rest des Oszillators, damit die Stromstöße der Spule seinen Takt nicht stören.

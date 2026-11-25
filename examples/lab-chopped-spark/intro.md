@@ -15,4 +15,4 @@ Click **Sim** and listen to the radio's loudspeaker. Turn its tuning knob to 0.1
 
 ## Why it works
 
-Each time the transistor switches, the current in the coil jumps, and so does its magnetic field. The receiving coil feels a short pulse, and a short pulse contains all frequencies: the receiver's tuned circuit rings briefly whatever it is tuned to. The detector turns each ring into a click, and 1500 clicks a second sound like a note. The 47 Ω and 22 µF in the oscillator's supply keep its current steps away from the amplifier.
+Each time the transistor switches, the current in the coil jumps, and so does its magnetic field. The receiving coil feels a short pulse, and a short pulse contains all frequencies: the receiver's tuned circuit rings briefly whatever it is tuned to. The detector turns each ring into a click, and 1500 clicks a second sound like a note. The coil takes its current straight from the battery; the 47 Ω and 22 µF feed the rest of the oscillator, so the coil's current steps do not upset its timing.

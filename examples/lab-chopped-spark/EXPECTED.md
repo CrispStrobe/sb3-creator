@@ -2,7 +2,7 @@
 
 ## Circuit
 - A two-transistor astable (47 kΩ base resistors, 10 nF cross-coupling capacitors: about 1.5 kHz); one collector load is the winding of an untuned ferrite rod in series with 1 kΩ, the other 1 kΩ.
-- The astable takes its supply from the 9 V battery through 47 Ω, held by 22 µF.
+- The rod takes its current straight from the 9 V battery; the rest of the astable is fed through 47 Ω, held by 22 µF.
 - Receiver, 30 cm away on a second rod: antenna on the tap, tuning capacitor, germanium diode into 47 kΩ ‖ 2.2 nF, 100 nF into an LM386 (gain 20), loudspeaker on 220 µF.
 
 ## Observable behaviour

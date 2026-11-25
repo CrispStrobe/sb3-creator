@@ -106,8 +106,10 @@ export const BENCHES = {
     // Every time that transistor switches, the rod's current jumps and its
     // field steps: the receiver 30 cm away (the spark transmitter's) rings
     // 1500 times a second and plays a musical tone at any setting of its
-    // dial. The astable takes its supply through 47 Ω and 22 µF, so its
-    // current steps do not reach the amplifier's supply.
+    // dial. The rod takes its current straight from the battery; the rest
+    // of the astable is fed through 47 Ω and 22 µF, so the rod's current
+    // steps do not shake its timing (and no capacitor sits on the rod's
+    // leads to soften the steps).
     'lab-chopped-spark': {
         vcc: 9, supply: SUP,
         parts: { bat: BAT9, gnd: ['gnd', {}], rf: R(47), cf: EL(22e-6),
@@ -117,7 +119,7 @@ export const BENCHES = {
             lr: ['ferrite_coil', { linkTo: 'ferrite_coil_6', distanceM: 0.3 }], tc: TUNE(0.5),
             d: GE, cd: C(2.2e-9), rd: R(47000), ci: C(100e-9), u: ['lm386', {}], co: EL(220e-6), spk: ['speaker', { ohms: 8 }] },
         nets: [
-            ['bat.pos', 'rf.a', 'u.vs'], ['rf.b', 'cf.pos', 'lt.a', 'rc2.a', 'rb1.a', 'rb2.a'],
+            ['bat.pos', 'rf.a', 'u.vs', 'lt.a'], ['rf.b', 'cf.pos', 'rc2.a', 'rb1.a', 'rb2.a'],
             ['lt.b', 'rl.a'], ['rl.b', 'q1.collector', 'c1.a'], ['c1.b', 'rb2.b', 'q2.base'],
             ['rc2.b', 'q2.collector', 'c2.a'], ['c2.b', 'rb1.b', 'q1.base'],
             ['ant.a', 'lr.tap'], ['lr.b', 'tc.a', 'd.anode'], ['d.cathode', 'cd.a', 'rd.a', 'ci.a'], ['ci.b', 'u.inp'],
