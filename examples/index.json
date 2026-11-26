@@ -17350,5 +17350,120 @@
       "introDE": "lab-skywave/intro.de.md"
     },
     "devices": []
-  }
+  },
+ {
+  "id": "cardiac-echo",
+  "title": {
+   "en": "CARDIAC: A number makes a round trip",
+   "de": "CARDIAC: Eine Zahl kommt zurück"
+  },
+  "category": "digital",
+  "difficulty": 1,
+  "kind": "program",
+  "target": "cardiac",
+  "files": {
+   "cardiac": "cardiac-echo/program.cardiac",
+   "deck": "cardiac-echo/input.deck",
+   "intro": "cardiac-echo/intro.md",
+   "introDE": "cardiac-echo/intro.de.md",
+   "expected": "cardiac-echo/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cardiac-add",
+  "title": {
+   "en": "CARDIAC: Add two stored numbers",
+   "de": "CARDIAC: Zwei gespeicherte Zahlen addieren"
+  },
+  "category": "digital",
+  "difficulty": 1,
+  "kind": "program",
+  "target": "cardiac",
+  "files": {
+   "cardiac": "cardiac-add/program.cardiac",
+   "deck": "cardiac-add/input.deck",
+   "intro": "cardiac-add/intro.md",
+   "introDE": "cardiac-add/intro.de.md",
+   "expected": "cardiac-add/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cardiac-countdown",
+  "title": {
+   "en": "CARDIAC: Count down through zero",
+   "de": "CARDIAC: Bis einschließlich null herunterzählen"
+  },
+  "category": "digital",
+  "difficulty": 1,
+  "kind": "program",
+  "target": "cardiac",
+  "files": {
+   "cardiac": "cardiac-countdown/program.cardiac",
+   "deck": "cardiac-countdown/input.deck",
+   "intro": "cardiac-countdown/intro.md",
+   "introDE": "cardiac-countdown/intro.de.md",
+   "expected": "cardiac-countdown/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cardiac-night-light",
+  "title": {
+   "en": "CARDIAC: A transparent night-light",
+   "de": "CARDIAC: Ein nachvollziehbares Nachtlicht"
+  },
+  "category": "digital",
+  "difficulty": 2,
+  "kind": "program",
+  "target": "cardiac",
+  "files": {
+   "cardiac": "cardiac-night-light/program.cardiac",
+   "deck": "cardiac-night-light/input.deck",
+   "circuit": "cardiac-night-light/circuit.json",
+   "intro": "cardiac-night-light/intro.md",
+   "introDE": "cardiac-night-light/intro.de.md",
+   "expected": "cardiac-night-light/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cardiac-bootstrap",
+  "title": {
+   "en": "CARDIAC: Load a program using a program",
+   "de": "CARDIAC: Ein Programm mit einem Programm laden"
+  },
+  "category": "digital",
+  "difficulty": 2,
+  "kind": "program",
+  "target": "cardiac",
+  "files": {
+   "cardiac": "cardiac-bootstrap/program.cardiac",
+   "deck": "cardiac-bootstrap/input.deck",
+   "intro": "cardiac-bootstrap/intro.md",
+   "introDE": "cardiac-bootstrap/intro.de.md",
+   "expected": "cardiac-bootstrap/EXPECTED.md"
+  },
+  "devices": []
+ },
+ {
+  "id": "cardiac-self-modify",
+  "title": {
+   "en": "CARDIAC: An instruction visits three cells",
+   "de": "CARDIAC: Ein Befehl besucht drei Zellen"
+  },
+  "category": "digital",
+  "difficulty": 3,
+  "kind": "program",
+  "target": "cardiac",
+  "files": {
+   "cardiac": "cardiac-self-modify/program.cardiac",
+   "deck": "cardiac-self-modify/input.deck",
+   "intro": "cardiac-self-modify/intro.md",
+   "introDE": "cardiac-self-modify/intro.de.md",
+   "expected": "cardiac-self-modify/EXPECTED.md"
+  },
+  "devices": []
+ }
 ]

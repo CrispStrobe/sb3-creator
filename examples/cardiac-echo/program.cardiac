@@ -1,0 +1,8 @@
+; Original Brickwright CARDIAC example: follow one input word.
+ORG 01
+ENTRY start
+start: INP sample
+       OUT sample
+       HRS
+ORG 80
+sample: DAT 0

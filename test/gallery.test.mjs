@@ -32,7 +32,7 @@ const { wireEndpoint } = cuiGate.skip ? {}
 // Index-based circuit path lookup (WORE contract: discover via manifest, never by glob)
 const _index = JSON.parse(readFileSync(join(EXAMPLES_DIR, 'index.json'), 'utf8'));
 const _indexByDir = new Map(_index.map(e =>
-    [(e.files?.program ?? e.files?.circuit)?.split('/')[0], e]));
+    [(e.files?.program ?? e.files?.cardiac ?? e.files?.circuit)?.split('/')[0], e]));
 function circuitPathFor(dir, name) {
     const entry = _indexByDir.get(name);
     if (entry?.files?.circuit) return join(EXAMPLES_DIR, entry.files.circuit);
@@ -230,12 +230,17 @@ describe('gallery: index.json is valid and covers every example', () => {
             // 16-53): entry.difficulty <= 5 -> observed 1…5 over 310 reaches.
             assert.ok(typeof entry.difficulty === 'number' && entry.difficulty >= 1 && entry.difficulty <= 5, 'difficulty 1-5');
             assert.ok(KINDS.has(entry.kind), `kind "${entry.kind}" not in ${[...KINDS]}`);
-            assert.ok(entry.files?.program || entry.files?.circuit, 'files.program or files.circuit');
+            const cardiac = entry.target === 'cardiac' && typeof entry.files?.cardiac === 'string';
+            assert.ok(entry.files?.program || entry.files?.circuit || cardiac,
+                'files.program, files.circuit or a declared CARDIAC source');
             // A circuit file is required for every example EXCEPT device-only
             // ones (a micro:bit or SPIKE Prime program is a self-contained board
             // with no breadboard circuit); those carry a program + a single device.
             const deviceOnly = entry.deviceOnly === true || entry.authored === 'microbit' || entry.authored === 'spike';
-            assert.ok(entry.files?.circuit || deviceOnly, 'files.circuit (unless device-only)');
+            // CARDIAC can execute as a standalone decimal machine. Its source
+            // is assembled by cardiac-program.test.mjs, never the block parser.
+            assert.ok(entry.files?.circuit || deviceOnly || cardiac,
+                'files.circuit (unless device-only or a standalone CARDIAC program)');
             // 'full' entries (program + circuit lesson pages) may omit the
             // expected-trace file; circuit/program entries never do.
             if (entry.kind !== 'full') assert.ok(entry.files?.expected, 'files.expected');
@@ -244,7 +249,7 @@ describe('gallery: index.json is valid and covers every example', () => {
 
     test('every example directory is in the index', () => {
         const index = JSON.parse(readFileSync(indexPath, 'utf8'));
-        const indexDirs = new Set(index.map(e => (e.files.program ?? e.files.circuit).split('/')[0]));
+        const indexDirs = new Set(index.map(e => (e.files.program ?? e.files.cardiac ?? e.files.circuit).split('/')[0]));
         for (const name of examples) {
             assert.ok(indexDirs.has(name), `${name} is missing from index.json`);
         }

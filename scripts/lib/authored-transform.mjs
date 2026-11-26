@@ -6,7 +6,7 @@ import { DEVPART } from './devpart.mjs';
 
 /** Whether a gallery entry authorizes cross-device bench generation. */
 export function isRetargetableExample(entry) {
-  return allowsRetargeting(entry) && Array.isArray(entry?.devices) && entry.devices.length >= 2 &&
+  return Boolean(entry?.files?.program) && allowsRetargeting(entry) && Array.isArray(entry?.devices) && entry.devices.length >= 2 &&
     (entry.kind === 'program' || entry.kind === 'full');
 }
 

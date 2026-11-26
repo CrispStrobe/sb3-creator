@@ -1,0 +1,214 @@
+{
+  "vcc": 5,
+  "fileOnly": true,
+  "parts": [
+    {
+      "id": "cardiac",
+      "kind": "cardiac",
+      "declName": "CARDIAC",
+      "x": 430,
+      "y": 255,
+      "params": {
+        "program": {
+          "entry": 1,
+          "words": [
+            {
+              "address": 1,
+              "value": 80
+            },
+            {
+              "address": 2,
+              "value": 180
+            },
+            {
+              "address": 3,
+              "value": 781
+            },
+            {
+              "address": 4,
+              "value": 309
+            },
+            {
+              "address": 5,
+              "value": 183
+            },
+            {
+              "address": 6,
+              "value": 684
+            },
+            {
+              "address": 7,
+              "value": 584
+            },
+            {
+              "address": 8,
+              "value": 801
+            },
+            {
+              "address": 9,
+              "value": 182
+            },
+            {
+              "address": 10,
+              "value": 684
+            },
+            {
+              "address": 11,
+              "value": 584
+            },
+            {
+              "address": 12,
+              "value": 801
+            },
+            {
+              "address": 80,
+              "value": 0
+            },
+            {
+              "address": 81,
+              "value": 500
+            },
+            {
+              "address": 82,
+              "value": 1
+            },
+            {
+              "address": 83,
+              "value": 0
+            },
+            {
+              "address": 84,
+              "value": 0
+            }
+          ]
+        },
+        "instructionHz": 20,
+        "inputSource": "circuit"
+      },
+      "terminals": [
+        "IN",
+        "OUT",
+        "5v",
+        "gnd"
+      ]
+    },
+    {
+      "id": "light-level",
+      "kind": "potentiometer",
+      "declName": "Light level",
+      "x": 145,
+      "y": 230,
+      "params": {
+        "ohms": 10000,
+        "position": 0.2
+      },
+      "terminals": [
+        "a",
+        "wiper",
+        "b"
+      ]
+    },
+    {
+      "id": "limit",
+      "kind": "resistor",
+      "x": 675,
+      "y": 225,
+      "params": {
+        "ohms": 1000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ]
+    },
+    {
+      "id": "lamp",
+      "kind": "led",
+      "declName": "Night light",
+      "x": 780,
+      "y": 225,
+      "params": {
+        "color": "yellow"
+      },
+      "terminals": [
+        "anode",
+        "cathode"
+      ]
+    }
+  ],
+  "wires": [
+    {
+      "id": "cardiac-wire-1",
+      "from": {
+        "part": "cardiac",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "light-level",
+        "terminal": "a"
+      },
+      "color": "#dc6b42"
+    },
+    {
+      "id": "cardiac-wire-2",
+      "from": {
+        "part": "light-level",
+        "terminal": "wiper"
+      },
+      "to": {
+        "part": "cardiac",
+        "terminal": "IN"
+      },
+      "color": "#218a88"
+    },
+    {
+      "id": "cardiac-wire-3",
+      "from": {
+        "part": "light-level",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "cardiac",
+        "terminal": "gnd"
+      },
+      "color": "#718096"
+    },
+    {
+      "id": "cardiac-wire-4",
+      "from": {
+        "part": "cardiac",
+        "terminal": "OUT"
+      },
+      "to": {
+        "part": "limit",
+        "terminal": "a"
+      },
+      "color": "#dc6b42"
+    },
+    {
+      "id": "cardiac-wire-5",
+      "from": {
+        "part": "limit",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "lamp",
+        "terminal": "anode"
+      },
+      "color": "#dc6b42"
+    },
+    {
+      "id": "cardiac-wire-6",
+      "from": {
+        "part": "lamp",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "cardiac",
+        "terminal": "gnd"
+      },
+      "color": "#718096"
+    }
+  ],
+  "holeWires": []
+}
