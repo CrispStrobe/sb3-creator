@@ -52,6 +52,7 @@ export const KNOWN_INERT = new Map([
     ['pi_pico.pins',      'BLIND SPOT: as arduino_mega.pins.'],
     ['breadboard.size',   'BLIND SPOT: read by bw-circuit-ui hit-testing and layout, never by the solver.'],
     ['led.color',         'BLIND SPOT: read by the renderer; the LED model uses vf.'],
+    ['vsource.riseSec',   'BLIND SPOT: the power-on rise (bw-board riseSec) is over within microseconds of switch-on; this probe samples from 1 ms on, where a 10 us and a 20 us rise leave the same circuit. lab-barrier-counter shows it: without the rise its counter counts a phantom edge at power-on.'],
     ['vsource.variant',   'BLIND SPOT: read only by bw-circuit-ui starter-migration at load time; volts carries the electrical meaning and is live.'],
     ['vsource.gain',      'BLIND SPOT: PCM input control; the shipped source has no samples until the debugger injects a waveform.'],
     ['dc_motor.airflowGain',
