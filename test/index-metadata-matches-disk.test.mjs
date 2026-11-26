@@ -81,7 +81,7 @@ const UNCHECKED_HERE = new Set([
 
 /** Fields this gate DOES hold against the world. */
 const CHECKED_HERE = new Set(['files', 'thumbnail', 'benches', 'authored', 'refusals',
-    'transformRefused', 'tier', 'retarget']);
+    'transformRefused', 'tier', 'retarget', 'target']);
 
 describe('index metadata agrees with the files and the compiler', () => {
     test('device-specific electrical lessons cannot regrow cross-family benches', () => {
@@ -226,6 +226,24 @@ describe('index metadata agrees with the files and the compiler', () => {
         assert.deepEqual(problems.sort(), [],
             'A refusal is a claim about what this example cannot do. Re-measure it or delete it; '
             + 'the eight found in the 2026-08-23 sweep had all become false.');
+    });
+
+    // `target` names the machine a circuit example runs on (the CP1 lessons
+    // carry the machine part's kind). scripts/lib/example-enrolment.mjs enrols
+    // on it, so it is a claim about the circuit: the entry's own circuit file
+    // must seat a part of exactly that kind.
+    test('target names a machine the entry\'s circuit actually seats', () => {
+        const wrong = [];
+        for (const entry of index) {
+            if (entry.target === undefined) continue;
+            const rel = entry.files?.circuit;
+            if (typeof entry.target !== 'string' || !entry.target) { wrong.push(`${entry.id}: target is not a kind`); continue; }
+            if (!rel || !existsSync(join(EXAMPLES, rel))) { wrong.push(`${entry.id}: target ${entry.target} but no circuit file`); continue; }
+            const parts = JSON.parse(readFileSync(join(EXAMPLES, rel), 'utf8')).parts || [];
+            if (!parts.some(p => p.kind === entry.target))
+                wrong.push(`${entry.id}: target ${entry.target}, but ${rel} seats no part of that kind`);
+        }
+        assert.deepEqual(wrong.sort(), [], 'target disagrees with the circuit');
     });
 
     test('tier is a value something recognises', () => {

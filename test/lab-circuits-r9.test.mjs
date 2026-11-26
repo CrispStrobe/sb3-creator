@@ -141,13 +141,17 @@ describe('r9 benches behave as documented', { skip: SKIP }, () => {
         };
         const ok = at(25);
         near(ok.v('u', '1_out'), 6.17, 0.05, '25 C: amplified sensor (V)');
+        // MEASURED 2026-11-26 (scripts/threshold-observe.mjs, bw-board e744ede7 solver): 25 C: green LED observed 0.331.
         assert.ok(seen('25 C: green LED', ok.b.ledBrightness(ok.ids.green)) > 0.2, '25 C: green on');
         assert.equal(seen('25 C: red toggles', toggles(ok, () => ok.v('qp', 'collector'), 5, 300, 5)), 0, '25 C: red steady');
+        // MEASURED 2026-11-26 (scripts/threshold-observe.mjs, bw-board e744ede7 solver): 25 C: red LED observed 2.2e-6.
         assert.ok(seen('25 C: red LED', ok.b.ledBrightness(ok.ids.red)) < 0.01, '25 C: red off');
         for (const t of [15, 35]) {
             const x = at(t);
+            // MEASURED 2026-11-26 (scripts/threshold-observe.mjs, bw-board e744ede7 solver): 15 C and 35 C: green LED observed <= 2.0e-44.
             assert.ok(seen(`${t} C: green LED`, x.b.ledBrightness(x.ids.green)) < 0.01, `${t} C: green off`);
             const n = seen(`${t} C: red toggles in 400 ms`, toggles(x, () => x.v('qp', 'collector'), 5, 400, 5));
+            // MEASURED 2026-11-26 (scripts/threshold-observe.mjs, bw-board e744ede7 solver): 15 C and 35 C: red observed 10 changes in 400 ms.
             assert.ok(n >= 3, `${t} C: red flashes (${n} changes in 400 ms)`);
         }
     });
@@ -229,11 +233,16 @@ describe('r9 benches behave as documented', { skip: SKIP }, () => {
         const r = [null, 1, 2, 3].map(l => (l === null ? null : at(l)));
         r.forEach((y, i) => { if (y) { seen(`level ${i}: amplifier (V)`, y.amp); seen(`level ${i}: half`, y.half); seen(`level ${i}: full`, y.full); seen(`level ${i}: tone`, y.tone); } });
         assert.ok(r[1].amp < r[2].amp && r[2].amp < r[3].amp, 'more water, more signal');
+        // MEASURED 2026-11-26 (scripts/threshold-observe.mjs, bw-board e744ede7 solver): level 1: half LED observed 0, full LED 2.1e-12.
         assert.ok(r[1].half < 0.01 && r[1].full < 0.01, 'level 1: both LEDs dark');
+        // MEASURED 2026-11-26 (scripts/threshold-observe.mjs, bw-board e744ede7 solver): level 2 and full: half LED observed 0.333 each.
         assert.ok(r[2].half > 0.1 && r[3].half > 0.1, 'level 2 and full: half LED lit');
+        // MEASURED 2026-11-26 (scripts/threshold-observe.mjs, bw-board e744ede7 solver): level 2: full LED observed 2.1e-12.
         assert.ok(r[2].full < 0.01, 'level 2: full LED dark');
+        // MEASURED 2026-11-26 (scripts/threshold-observe.mjs, bw-board e744ede7 solver): full: full LED observed 0.347.
         assert.ok(r[3].full > 0.1, 'full: full LED lit');
         assert.ok(r[2].tone === 0 || !r[2].x.tone('pz')?.on, 'level 2: silent');
+        // MEASURED 2026-11-26 (scripts/threshold-observe.mjs, bw-board e744ede7 solver): full: tone observed 1091.9 Hz.
         assert.ok(r[3].tone > 100, 'full: the beeper sounds');
     });
 

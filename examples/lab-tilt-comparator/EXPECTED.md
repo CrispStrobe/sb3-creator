@@ -9,7 +9,7 @@
 ## Observable behaviour
 - The balance is not at the middle of the knob but near 0.45. The LM324's input bias current (about 47 nA out of the + input through the knob's roughly 50 kΩ, 42 nA out of the − input through the 5 kΩ divider) lifts + by about 2.2 mV against −: an input offset, as on a real chip.
 - As loaded (knob at 0.4): the input is 2.3 mV below the reference; the output sits low, red lit, green dark.
-- Knob at 0.6: 6.7 mV above; the output is high, green lit, red practically dark.
+- Knob at 60 % (0.6): 6.7 mV above; the output is high, green lit, red practically dark.
 - The whole changeover happens within about a tenth of a millivolt above balance: a thousandth of the knob's travel. At 0.4525 (48 µV above balance) both LEDs glow; at 0.461 (0.43 mV) it is fully high; at 0.4514, exactly balanced, it is still low.
 - In the changeover the output moves about 4.1 V for 45 µV at the input: a gain near a hundred thousand. Open loop the amplifier is slow (its dominant pole lies near 10 Hz), so after each turn of the knob the output takes a few tens of milliseconds to settle.
 - The simulated chip has no input offset voltage, only the bias-current offset above; a real one adds a millivolt or so either way, and noise makes the changeover flicker.
