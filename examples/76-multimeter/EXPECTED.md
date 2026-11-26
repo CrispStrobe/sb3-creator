@@ -84,6 +84,6 @@ suite that touches either.
 ```assert
 # Supply rail: VCC = 5.0V
 net vcc1.vcc V 5.00 +-0.01
-# Pot at 50%: wiper = 5.0 × 0.5 = 2.500V
-net vsrc1.wiper V 2.50 +-0.05
+# The source pot is preset to 60%. The divider loads its wiper to 2.83 V.
+net vsrc1.wiper V 2.83 +-0.05
 ```
