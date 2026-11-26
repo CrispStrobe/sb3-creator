@@ -17280,5 +17280,41 @@
       "intro": "lab-hum-counter/intro.md",
       "introDE": "lab-hum-counter/intro.de.md"
     }
+  },
+  {
+    "id": "lab-vhf-superhet",
+    "title": {
+      "en": "An FM superhet for the VHF band",
+      "de": "Ein UKW-Superhet"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 5,
+    "files": {
+      "program": "lab-vhf-superhet/program.bw",
+      "circuit": "lab-vhf-superhet/circuit.json",
+      "expected": "lab-vhf-superhet/EXPECTED.md",
+      "intro": "lab-vhf-superhet/intro.md",
+      "introDE": "lab-vhf-superhet/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-skywave",
+    "title": {
+      "en": "Distant stations after dark: the sky wave",
+      "de": "Ferne Sender nach Einbruch der Dunkelheit: die Raumwelle"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 4,
+    "files": {
+      "program": "lab-skywave/program.bw",
+      "circuit": "lab-skywave/circuit.json",
+      "expected": "lab-skywave/EXPECTED.md",
+      "intro": "lab-skywave/intro.md",
+      "introDE": "lab-skywave/intro.de.md"
+    },
+    "devices": []
   }
 ]
