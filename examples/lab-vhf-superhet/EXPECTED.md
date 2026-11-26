@@ -28,3 +28,12 @@ net vsource_2.pos V 6.00 +-0.01
 net potentiometer_10.wiper V 4.50 +-0.05
 net sa612_12.in_b V 1.38 +-0.03
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@f48ea7c` and `bw-circuit-ui@3084f35` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **20 of this page's 43** numeric claims against that engine
+> (4 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-vhf-superhet` prints them one by one.
+<!-- engine-provenance -->

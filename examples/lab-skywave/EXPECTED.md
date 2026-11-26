@@ -27,3 +27,12 @@ net vsource_2.pos V 6.00 +-0.01
 net sa612_16.in_b V 1.38 +-0.03
 net lm386_38.inn V 0.00 +-0.01
 ```
+
+<!-- engine-provenance -->
+> **Engine provenance.** The measured numbers on this page were last held against
+> `bw-board@f48ea7c` and `bw-circuit-ui@3084f35` — the revisions pinned in
+> `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
+> **0 of this page's 17** numeric claims against that engine
+> (0 of them disagreeing) and declines the rest with a stated reason;
+> `node scripts/expected-claim-census.mjs lab-skywave` prints them one by one.
+<!-- engine-provenance -->
