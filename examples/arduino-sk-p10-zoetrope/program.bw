@@ -2,8 +2,8 @@
 DEVICE ARDUINO-UNO
 CLOCK 16000000
 PIN pot = A0 ANALOG
-PIN btnFwd = D2 INPUT
-PIN btnRev = D3 INPUT
+PIN btnFwd = D2 INPUT ACTIVE LOW
+PIN btnRev = D3 INPUT ACTIVE LOW
 PIN motorEnable = D9 PWM
 PIN motorDir1 = D4 OUTPUT
 PIN motorDir2 = D5 OUTPUT
@@ -13,15 +13,15 @@ SPRITE Cat:
     forever:
       set motorSpeed to ((read pot * 100) / 1023)
       if read btnFwd then:
-        turn on motorDir1
-        turn off motorDir2
+        set motorDir1 to 1
+        set motorDir2 to 0
         set motorEnable to motorSpeed percent
       if read btnRev then:
-        turn off motorDir1
-        turn on motorDir2
+        set motorDir1 to 0
+        set motorDir2 to 1
         set motorEnable to motorSpeed percent
       if not read btnFwd and not read btnRev then:
-        turn off motorDir1
-        turn off motorDir2
+        set motorDir1 to 0
+        set motorDir2 to 0
         set motorEnable to 0 percent
       wait 0.02 seconds
