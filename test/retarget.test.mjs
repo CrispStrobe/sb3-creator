@@ -199,3 +199,24 @@ test('retarget: a refusal names the declaration the new device cannot take, not 
     assert.equal(r.ok, false);
     assert.match(r.reasons[0], /PART \w+ = KEYPAD4X4 .* — KEYPAD4X4 is not available on microbit/);
 });
+
+test('an explicit servo channel keeps its signal pin on the generated driver output', () => {
+    const source = [
+        'DEVICE STC12C5A60S2',
+        'PIN another = P1.0 OUTPUT',
+        'PIN servo = P1.3 OUTPUT',
+        'PART arm = SERVO 1',
+        'WHEN flag clicked:',
+        '  set arm angle to 90'
+    ].join('\n');
+    for (const [device, signal] of [
+        ['stc15f2k60s2', 'P1.3'], ['arduino-uno', 'D9'], ['arduino-nano', 'D9'],
+        ['atmega168p', 'D9'], ['arduino-mega', 'D11'], ['pico', 'GP16']
+    ]) {
+        const result = SB3Creator.retargetPseudocode(source, device);
+        assert.equal(result.ok, true, result.reasons?.join(', '));
+        const mapped = result.pinMap.find(pin => pin.name === 'servo');
+        assert.deepEqual(mapped, {name: 'servo', from: 'P1.3', to: signal});
+        assert.notEqual(result.pinMap.find(pin => pin.name === 'another').to, signal);
+    }
+});

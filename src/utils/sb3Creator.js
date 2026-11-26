@@ -22576,6 +22576,13 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
     // is the LED pin on the AVR boards, poison for an open-drain line.
     // Reserve the pair up front so no other pin is allocated onto it.
     const pinLnames = new Set(stc.pins.map((p) => String(p.name).toLowerCase()));
+    // An explicit servo channel and its conventional signal declaration
+    // stay on the same hardware output as the firmware driver. Older
+    // programs with a plain GPIO named servo keep their ordinary mapping.
+    const servoOne = used.servo && stc.pins.some(p => p.name.toLowerCase() === 'servo' && p.direction === 'output')
+        && stc.parts?.some(p => p.type === 'servo' && p.channel === 1);
+    const servoPin = servoOne && ({8051: 'P1.3', avr: device === 'arduino-mega' ? 'D11' : 'D9', arm: 'GP16'})[core];
+    if (servoPin) taken.add(servoPin);
     const hasI2cPart = (stc.parts || []).some((pt) => PIN_ROLE_PARTS[pt.type] && PIN_ROLE_PARTS[pt.type].bus === 'i2c');
     const i2cConv = (pinLnames.has('sda') && pinLnames.has('scl')) || hasI2cPart
         ? SB3Creator.I2C_PINS[device] : null;
@@ -22607,7 +22614,9 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
             newPins.push({ ...pin, where: i2cConv[lname], activeLow: false, port: undefined, bit: undefined });
             continue;
         }
-        if (pin.direction === 'analog') {
+        if (servoPin && lname === 'servo' && pin.direction === 'output') {
+            where = servoPin;
+        } else if (pin.direction === 'analog') {
             where = take(pools.analog);
             if (!where) reasons.push(`more analog pins than ${device}'s convention offers (${pools.analog.length})`);
         } else if (pin.direction === 'input') {
