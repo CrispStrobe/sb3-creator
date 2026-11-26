@@ -52,7 +52,7 @@
  * is anybody's fault, and the reasons below are written so the two never merge
  * into a single number.
  */
-import { solveBench, declaredPool } from './bench-measure.mjs';
+import { solveBench, declaredPool, isMcuKind } from './bench-measure.mjs';
 import { programOf, exampleDirs } from './expected-claims.mjs';
 import { readInputs, inputStates, pairsOf } from './bench-inputs.mjs';
 
@@ -111,7 +111,11 @@ function unsettable (ctx) {
     // honouring one means scripting control changes against the clock.
     // "A first, then B as well" is the same thing written as a table row: which
     // control came first decides the state, and one solve cannot know that.
-    if (/--set@|--set\s|\bthen\s+(at|close|open)\b|\bstep it\b|\bstepped\b|\bfirst,?\s+then\b/i.test(ctx))
+    // An input held for a stated time and then released — "a flash of light
+    // (0.3 for 2 ms) fires it" (lab-light-thyristor) — is the same thing: the
+    // state after the pulse is a latch's memory of it, not a solve at any
+    // one level of the input.
+    if (/--set@|--set\s|\bthen\s+(at|close|open)\b|\bstep it\b|\bstepped\b|\bfirst,?\s+then\b|\(\s*-?\d+(?:\.\d+)?\s+for\s+\d+(?:\.\d+)?\s*(?:ms|s|µs)\s*\)/i.test(ctx))
         return 'the operating point is a SEQUENCE of control changes against the clock (the document states it as an audit-solve --set invocation), and this gate solves at one point rather than scripting a run';
 
     if (/sound[ _-]?(module|level)|\bAO\b|microphone/i.test(ctx))
@@ -198,7 +202,7 @@ function readConditions (text, parts) {
         else controls.__vcc = parseFloat(swept[1]);
         labels.push(`supply ${swept[1]} V`);
     }
-    if ((parts || []).some(p => /^(mcu|arduino_|pi_pico|attiny|atmega|stc\d|w65c|m?6502|z80|esp)/i.test(p.kind || ''))) {
+    if ((parts || []).some(p => isMcuKind(p.kind))) {
         // "| 0 | high (5 V) | ON | 13.2 mA |" states the pin's drive in a
         // column of its own; the current beside it is a claim about the bench
         // WITH that pin driven, and solving with the pin undriven answers a
@@ -299,16 +303,20 @@ export function enumerateStates (dir) {
             if (p.kind !== 'ldr' && p.kind !== 'ntc') continue;
             for (const k of [0, 0.5, 1]) states.push({ controls: { [p.id]: k }, label: `${p.id} at ${k}` });
         }
-        if ((first.parts || []).some(p => /^(mcu|arduino_|pi_pico|attiny|atmega|stc\d|w65c|m?6502|z80|esp)/i.test(p.kind || '')))
+        if ((first.parts || []).some(p => isMcuKind(p.kind)))
             for (const drive of ['low', 'high', 'input', 'quasi-high'])
                 states.push({ controls: { __pins: drive }, label: `every MCU pin ${drive}` });
         // A relay's contacts move after switchTimeMs; before that the bench is
         // in the state it was in, and a claim about the switched circuit is
         // about a LATER instant as much as about a closed switch.
+        // The coil may be a GPIO's load rather than a button's: then the
+        // settled state is the pins' high drive at the same later instant.
+        const gpio = (first.parts || []).some(p => isMcuKind(p.kind));
         for (const p of (first.parts || [])) {
             if (p.kind !== 'relay') continue;
             const settle = (p.params?.switchTimeMs ?? 5) * 2;
             states.push({ controls: { button: 1 }, atMs: settle, label: `closed, ${settle} ms after` });
+            if (gpio) states.push({ controls: { __pins: 'high' }, atMs: settle, label: `every MCU pin high, ${settle} ms after` });
         }
         // Slide and DIP switches, a Hall field, a reed magnet, a light level:
         // the device-model inputs, appended last so every state above keeps
@@ -420,7 +428,7 @@ export function route (claim) {
     // bench can be in AT that stated time, rather than against one arbitrary one.
     const axes = [];
     if (read.controls.__pins === undefined &&
-        (bench.parts || []).some(p => /^(mcu|arduino_|pi_pico|attiny|atmega|stc\d|w65c|m?6502|z80|esp)/i.test(p.kind || '')))
+        (bench.parts || []).some(p => isMcuKind(p.kind)))
         axes.push(['__pins', ['low', 'high', 'input', 'quasi-high']]);
     if (read.controls.button === undefined &&
         (bench.parts || []).some(p => ['button', 'switch', 'slide_switch'].includes(p.kind)))
