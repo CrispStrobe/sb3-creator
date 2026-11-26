@@ -6,7 +6,7 @@
 
 ## Observable behaviour
 - As authored (big bypass off): the oscillator runs steadily near 797 kHz; once it has settled (about 20 ms) the tank swings a constant 8.89 V and the receiver's detector output is a steady 1.13 V (no tone).
-- Big bypass on: the oscillator stops and restarts about eight hundred times a second (squegging). The tank swings between nothing (microvolts) and about 11 V, the receiver's detector between 0.5 V and 4 V, and the earphone hears a rough tone near 0.8 kHz: a carrier keyed by a tone.
+- Big bypass on: the oscillator stops and restarts about eight hundred times a second (squegging). The tank swings between nothing (microvolts) and about 11 V, the receiver's detector between 0.5 V and 3.4 V or more, and the earphone hears a rough tone near 0.8 kHz: a carrier keyed by a tone.
 - Both coupling switches over (the feedback winding reversed): nothing starts at all (tank below 5 µV).
 
 ## Why the big bypass squegs
@@ -28,7 +28,7 @@ net vsource_2.pos V 9.00 +-0.01
 > **Engine provenance.** The measured numbers on this page were last held against
 > `bw-board@f48ea7c` and `bw-circuit-ui@3084f35` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
-> **17 of this page's 30** numeric claims against that engine
+> **16 of this page's 40** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs lab-meissner-squegg` prints them one by one.
 <!-- engine-provenance -->
