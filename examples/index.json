@@ -71,7 +71,8 @@
     "files": {
       "circuit": "busch-microtronic-wired-io/circuit.json",
       "intro": "busch-microtronic-wired-io/intro.md",
-      "introDE": "busch-microtronic-wired-io/intro.de.md"
+      "introDE": "busch-microtronic-wired-io/intro.de.md",
+      "expected": "busch-microtronic-wired-io/EXPECTED.md"
     },
     "kind": "circuit",
     "devices": []
@@ -87,7 +88,8 @@
     "files": {
       "circuit": "kim1-wired-io/circuit.json",
       "intro": "kim1-wired-io/intro.md",
-      "introDE": "kim1-wired-io/intro.de.md"
+      "introDE": "kim1-wired-io/intro.de.md",
+      "expected": "kim1-wired-io/EXPECTED.md"
     },
     "kind": "circuit",
     "devices": []
