@@ -6,6 +6,7 @@ PIN led1 = P1.0 OUTPUT ACTIVE LOW
 # Count button presses, blink LED that many times
 WHEN flag clicked:
   set count to 0
+  turn off led1
   FOREVER:
     wait until read button
     change count by 1
@@ -17,3 +18,4 @@ WHEN flag clicked:
       turn off led1
       wait 0.2 seconds
     wait 0.5 seconds
+    wait until read button = 0
