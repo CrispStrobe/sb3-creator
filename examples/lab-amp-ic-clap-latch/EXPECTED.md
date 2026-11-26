@@ -5,6 +5,7 @@
 - Microphone: a loudspeaker (8 Ω) into +IN of an LM386 (−IN grounded, 10 µF across the gain pins 1 and 8: gain 200; 10 µF on the bypass pin 7). Its Sound slider plays a sung vowel; as authored the room is quiet.
 - THRESHOLD pot (1 kΩ, wiper at 1/2) between 3.3 kΩ to +9 V and 1.8 kΩ to ground: its wiper sets the bias, 2.66 – 4.13 V.
 - Input path: output → 220 nF → node K (47 kΩ from the wiper) → 1N4148 → Q1's base; 4.7 kΩ from the wiper to Q1's base. RESET button: Q1's base → 470 Ω → ground.
+- 1 MΩ from Q1's collector to its emitter gives the collector a DC path while Q1 is off. The few microamps through it leave the LED dark.
 - Emitter-coupled Schmitt trigger: Q1 and Q2 share 2.2 kΩ from their emitters to ground. Q1's collector load: 2.2 kΩ from +9 V and the red LED (anode at the 2.2 kΩ, cathode at the collector). From the LED's anode 10 kΩ to Q2's base, 10 kΩ from there to ground. Q2's collector: 2.2 kΩ to +9 V.
 
 ## Observable behaviour
@@ -42,7 +43,7 @@ With a noise burst (a clap's spectrum) the same trigger latches at pot 1/2 at 11
 net lm386_4.vout V 0.900 +-0.05
 net npn_13.base V 3.326 +-0.05
 net resistor_19.a V 3.294 +-0.05
-net npn_13.collector V 7.121 +-0.15
+net npn_13.collector V 6.789 +-0.15
 net npn_14.collector V 5.739 +-0.15
 ```
 

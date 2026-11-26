@@ -143,20 +143,22 @@ export const BENCHES = {
     // 470 Ω: the trigger flips back. 10 µF on the amplifier's bypass pin
     // lets its output rise slowly at switch-on, so the coupling capacitor
     // follows and the trigger powers up armed (LED dark).
+    // A 1 MΩ collector-to-emitter path keeps Q1's collector defined at
+    // power-on. Its few microamps leave the LED dark until Q1 switches on.
     'lab-amp-ic-clap-latch': {
         vcc: 9, supply: SUP,
         parts: { bat: BAT9, mic: MIC(), u: LM386, cg: EL(10e-6), cc: C(220e-9),
             rtop: R(3300), thr: POT(1000, 0.5), rbot: R(1800), rbias: R(4700), rk: R(47000), dk: D4148,
             q1: NPN, q2: NPN, rc1: R(2200), led: LED('red'), r12: R(10000), r2g: R(10000), re: R(2200),
-            rc2: R(2200), reset: BTN, rr: R(470), cb: EL(10e-6) },
+            rc2: R(2200), reset: BTN, rr: R(470), cb: EL(10e-6), bleed: R(1e6) },
         nets: [
             ['bat.pos', 'u.vs', 'rtop.a', 'rc1.a', 'rc2.a'],
             ['mic.a', 'u.inp'], ['u.gain1', 'cg.pos'], ['u.gain8', 'cg.neg'],
             ['u.vout', 'cc.a'], ['u.bypass', 'cb.pos'],
             ['rtop.b', 'thr.a'], ['thr.b', 'rbot.a'], ['thr.wiper', 'rbias.a', 'rk.a'], ['cc.b', 'rk.b', 'dk.anode'],
             ['dk.cathode', 'rbias.b', 'q1.base', 'reset.a'], ['reset.b', 'rr.a'],
-            ['rc1.b', 'led.anode', 'r12.a'], ['led.cathode', 'q1.collector'], ['r12.b', 'r2g.a', 'q2.base'],
-            ['q1.emitter', 'q2.emitter', 're.a'], ['rc2.b', 'q2.collector'],
+            ['rc1.b', 'led.anode', 'r12.a'], ['led.cathode', 'q1.collector', 'bleed.a'], ['r12.b', 'r2g.a', 'q2.base'],
+            ['q1.emitter', 'q2.emitter', 're.a', 'bleed.b'], ['rc2.b', 'q2.collector'],
             ['bat.neg', 'mic.b', 'u.gnd', 'u.inn', 'rbot.b', 'r2g.b', 're.b', 'rr.b', 'cb.neg'],
         ],
     },
