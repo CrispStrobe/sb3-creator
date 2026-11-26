@@ -37,9 +37,9 @@ net earphone_8.a V 4.463 +-0.05
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@f48ea7c` and `bw-circuit-ui@3084f35` — the revisions pinned in
+> `bw-board@de8083c` and `bw-circuit-ui@ee2b412` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
-> **6 of this page's 14** numeric claims against that engine
+> **6 of this page's 13** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs lab-amp-ic-baby-monitor` prints them one by one.
 <!-- engine-provenance -->
