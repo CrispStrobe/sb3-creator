@@ -5938,7 +5938,8 @@
       "program": "eater6502-full-build/program.bw",
       "circuit": "eater6502-full-build/circuit.json",
       "intro": "eater6502-full-build/intro.md",
-      "introDE": "eater6502-full-build/intro.de.md"
+      "introDE": "eater6502-full-build/intro.de.md",
+      "controller": "eater6502-full-build/controller.json"
     },
     "kind": "full"
   },
@@ -5956,7 +5957,8 @@
       "intro": "eater6502-vdp-hello/intro.md",
       "introDE": "eater6502-vdp-hello/intro.de.md",
       "expected": "eater6502-vdp-hello/EXPECTED.md",
-      "rom": "eater6502-vdp-hello/rom.bin"
+      "rom": "eater6502-vdp-hello/rom.bin",
+      "controller": "eater6502-vdp-hello/controller.json"
     },
     "kind": "circuit"
   },
