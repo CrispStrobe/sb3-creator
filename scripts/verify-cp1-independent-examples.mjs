@@ -20,6 +20,9 @@ const read = (path, encoding) => readFileSync(new URL(`../${path}`, import.meta.
 const fixtures = JSON.parse(read('reference/cp1-independent-examples.json', 'utf8'));
 const glyphs = [0x3f, 0x06, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x27, 0x7f, 0x6f];
 const workbench = options['circuit-ui'] && await loadWorkbench({board: options.board, circuitUi: options['circuit-ui']});
+// bw-circuit-ui's one reader of the wire-endpoint format, beside the workbench it loads.
+const {wireEndpoint} = options['circuit-ui']
+    ? await import(pathToFileURL(resolve(options['circuit-ui'], 'src/model/wire-endpoints.js')).href) : {};
 
 function displayNumber(digits) {
     const numbers = digits.map(mask => glyphs.indexOf(mask & 0x7f));
@@ -51,8 +54,8 @@ function verifyCase(rom, program, config, expected, circuitConfig) {
         assert.ok(switches.length, `the P${port} input exercise requires circuit switches`);
         for (const {id} of switches) {
             const terminal = Number(id.slice('switch'.length));
-            assert.ok(circuitConfig.wires.some(wire => wire.from.part === 'cp1' &&
-                wire.from.terminal === `P${port}.${terminal - 1}` && wire.to.part === id));
+            assert.ok(circuitConfig.wires.some(wire => wireEndpoint(wire, 'from')?.part === 'cp1' &&
+                wireEndpoint(wire, 'from')?.terminal === `P${port}.${terminal - 1}` && wireEndpoint(wire, 'to')?.part === id));
             circuit.setControl(id, Number(!(value & (1 << (terminal - 1)))));
         }
     };
