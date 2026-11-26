@@ -48,50 +48,17 @@
  */
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { pathToFileURL } from 'node:url';
 import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
-import { injectEngine } from '../scripts/lib/engine-surface.mjs';
 import { readParamKeys } from './helpers/param-source-reads.mjs';
-
-const ROOT = join(import.meta.dirname, '..');
-const EXAMPLES = join(ROOT, 'examples');
-/** The machine part the `.cp1` lessons seat: the index's `target` for them. */
-const CP1_KIND = JSON.parse(readFileSync(join(EXAMPLES, 'index.json'), 'utf8')).find(e => e.files?.cp1)?.target;
+import { declaredParams } from './helpers/param-probe.mjs';
+import { KNOWN_INERT } from './helpers/param-known-inert.mjs';
+import { defineTier2, SHARDS } from './helpers/param-tier2.mjs';
 
 const gate = requireSiblings('bw-board', 'bw-circuit-ui');
 siblingGuardTest(gate, 'the circuit-params-are-read gate');
 const SKIP = gate.skip || false;
-const repoURL = (name) => pathToFileURL(gate.paths[name] + '/');
-
-// ---------- corpus ----------
-
-/** Every (kind, key) the corpus declares, with every site that declares it. */
-function declaredParams() {
-    const sites = new Map();   // `kind.key` -> [{dir, file, partId}]
-    let files = 0;
-    for (const dir of readdirSync(EXAMPLES)) {
-        if (dir === 'AUDIT' || !statSync(join(EXAMPLES, dir)).isDirectory()) continue;
-        for (const file of readdirSync(join(EXAMPLES, dir))) {
-            if (!/^circuit.*\.json$/.test(file)) continue;
-            files++;
-            const data = JSON.parse(readFileSync(join(EXAMPLES, dir, file), 'utf8'));
-            for (const part of data.parts || []) {
-                for (const key of Object.keys(part.params || {})) {
-                    const id = `${part.kind}.${key}`;
-                    if (!sites.has(id)) sites.set(id, []);
-                    // `generated` is the bench generator's own stamp
-                    // (benchFor+seat and friends). It is what separates an
-                    // AUTHORED bench from one built from a program — see rank().
-                    sites.get(id).push({ dir, file, partId: part.id,
-                        generated: !!data.generated });
-                }
-            }
-        }
-    }
-    return { sites, files };
-}
 
 const { sites, files: circuitFiles } = declaredParams();
 
@@ -179,353 +146,14 @@ describe('circuit params, tier 1: no key the engine never mentions', { skip: SKI
 
 // ---------- tier 2: the key demonstrably moves a bench ----------
 
-/**
- * RATCHET — tier 2. (kind, key) pairs that no bench in the corpus responds to.
- *
- * Two different things live here and the verdicts keep them apart:
- *
- *   BLIND SPOT — the engine does read the key; no shipped bench is in a state
- *   where it matters. Removing one of these means finding or building a bench
- *   that exercises it, which is a coverage gain, not a bug fix.
- *
- *   ENGINE — the key is declared, documented, and the model ignores it. The
- *   fix belongs in bw-board, so it cannot land in this repo; it is recorded in
- *   PLAN.md rather than papered over by deleting the declaration.
- *
- * May only SHRINK.
- */
-const KNOWN_INERT = new Map([
-    ['ldr.ohms',
-        'ENGINE: the reviewed PRECHIN A2 source declares ohms: 10000, but bw-board computes '
-        + 'LDR resistance only from rDark/rLight and the light control. The exact source is retained '
-        + 'for provenance; its producer must migrate this legacy field to an explicit supported '
-        + 'range before this exception can be removed.'],
+// ---------- tier 2: the key demonstrably moves a bench ----------
+//
+// The sweep is sharded across this file and circuit-params-are-read-2/-3/-4
+// (test/helpers/param-tier2.mjs says why); the instrument is
+// test/helpers/param-probe.mjs and the ratchet test/helpers/param-known-inert.mjs.
 
-    ['ntc.ohms',
-        'ENGINE: the reviewed PRECHIN A2 source declares ohms: 10000, but bw-board computes '
-        + 'NTC resistance only from rCold/rHot and the temperature control. The exact source is '
-        + 'retained for provenance; its producer must migrate this legacy field to an explicit '
-        + 'supported range before this exception can be removed.'],
-
-    ['xpt2046.vbatDivider',
-        'BLIND SPOT: bw-board reads vbatDivider while handling the XPT2046 VBAT SPI command, '
-        + 'but the imported PRECHIN A2 board carries no program that issues that transaction. '
-        + 'The generic static sweep cannot invent SPI traffic; a focused device transaction test '
-        + 'must make this declaration observable before this exception can be removed.'],
-
-    ['simplevga_card.rows',
-        'ENGINE: nothing reads params.rows for this kind. `rows` is consumed by the character '
-        + 'displays only — hd44780.js and i2c-parts.js both do `part.params?.rows ?? 2` — and no '
-        + 'device model, face renderer or exporter reads it for simplevga_card. '
-        + 'aurora65-workstation declares rows: 128, which is the card geometry its author '
-        + 'intends; the declaration is kept rather than deleted because it states that intent, '
-        + 'and this entry records that the engine does not yet act on it.'],
-
-    ['sevenseg8.common',
-        'BLIND SPOT: no bench declares COMMON ANODE. registerSevenseg8 reads it as '
-        + '/anode/i.test(params.common) and inverts every segment when it matches, and '
-        + "bw-board's test/infer-declared-params drives that init() with the value "
-        + 'inferNetlist emits, so the read is proved where it can be. All four declaring '
-        + 'benches are 79-a2-sampler, whose display is common CATHODE — and no generic '
-        + 'perturbation of the string "cathode" can produce an ANODE value, so this gate '
-        + 'cannot flip it from here — the value is read, but nothing in the corpus asks it '
-        + 'the question. A bench declaring COMMON ANODE would move it, and this '
-        + 'entry must go when one lands. (Before 2026-09-21 the key was emitted as '
-        + '`commonAnode`, which the device never read at all; that was a real defect and is '
-        + 'fixed upstream.)'],
-
-    ['diode.model',
-        'BLIND SPOT: since bw-board 0bc7baf diodes are exponential (Shockley) by default, so the '
-        + 'corpus\'s explicit `model: \'shockley\'` (lab-log-amp\'s d_log) restates the default, and the '
-        + 'probe\'s "ZZ" is an unknown model that falls back to that same default. The key IS read: '
-        + 'MEASURED 2026-11-23, `model: \'pwl\'` on d_log moves the log amp\'s output from -0.574 V to the '
-        + 'knee\'s rail-bound answer. A bench that declares `pwl` would move it.'],
-    ['led.model',
-        'BLIND SPOT: since bw-board 0bc7baf LEDs are exponential (Shockley) by default, so '
-        + 'lab-led-threshold\'s explicit `model: \'shockley\'` restates the default and the probe\'s "ZZ" '
-        + 'falls back to it. The key IS read: MEASURED 2026-11-23, `model: \'pwl\'` on that bench moves '
-        + 'the red/yellow/green LED currents from 1.599/1.209/0.829 mA to 1.357/0.945/0.536 mA. A bench '
-        + 'that declares `pwl` would move it.'],
-
-    ['28c256.readOnly',
-        'BLIND SPOT: no bench writes. readOnly refuses /WE writes, and both probed sites tie /WE high — '
-        + 'a control store is never written. Flipping it changes nothing because nothing writes, '
-        + 'which is the point of a control store. A bench that pulses /WE would move it.'],
-
-    // Read off the solve path — geometry, rendering, export, load-time migration.
-    ['arduino_mega.pins', 'BLIND SPOT: the controller pin table is consumed by terminal resolution and the exporters, not by a DC solve.'],
-    ['arduino_nano.pins', 'BLIND SPOT: as arduino_mega.pins.'],
-    ['arduino_uno.pins',  'BLIND SPOT: as arduino_mega.pins.'],
-    ['mcu.pins',          'BLIND SPOT: as arduino_mega.pins.'],
-    ['pi_pico.pins',      'BLIND SPOT: as arduino_mega.pins.'],
-    ['breadboard.size',   'BLIND SPOT: read by bw-circuit-ui hit-testing and layout, never by the solver.'],
-    ['led.color',         'BLIND SPOT: read by the renderer; the LED model uses vf.'],
-    ['vsource.variant',   'BLIND SPOT: read only by bw-circuit-ui starter-migration at load time; volts carries the electrical meaning and is live.'],
-    ['vsource.gain',      'BLIND SPOT: PCM input control; the shipped source has no samples until the debugger injects a waveform.'],
-    ['dc_motor.airflowGain',
-        'BLIND SPOT: bw-board BoardImpl._airflowMs reads it (m/s of air per rad/s of shaft speed). '
-        + 'Its one bench, lab-airflow-sensor, starts the fan only once the thermostat sees a warm '
-        + 'room (world temperatureC 32 and seconds of thermal settling); this sweep runs 40 ms at the '
-        + 'authored world, where the fan is still. test/lab-circuits-6.test.mjs drives that scenario '
-        + 'and asserts the fan cycles on its own air (measured: without the gain it runs flat out).'],
-    ['vsource.loop',      'BLIND SPOT: PCM input control; an empty sample buffer cannot loop during this static probe.'],
-    ['vsource.rate',      'BLIND SPOT: PCM input control; the shipped source has no samples until the debugger injects a waveform.'],
-    ['vsource.samples',   'BLIND SPOT: the static probe cannot synthesize a replacement PCM array; debugger integration covers waveform injection.'],
-    ['vsource.start',     'BLIND SPOT: PCM input control; start time has no effect before the debugger injects samples.'],
-
-    // Read by the model, but no shipped bench reaches the state that uses it.
-    ['zener.vf',    'BLIND SPOT: the zener benches operate in reverse breakdown, where vz sets the voltage and vf does not.'],
-    ['field_probe.rodVolts',
-        'BLIND SPOT: bw-board src/fields.js reads it as the charged ruler\'s potential, which only couples while the '
-        + 'probe\'s knob is above 0; every charge bench starts with the ruler far away (position 0), and the induced '
-        + 'charge is a path in time (a hand moving), not one solve. test/lab-circuits-fields.test.mjs moves the knob and '
-        + 'flips rodVolts\' sign (lab-electroscope).'],
-    ['field_probe.skinOhms',
-        'BLIND SPOT: the finger\'s skin contact is skinOhms/position, open at the knob\'s rest position 0 '
-        + '(lab-body-hum starts untouched); test/lab-circuits-fields.test.mjs touches the plate.'],
-    ['relay.switchTimeMs','BLIND SPOT: read by the relay model; no probed bench transitions the coil inside the probe window.'],
-    ['ssd1306.address',   'BLIND SPOT: read by the I2C address decoder; the probe drives no I2C traffic.'],
-    // The sensor PARTs' bench stimulus (2026-10-05). Each answers only to a
-    // protocol the static probe cannot drive: a TRIG pulse, a 1-Wire reset and
-    // conversion. test/chain-sensors.test.mjs moves both on the emulated chips
-    // (5-300 cm and -10.5-85 C read back exactly on nine boards).
-    ['ultrasonic.distance', 'BLIND SPOT: read when TRIG falls; the probe sends no trigger. chain-sensors moves it.'],
-    // Optics benches (bw-board optics.js). The heater of lab-led-heat-light is
-    // behind a slide switch that is off as authored, and its parts warm with a
-    // 1.5 s time constant: nothing heats within this probe's 20 ms.
-    ['led.heatedBy', 'BLIND SPOT: lab-led-heat-light heats only after its slide switch closes, over seconds; test/lab-circuits-optics.test.mjs measures it.'],
-    ['led.thermalCoupling', 'BLIND SPOT: as led.heatedBy — no heat flows at the authored, switched-off state.'],
-    ['phototransistor.heatedBy', 'BLIND SPOT: as led.heatedBy, the heated phototransistor of lab-led-heat-light.'],
-    ['phototransistor.thermalCoupling', 'BLIND SPOT: as led.heatedBy.'],
-    ['phototransistor.thermalTau', 'BLIND SPOT: as led.heatedBy — a time constant of an unheated part.'],
-    ['light_path.cutQuality', 'BLIND SPOT: lab-light-guide authors clean cuts (1), the top of the 0..1 range; every larger perturbation clamps to 1. lab-circuits-optics sets 0 and measures it.'],
-    ['light_path.shield', 'BLIND SPOT: shield scales ROOM light at the receiver, and lab-light-guide authors none (0); lab-circuits-optics adds room light and measures the shield.'],
-    ['light_path.material', 'BLIND SPOT: read as a dispersion table name; a perturbed unknown name falls back to acrylic, the authored value, so no string perturbation can move it.'],
-    ['air_coil.dropHeightM', 'BLIND SPOT: the magnet falls only after a drop (setControl verb or params.drops), and lab-magnet-drop authors none, so the coil carries no EMF at either probe instant. lab-circuits-8 drops it and times the pulse.'],
-    ['air_coil.magnetAm2', 'BLIND SPOT: same as dropHeightM: without a drop the magnet never moves and its moment induces nothing. lab-circuits-8 drops it and times the pulse.'],
-    ['speaker.ringOnS', 'BLIND SPOT: a ring cadence starts with a burst at t = 0 and lab-ring-relay rings for 1 s; the probe reads 1 and 20 ms, inside the first burst, where neither the burst length nor the pause can show. lab-circuits-8 runs the cadence for seconds.'],
-    ['speaker.ringOffS', 'BLIND SPOT: the pause after the first 1 s burst; the probe never leaves the first burst (see ringOnS). lab-circuits-8 runs the cadence for seconds.'],
-    ['earphone.strikeHz', 'BLIND SPOT: lab-knock-flicker authors its crystal pickup silent (soundDb 0, the Sound slider at zero), so no knock reaches it at either probe instant and the knock rate has nothing to time. test/lab-circuits-r10a.test.mjs raises the slider and measures the LED flashes.'],
-    ['earphone.decayS', 'BLIND SPOT: as earphone.strikeHz — how fast a knock dies away, on a pickup authored silent.'],
-    ['earphone.ringOnS', 'BLIND SPOT: as earphone.strikeHz — the knocking cadence of a pickup authored silent.'],
-    ['earphone.ringOffS', 'BLIND SPOT: as earphone.strikeHz — the pause in the knocking cadence of a pickup authored silent.'],
-    ['thermocouple.ohms', 'BLIND SPOT: lab-thermocouple feeds the junction straight into an LM358 input, which draws no current, so the series resistance drops nothing. Read whenever the thermocouple drives a load.'],
-    ['ds18b20.temperature', 'BLIND SPOT: read when a READ SCRATCHPAD follows a conversion; the probe drives no 1-Wire. chain-sensors moves it.'],
-    // Round-6 r6e benches (2026-11-24). Each key is read by bw-board but only
-    // acts on an event or a ramp the static probe never produces.
-    ['button.bounceMs', 'BLIND SPOT: bw-board BoardImpl schedules bounce events only when a button\'s control CHANGES; the probe never presses lab-bounce-counter\'s buttons. test/lab-circuits-r6e.test.mjs presses them and counts 4 + 3 edges (bouncy) against 1 (debounced).'],
-    ['button.bounces', 'BLIND SPOT: as button.bounceMs — the number of reversals after a press the probe never makes.'],
-    ['button.bounceSeed', 'BLIND SPOT: as button.bounceMs — the seed of the reversal times after a press the probe never makes.'],
-    ['light_path.combCm', 'BLIND SPOT: combCm is the jet medium\'s knob, so the light path\'s control (authored at rest, the comb 20 cm away) overrides the param; at 20 cm the jet does not bend in either direction. test/lab-circuits-r6e.test.mjs turns the knob to 1 cm and BEAM lights (6.98 mA).'],
-    ['npn.thermalCoupling', 'BLIND SPOT: lab-resistor-heating\'s thermometer transistors take a share of their resistor\'s RISE, and the resistors warm with a 1 s time constant: within the probe\'s 20 ms nothing has risen to share. test/lab-circuits-r6e.test.mjs heats for 3.5 s and lights the HOT LED.'],
-    ['spark_gap.gapMm', 'BLIND SPOT: the gap sets the breakdown voltage (4.35 kV at 1 mm), and lab-comb-jet-spark\'s comb is resting (no charging current) as authored, so no voltage ever reaches the gap in the probe window. test/lab-circuits-r6e.test.mjs combs for a second and counts sparks 430 ms apart.'],
-    // 2026-11-26. Each key below is read by bw-board; the static probe never
-    // reaches the state in which it acts.
-    ['hall_analog.threshold', 'BLIND SPOT: bw-board src/devices/thirtyseven.js pulls DO low once |field| >= threshold, and lab-hall-door-tone, the only bench that declares it, is authored with no magnet (field 0), so DO is high for every threshold above 0. test/lab-circuits-r6i.test.mjs sets field 0.8 and measures the LED and the tone.'],
-    ['relay.pullInV', 'BLIND SPOT: bw-board src/devices/relay.js closes the contact above pullInV, and cp1-cp4-relay-bank, the only bench that declares it, energises its coils only when CP1 firmware drives the driver transistors; the probe runs no firmware (8.1e-11 A through the coil battery at rest, MEASURED 2026-11-26).'],
-    ['relay.dropOutV', 'BLIND SPOT: as relay.pullInV — the release voltage of a coil the probe never energises.'],
-    [`${CP1_KIND}.clockHz`, 'BLIND SPOT: read by bw-board src/cp1-extract.js and the CP1 machine when the debugger attaches firmware; the connector part (src/devices/cp1.js) stamps the same supply and port terminals whatever the crystal, so no static solve can see it. test/cp1-program.test.mjs holds it at 6 MHz.'],
-    [`${CP1_KIND}.expansion`, 'BLIND SPOT: as the CP1 connector\'s clockHz — whether the machine maps the expansion RAM, read at debugger attach, not by the solver.'],
-]);
-
-describe('circuit params, tier 2: the key moves a real bench', { skip: SKIP }, () => {
-    // Two time points, not four: one after the DC operating point settles and
-    // one far enough out that a reactive part has moved. The suite runs 2,098
-    // circuit files and every extra point is another full solve of each bench
-    // probed — the first version of this gate took four points across fourteen
-    // sites per pair and timed out at seven minutes on a loaded box.
-    const TIMES = [1, 20];
-    const VISUAL_ONLY = new Set(['label', 'wire_jumper']);
-    // A live key answers on its best-ranked bench almost always; the sites
-    // beyond that only ever cost time. A key already recorded as a blind spot
-    // gets two, enough to notice it becoming live, not enough to be expensive.
-    const MAX_SITES = 6;
-    const MAX_SITES_KNOWN_INERT = 2;
-
-    let Circuit, ready = false;
-    test('the engine loads', async () => {
-        ({ Circuit } = await injectEngine({
-            board: gate.paths['bw-board'], cui: gate.paths['bw-circuit-ui'],
-        }));
-        ready = true;
-        assert.ok(Circuit, 'bw-circuit-ui Circuit loaded');
-    });
-
-    // Base observations are shared: the same bench file carries several params,
-    // and re-solving it once per (kind, key) was most of the cost.
-    const baseCache = new Map();
-
-    /** Everything this bench can be observed to do, as one comparable string. */
-    const observe = (data) => {
-        const d = JSON.parse(JSON.stringify(data));
-        const hidden = new Set(d.parts.filter(p => VISUAL_ONLY.has(p.kind)).map(p => p.id));
-        d.parts = d.parts.filter(p => !VISUAL_ONLY.has(p.kind));
-        d.wires = (d.wires || []).filter(w =>
-            !(typeof w.from === 'string' && hidden.has(w.from)) &&
-            !(typeof w.to === 'string' && hidden.has(w.to)));
-        const circuit = Circuit.fromJSON(d);
-        const board = circuit.board;
-        const frames = [];
-        // Every manual control DRIVEN for the second half of the sweep.
-        //
-        // A param behind an open switch is unobservable for a reason that has
-        // nothing to do with the engine: an off MOSFET is off whatever its
-        // threshold is. pc39-nmos-switch is the whole nmos population of this
-        // corpus and its gate sits behind a switch, so nmos.vth and nmos.k
-        // were ratcheted as blind spots — MEASURED at bw-board 4ae99bea, with
-        // the switch OPEN vth 2 and the perturbed 8.4 BOTH leave the drain at
-        // 4.9950 V, and with it CLOSED the same perturbation moves the drain
-        // 1.3243 V -> 4.9950 V. The key was live the whole time; the probe
-        // never asked. This is generic, not an nmos special case: anything a
-        // button or switch gates was equally invisible.
-        // The times must stay MONOTONIC — advanceTo does not go backwards, so
-        // the closed pass samples later instants rather than replaying TIMES.
-        // Only benches that HAVE a manual control pay for the second pass: with
-        // nothing to drive it would re-solve an identical circuit for no
-        // observation. MEASURED across examples/*/circuit*.json: 631 of 2139
-        // bench files carry one, so two thirds of the corpus skip the extra
-        // solve entirely.
-        //
-        // A CONTROL NEED NOT BE OPEN/CLOSED. ldr and ntc are continuous — the
-        // pass drives them to full deflection rather than closing them — and
-        // leaving them out left `ldr.rLight` and `ntc.rHot` ratcheted as
-        // engine blind spots for exactly the reason a switch did: their
-        // exemptions read "every LDR bench probes at light control 0, where
-        // the resistance is rDark". That is a fact about where the probe
-        // looked. MEASURED at bw-board 4ae99bea, perturbing as this gate does,
-        // on four independent benches: pc24-light-gate and pc48-ldr-comparator
-        // (rLight) and pc33-thermistor-divider and pc55-ntc-indicator (rHot)
-        // are all INERT at the authored control and all LIVE at control 1.
-        //
-        // A light path's knob (bw-board optics.js) is the same kind of control:
-        // it moves the geometry param named by params.knob between knobMin and
-        // knobMax, so knob/knobMin/knobMax are inert until it is turned. It is
-        // driven to mid-range, where both ends of the range still matter.
-        const CONTROLLED = new Set(['button', 'switch', 'ldr', 'ntc', 'light_path']);
-        const DRIVE_TO = { light_path: 0.5 };
-        const controls = (circuit.parts || []).filter(p => CONTROLLED.has(p.kind));
-        const last = TIMES[TIMES.length - 1];
-        const sweep = [...TIMES.map(t => [false, t]),
-            ...(controls.length ? TIMES.map(t => [true, t + last]) : [])];
-        for (const [driven, ms] of sweep) {
-            if (driven) for (const c of controls) board.setControl(c.id, DRIVE_TO[c.kind] ?? 1);
-            board.advanceTo(BigInt(Math.round(ms * 1e6)));
-            const frame = {};
-            for (const net of (circuit.nets || board.getNets())) {
-                const id = net.id || net.name;
-                try { frame['V:' + id] = +board.nodeVoltage(id).toFixed(9); } catch { /* unsolved */ }
-            }
-            for (const part of (circuit.parts || [])) {
-                const probes = [
-                    ['I:', () => board.branchCurrent(part.id)],
-                    ['R:', () => board.resistance(part.id)],
-                    ['L:', () => board.ledBrightness(part.id)],
-                    ['B:', () => board.buzzerTone(part.id)],
-                    ['D:', () => board.getDeviceState(part.id)],
-                ];
-                for (const [tag, read] of probes) {
-                    // The serialise must sit INSIDE the guard too: a device state
-                    // that will not stringify is an unreadable probe, not a reason
-                    // to abandon the whole bench and report it unprobeable.
-                    try {
-                        const v = read();
-                        if (v === undefined || v === null) continue;
-                        frame[tag + part.id] = typeof v === 'number' ? +v.toFixed(12)
-                            : JSON.stringify(v).slice(0, 4000);
-                    } catch { continue; }
-                }
-            }
-            frames.push(frame);
-        }
-        return JSON.stringify(frames);
-    };
-
-    const perturb = (v) =>
-        typeof v === 'number' ? (v === 0 ? 1.7 : v * 3.7 + 1)
-        : typeof v === 'boolean' ? !v
-        // REPLACE a string, do not extend it. `sevenseg8.common` is read as
-        // /anode/i.test(value), so 'anode' + '_ZZ' still says anode and the
-        // perturbation was a no-op that read as "the engine ignores this key".
-        // A substring test is the normal shape for a string param, so
-        // extending one is the weaker probe everywhere, not just here.
-        : typeof v === 'string' ? (v === 'ZZ' ? 'YY' : 'ZZ')
-        : Array.isArray(v) ? (v.length ? v.slice(0, -1) : ['zz'])
-        : (v && typeof v === 'object') ? { ...v, __zz: 1 }
-        : 'ZZ';
-
-    // Keys that need their own perturbation (none at present). Until bw-board
-    // clamped ferrite_coil.couplingRatio to the main winding's turns (with a
-    // param-clamped warning) and refused an RF band that runs away, 3.7x + 1
-    // on lab-am-transmitter's 0.02 grew the heap past 3 GB in the first
-    // simulated millisecond, and this gate halved the ratio instead. The
-    // engine now ends that bench in a refusal within ~100 MB.
-    const PERTURB_BY_KEY = new Map();
-
-    // The AUTHORED bench first: a retargeted or flat twin often has no firmware
-    // driving it, so nothing moves there whatever the key does. Ordering by
-    // observability is what stops "no current flows in this bench" from being
-    // reported as "the engine ignores this key".
-    //
-    // AUTHORED-NESS IS THE `generated` STAMP, NOT THE FILE NAME. The name was a
-    // proxy, and the proxy broke: when 26 examples were rebuilt from their own
-    // programs their `circuit.json` became a GENERATED bench, and ten such
-    // benches — all of them dark at the probe instant, because no firmware runs
-    // — took every one of the six slots for `led.vf` and reported the key
-    // inert while the authored benches that deliberately vary it, 28-diode-
-    // polarity and 45-led-current-comparison among them, were never reached.
-    // Reading the stamp puts those back in front, which is what the paragraph
-    // above always meant.
-    const rank = (s) => (s.generated ? 4 : 0)
-        + (s.file === 'circuit.json' ? 0
-        : s.file === 'circuit-flat.json' ? 1
-        : /^circuit\.[\w-]+\.json$/.test(s.file) ? 2 : 3);
-
-    test(`every declared (kind, key) changes something in some bench (${KNOWN_INERT.size} exempt, listed in KNOWN_INERT)`, () => {
-        assert.ok(ready, 'engine did not load');
-        const inert = [], unprobeable = [], healed = [];
-        for (const [id, all] of [...sites].sort((a, b) => a[0].localeCompare(b[0]))) {
-            const key = id.slice(id.indexOf('.') + 1);
-            const cap = KNOWN_INERT.has(id) ? MAX_SITES_KNOWN_INERT : MAX_SITES;
-            const candidates = [...all].sort((a, b) => rank(a) - rank(b)).slice(0, cap);
-            let moved = false, probed = 0;
-            for (const site of candidates) {
-                const path = join(EXAMPLES, site.dir, site.file);
-                const raw = JSON.parse(readFileSync(path, 'utf8'));
-                let before = baseCache.get(path);
-                if (before === undefined) {
-                    try { before = observe(raw); } catch { before = null; }
-                    baseCache.set(path, before);
-                }
-                if (before === null) continue;
-                const mutated = JSON.parse(JSON.stringify(raw));
-                const part = mutated.parts.find(p => p.id === site.partId);
-                if (!part) continue;
-                probed++;
-                part.params[key] = (PERTURB_BY_KEY.get(id) || perturb)(part.params[key]);
-                // Throwing IS a response: the engine read the value.
-                let after;
-                try { after = observe(mutated); } catch { moved = true; break; }
-                if (after !== before) { moved = true; break; }
-            }
-            if (moved) {
-                if (KNOWN_INERT.has(id)) healed.push(id);
-                continue;
-            }
-            if (probed === 0) unprobeable.push(`${id} — no solvable site among ${all.length}`);
-            else if (!KNOWN_INERT.has(id)) inert.push(`${id} — ${probed} site(s) probed, none moved`);
-        }
-        assert.deepEqual(unprobeable, [], 'these (kind, key) pairs have no solvable bench at all');
-        assert.deepEqual(inert.sort(), [],
-            'Perturbing these params changed nothing observable in any bench that declares them. '
-            + 'Either the engine ignores the key on this kind (fix the circuit or the engine), or '
-            + 'no bench exercises it (add one). An entry may only be added to KNOWN_INERT with a '
-            + 'written verdict saying which of those it is.');
-        assert.deepEqual(healed.sort(), [],
-            'RATCHET: these KNOWN_INERT entries now move a real bench; remove their exemptions.');
-    });
-
+describe('circuit params, tier 2: the ratchet and the shards', { skip: SKIP }, () => {
     test('KNOWN_INERT carries nothing that no longer reproduces', () => {
-        assert.ok(ready, 'engine did not load');
         const stale = [...KNOWN_INERT.keys()].filter(id => !sites.has(id));
         assert.deepEqual(stale, [],
             'RATCHET: these KNOWN_INERT entries name a (kind, key) the corpus no longer declares.');
@@ -533,4 +161,15 @@ describe('circuit params, tier 2: the key moves a real bench', { skip: SKIP }, (
             assert.match(verdict, /^(BLIND SPOT|ENGINE):/,
                 `KNOWN_INERT["${id}"] must open with a verdict of BLIND SPOT or ENGINE`);
     });
+
+    test('every shard of the sweep is a file node --test runs', () => {
+        const missing = [];
+        for (let s = 2; s <= SHARDS; s++) {
+            const f = join(import.meta.dirname, `circuit-params-are-read-${s}.test.mjs`);
+            if (!existsSync(f) || !readFileSync(f, 'utf8').includes(`defineTier2(${s - 1})`)) missing.push(f);
+        }
+        assert.deepEqual(missing, [], 'a tier-2 shard file is missing: its pairs are probed by nobody');
+    });
 });
+
+defineTier2(0);
