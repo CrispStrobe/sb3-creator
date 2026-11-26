@@ -26,7 +26,7 @@ net lm324_3.1_pos V 3.015 +-0.03
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@f48ea7c` and `bw-circuit-ui@3084f35` — the revisions pinned in
+> `bw-board@0f6b38a` and `bw-circuit-ui@42aaddc` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **8 of this page's 21** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;
