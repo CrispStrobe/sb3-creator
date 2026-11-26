@@ -334,10 +334,13 @@ describe('lab benches (set r7b) behave as documented', { skip: SKIP }, () => {
         x.set('key', 1);
         x.run(5);
         const on = { out: x.v('u', 'vout'), det: x.v('d', 'cathode'), led: ledMa(), tx: x.rf('tct', 'b'), rx: x.rf('tcr', 'a'), gate: x.rf('m', 'gate'), drain: x.rf('m', 'drain') };
+        // The rod's main winding carries the oscillator's collector current
+        // (bw-board reads it from the copper the RF front end solves it as).
+        const coil = { ic: x.b.branchCurrent(x.ids.q1, 'collector'), lt: x.b.branchCurrent(x.ids.lt, 'b') };
         x.set('key', 0);
         x.run(8);
         const after = { out: x.v('u', 'vout'), led: ledMa() };
-        LOG('remote', JSON.stringify({ off, on, after }));
+        LOG('remote', JSON.stringify({ off, on, after, coil }));
         // At build time (bw-board b094eb22): idle out 4.527 V, LED 0.009 mA;
         // key held 5 ms: out 7.16 V, detector 0.133 V, LED 4.51 mA, gate
         // 0.059 V and drain 0.682 V of RF; released 8 ms: out 4.572 V, LED
@@ -345,15 +348,21 @@ describe('lab benches (set r7b) behave as documented', { skip: SKIP }, () => {
         // transmitter's swing is lower after #760's band changes (its band
         // no longer collapses and regrows at the clamp; 3.5 V of RF at its
         // tank), so key held: out 6.21 V, detector 0.085 V, LED 2.63 mA, gate
-        // 0.016 V and drain 0.244 V; idle and released as before.
+        // 0.016 V and drain 0.244 V; idle and released as before. On
+        // 792f8dfb (#780: the keyed transmitter steady at 5.8 V instead of a
+        // 3.5-5.6 V sawtooth): out 6.37 V, detector 0.094 V, LED 2.96 mA,
+        // gate 0.034 V, drain 0.455 V.
         near(off.out, 4.53, 0.05, 'idle: the LM386 output at half the supply (V)');
         // MEASURED 2026-11-24: off.led < 0.2 -> observed 0.0094.
         assert.ok(off.led < 0.2, `idle: LED dark (${off.led.toFixed(3)} mA)`);
-        near(on.out, 6.21, 0.6, 'key held: the LM386 output (V)');
-        // MEASURED 2026-11-26: on.led > 1.5 -> observed 2.63 (4.51 before bw-board #760).
+        near(on.out, 6.37, 0.6, 'key held: the LM386 output (V)');
+        // MEASURED 2026-11-26: on.led > 1.5 -> observed 2.96 (4.51 before bw-board #760).
         assert.ok(on.led > 1.5, `key held: LED lit (${on.led.toFixed(2)} mA)`);
-        // MEASURED 2026-11-26: on.drain / on.gate > 6 -> observed 14.9 (11.5 before bw-board #760).
+        // MEASURED 2026-11-26: on.drain / on.gate > 6 -> observed 13.3 (11.5 before bw-board #760).
         assert.ok(on.drain / on.gate > 6, `the MOSFET stage amplifies the carrier (${(on.drain / on.gate).toFixed(1)} times)`);
+        // MEASURED 2026-11-26: Math.abs(coil.ic) > 1e-4 -> observed 0.0030 (the main winding 0.0030 the other way: KCL at the collector).
+        assert.ok(Math.abs(coil.ic) > 1e-4, `key held: the transistor draws a collector current (${coil.ic} A)`);
+        assert.ok(Math.abs(coil.lt + coil.ic) < 1e-3 * Math.abs(coil.ic), `the rod's main winding carries it: ${coil.lt} A against ${coil.ic} A`);
         // MEASURED 2026-11-24: after.led < 0.2 -> observed 0.0165.
         assert.ok(after.led < 0.2, `released: LED dark again (${after.led.toFixed(3)} mA)`);
     });

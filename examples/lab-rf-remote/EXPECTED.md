@@ -11,7 +11,7 @@
 - Released again: within a few milliseconds the output is back near 4.57 V and the LED is dark.
 
 ## Measured on the engine
-bw-board f48ea7ce, `test/lab-circuits-r7b.test.mjs` (10 ms idle, 5 ms key held, 8 ms released): idle output 4.527 V with the LED dark; held 6.21 V, LED 2.63 mA, the drain's RF 14.9 times the gate's; released 4.56 V, LED dark again. Re-measured 2026-11-26: the transmitter's swing is lower after bw-board #760's band changes (3.5 V of RF at its tank; on b094eb22 the held key gave 7.16 V and 4.51 mA).
+bw-board 792f8dfb, `test/lab-circuits-r7b.test.mjs` (10 ms idle, 5 ms key held, 8 ms released): idle output 4.527 V with the LED dark; held 6.37 V, LED 2.96 mA, the drain's RF 13.3 times the gate's, the transmitter's rod carrying its 3.0 mA collector current; released 4.56 V, LED dark again. Re-measured 2026-11-26: the transmitter's swing is lower after bw-board #760's band changes (5.8 V of RF at its tank; on b094eb22 the held key gave 7.16 V and 4.51 mA).
 
 ## What this verifies
 1. A carrier alone, detected and DC-amplified, can switch something: the simplest radio remote control.
