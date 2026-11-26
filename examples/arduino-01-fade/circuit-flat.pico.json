@@ -66,7 +66,8 @@
         "cathode"
       ],
       "x": 484,
-      "y": 255
+      "y": 255,
+      "declName": "led"
     },
     {
       "id": "r1",
@@ -79,7 +80,8 @@
         "b"
       ],
       "x": 400,
-      "y": 255
+      "y": 255,
+      "declName": "r1"
     },
     {
       "id": "vcc1",
@@ -110,7 +112,7 @@
       "netId": "bb1:n-col-t27",
       "from": {
         "part": "board",
-        "terminal": "gp25"
+        "terminal": "gp15"
       },
       "to": {
         "part": "r1",

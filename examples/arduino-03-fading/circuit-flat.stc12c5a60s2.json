@@ -9,7 +9,7 @@
       "terminals": [
         "VCC",
         "GND",
-        "P1.0"
+        "P1.3"
       ],
       "x": 80,
       "y": -60
@@ -70,7 +70,7 @@
       "netId": "bb1:n-col-t20",
       "from": {
         "part": "board",
-        "terminal": "P1.0"
+        "terminal": "P1.3"
       },
       "to": {
         "part": "r1",

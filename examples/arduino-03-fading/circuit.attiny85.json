@@ -96,7 +96,7 @@
   },
   {
    "from": "board",
-   "fromTerminal": "pb0",
+   "fromTerminal": "pb4",
    "to": "r1",
    "toTerminal": "a"
   },
@@ -157,7 +157,7 @@
   {
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
-   "a": "a6",
+   "a": "g5",
    "b": "b11",
    "color": "blue"
   },
