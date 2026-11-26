@@ -20,8 +20,8 @@
         "gp11",
         "gp12",
         "gp13",
+        "gp13",
         "gp14",
-        "gp15",
         "gp16",
         "gp17",
         "gp18",
@@ -29,7 +29,7 @@
         "gp20",
         "gp21",
         "gp22",
-        "gp25",
+        "gp15",
         "gp26",
         "gp27",
         "gp28",
@@ -162,7 +162,7 @@
       "netId": "bb1:n-col-t21",
       "from": {
         "part": "board",
-        "terminal": "gp14"
+        "terminal": "gp13"
       },
       "to": {
         "part": "r3",
@@ -174,7 +174,7 @@
       "netId": "bb1:n-col-t22",
       "from": {
         "part": "board",
-        "terminal": "gp15"
+        "terminal": "gp14"
       },
       "to": {
         "part": "r2",
@@ -186,7 +186,7 @@
       "netId": "bb1:n-col-t27",
       "from": {
         "part": "board",
-        "terminal": "gp25"
+        "terminal": "gp15"
       },
       "to": {
         "part": "r1",

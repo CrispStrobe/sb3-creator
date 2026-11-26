@@ -14,16 +14,9 @@
    "id": "board",
    "kind": "arduino_uno",
    "params": {},
-   "x": 240,
-   "y": -12,
-   "rotation": 0,
-   "terminals": [
-    "d8",
-    "d13",
-    "d12",
-    "5v",
-    "gnd"
-   ]
+   "x": 80,
+   "y": -60,
+   "rotation": 0
   },
   {
    "id": "led1",
@@ -49,13 +42,13 @@
    "params": {
     "color": "green"
    },
-   "x": 372,
+   "x": 358,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a25",
-     "cathode": "a26"
+     "anode": "a24",
+     "cathode": "a25"
     }
    }
   },
@@ -66,13 +59,13 @@
    "params": {
     "color": "blue"
    },
-   "x": 428,
+   "x": 400,
    "y": 255,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "anode": "a29",
-     "cathode": "a30"
+     "anode": "a27",
+     "cathode": "a28"
     }
    }
   },
@@ -130,15 +123,15 @@
    "params": {
     "volts": 5
    },
-   "x": 498,
-   "y": 115
+   "x": 220,
+   "y": 60
   },
   {
    "id": "gnd1",
    "kind": "gnd",
    "params": {},
-   "x": 574,
-   "y": 115
+   "x": 360,
+   "y": 60
   }
  ],
  "wires": [
@@ -179,28 +172,32 @@
    "toTerminal": "gnd"
   },
   {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": {
+    "board": "bb1",
+    "hole": "b-2"
+   },
+   "color": "black",
+   "genPower": true
+  },
+  {
    "from": "board",
-   "fromTerminal": "d8",
+   "fromTerminal": "d9",
    "to": "r3",
    "toTerminal": "a"
   },
   {
    "from": "board",
-   "fromTerminal": "d13",
+   "fromTerminal": "d3",
    "to": "r1",
    "toTerminal": "a"
   },
   {
    "from": "board",
-   "fromTerminal": "d12",
+   "fromTerminal": "d11",
    "to": "r2",
    "toTerminal": "a"
-  },
-  {
-   "from": "board",
-   "fromTerminal": "5v",
-   "to": "vcc1",
-   "toTerminal": "vcc"
   },
   {
    "from": "board",
@@ -227,14 +224,10 @@
    "toTerminal": "cathode"
   },
   {
-   "from": "gnd1",
-   "fromTerminal": "gnd",
-   "to": {
-    "board": "bb1",
-    "hole": "b-2"
-   },
-   "color": "black",
-   "genPower": true
+   "from": "board",
+   "fromTerminal": "5v",
+   "to": "vcc1",
+   "toTerminal": "vcc"
   }
  ],
  "holeWires": [
@@ -256,30 +249,30 @@
    "ref": "bbw:bb1:gen_2",
    "boardId": "bb1",
    "a": "b13",
-   "b": "b25",
+   "b": "b24",
    "color": "blue"
   },
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "b26",
-   "b": "b-26",
+   "a": "b25",
+   "b": "b-25",
    "color": "black"
   },
   {
    "ref": "bbw:bb1:gen_4",
    "boardId": "bb1",
    "a": "b19",
-   "b": "b29",
+   "b": "b27",
    "color": "yellow"
   },
   {
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
-   "a": "b30",
-   "b": "b-30",
+   "a": "b28",
+   "b": "b-28",
    "color": "black"
   }
  ],
- "generated": "benchFor+authored+seat"
+ "generated": "benchFor+authored"
 }
