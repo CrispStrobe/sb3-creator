@@ -6896,7 +6896,8 @@ class SB3Creator {
         if ((match = matchTopLevel(line, /^print\s+(.+)$/i))) {
             const { id, block } = cmd('stc12_print');
             block[id].inputs.VALUE = val(match[1]);
-            block[id].fields.MODE = ['number', null];
+            // A reporter can yield text or a number when evaluated in the VM.
+            block[id].fields.MODE = ['auto', null];
             return ret(block);
         }
         // ---- micro:bit+ display group (docs/microbitplus/DUAL-LOWERING-ORACLE.md D1–D5).
