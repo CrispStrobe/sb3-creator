@@ -61,6 +61,40 @@
     "authored": "stc12c5a60s2"
   },
   {
+    "id": "busch-microtronic-wired-io",
+    "title": {
+      "en": "Busch Microtronic 2090: Wired I/O",
+      "de": "Busch Microtronic 2090: Verdrahtete Ein- und Ausgänge"
+    },
+    "category": "digital",
+    "difficulty": 1,
+    "files": {
+      "circuit": "busch-microtronic-wired-io/circuit.json",
+      "intro": "busch-microtronic-wired-io/intro.md",
+      "introDE": "busch-microtronic-wired-io/intro.de.md",
+      "expected": "busch-microtronic-wired-io/EXPECTED.md"
+    },
+    "kind": "circuit",
+    "devices": []
+  },
+  {
+    "id": "kim1-wired-io",
+    "title": {
+      "en": "KIM-1: Wired I/O",
+      "de": "KIM-1: Verdrahtete Ein- und Ausgänge"
+    },
+    "category": "digital",
+    "difficulty": 2,
+    "files": {
+      "circuit": "kim1-wired-io/circuit.json",
+      "intro": "kim1-wired-io/intro.md",
+      "introDE": "kim1-wired-io/intro.de.md",
+      "expected": "kim1-wired-io/EXPECTED.md"
+    },
+    "kind": "circuit",
+    "devices": []
+  },
+  {
     "id": "02-dimmer",
     "title": {
       "en": "LED dimmer with potentiometer",
