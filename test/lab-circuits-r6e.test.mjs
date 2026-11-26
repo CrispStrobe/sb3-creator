@@ -382,10 +382,18 @@ describe('lab round-6 r6e benches behave as documented', { skip: SKIP }, () => {
         near(canary.down, 3, 3, 'canary: drops back at once (ms)');
         // The pitch at the bottom and the top of the siren's ramp: SOUND on
         // for 10 ms just after the capacitor turns (bottom) and just before
-        // it turns again (top).
+        // it turns again (top). The tone is read BEFORE SOUND opens again:
+        // opening it is not an oscillation edge. Until bw-board 97ba173a (event
+        // solves hold the devices' own charge, in pin 9de91e31) that switch
+        // action jumped the coupling capacitor's charge, the loudspeaker
+        // recorded an edge at the instant of opening, and it was counted as a
+        // fourth half-period: 551 / 726 Hz. The multivibrator's own periods,
+        // unchanged across that engine change, are 1.95 ms at the bottom
+        // (MEASURED 2026-11-26: 1.889, 1.966, 1.956, 1.947 ms) and give
+        // 513 / 684 Hz.
         const x = bench('lab-siren-canary');
         x.set('sound', 0);
-        const pitchNow = () => { x.set('sound', 1); x.run(3); const from = x.t; x.run(7); x.set('sound', 0); return toneHz(x, 'spk', from); };
+        const pitchNow = () => { x.set('sound', 1); x.run(3); const from = x.t; x.run(7); const hz = toneHz(x, 'spk', from); x.set('sound', 0); return hz; };
         while (x.v('u', '1_out') > 3.75) x.run(5);
         while (x.v('u', '1_out') < 3.75) x.run(5);
         const low = pitchNow();
@@ -393,9 +401,9 @@ describe('lab round-6 r6e benches behave as documented', { skip: SKIP }, () => {
         while (x.v('ct', 'pos') < 5.25) x.run(5);
         const high = pitchNow();
         near(x.v('u', '2_out'), 7.14, 0.1, 'top of the ramp: base return (V)');
-        near(low, 551, 30, 'bottom of the ramp: pitch (Hz)');
-        near(high, 726, 30, 'top of the ramp: pitch (Hz)');
-        near(high / low, 1.32, 0.05, 'the glide spans about a fourth');
+        near(low, 513, 30, 'bottom of the ramp: pitch (Hz)');
+        near(high, 684, 30, 'top of the ramp: pitch (Hz)');
+        near(high / low, 1.33, 0.05, 'the glide spans about a fourth');
     });
 
     test('lab-transistor-thermometer: 50 mV per kelvin on the meter, the relay heats below SET', () => {
