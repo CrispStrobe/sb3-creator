@@ -51,6 +51,9 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import React from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { build } from 'esbuild';
 import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
 import { injectEngine } from '../scripts/lib/engine-surface.mjs';
 import { readParamKeys } from './helpers/param-source-reads.mjs';
@@ -342,11 +345,28 @@ describe('circuit params, tier 2: the key moves a real bench', { skip: SKIP }, (
     const MAX_SITES = 6;
     const MAX_SITES_KNOWN_INERT = 2;
 
-    let Circuit, ready = false;
+    let Circuit, CardiacPanel, ready = false;
     test('the engine loads', async () => {
         ({ Circuit } = await injectEngine({
             board: gate.paths['bw-board'], cui: gate.paths['bw-circuit-ui'],
         }));
+        if (sites.has('cardiac.inputSource')) {
+            // Render the actual pinned compact UI for its UI-owned preference.
+            // CSS is irrelevant to this static markup observation; React is
+            // shared with this renderer, not copied into a second hooks runtime.
+            const bundled = await build({
+                entryPoints: [join(gate.paths['bw-circuit-ui'], 'src/components/CardiacPanel.jsx')],
+                bundle: true, write: false, platform: 'node', format: 'esm',
+                loader: { '.css': 'empty' },
+                plugins: [{ name: 'shared-react', setup(builder) {
+                    builder.onResolve({ filter: /^react$/ }, () => ({
+                        path: import.meta.resolve('react'), external: true,
+                    }));
+                } }],
+            });
+            ({ CardiacPanel } = await import('data:text/javascript;base64,' +
+                Buffer.from(bundled.outputFiles[0].text).toString('base64')));
+        }
         ready = true;
         assert.ok(Circuit, 'bw-circuit-ui Circuit loaded');
     });
@@ -355,8 +375,47 @@ describe('circuit params, tier 2: the key moves a real bench', { skip: SKIP }, (
     // and re-solving it once per (kind, key) was most of the cost.
     const baseCache = new Map();
 
+    // CARDIAC opens paused. A passive 20 ms solve cannot expose its program or
+    // rate, and its Board device state contains BigInt scheduling fields that
+    // the generic JSON probe deliberately declines. Observe its public decimal
+    // machine fields after explicit execution, without serializing internals.
+    const CARDIAC_PARAMS = new Set(['cardiac.program', 'cardiac.instructionHz', 'cardiac.inputSource']);
+    const observeCardiac = (data, id) => {
+        const circuit = Circuit.fromJSON(JSON.parse(JSON.stringify(data)));
+        assert.equal(circuit.netlistError, null, 'the CARDIAC probe must load a valid bench');
+        const part = circuit.parts.find(p => p.kind === 'cardiac');
+        assert.ok(part, 'a CARDIAC probe needs its authored part');
+        const board = circuit.board;
+        if (id === 'cardiac.inputSource') {
+            assert.equal(typeof CardiacPanel, 'function');
+            const markup = renderToStaticMarkup(React.createElement(CardiacPanel, { part, board }));
+            assert.equal(board.getDeviceState(part.id).steps, 0, 'rendering a preference does not execute a card');
+            return markup;
+        }
+        const command = (verb, value) => assert.equal(board.setDeviceControl(part.id, verb, value), true,
+            `CARDIAC accepted ${verb}`);
+        if (id === 'cardiac.instructionHz') {
+            // Nonblocking ADD/JMP loop: no input wait or HRS can conceal rate.
+            // Keep the authored instructionHz; replace only this probe's code.
+            command('loadProgram', { entry: 1, words: [
+                { address: 1, value: 281 }, { address: 2, value: 801 }, { address: 81, value: 1 },
+            ] });
+        } else command('enqueueInput', [200, 800]);
+        command('run');
+        board.advanceTo(1000000000n);
+        const state = board.getDeviceState(part.id);
+        assert.equal(state.error, null);
+        assert.ok(state.steps > 0, 'the program probe must actually retire instructions');
+        if (id === 'cardiac.instructionHz') {
+            assert.equal(state.waiting, false); assert.equal(state.halted, false);
+        }
+        return JSON.stringify({ pc: state.pc, acc: state.acc, steps: state.steps,
+            memory: state.memory, output: state.output, waiting: state.waiting, halted: state.halted });
+    };
+
     /** Everything this bench can be observed to do, as one comparable string. */
-    const observe = (data) => {
+    const observe = (data, paramId) => {
+        if (CARDIAC_PARAMS.has(paramId)) return observeCardiac(data, paramId);
         const d = JSON.parse(JSON.stringify(data));
         const hidden = new Set(d.parts.filter(p => VISUAL_ONLY.has(p.kind)).map(p => p.id));
         d.parts = d.parts.filter(p => !VISUAL_ONLY.has(p.kind));
@@ -453,13 +512,45 @@ describe('circuit params, tier 2: the key moves a real bench', { skip: SKIP }, (
         : (v && typeof v === 'object') ? { ...v, __zz: 1 }
         : 'ZZ';
 
-    // Keys that need their own perturbation (none at present). Until bw-board
+    // Keys that need their own valid perturbation. Until bw-board
     // clamped ferrite_coil.couplingRatio to the main winding's turns (with a
     // param-clamped warning) and refused an RF band that runs away, 3.7x + 1
     // on lab-am-transmitter's 0.02 grew the heap past 3 GB in the first
     // simulated millisecond, and this gate halved the ratio instead. The
     // engine now ends that bench in a refusal within ~100 MB.
-    const PERTURB_BY_KEY = new Map();
+    const PERTURB_BY_KEY = new Map([
+        // Adding an unknown object property does not change an accepted image.
+        // ENTRY is a supported field and changes the executed starting word.
+        ['cardiac.program', image => ({ ...image, entry: (image.entry + 1) % 100 })],
+        ['cardiac.inputSource', source => source === 'circuit' ? 'manual' : 'circuit'],
+    ]);
+
+    test('CARDIAC program, instruction rate and input preference have distinct owning observations', () => {
+        assert.ok(ready, 'engine did not load');
+        const raw = JSON.parse(readFileSync(join(EXAMPLES, 'cardiac-night-light/circuit.json'), 'utf8'));
+        const programBefore = JSON.parse(observe(raw, 'cardiac.program'));
+        const changedProgram = structuredClone(raw);
+        const changedPart = changedProgram.parts.find(p => p.kind === 'cardiac');
+        changedPart.params.program = PERTURB_BY_KEY.get('cardiac.program')(changedPart.params.program);
+        const programAfter = JSON.parse(observe(changedProgram, 'cardiac.program'));
+        assert.deepEqual(programBefore.output, [1, 0], 'authored night-light executes its supplied cards');
+        assert.notDeepEqual(programAfter.output, programBefore.output, 'a valid entry edit changes executed behavior');
+
+        const rates = [20, 75].map(instructionHz => {
+            const data = structuredClone(raw);
+            data.parts.find(p => p.kind === 'cardiac').params.instructionHz = instructionHz;
+            return JSON.parse(observe(data, 'cardiac.instructionHz'));
+        });
+        assert.deepEqual(rates.map(state => state.steps), [20, 75], 'one Board second retires the requested rates');
+        assert.deepEqual(rates.map(state => state.acc), [10, 38], 'actual ADD results corroborate the retired instructions');
+
+        const manual = structuredClone(raw);
+        manual.parts.find(p => p.kind === 'cardiac').params.inputSource = 'manual';
+        const circuitMarkup = observe(raw, 'cardiac.inputSource');
+        const manualMarkup = observe(manual, 'cardiac.inputSource');
+        assert.match(circuitMarkup, /data-cardiac-sample/); assert.doesNotMatch(circuitMarkup, /data-cardiac-enqueue/);
+        assert.match(manualMarkup, /data-cardiac-enqueue/); assert.doesNotMatch(manualMarkup, /data-cardiac-sample/);
+    });
 
     // The AUTHORED bench first: a retargeted or flat twin often has no firmware
     // driving it, so nothing moves there whatever the key does. Ordering by
@@ -491,10 +582,11 @@ describe('circuit params, tier 2: the key moves a real bench', { skip: SKIP }, (
             for (const site of candidates) {
                 const path = join(EXAMPLES, site.dir, site.file);
                 const raw = JSON.parse(readFileSync(path, 'utf8'));
-                let before = baseCache.get(path);
+                const cacheKey = CARDIAC_PARAMS.has(id) ? `${path}|${id}` : path;
+                let before = baseCache.get(cacheKey);
                 if (before === undefined) {
-                    try { before = observe(raw); } catch { before = null; }
-                    baseCache.set(path, before);
+                    try { before = observe(raw, id); } catch { before = null; }
+                    baseCache.set(cacheKey, before);
                 }
                 if (before === null) continue;
                 const mutated = JSON.parse(JSON.stringify(raw));
@@ -504,7 +596,7 @@ describe('circuit params, tier 2: the key moves a real bench', { skip: SKIP }, (
                 part.params[key] = (PERTURB_BY_KEY.get(id) || perturb)(part.params[key]);
                 // Throwing IS a response: the engine read the value.
                 let after;
-                try { after = observe(mutated); } catch { moved = true; break; }
+                try { after = observe(mutated, id); } catch { moved = true; break; }
                 if (after !== before) { moved = true; break; }
             }
             if (moved) {

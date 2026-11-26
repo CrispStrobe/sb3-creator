@@ -21,7 +21,7 @@ const index = JSON.parse(readFileSync(join(EXAMPLES, 'index.json'), 'utf8'));
 // Device-only micro:bit and SPIKE Prime examples sit outside the C-retarget
 // family — retargetPseudocode has no 'microbit' or 'spike' target (same
 // exclusion as retarget-gallery, a1b6030; this suite was missed by that fix).
-const generic = index.filter(e => e.kind === 'program' && Array.isArray(e.devices)
+const generic = index.filter(e => e.kind === 'program' && Boolean(e.files?.program) && Array.isArray(e.devices)
     && e.authored !== 'microbit' && e.authored !== 'spike');
 
 // MEASURED 2026-08-23: 40 of 274 index.json entries. Both halves of this filter
@@ -31,7 +31,7 @@ const generic = index.filter(e => e.kind === 'program' && Array.isArray(e.device
 // list is a green run over nothing.
 corpusFloor('retargetable programs in examples/index.json',
     () => generic.length, 35,
-    "The filter is kind === 'program' && Array.isArray(devices), minus the microbit/spike authored families.");
+    "The filter is kind === 'program' && files.program && Array.isArray(devices), minus the microbit/spike authored families.");
 
 /** ADC config per device: bits and reference voltage. */
 const ADC_CFG = {
