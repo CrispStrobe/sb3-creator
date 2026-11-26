@@ -16,4 +16,4 @@ Klick auf **Sim**. Der Bereichsschalter (slide_switch_5) steht links, Minuten: d
 
 ## Warum es funktioniert
 
-Der −-Eingang des Op-Amps folgt dem Kondensator, sein +-Eingang liegt bei 6 V. Solange der Kondensator darunter ist, ist der Ausgang hoch und der Transistor hält das Relais. Die Zeit bis 6 V beträgt 1,13 × R × C — hundertmal so viel Kapazität ergibt hundertmal so viel Zeit.
+Der −-Eingang des Op-Amps folgt dem Kondensator, sein +-Eingang liegt bei 6 V. Solange der Kondensator darunter ist, ist der Ausgang hoch und der Transistor hält das Relais. Die Zeit bis 6 V beträgt etwa 1,1 × R × C — hundertmal so viel Kapazität ergibt hundertmal so viel Zeit.

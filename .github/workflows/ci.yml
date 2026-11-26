@@ -39,8 +39,22 @@ concurrency:
 
 jobs:
   test:
-    name: Lint · test · build
+    name: Lint · test · build (${{ matrix.shard }}/4)
     runs-on: ubuntu-latest
+    # THREE RUNNERS, ONE SUITE. The unit + VM suite outgrew one runner: from
+    # 2026-11-25 every run on main hit this step's 30 minutes with a quarter
+    # of the files never started (17 min on the last green run, a75b177e;
+    # the gallery grew by two hundred lab benches since). A hosted runner has
+    # four vCPUs and the step's three concurrent files contended for them, so
+    # the summed file time ran at barely twice the wall clock. node --test
+    # --test-shard deals the test FILES round-robin over the shards, every
+    # file still runs exactly once and with the same per-file timeout, and
+    # the job is green only when all three are. The steps that are not the
+    # suite (device lists, the mutation prover, the build) run on shard 1.
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
@@ -69,14 +83,14 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           repository: CrispStrobe/bw-board
-          ref: f48ea7ce962ea86f1a535bc2616d557cb66d71ba
+          ref: de8083c5a894a49c9fa4c6f0fb6f8866e2d758c0
           path: siblings/bw-board
 
       - name: Check out bw-circuit-ui (pinned)
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           repository: CrispStrobe/bw-circuit-ui
-          ref: 3084f357fb9e1aea5545b5593f375f9591e9888a
+          ref: ee2b4127a88f1b308f8d749cae4d7c1db1deae9e
           path: siblings/bw-circuit-ui
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
@@ -136,13 +150,14 @@ jobs:
         run: npm run lint
 
       - name: Unit + VM tests
-        run: npm test
+        run: npm run test:shard
         # Raised from 5: the cross-repo gates now actually run. Raised again to
         # 30 alongside the per-file --test-timeout, because gallery-e2e alone is
         # a four-minute file on a developer box (measured 242 s, 45/45) and this
         # runner is slower; 20 left no room for the rest of the suite behind it.
         timeout-minutes: 30
         env:
+          TEST_SHARD: ${{ matrix.shard }}/4
           BW_BOARD: ${{ github.workspace }}/siblings/bw-board
           BW_CIRCUIT_UI: ${{ github.workspace }}/siblings/bw-circuit-ui
 
@@ -162,6 +177,7 @@ jobs:
       # without regenerating is caught here rather than shipping a chooser that
       # offers a device the example no longer retargets to.
       - name: Gallery device lists agree with the dry-runs
+        if: matrix.shard == 1
         run: node scripts/update-example-devices.mjs --check
         timeout-minutes: 10
         env:
@@ -175,6 +191,7 @@ jobs:
       # It runs in CI rather than on demand because the failure it guards
       # against is specifically "works on the machine that has both checkouts".
       - name: Conformance gate is mutation-proven
+        if: matrix.shard == 1
         run: node scripts/mutation-prove-conformance.mjs
         # Twenty-seven mutations, each a full run of five gates, one of which boots
         # the real VM. The headroom is deliberate so a slow runner reports a
@@ -193,6 +210,7 @@ jobs:
           BW_CIRCUIT_UI: ${{ github.workspace }}/siblings/bw-circuit-ui
 
       - name: Build
+        if: matrix.shard == 1
         run: npm run build
 
   browser:

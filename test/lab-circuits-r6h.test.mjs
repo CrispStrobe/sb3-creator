@@ -285,7 +285,7 @@ describe('lab benches (set r6h) behave as documented', { skip: SKIP }, () => {
         assert.ok(m.offMs !== null, 'silence: the relay drops out again');
     });
 
-    test('lab-opamp-relay-timer: the relay holds for 1.13 R C; START begins again; the long range is 100 times slower', () => {
+    test('lab-opamp-relay-timer: the relay holds for 1.09 R C (the LM324 input bias helps the charge); START begins again; the long range is 100 times slower', () => {
         const x = bench('lab-opamp-relay-timer', { range: { position: 1 } });
         x.run(10);
         const m = { relay0: !!x.state('k')?.energized, thHi: r3(x.v('u', '1_pos')) };
@@ -300,7 +300,10 @@ describe('lab benches (set r6h) behave as documented', { skip: SKIP }, () => {
         report('lab-opamp-relay-timer', m);
         assert.equal(m.relay0, true, 'switch-on: timing, relay in');
         near(m.thHi, 6.07, 0.02, 'threshold while the output is high (V)');
-        near(m.offS, 17.9, 0.4, 'short range (4.7 µF), knob at 0.3: relay drops out after (s)');
+        // 17.91 s until bw-board f706f932 gave the LM324 its input bias current:
+        // 42.5 nA out of the - input into the capacitor, 1.12 RC -> 1.09 RC.
+        // MEASURED at de8083c5 (and f48ea7ce): 17.41 s.
+        near(m.offS, 17.4, 0.4, 'short range (4.7 µF), knob at 0.3: relay drops out after (s)');
         near(m.thLo, 5.63, 0.02, 'threshold after it has switched (V)');
         near(m.lamp, 0, 0.01, 'time up: lamp out');
         assert.equal(m.restart, true, 'START: timing again');

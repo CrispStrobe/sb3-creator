@@ -15,7 +15,7 @@
  * blocks)" against a solved 3.03 nA is a 100 % relative error and a correct
  * document. Below a microamp the two statements mean the same thing.
  */
-import { solveBench, declaredPool } from './bench-measure.mjs';
+import { solveBench, declaredPool, ohmicFloorA } from './bench-measure.mjs';
 import { route, waitsOf, timelineOf, partHint, terminalHint, isConditionLabel } from './claim-router.mjs';
 
 const FLOOR = { curr: 1e-6, volt: 1e-3, power: 1e-6, time: 1e-9, freq: 1e-3, ohm: 1e-3, cap: 1e-15, ind: 1e-12, pct: 0.05 };
@@ -140,10 +140,14 @@ function solved (claim) {
             const sp = solveBench(claim.dir, p);
             if (sp.error) continue;
             if ([...(sp.current || new Map()).values()].some(i => Math.abs(i) > 1e-6)) live = true;
-            if ((sp.measurands || []).some(m => m.kind === 'drop' && m.si > 0.1)) dropping = true;
+            // A RESISTOR dropping volts, not any drop: see ohmicFloorA. The
+            // supply, an off transistor or an open contact drop volts while
+            // carrying nothing, and a bench that is simply off at every point
+            // was declined here as if its readback were missing.
+            if (ohmicFloorA(sp) > 1e-6) dropping = true;
         }
         if (!live && dropping)
-            return { skip: 'the bench solves for node voltages but every branch current on it reads exactly 0 A — the elements are dropping volts, so current is flowing and the engine simply has no readback for it here; a gap in the instrument, not a defect in the document, and a claim of 0 mA would pass against it just as wrongly' };
+            return { skip: 'the bench solves for node voltages but every branch current on it reads exactly 0 A — its resistors are dropping volts, so by Ohm\'s law current is flowing and the engine simply has no readback for it here; a gap in the instrument, not a defect in the document, and a claim of 0 mA would pass against it just as wrongly' };
     }
     const seen = [];
     let anyError = null;

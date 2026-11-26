@@ -56,7 +56,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
 import { exampleDirs, allClaims, EXAMPLES } from './helpers/expected-claims.mjs';
-import { loadEngine, solveBench } from './helpers/bench-measure.mjs';
+import { loadEngine, solveBench, ohmicFloorA } from './helpers/bench-measure.mjs';
 import { route } from './helpers/claim-router.mjs';
 
 const gate = requireSiblings('bw-board', 'bw-circuit-ui');
@@ -206,7 +206,10 @@ describe('a bench that drops volts and reports no current', { skip: SKIP }, () =
                 const s = solveBench(dir, p);
                 if (s.error) continue;
                 if ([...s.current.values()].some(i => Math.abs(i) > 1e-6)) live = true;
-                if (s.measurands.some(m => m.kind === 'drop' && m.si > 0.1)) dropping = true;
+                // The same discriminator the adjudicator uses (ohmicFloorA): a
+                // resistor's drop demands a current, a supply's or an open
+                // switch's does not.
+                if (ohmicFloorA(s) > 1e-6) dropping = true;
             }
             if (!live && dropping) dead.push(dir);
         }

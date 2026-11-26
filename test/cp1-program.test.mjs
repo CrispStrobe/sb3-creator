@@ -3,6 +3,18 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {parseCp1Program, assembleCp1Program, exportCp1Program, CP1_MNEMONICS} from '../src/utils/cp1Program.js';
 import {CP1_EXAMPLES} from '../src/utils/examples.js';
+import {join} from 'node:path';
+import {pathToFileURL} from 'node:url';
+import {requireSiblings, siblingGuardTest} from './helpers/siblings.mjs';
+
+// Wire endpoints are read through bw-circuit-ui's one reader of the format
+// (test/wire-endpoint-adoption.test.mjs says why): the two wiring checks
+// below need that sibling, and skip with the guard's reason without it.
+const cui = requireSiblings('bw-circuit-ui');
+siblingGuardTest(cui, 'the CP1 wiring checks');
+const {wireEndpoint} = cui.skip ? {}
+    : await import(pathToFileURL(join(cui.paths['bw-circuit-ui'], 'src', 'model', 'wire-endpoints.js')).href);
+const end = (wire, side) => wireEndpoint(wire, side) ?? {};
 
 const readJson = path => JSON.parse(readFileSync(new URL(`../${path}`, import.meta.url), 'utf8'));
 const curriculumPrograms = readJson('reference/cp1-curriculum-programs.json').programs;
@@ -145,7 +157,7 @@ test('the CP5 workbench clears outputs, saves the whole input byte and loops wit
     assert.deepEqual(assembleCp1Program(exportCp1Program(result)).bytes, result.bytes);
 });
 
-test('the eight CP5 channels have distinct switch, pull-up, driver and current-limited LED nets', () => {
+test('the eight CP5 channels have distinct switch, pull-up, driver and current-limited LED nets', {skip: cui.skip}, () => {
     const circuit = JSON.parse(readFileSync(new URL('../examples/cp1-cp5-binary/circuit.json', import.meta.url), 'utf8'));
     const parts = new Map(circuit.parts.map(part => [part.id, part]));
     assert.equal(parts.size, circuit.parts.length, 'part identities are unique');
@@ -160,8 +172,9 @@ test('the eight CP5 channels have distinct switch, pull-up, driver and current-l
         return net.get(key);
     }
     for (const wire of circuit.wires) {
-        assert.ok(parts.has(wire.from.part) && parts.has(wire.to.part), 'every wire joins actual parts');
-        net.set(root(endpoint(wire.from)), root(endpoint(wire.to)));
+        const from = end(wire, 'from'), to = end(wire, 'to');
+        assert.ok(parts.has(from.part) && parts.has(to.part), 'every wire joins actual parts');
+        net.set(root(endpoint(from)), root(endpoint(to)));
     }
     const group = first => [...net.keys()].filter(key => root(key) === root(first)).sort();
     const expectedGround = ['cp1.gnd', 'driver.gnd', 'ground.gnd'];
@@ -182,7 +195,7 @@ test('the eight CP5 channels have distinct switch, pull-up, driver and current-l
     assert.deepEqual(group('cp1.5v'), expectedSupply.sort());
 });
 
-test('CP1 gallery entries link the actual sources and declared machine terminals without a ROM', () => {
+test('CP1 gallery entries link the actual sources and declared machine terminals without a ROM', {skip: cui.skip}, () => {
     const index = JSON.parse(readFileSync(new URL('../examples/index.json', import.meta.url), 'utf8'));
     const enrolled = index.filter(entry => entry.target === 'kosmos-cp1' && entry.files?.cp1);
     assert.deepEqual(enrolled.map(entry => entry.id).sort(), Object.keys(CP1_EXAMPLES).sort());
@@ -200,8 +213,8 @@ test('CP1 gallery entries link the actual sources and declared machine terminals
         assert.equal(machine.params.expansion, expandedExamples.has(name));
         assert.equal(machine.params.clockHz, 6000000);
         assert.equal(circuit.parts.some(part => part.kind === 'vsource'), false, 'examples use the CP1 connector supply');
-        if (name === 'cp1-blink') assert.ok(circuit.wires.some(wire => wire.from.part === 'cp1' && wire.from.terminal === 'P2.0'));
-        if (name === 'cp1-switch-input') assert.ok(circuit.wires.some(wire => wire.to.part === 'cp1' && wire.to.terminal === 'P1.0'));
+        if (name === 'cp1-blink') assert.ok(circuit.wires.some(wire => end(wire, 'from').part === 'cp1' && end(wire, 'from').terminal === 'P2.0'));
+        if (name === 'cp1-switch-input') assert.ok(circuit.wires.some(wire => end(wire, 'to').part === 'cp1' && end(wire, 'to').terminal === 'P1.0'));
     }
 });
 

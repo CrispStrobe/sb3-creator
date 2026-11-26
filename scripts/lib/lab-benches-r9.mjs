@@ -91,14 +91,18 @@ export const BENCHES = {
             cp: C(100e-9), d1: ['diode', {}], d2: ['diode', {}], rm: R(47000), cm: EL(1e-6),
             meter: ['analog_meter', { fullScale: 5, ifs: 0.0001 }],
             disc: PATH({ from: '@led', to: '@pt', medium: 'fibre', lengthM: 0.5, outGapMm: 2, shield: 1,
-                chopper: '@m', slots: 4, openFraction: 0.5, beamFraction: 0.3, knob: 'outGapMm', knobMin: 0, knobMax: 10 }) },
+                chopper: '@m', slots: 4, openFraction: 0.5, beamFraction: 0.3, knob: 'outGapMm', knobMin: 0, knobMax: 10 }),
+            // Flyback: cathode to the motor's high side, anode to ground. It
+            // sits reverse-biased while the cell drives the motor and catches
+            // the winding's kick when the light (and so the drive) drops.
+            dfly: ['diode', {}] },
         nets: [
             ['bat.pos', 'rled.a', 'pt.collector', 'a.vs'],
-            ['cell.pos', 'm.a'], ['rled.b', 'led.anode'],
+            ['cell.pos', 'm.a', 'dfly.cathode'], ['rled.b', 'led.anode'],
             ['pt.emitter', 're.a', 'cin.a'], ['cin.b', 'rin.a'], ['rin.b', 'a.inp'],
             ['a.vout', 'co.pos', 'cp.a'], ['co.neg', 'spk.a'],
             ['cp.b', 'd1.anode', 'd2.cathode'], ['d1.cathode', 'rm.a', 'cm.pos', 'meter.a'],
-            ['bat.neg', 'cell.neg', 'm.b', 'led.cathode', 're.b', 'a.gnd', 'a.inn', 'spk.b', 'd2.anode', 'rm.b', 'cm.neg', 'meter.b'],
+            ['bat.neg', 'cell.neg', 'm.b', 'dfly.anode', 'led.cathode', 're.b', 'a.gnd', 'a.inn', 'spk.b', 'd2.anode', 'rm.b', 'cm.neg', 'meter.b'],
         ],
         open: ['a.gain1', 'a.gain8', 'a.bypass'],
     },

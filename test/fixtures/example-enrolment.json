@@ -1,20 +1,20 @@
 {
   "note": "Which gates enrol which example, computed from scripts/lib/example-enrolment.mjs. A diff here is a change in COVERAGE — read it before regenerating.",
-  "measuredOn": "2026-11-26",
-  "examples": 798,
+  "measuredOn": "2026-08-23",
+  "examples": 800,
   "gates": {
     "gallery": 728,
-    "example-kind-matches-content": 798,
-    "index-metadata-matches-disk": 798,
+    "example-kind-matches-content": 800,
+    "index-metadata-matches-disk": 800,
     "cp1-program": 56,
     "retarget-gallery": 66,
     "retarget-amplification": 66,
     "gen-device-benches": 148,
-    "example-corpus-contract": 407,
+    "example-corpus-contract": 409,
     "assert-physics": 659,
     "debug-micropython": 10,
     "debug-trace-audit": 18,
-    "circuit-params-are-read": 766,
+    "circuit-params-are-read": 768,
     "program-reads-what-it-writes": 724,
     "vm-and-c-agree-on-arithmetic": 168,
     "documented-tables-are-derived": 4,
@@ -44,6 +44,18 @@
       "retarget-gallery",
       "vm",
       "vm-and-c-agree-on-arithmetic"
+    ],
+    "busch-microtronic-wired-io": [
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
+    ],
+    "kim1-wired-io": [
+      "circuit-params-are-read",
+      "example-corpus-contract",
+      "example-kind-matches-content",
+      "index-metadata-matches-disk"
     ],
     "02-dimmer": [
       "assert-physics",
