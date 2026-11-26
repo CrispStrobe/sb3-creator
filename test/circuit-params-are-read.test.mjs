@@ -57,6 +57,8 @@ import { readParamKeys } from './helpers/param-source-reads.mjs';
 
 const ROOT = join(import.meta.dirname, '..');
 const EXAMPLES = join(ROOT, 'examples');
+/** The machine part the `.cp1` lessons seat: the index's `target` for them. */
+const CP1_KIND = JSON.parse(readFileSync(join(EXAMPLES, 'index.json'), 'utf8')).find(e => e.files?.cp1)?.target;
 
 const gate = requireSiblings('bw-board', 'bw-circuit-ui');
 siblingGuardTest(gate, 'the circuit-params-are-read gate');
@@ -317,6 +319,13 @@ const KNOWN_INERT = new Map([
     ['light_path.combCm', 'BLIND SPOT: combCm is the jet medium\'s knob, so the light path\'s control (authored at rest, the comb 20 cm away) overrides the param; at 20 cm the jet does not bend in either direction. test/lab-circuits-r6e.test.mjs turns the knob to 1 cm and BEAM lights (6.98 mA).'],
     ['npn.thermalCoupling', 'BLIND SPOT: lab-resistor-heating\'s thermometer transistors take a share of their resistor\'s RISE, and the resistors warm with a 1 s time constant: within the probe\'s 20 ms nothing has risen to share. test/lab-circuits-r6e.test.mjs heats for 3.5 s and lights the HOT LED.'],
     ['spark_gap.gapMm', 'BLIND SPOT: the gap sets the breakdown voltage (4.35 kV at 1 mm), and lab-comb-jet-spark\'s comb is resting (no charging current) as authored, so no voltage ever reaches the gap in the probe window. test/lab-circuits-r6e.test.mjs combs for a second and counts sparks 430 ms apart.'],
+    // 2026-11-26. Each key below is read by bw-board; the static probe never
+    // reaches the state in which it acts.
+    ['hall_analog.threshold', 'BLIND SPOT: bw-board src/devices/thirtyseven.js pulls DO low once |field| >= threshold, and lab-hall-door-tone, the only bench that declares it, is authored with no magnet (field 0), so DO is high for every threshold above 0. test/lab-circuits-r6i.test.mjs sets field 0.8 and measures the LED and the tone.'],
+    ['relay.pullInV', 'BLIND SPOT: bw-board src/devices/relay.js closes the contact above pullInV, and cp1-cp4-relay-bank, the only bench that declares it, energises its coils only when CP1 firmware drives the driver transistors; the probe runs no firmware (8.1e-11 A through the coil battery at rest, MEASURED 2026-11-26).'],
+    ['relay.dropOutV', 'BLIND SPOT: as relay.pullInV — the release voltage of a coil the probe never energises.'],
+    [`${CP1_KIND}.clockHz`, 'BLIND SPOT: read by bw-board src/cp1-extract.js and the CP1 machine when the debugger attaches firmware; the connector part (src/devices/cp1.js) stamps the same supply and port terminals whatever the crystal, so no static solve can see it. test/cp1-program.test.mjs holds it at 6 MHz.'],
+    [`${CP1_KIND}.expansion`, 'BLIND SPOT: as the CP1 connector\'s clockHz — whether the machine maps the expansion RAM, read at debugger attach, not by the solver.'],
 ]);
 
 describe('circuit params, tier 2: the key moves a real bench', { skip: SKIP }, () => {
