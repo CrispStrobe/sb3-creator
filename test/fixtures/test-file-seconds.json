@@ -1,5 +1,5 @@
 {
-  "note": "Seconds each test FILE took on a hosted CI runner, summed over its top-level suites (run 45811247595, 2026-11-26, the three matrix shards of .github/workflows/ci.yml). scripts/test-shard.mjs deals files to shards by these weights, heaviest first, onto the lightest shard. Only files at 15 s or more are listed; any other file weighs 5 s. A stale or missing weight can only unbalance the shards, never drop or repeat a file: every test/*.test.mjs is dealt to exactly one shard. Re-measure when a shard runs much longer than the others.",
+  "note": "Seconds each test FILE took on a hosted CI runner, summed over its top-level suites (run 45811247595, 2026-11-26, the three matrix shards of .github/workflows/ci.yml). scripts/test-shard.mjs deals files to shards by these weights, heaviest first, onto the lightest shard. Only files at 15 s or more are listed; any other file weighs 5 s. A stale or missing weight can only unbalance the shards, never drop or repeat a file: every test/*.test.mjs is dealt to exactly one shard. Re-measure when a shard runs much longer than the others. The three lab-circuits-r6f files are from run 45832970103, after the split.",
   "seconds": {
     "a2-sampler-behavior.test.mjs": 33,
     "bench-invariants.test.mjs": 30,
@@ -34,7 +34,9 @@
     "lab-circuits-r6c.test.mjs": 421,
     "lab-circuits-r6d.test.mjs": 303,
     "lab-circuits-r6e.test.mjs": 219,
-    "lab-circuits-r6f.test.mjs": 900,
+    "lab-circuits-r6f-2.test.mjs": 571,
+    "lab-circuits-r6f-3.test.mjs": 269,
+    "lab-circuits-r6f.test.mjs": 315,
     "lab-circuits-r6g.test.mjs": 163,
     "lab-circuits-r6h.test.mjs": 144,
     "lab-circuits-r6i.test.mjs": 124,
