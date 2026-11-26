@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "mode": "play",
+  "widgets": [
+    {
+      "name": "CRTC Screen",
+      "type": "simplevga",
+      "config": {
+        "width": 640,
+        "height": 256
+      },
+      "layout": {
+        "x": 8,
+        "y": 8,
+        "w": 640,
+        "h": 256
+      },
+      "binding": {
+        "target": "part",
+        "partId": "crtc1"
+      }
+    },
+    {
+      "name": "Serial Console",
+      "type": "terminal",
+      "config": {},
+      "layout": {
+        "x": 8,
+        "y": 280,
+        "w": 640,
+        "h": 180
+      }
+    }
+  ]
+}

@@ -5944,6 +5944,26 @@
     "kind": "full"
   },
   {
+    "id": "eater6502-crtc80",
+    "title": {
+      "en": "6502 + 80×32 CRTC Text",
+      "de": "6502 + 80×32 CRTC-Text"
+    },
+    "category": "digital",
+    "difficulty": 3,
+    "files": {
+      "circuit": "eater6502-crtc80/circuit.json",
+      "intro": "eater6502-crtc80/intro.md",
+      "introDE": "eater6502-crtc80/intro.de.md",
+      "expected": "eater6502-crtc80/EXPECTED.md",
+      "rom": "eater6502-crtc80/rom.bin",
+      "controller": "eater6502-crtc80/controller.json",
+      "assembly": "eater6502-crtc80/main.s",
+      "linker": "eater6502-crtc80/rom.cfg"
+    },
+    "kind": "circuit"
+  },
+  {
     "id": "eater6502-vdp-hello",
     "title": {
       "en": "6502 + VDP Video",
