@@ -130,6 +130,10 @@ function verifyCase(rom, program, config, expected, circuitConfig) {
         const bit = Number(id.slice('led'.length));
         const current = -circuit.board.branchCurrent(id, 'anode');
         const high = Boolean(expected.p2 & (1 << bit));
+        // MEASURED 2026-11-26 on the two LED exercises (guarded-output led4,
+        // gray-indicator led0-led2) with a synthetic firmware writing 0xFF / 0x00
+        // to the 8155 port the monitor drives: lit 3.1745 mA (band 1-4 mA),
+        // dark observed 0 A. bw-board e744ede7-equivalent CP1/solver tree.
         assert.ok(high ? current > 0.001 && current < 0.004 : Math.abs(current) < 1e-6, `${id} current ${current}`);
         return [id, current];
     })) : undefined;

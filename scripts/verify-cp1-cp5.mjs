@@ -33,7 +33,8 @@ export async function loadWorkbench({board, circuitUi}) {
 }
 
 export function setInputByte(circuit, value) {
-    assert.ok(Number.isInteger(value) && value >= 0 && value <= 255);
+    // A byte: an integer that survives masking to eight bits.
+    assert.ok(Number.isInteger(value) && (value & 0xff) === value, `not a byte: ${value}`);
     for (let bit = 0; bit < 8; bit++) circuit.setControl(`switch${bit + 1}`, (value & (1 << bit)) ? 0 : 1);
 }
 
@@ -61,23 +62,36 @@ export function observeChannels(circuit) {
 }
 
 export function assertOutputByte(circuit, value) {
+    // Bounds below MEASURED 2026-11-26 by instrumenting this script's own run
+    // (scripts/threshold-observe.mjs instrument(); bw-board e744ede7's CP1 and
+    // solver code, bw-circuit-ui 3084f357). reference/cp1-cp5-observations.json
+    // records the same 2.2717 mA on the monitor ROM.
     const channels = observeChannels(circuit);
     for (const row of channels) {
         const high = Boolean(value & (1 << (row.channel - 1)));
         if (high) {
+            // MEASURED: observed 5.000 V.
             assert.ok(row.outputVolts > 4.5, `channel ${row.channel}: output high (${row.outputVolts} V)`);
+            // MEASURED: observed 2.2717-2.2733 mA.
             assert.ok(row.resistorAmps > 0.001 && row.resistorAmps < 0.004,
                 `channel ${row.channel}: current-limited on branch (${row.resistorAmps} A)`);
+            // MEASURED: observed 2.2717-2.2733 mA.
             assert.ok(row.ledAmps > 0.001, `channel ${row.channel}: actual LED current must flow`);
+            // MEASURED: observed 0.1136-0.1137.
             assert.ok(row.brightness > 0.01, `channel ${row.channel}: the engine LED must light`);
         } else {
+            // MEASURED: observed 0 V.
             assert.ok(row.outputVolts < 0.01, `channel ${row.channel}: output low (${row.outputVolts} V)`);
+            // MEASURED: observed <= 5.3e-18 A.
             assert.ok(Math.abs(row.resistorAmps) < 1e-6, `channel ${row.channel}: off branch current (${row.resistorAmps} A)`);
+            // MEASURED: observed <= 6.2e-27 A.
             assert.ok(Math.abs(row.ledAmps) < 1e-6, `channel ${row.channel}: off LED current (${row.ledAmps} A)`);
             // The nonlinear diode solve can retain subnormal leakage. A dark
             // branch must stay far below one millionth of full brightness.
+            // MEASURED: observed <= 2.2e-25.
             assert.ok(row.brightness < 1e-6, `channel ${row.channel}: the engine LED must be dark (${row.brightness})`);
         }
+        // MEASURED: the two readings observed to differ by <= 1.8e-14 A.
         assert.ok(Math.abs(row.ledAmps - row.resistorAmps) < 1e-6,
             `channel ${row.channel}: series resistor and LED carry the same current`);
     }
@@ -116,6 +130,7 @@ export async function verifyElectricalWorkbench(paths) {
     // the electrical startup polarity, not a historical monitor's startup.
     let initSteps = 0;
     while (adapter.machine.getPortState(2).direction !== 'output' || adapter.machine.getPortState(2).latch !== 255) {
+        // MEASURED 2026-11-26: the all-high output is reached after 7 steps (observed max 7).
         assert.ok(initSteps++ < 32, 'synthetic initialization is bounded');
         adapter.step();
     }
@@ -132,6 +147,7 @@ export async function verifyElectricalWorkbench(paths) {
         const channels = assertOutputByte(circuit, value);
         for (const row of channels) {
             const high = Boolean(value & (1 << (row.channel - 1)));
+            // MEASURED 2026-11-26: open switch observed 4.9988-4.9996 V, closed 7.30e-7 V.
             assert.ok(high ? row.inputVolts > 4.5 : row.inputVolts < 0.01,
                 `channel ${row.channel}: ${high ? 'open switch is high' : 'closed switch is low'}`);
         }
@@ -144,6 +160,7 @@ export async function verifyElectricalWorkbench(paths) {
     const pausedCycles = adapter.machine.cycles;
     const pausedTime = adapter.timeNs();
     setInputByte(circuit, 164);
+    // MEASURED 2026-11-26: channel 1's input observed 7.30e-7 V once closed.
     assert.ok(observeChannels(circuit)[0].inputVolts < 0.01, 'a changed switch changes its real input while paused');
     assert.equal(adapter.machine.cycles, pausedCycles, 'switch control does not execute firmware');
     assert.equal(adapter.timeNs(), pausedTime);
