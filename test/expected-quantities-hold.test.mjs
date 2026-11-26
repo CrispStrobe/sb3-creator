@@ -109,7 +109,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
 import { allClaims, exampleDirs, EXAMPLES } from './helpers/expected-claims.mjs';
-import { loadEngine, solveBench, declaredPool } from './helpers/bench-measure.mjs';
+import { loadEngine, solveBench } from './helpers/bench-measure.mjs';
 import { adjudicate } from './helpers/claim-adjudicate.mjs';
 
 const gate = requireSiblings('bw-board', 'bw-circuit-ui');
@@ -294,20 +294,44 @@ describe('the instrument says what it cannot read', { skip: SKIP }, () => {
         // Keeping it as a canary would have been worse than deleting it: it
         // would go green again the day a regression stopped stamping rInternal,
         // and read as good news.
+        // Held per SOURCE, not per bench. The first version compared the
+        // bench's highest node with its largest declared supply and required
+        // a sag whenever ANY branch carried current — which fired on
+        // cp1-cp4-relay-bank, whose 9 V coil battery (rInternal 0.5) is
+        // legitimately idle at rest (every relay off: 8.1e-11 A through it,
+        // MEASURED 2026-11-26 at bw-board e744ede7) while the CP1 connector's
+        // own 5 V logic supply, which declares no rInternal, carries 27 mA
+        // into the bias dividers. An idle source sits at its EMF; that is the
+        // model working, not the model gone. So the question is asked of each
+        // source that declares rInternal: if IT delivers current, ITS terminal
+        // voltage must be below ITS EMF.
         const flat = [];
+        let loadedSources = 0;
         for (const dir of withR) {
             const s = solveBench(dir);
             if (s.error) continue;
-            const pool = declaredPool(dir);
-            const emf = pool && pool.supply.size ? Math.max(...pool.supply) : null;
-            if (!emf) continue;
-            const top = Math.max(...s.voltage.values());
-            // A bench can legitimately be unloaded; require the sag only where
-            // the source is actually delivering current.
-            const drawing = [...s.current.values()].some(i => Math.abs(i) > 1e-5);
-            if (drawing && Math.abs(top - emf) / emf <= 1e-5)
-                flat.push(`${dir}: ${top.toFixed(4)} V against a declared ${emf} V EMF while drawing current`);
+            for (const p of s.parts || []) {
+                const q = p.params || {};
+                if (typeof q.rInternal !== 'number' || !(q.rInternal > 0) || typeof q.volts !== 'number' || !q.volts) continue;
+                const ends = [];
+                for (const net of s.nets || [])
+                    for (const t of (net.terminals || []))
+                        if (t.part === p.id) ends.push({ terminal: String(t.terminal), net: net.id || net.name });
+                if (ends.length !== 2 || !ends.every(e => s.voltage.has(e.net))) continue;
+                const amps = Math.max(...ends.map(e => Math.abs(s.current.get(`${p.id}.${e.terminal}`) ?? 0)));
+                if (amps <= 1e-5) continue;   // idle: sits at its EMF, correctly
+                loadedSources++;
+                const terminal = Math.abs(s.voltage.get(ends[0].net) - s.voltage.get(ends[1].net));
+                const emf = Math.abs(q.volts);
+                if (Math.abs(terminal - emf) / emf <= 1e-5)
+                    flat.push(`${dir}: ${p.id} at ${terminal.toFixed(4)} V against a declared ${emf} V EMF while delivering ${(amps * 1e3).toFixed(3)} mA`);
+            }
         }
+        // The subject must not vanish under the per-source reading: the
+        // re-derived lessons named below each load their source.
+        // MEASURED 2026-11-26 at bw-board e744ede7: loadedSources >= 6 -> observed 8 (47, 48, 52, pc77, pc78, pc79 and pc80's two batteries).
+        assert.ok(loadedSources >= 6,
+            `only ${loadedSources} sources with a declared rInternal deliver current — this check has lost its subject`);
         assert.deepEqual(flat, [],
             'a loaded source with a declared rInternal is sitting exactly at its open-circuit EMF again — '
             + 'bw-board has stopped stamping the model these benches were re-derived against, and the six '
