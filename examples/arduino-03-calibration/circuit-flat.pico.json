@@ -67,8 +67,7 @@
         "b"
       ],
       "x": 400,
-      "y": 255,
-      "declName": "sensor"
+      "y": 255
     },
     {
       "id": "led1",
@@ -80,9 +79,8 @@
         "anode",
         "cathode"
       ],
-      "x": 652,
-      "y": 255,
-      "declName": "led"
+      "x": 680,
+      "y": 255
     },
     {
       "id": "r1",
@@ -94,7 +92,7 @@
         "a",
         "b"
       ],
-      "x": 484,
+      "x": 512,
       "y": 255
     },
     {
@@ -107,9 +105,8 @@
         "anode",
         "cathode"
       ],
-      "x": 708,
-      "y": 255,
-      "declName": "statusLed"
+      "x": 736,
+      "y": 255
     },
     {
       "id": "r2",
@@ -121,7 +118,7 @@
         "a",
         "b"
       ],
-      "x": 568,
+      "x": 596,
       "y": 255
     },
     {
@@ -149,84 +146,8 @@
   ],
   "wires": [
     {
-      "id": "w_flat_1",
-      "from": {
-        "part": "vcc1",
-        "terminal": "vcc"
-      },
-      "to": {
-        "part": "pot1",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "w_flat_2",
-      "from": {
-        "part": "pot1",
-        "terminal": "b"
-      },
-      "to": {
-        "part": "gnd1",
-        "terminal": "gnd"
-      }
-    },
-    {
-      "id": "w_flat_3",
-      "from": {
-        "part": "r1",
-        "terminal": "b"
-      },
-      "to": {
-        "part": "led1",
-        "terminal": "anode"
-      }
-    },
-    {
-      "id": "w_flat_4",
-      "from": {
-        "part": "led1",
-        "terminal": "cathode"
-      },
-      "to": {
-        "part": "gnd1",
-        "terminal": "gnd"
-      }
-    },
-    {
-      "id": "w_flat_5",
-      "from": {
-        "part": "r2",
-        "terminal": "b"
-      },
-      "to": {
-        "part": "led2",
-        "terminal": "anode"
-      }
-    },
-    {
-      "id": "w_flat_6",
-      "from": {
-        "part": "led2",
-        "terminal": "cathode"
-      },
-      "to": {
-        "part": "gnd1",
-        "terminal": "gnd"
-      }
-    },
-    {
-      "id": "w_flat_7",
-      "from": {
-        "part": "board",
-        "terminal": "gp25"
-      },
-      "to": {
-        "part": "r2",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "w_flat_8",
+      "id": "w_flat_0",
+      "netId": "bb1:n-col-b12",
       "from": {
         "part": "board",
         "terminal": "gp26"
@@ -237,7 +158,8 @@
       }
     },
     {
-      "id": "w_flat_9",
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t22",
       "from": {
         "part": "board",
         "terminal": "gp15"
@@ -248,7 +170,44 @@
       }
     },
     {
-      "id": "w_flat_10",
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-t39",
+      "from": {
+        "part": "led1",
+        "terminal": "anode"
+      },
+      "to": {
+        "part": "r1",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_3",
+      "netId": "bb1:n-col-t41",
+      "from": {
+        "part": "board",
+        "terminal": "gp25"
+      },
+      "to": {
+        "part": "r2",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:n-col-t45",
+      "from": {
+        "part": "led2",
+        "terminal": "anode"
+      },
+      "to": {
+        "part": "r2",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:rail-b-",
       "from": {
         "part": "board",
         "terminal": "gnd_1"
@@ -259,7 +218,8 @@
       }
     },
     {
-      "id": "w_flat_11",
+      "id": "w_flat_6",
+      "netId": "bb1:rail-b-",
       "from": {
         "part": "board",
         "terminal": "gnd_1"
@@ -270,7 +230,8 @@
       }
     },
     {
-      "id": "w_flat_12",
+      "id": "w_flat_7",
+      "netId": "bb1:rail-b-",
       "from": {
         "part": "board",
         "terminal": "gnd_1"
@@ -281,7 +242,8 @@
       }
     },
     {
-      "id": "w_flat_13",
+      "id": "w_flat_8",
+      "netId": "bb1:rail-b-",
       "from": {
         "part": "board",
         "terminal": "gnd_1"
@@ -292,10 +254,23 @@
       }
     },
     {
-      "id": "w_flat_14",
+      "id": "w_flat_9",
+      "netId": "bb1:rail-t+",
       "from": {
         "part": "board",
+        "terminal": "vbus"
+      },
+      "to": {
+        "part": "board",
         "terminal": "vsys"
+      }
+    },
+    {
+      "id": "w_flat_10",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "board",
+        "terminal": "vbus"
       },
       "to": {
         "part": "pot1",
@@ -303,10 +278,11 @@
       }
     },
     {
-      "id": "w_flat_15",
+      "id": "w_flat_11",
+      "netId": "bb1:rail-t+",
       "from": {
         "part": "board",
-        "terminal": "vsys"
+        "terminal": "vbus"
       },
       "to": {
         "part": "vcc1",

@@ -33,8 +33,8 @@
         "p1.2",
         "p1.3"
       ],
-      "x": 64,
-      "y": 311
+      "x": 197,
+      "y": 302
     },
     {
       "id": "POT_pot",
@@ -99,445 +99,41 @@
       "y": 671
     },
     {
-      "id": "R_motorEnable",
-      "kind": "resistor",
-      "params": {
-        "ohms": 1000
-      },
-      "terminals": [
-        "a",
-        "b"
-      ],
-      "x": 652,
-      "y": 255
-    },
-    {
-      "id": "Q_motorEnable",
-      "kind": "npn",
+      "id": "U_motorBridge",
+      "kind": "h_bridge",
       "params": {},
       "terminals": [
-        "base",
-        "collector",
-        "emitter"
-      ],
-      "x": 652,
-      "y": 349
-    },
-    {
-      "id": "MOTOR_motorEnable",
-      "kind": "dc_motor",
-      "params": {},
-      "terminals": [
-        "a",
-        "b"
+        "vcc",
+        "gnd",
+        "en1",
+        "in1",
+        "in2",
+        "out1",
+        "out2"
       ],
       "x": 736,
-      "y": 255
+      "y": 255,
+      "rotation": 0
     },
     {
-      "id": "D_motorEnable",
-      "kind": "diode",
-      "params": {
-        "vf": 0.7
-      },
-      "terminals": [
-        "anode",
-        "cathode"
-      ],
-      "x": 722,
-      "y": 349
-    },
-    {
-      "id": "R_motorDir1",
-      "kind": "resistor",
-      "params": {
-        "ohms": 1000
-      },
-      "terminals": [
-        "a",
-        "b"
-      ],
-      "x": 820,
-      "y": 255
-    },
-    {
-      "id": "Q_motorDir1",
-      "kind": "npn",
-      "params": {},
-      "terminals": [
-        "base",
-        "collector",
-        "emitter"
-      ],
-      "x": 792,
-      "y": 349
-    },
-    {
-      "id": "MOTOR_motorDir1",
+      "id": "MOTOR_zoetrope",
       "kind": "dc_motor",
-      "params": {},
-      "terminals": [
-        "a",
-        "b"
-      ],
-      "x": 400,
-      "y": 349
-    },
-    {
-      "id": "D_motorDir1",
-      "kind": "diode",
       "params": {
-        "vf": 0.7
-      },
-      "terminals": [
-        "anode",
-        "cathode"
-      ],
-      "x": 64,
-      "y": 615
-    },
-    {
-      "id": "R_motorDir2",
-      "kind": "resistor",
-      "params": {
-        "ohms": 1000
+        "J": 0.00001,
+        "friction": 0.0002
       },
       "terminals": [
         "a",
         "b"
       ],
-      "x": 484,
-      "y": 349
-    },
-    {
-      "id": "Q_motorDir2",
-      "kind": "npn",
-      "params": {},
-      "terminals": [
-        "base",
-        "collector",
-        "emitter"
-      ],
-      "x": 134,
-      "y": 615
-    },
-    {
-      "id": "MOTOR_motorDir2",
-      "kind": "dc_motor",
-      "params": {},
-      "terminals": [
-        "a",
-        "b"
-      ],
-      "x": 568,
-      "y": 349
-    },
-    {
-      "id": "D_motorDir2",
-      "kind": "diode",
-      "params": {
-        "vf": 0.7
-      },
-      "terminals": [
-        "anode",
-        "cathode"
-      ],
-      "x": 204,
-      "y": 615
+      "x": 884,
+      "y": 255
     }
   ],
   "wires": [
     {
       "id": "w_flat_0",
-      "netId": "bb1:n-col-b27",
-      "from": {
-        "part": "D_motorDir1",
-        "terminal": "cathode"
-      },
-      "to": {
-        "part": "D_motorDir2",
-        "terminal": "cathode"
-      }
-    },
-    {
-      "id": "w_flat_1",
-      "netId": "bb1:n-col-b27",
-      "from": {
-        "part": "D_motorDir1",
-        "terminal": "cathode"
-      },
-      "to": {
-        "part": "D_motorEnable",
-        "terminal": "cathode"
-      }
-    },
-    {
-      "id": "w_flat_2",
-      "netId": "bb1:n-col-b27",
-      "from": {
-        "part": "D_motorDir1",
-        "terminal": "cathode"
-      },
-      "to": {
-        "part": "MCU",
-        "terminal": "VCC"
-      }
-    },
-    {
-      "id": "w_flat_3",
-      "netId": "bb1:n-col-b27",
-      "from": {
-        "part": "D_motorDir1",
-        "terminal": "cathode"
-      },
-      "to": {
-        "part": "MOTOR_motorDir1",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "w_flat_4",
-      "netId": "bb1:n-col-b27",
-      "from": {
-        "part": "D_motorDir1",
-        "terminal": "cathode"
-      },
-      "to": {
-        "part": "MOTOR_motorDir2",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "w_flat_5",
-      "netId": "bb1:n-col-b27",
-      "from": {
-        "part": "D_motorDir1",
-        "terminal": "cathode"
-      },
-      "to": {
-        "part": "MOTOR_motorEnable",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "w_flat_6",
-      "netId": "bb1:n-col-b27",
-      "from": {
-        "part": "D_motorDir1",
-        "terminal": "cathode"
-      },
-      "to": {
-        "part": "POT_pot",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "w_flat_7",
-      "netId": "bb1:n-col-b27",
-      "from": {
-        "part": "D_motorDir1",
-        "terminal": "cathode"
-      },
-      "to": {
-        "part": "R_PU_btnFwd",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "w_flat_8",
-      "netId": "bb1:n-col-b27",
-      "from": {
-        "part": "D_motorDir1",
-        "terminal": "cathode"
-      },
-      "to": {
-        "part": "R_PU_btnRev",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "w_flat_9",
-      "netId": "bb1:n-col-b27",
-      "from": {
-        "part": "D_motorDir1",
-        "terminal": "cathode"
-      },
-      "to": {
-        "part": "VCC",
-        "terminal": "vcc"
-      }
-    },
-    {
-      "id": "w_flat_10",
-      "netId": "bb1:n-col-b29",
-      "from": {
-        "part": "D_motorDir1",
-        "terminal": "anode"
-      },
-      "to": {
-        "part": "MOTOR_motorDir1",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_11",
-      "netId": "bb1:n-col-b29",
-      "from": {
-        "part": "D_motorDir1",
-        "terminal": "anode"
-      },
-      "to": {
-        "part": "Q_motorDir1",
-        "terminal": "collector"
-      }
-    },
-    {
-      "id": "w_flat_12",
-      "netId": "bb1:n-col-b33",
-      "from": {
-        "part": "MCU",
-        "terminal": "p1.3"
-      },
-      "to": {
-        "part": "R_motorDir2",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "w_flat_13",
-      "netId": "bb1:n-col-b37",
-      "from": {
-        "part": "Q_motorDir2",
-        "terminal": "base"
-      },
-      "to": {
-        "part": "R_motorDir2",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_14",
-      "netId": "bb1:n-col-b41",
-      "from": {
-        "part": "D_motorDir2",
-        "terminal": "anode"
-      },
-      "to": {
-        "part": "MOTOR_motorDir2",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_15",
-      "netId": "bb1:n-col-b41",
-      "from": {
-        "part": "D_motorDir2",
-        "terminal": "anode"
-      },
-      "to": {
-        "part": "Q_motorDir2",
-        "terminal": "collector"
-      }
-    },
-    {
-      "id": "w_flat_16",
-      "netId": "bb1:n-col-b46",
-      "from": {
-        "part": "Q_motorEnable",
-        "terminal": "base"
-      },
-      "to": {
-        "part": "R_motorEnable",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_17",
-      "netId": "bb1:n-col-b47",
-      "from": {
-        "part": "D_motorEnable",
-        "terminal": "anode"
-      },
-      "to": {
-        "part": "MOTOR_motorEnable",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_18",
-      "netId": "bb1:n-col-b47",
-      "from": {
-        "part": "D_motorEnable",
-        "terminal": "anode"
-      },
-      "to": {
-        "part": "Q_motorEnable",
-        "terminal": "collector"
-      }
-    },
-    {
-      "id": "w_flat_19",
-      "netId": "bb1:n-col-b5",
-      "from": {
-        "part": "BTN_btnFwd",
-        "terminal": "a"
-      },
-      "to": {
-        "part": "MCU",
-        "terminal": "p3.2"
-      }
-    },
-    {
-      "id": "w_flat_20",
-      "netId": "bb1:n-col-b5",
-      "from": {
-        "part": "BTN_btnFwd",
-        "terminal": "a"
-      },
-      "to": {
-        "part": "R_PU_btnFwd",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_21",
-      "netId": "bb1:n-col-b56",
-      "from": {
-        "part": "Q_motorDir1",
-        "terminal": "base"
-      },
-      "to": {
-        "part": "R_motorDir1",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_22",
-      "netId": "bb1:n-col-b6",
-      "from": {
-        "part": "BTN_btnRev",
-        "terminal": "a"
-      },
-      "to": {
-        "part": "MCU",
-        "terminal": "p3.3"
-      }
-    },
-    {
-      "id": "w_flat_23",
-      "netId": "bb1:n-col-b6",
-      "from": {
-        "part": "BTN_btnRev",
-        "terminal": "a"
-      },
-      "to": {
-        "part": "R_PU_btnRev",
-        "terminal": "b"
-      }
-    },
-    {
-      "id": "w_flat_24",
-      "netId": "bb1:n-col-t11",
+      "netId": "bb1:n-col-b11",
       "from": {
         "part": "MCU",
         "terminal": "p1.0"
@@ -548,31 +144,91 @@
       }
     },
     {
-      "id": "w_flat_25",
-      "netId": "bb1:n-col-t12",
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-b12",
       "from": {
         "part": "MCU",
         "terminal": "p1.1"
       },
       "to": {
-        "part": "R_motorEnable",
-        "terminal": "a"
+        "part": "U_motorBridge",
+        "terminal": "en1"
       }
     },
     {
-      "id": "w_flat_26",
-      "netId": "bb1:n-col-t13",
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-b13",
       "from": {
         "part": "MCU",
         "terminal": "p1.2"
       },
       "to": {
-        "part": "R_motorDir1",
-        "terminal": "a"
+        "part": "U_motorBridge",
+        "terminal": "in1"
       }
     },
     {
-      "id": "w_flat_27",
+      "id": "w_flat_3",
+      "netId": "bb1:n-col-b14",
+      "from": {
+        "part": "MCU",
+        "terminal": "p1.3"
+      },
+      "to": {
+        "part": "U_motorBridge",
+        "terminal": "in2"
+      }
+    },
+    {
+      "id": "w_flat_4",
+      "netId": "bb1:n-col-t19",
+      "from": {
+        "part": "BTN_btnRev",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "MCU",
+        "terminal": "p3.3"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:n-col-t19",
+      "from": {
+        "part": "BTN_btnRev",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "R_PU_btnRev",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_6",
+      "netId": "bb1:n-col-t20",
+      "from": {
+        "part": "BTN_btnFwd",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "MCU",
+        "terminal": "p3.2"
+      }
+    },
+    {
+      "id": "w_flat_7",
+      "netId": "bb1:n-col-t20",
+      "from": {
+        "part": "BTN_btnFwd",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "R_PU_btnFwd",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_8",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "BTN_btnFwd",
@@ -584,7 +240,7 @@
       }
     },
     {
-      "id": "w_flat_28",
+      "id": "w_flat_9",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "BTN_btnFwd",
@@ -596,7 +252,7 @@
       }
     },
     {
-      "id": "w_flat_29",
+      "id": "w_flat_10",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "BTN_btnFwd",
@@ -608,7 +264,7 @@
       }
     },
     {
-      "id": "w_flat_30",
+      "id": "w_flat_11",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "BTN_btnFwd",
@@ -620,39 +276,99 @@
       }
     },
     {
-      "id": "w_flat_31",
+      "id": "w_flat_12",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "BTN_btnFwd",
         "terminal": "b"
       },
       "to": {
-        "part": "Q_motorDir1",
-        "terminal": "emitter"
+        "part": "U_motorBridge",
+        "terminal": "gnd"
       }
     },
     {
-      "id": "w_flat_32",
-      "netId": "bb1:rail-b-",
+      "id": "w_flat_13",
+      "netId": "bb1:rail-t+",
       "from": {
-        "part": "BTN_btnFwd",
-        "terminal": "b"
+        "part": "MCU",
+        "terminal": "VCC"
       },
       "to": {
-        "part": "Q_motorDir2",
-        "terminal": "emitter"
+        "part": "POT_pot",
+        "terminal": "a"
       }
     },
     {
-      "id": "w_flat_33",
-      "netId": "bb1:rail-b-",
+      "id": "w_flat_14",
+      "netId": "bb1:rail-t+",
       "from": {
-        "part": "BTN_btnFwd",
+        "part": "MCU",
+        "terminal": "VCC"
+      },
+      "to": {
+        "part": "R_PU_btnFwd",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_15",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "MCU",
+        "terminal": "VCC"
+      },
+      "to": {
+        "part": "R_PU_btnRev",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_16",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "MCU",
+        "terminal": "VCC"
+      },
+      "to": {
+        "part": "U_motorBridge",
+        "terminal": "vcc"
+      }
+    },
+    {
+      "id": "w_flat_17",
+      "netId": "bb1:rail-t+",
+      "from": {
+        "part": "MCU",
+        "terminal": "VCC"
+      },
+      "to": {
+        "part": "VCC",
+        "terminal": "vcc"
+      }
+    },
+    {
+      "id": "w_flat_18",
+      "netId": "net-lgc-10",
+      "from": {
+        "part": "MOTOR_zoetrope",
         "terminal": "b"
       },
       "to": {
-        "part": "Q_motorEnable",
-        "terminal": "emitter"
+        "part": "U_motorBridge",
+        "terminal": "out2"
+      }
+    },
+    {
+      "id": "w_flat_19",
+      "netId": "net-lgc-9",
+      "from": {
+        "part": "MOTOR_zoetrope",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "U_motorBridge",
+        "terminal": "out1"
       }
     }
   ],

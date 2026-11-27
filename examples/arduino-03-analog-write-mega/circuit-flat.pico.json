@@ -20,8 +20,8 @@
         "gp11",
         "gp12",
         "gp13",
-        "gp13",
         "gp14",
+        "gp15",
         "gp16",
         "gp17",
         "gp18",
@@ -29,7 +29,7 @@
         "gp20",
         "gp21",
         "gp22",
-        "gp15",
+        "gp25",
         "gp26",
         "gp27",
         "gp28",
@@ -51,8 +51,8 @@
         "swclk",
         "swdio"
       ],
-      "x": 64,
-      "y": 255,
+      "x": 80,
+      "y": -60,
       "rotation": 0
     },
     {
@@ -65,7 +65,7 @@
         "anode",
         "cathode"
       ],
-      "x": 652,
+      "x": 316,
       "y": 255
     },
     {
@@ -78,7 +78,7 @@
         "anode",
         "cathode"
       ],
-      "x": 708,
+      "x": 358,
       "y": 255
     },
     {
@@ -91,7 +91,7 @@
         "anode",
         "cathode"
       ],
-      "x": 764,
+      "x": 400,
       "y": 255
     },
     {
@@ -104,7 +104,7 @@
         "a",
         "b"
       ],
-      "x": 400,
+      "x": 64,
       "y": 255
     },
     {
@@ -117,7 +117,7 @@
         "a",
         "b"
       ],
-      "x": 484,
+      "x": 148,
       "y": 255
     },
     {
@@ -130,7 +130,7 @@
         "a",
         "b"
       ],
-      "x": 568,
+      "x": 232,
       "y": 255
     },
     {
@@ -142,8 +142,8 @@
       "terminals": [
         "vcc"
       ],
-      "x": 58,
-      "y": 115
+      "x": 220,
+      "y": 60
     },
     {
       "id": "gnd1",
@@ -152,14 +152,26 @@
       "terminals": [
         "gnd"
       ],
-      "x": 134,
-      "y": 115
+      "x": 360,
+      "y": 60
     }
   ],
   "wires": [
     {
       "id": "w_flat_0",
-      "netId": "bb1:n-col-t21",
+      "netId": "bb1:n-col-t13",
+      "from": {
+        "part": "led2",
+        "terminal": "anode"
+      },
+      "to": {
+        "part": "r2",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t15",
       "from": {
         "part": "board",
         "terminal": "gp13"
@@ -170,32 +182,20 @@
       }
     },
     {
-      "id": "w_flat_1",
-      "netId": "bb1:n-col-t22",
-      "from": {
-        "part": "board",
-        "terminal": "gp14"
-      },
-      "to": {
-        "part": "r2",
-        "terminal": "a"
-      }
-    },
-    {
       "id": "w_flat_2",
-      "netId": "bb1:n-col-t27",
+      "netId": "bb1:n-col-t19",
       "from": {
-        "part": "board",
-        "terminal": "gp15"
+        "part": "led3",
+        "terminal": "anode"
       },
       "to": {
-        "part": "r1",
-        "terminal": "a"
+        "part": "r3",
+        "terminal": "b"
       }
     },
     {
       "id": "w_flat_3",
-      "netId": "bb1:n-col-t31",
+      "netId": "bb1:n-col-t21",
       "from": {
         "part": "led1",
         "terminal": "anode"
@@ -207,26 +207,26 @@
     },
     {
       "id": "w_flat_4",
-      "netId": "bb1:n-col-t37",
+      "netId": "bb1:n-col-t3",
       "from": {
-        "part": "led2",
-        "terminal": "anode"
+        "part": "board",
+        "terminal": "gp15"
       },
       "to": {
-        "part": "r2",
-        "terminal": "b"
+        "part": "r1",
+        "terminal": "a"
       }
     },
     {
       "id": "w_flat_5",
-      "netId": "bb1:n-col-t43",
+      "netId": "bb1:n-col-t9",
       "from": {
-        "part": "led3",
-        "terminal": "anode"
+        "part": "board",
+        "terminal": "gp14"
       },
       "to": {
-        "part": "r3",
-        "terminal": "b"
+        "part": "r2",
+        "terminal": "a"
       }
     },
     {
@@ -279,22 +279,10 @@
     },
     {
       "id": "w_flat_10",
-      "netId": "bb1:rail-t+",
+      "netId": "net-lgc-8",
       "from": {
-        "part": "board",
-        "terminal": "vbus"
-      },
-      "to": {
         "part": "board",
         "terminal": "vsys"
-      }
-    },
-    {
-      "id": "w_flat_11",
-      "netId": "bb1:rail-t+",
-      "from": {
-        "part": "board",
-        "terminal": "vbus"
       },
       "to": {
         "part": "vcc1",
@@ -303,5 +291,5 @@
     }
   ],
   "holeWires": [],
-  "generated": "benchFor+authored+seat"
+  "generated": "benchFor+authored"
 }

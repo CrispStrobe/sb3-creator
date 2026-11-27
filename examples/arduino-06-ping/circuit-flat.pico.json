@@ -120,6 +120,30 @@
   "wires": [
     {
       "id": "w_flat_0",
+      "netId": "bb1:n-col-t22",
+      "from": {
+        "part": "board",
+        "terminal": "gp15"
+      },
+      "to": {
+        "part": "echoGround",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_1",
+      "netId": "bb1:n-col-t22",
+      "from": {
+        "part": "board",
+        "terminal": "gp15"
+      },
+      "to": {
+        "part": "echoSeries",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_2",
       "netId": "bb1:n-col-t28",
       "from": {
         "part": "board",
@@ -131,79 +155,55 @@
       }
     },
     {
-      "id": "w_echo_module",
-      "netId": "echo_module",
+      "id": "w_flat_3",
+      "netId": "bb1:n-col-t29",
       "from": {
+        "part": "echoSeries",
+        "terminal": "a"
+      },
+      "to": {
         "part": "us",
         "terminal": "echo"
-      },
-      "to": {
-        "part": "echoSeries",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "w_echo_gpio",
-      "netId": "echo_gpio",
-      "from": {
-        "part": "echoSeries",
-        "terminal": "b"
-      },
-      "to": {
-        "part": "board",
-        "terminal": "gp15"
-      }
-    },
-    {
-      "id": "w_echo_divider",
-      "netId": "echo_divider",
-      "from": {
-        "part": "echoSeries",
-        "terminal": "b"
-      },
-      "to": {
-        "part": "echoGround",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "w_echo_ground",
-      "netId": "echo_ground",
-      "from": {
-        "part": "echoGround",
-        "terminal": "b"
-      },
-      "to": {
-        "part": "gnd1",
-        "terminal": "gnd"
-      }
-    },
-    {
-      "id": "w_flat_2",
-      "netId": "bb1:rail-b-",
-      "from": {
-        "part": "board",
-        "terminal": "gnd_1"
-      },
-      "to": {
-        "part": "gnd1",
-        "terminal": "gnd"
-      }
-    },
-    {
-      "id": "w_flat_3",
-      "netId": "bb1:rail-b-",
-      "from": {
-        "part": "board",
-        "terminal": "gnd_1"
-      },
-      "to": {
-        "part": "us",
-        "terminal": "gnd"
       }
     },
     {
       "id": "w_flat_4",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "board",
+        "terminal": "gnd_1"
+      },
+      "to": {
+        "part": "echoGround",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_5",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "board",
+        "terminal": "gnd_1"
+      },
+      "to": {
+        "part": "gnd1",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_6",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "board",
+        "terminal": "gnd_1"
+      },
+      "to": {
+        "part": "us",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "w_flat_7",
       "netId": "bb1:rail-t+",
       "from": {
         "part": "board",
@@ -215,7 +215,7 @@
       }
     },
     {
-      "id": "w_flat_5",
+      "id": "w_flat_8",
       "netId": "bb1:rail-t+",
       "from": {
         "part": "board",
@@ -227,7 +227,7 @@
       }
     },
     {
-      "id": "w_flat_6",
+      "id": "w_flat_9",
       "netId": "bb1:rail-t+",
       "from": {
         "part": "board",
