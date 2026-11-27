@@ -26,9 +26,9 @@ net zener_27.cathode V 3.35 +-0.1
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@0f6b38a` and `bw-circuit-ui@42aaddc` — the revisions pinned in
+> `bw-board@de8083c` and `bw-circuit-ui@ee2b412` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
-> **22 of this page's 33** numeric claims against that engine
+> **16 of this page's 33** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs lab-rf-remote` prints them one by one.
 <!-- engine-provenance -->

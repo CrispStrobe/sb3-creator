@@ -7,20 +7,20 @@
 
 ## Observable behaviour
 - Switch-on starts the time: relay in, lamp lit.
-- 4.7 µF: the lamp goes out after 17.9 s; START restarts it.
+- 4.7 µF: the lamp goes out after 17.4 s; START restarts it.
 - 470 µF: a hundred times longer, 30 minutes.
 - Knob: from about 0.5 s (53 s) up to about 25 s (42 min).
 
 ## Measured on the engine
-bw-board d4113b4b, `test/lab-circuits-r6h.test.mjs`: thresholds 6.073 V / 5.625 V; 4.7 µF at 0.3: relay out at 17.91 s; after START the capacitor is empty and the relay is in again; capacitor after 0.2 s on 4.7 µF 0.112 V, after 20 s on 470 µF 0.112 V.
+bw-board de8083c5, `test/lab-circuits-r6h.test.mjs`: thresholds 6.073 V / 5.625 V; 4.7 µF at 0.3: relay out at 17.41 s (17.91 s at d4113b4b, before the engine modelled the LM324's input bias current); after START the capacitor is empty and the relay is in again; capacitor after 0.2 s on 4.7 µF 0.112 V, after 20 s on 470 µF 0.112 V.
 
 ## What this verifies
-1. Charging to 6.07 V of 9 V takes R·C·ln(9/2.93) = 1.12·R·C: 3.39 MΩ × 4.7 µF → 17.9 s.
-2. The time is linear in C: the 470 µF range follows exactly the same curve 100 times slower, so the 30-minute run (1791 s) is the 17.9 s run scaled.
+1. Charging to 6.07 V of 9 V would take R·C·ln(9/2.93) = 1.12·R·C. The LM324's − input is the base of a PNP pair and its bias current (42.5 nA) flows out of the pin into the capacitor, as if the capacitor charged towards 9 V + 42.5 nA × 3.39 MΩ = 9.14 V: R·C·ln(9.14/3.07) = 1.09·R·C, so 3.39 MΩ × 4.7 µF → 17.4 s.
+2. The time is linear in C: the 470 µF range follows exactly the same curve 100 times slower, so the 30-minute run (1741 s) is the 17.4 s run scaled.
 3. Hysteresis keeps the relay from chattering as the capacitor creeps past the threshold.
 
 ## Simulation notes
-The engine steps devices at least every millisecond, so a full 30-minute run would cost tens of minutes of solver time; the scenario test times the 4.7 µF range and checks the 470 µF range on the first 20 s of its curve. Electrolytic leakage and the op-amp's input bias current are not modelled; on a real bench they lengthen the long range a little.
+The engine steps devices at least every millisecond, so a full 30-minute run would cost tens of minutes of solver time; the scenario test times the 4.7 µF range and checks the 470 µF range on the first 20 s of its curve. Electrolytic leakage is not modelled; on a real bench it lengthens the long range a little. The op-amp's input bias current is, and shortens both ranges by 3 %.
 
 ```assert
 # 1 ms after switch-on (the solve assert-physics runs): timing, relay in
@@ -31,9 +31,9 @@ net npn_17.collector V 0.10 +-0.05
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@0f6b38a` and `bw-circuit-ui@42aaddc` — the revisions pinned in
+> `bw-board@de8083c` and `bw-circuit-ui@ee2b412` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
-> **20 of this page's 42** numeric claims against that engine
+> **18 of this page's 49** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs lab-opamp-relay-timer` prints them one by one.
 <!-- engine-provenance -->

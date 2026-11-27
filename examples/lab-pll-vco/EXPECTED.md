@@ -34,9 +34,9 @@ net cd4046_4.r1 V 4.50 +-0.02
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@0f6b38a` and `bw-circuit-ui@42aaddc` — the revisions pinned in
+> `bw-board@de8083c` and `bw-circuit-ui@ee2b412` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
-> **11 of this page's 25** numeric claims against that engine
+> **11 of this page's 24** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs lab-pll-vco` prints them one by one.
 <!-- engine-provenance -->

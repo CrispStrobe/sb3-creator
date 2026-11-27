@@ -163,33 +163,37 @@ describe('lab benches (set r7b) behave as documented', { skip: SKIP }, () => {
         near(vcP, 6.53, 0.1, 'collector, button held (V)');
     });
 
-    test('lab-meissner-squegg: low bias squegs (bursts the radio hears as a tone), more bias runs steadily, a reversed winding never starts', () => {
-        const run = (pos, reversed, settle) => {
+    test('lab-meissner-squegg: a slow emitter bypass squegs (bursts the radio hears as a tone), a fast one runs steadily, a reversed winding never starts', () => {
+        const run = (big, reversed, settle) => {
             const x = bench('lab-meissner-squegg');
-            x.set('rv', pos);
+            if (big) x.set('sbig', 0);
             if (reversed) { x.set('sa', 1); x.set('sb', 1); }
             x.run(settle);
             const rf = [], det = [];
-            for (let k = 0; k < 100; k++) { x.run(0.02); rf.push(x.rf('tct', 'b')); det.push([x.t, x.v('d', 'cathode')]); }
+            for (let k = 0; k < 150; k++) { x.run(0.02); rf.push(x.rf('tct', 'b')); det.push([x.t, x.v('d', 'cathode')]); }
             const r = { rfMin: Math.min(...rf), rfMax: Math.max(...rf), ...span(det), tone: x.tone('ep') };
-            LOG('squegg', pos, reversed, JSON.stringify(r));
+            LOG('squegg', big, reversed, JSON.stringify(r));
             return r;
         };
-        // At build time (bw-board d4113b4b): 0.05 tank 0.0000004-9.22 V,
-        // detector 0.49-3.52 V, tone 903 Hz; 0.30 after 22 ms tank 8.876 V,
-        // detector flat at 1.131 V; reversed tank < 5 µV.
-        const sq = run(0.05, false, 5), steady = run(0.3, false, 22), rev = run(0.3, true, 5);
-        // MEASURED 2026-11-24: sq.rfMin < 0.01 -> observed 0.0000004.
+        // Re-designed 2026-11-26 (bw-board f48ea7ce): squegging needs the
+        // self-bias network slow next to the oscillation's build-up (2Q/w
+        // ~33 us); in a transistor stage that is the emitter's. 1 nF across
+        // 1 kOhm relaxes in 1 us: steady. 1 uF (1 ms): it stops, recovers,
+        // starts again. The earlier "low bias squegs" was the band's swing
+        // collapsing at the collector clamp, an engine artefact.
+        const steady = run(false, false, 22), sq = run(true, false, 6), rev = run(false, true, 5);
+        // MEASURED 2026-11-26: sq.rfMin < 0.01 -> observed 0.0000025.
         assert.ok(sq.rfMin < 0.01, `squegging: the oscillation dies between bursts (${sq.rfMin} V)`);
-        near(sq.rfMax, 9.22, 0.5, 'squegging: burst peak (V)');
-        // MEASURED 2026-11-24: sq.max - sq.min > 1 -> observed 3.03.
-        assert.ok(sq.max - sq.min > 1, `squegging: the receiver's detector swings (${(sq.max - sq.min).toFixed(3)} V)`);
+        // MEASURED 2026-11-26: sq.rfMax > 5 -> observed 10.96.
+        assert.ok(sq.rfMax > 5, `squegging: bursts reach volts (${sq.rfMax} V)`);
+        // MEASURED 2026-11-26: sq.max - sq.min > 0.5 -> observed 3.50.
+        assert.ok(sq.max - sq.min > 0.5, `squegging: the receiver's detector swings (${(sq.max - sq.min).toFixed(3)} V)`);
         assert.equal(sq.tone.on, true, 'squegging: the earphone hears a tone');
-        near(sq.tone.hz, 900, 200, 'squegging: tone (Hz)');
+        near(sq.tone.hz, 820, 250, 'squegging: tone (Hz)');
         near(steady.rfMin, 8.89, 0.1, 'steady: tank swing (V)');
-        // MEASURED 2026-11-24: steady.rfMax - steady.rfMin < 0.01 -> observed 0.0000.
+        // MEASURED 2026-11-26: steady.rfMax - steady.rfMin < 0.01 -> observed 0.00001.
         assert.ok(steady.rfMax - steady.rfMin < 0.01, 'steady: the swing does not move');
-        // MEASURED 2026-11-24: steady.max - steady.min < 0.05 -> observed 0.0000.
+        // MEASURED 2026-11-26: steady.max - steady.min < 0.05 -> observed 0.00003.
         assert.ok(steady.max - steady.min < 0.05, `steady: the detector output is flat (${(steady.max - steady.min).toFixed(4)} V)`);
         // MEASURED 2026-11-24: rev.rfMax < 1e-3 -> observed 0.0000044.
         assert.ok(rev.rfMax < 1e-3, `reversed winding: no oscillation (${rev.rfMax} V)`);

@@ -24,7 +24,7 @@ net lm386_25.bypass V 4.51 +-0.05
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@0f6b38a` and `bw-circuit-ui@42aaddc` — the revisions pinned in
+> `bw-board@de8083c` and `bw-circuit-ui@ee2b412` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **17 of this page's 39** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;

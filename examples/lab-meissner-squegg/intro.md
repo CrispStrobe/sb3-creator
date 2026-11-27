@@ -1,19 +1,19 @@
 # An oscillator that switches itself on and off
 
-A Meissner oscillator on a ferrite rod makes a medium-wave carrier, and a crystal set half a metre away listens. A small detector at the transmitter feeds an LM393 comparator. The potentiometer sets its cutoff threshold. Two slide switches reverse the feedback winding.
+A Meissner oscillator on a ferrite rod makes a medium-wave carrier, and a crystal set half a metre away listens. The transistor sets its own operating point: the more it oscillates, the more current it draws, and the voltage that current leaves on the emitter capacitor turns it down again. A slide switch puts a much bigger capacitor there; two more switches can turn the coupling winding round.
 
-**Teaches:** oscillator feedback, envelope detection, hysteresis, self-quenching
+**Teaches:** phase condition of an oscillator, self-bias, squegging (self-interrupted oscillation)
 
 ## What to do
 
-Click **Sim** and wait a few tens of milliseconds. Then turn the **cutoff threshold** down to about 0.05 and listen to the earphone. Turn it back up to 0.3. Finally flip **both slide switches** over.
+Click **Sim** and wait a few tens of milliseconds. Then switch on the **big bypass** and listen to the earphone. Switch it off again. Finally flip **both coupling switches** over.
 
 ## What you should see
 
-- At 0.3 the transmitter runs steadily (its tank swings about 9 V); the receiver gets a steady carrier and, after the click of the start, the earphone stays quiet.
-- Turned low, the oscillation keeps starting and stopping — about a thousand times a second. The earphone buzzes with a tone near 1 kHz: the carrier has been keyed by a tone.
+- Big bypass off: the transmitter runs steadily (its tank swings about 9 V); the receiver gets a steady carrier and the earphone stays quiet.
+- Big bypass on: the oscillation keeps starting and stopping — about eight hundred times a second. The earphone buzzes with a tone near 0.8 kHz: the carrier has been keyed by a tone.
 - With the winding reversed nothing oscillates at all.
 
 ## Why it works
 
-At the lower threshold, the transmitter’s own RF charges the detector capacitor until the LM393 pulls the transistor bias low. With the carrier gone, the capacitor discharges and the comparator releases the bias. That starts the next burst. At the higher threshold, the comparator stays open and the oscillator runs steadily. Reversing the winding removes positive feedback, so the carrier cannot start.
+While it oscillates, the transistor rectifies its own drive, draws more current and charges the emitter capacitor, which turns it down. With the small capacitor that happens in a microsecond, much faster than the oscillation can grow or fade, so the two settle together at one size. With the big one it takes a millisecond: the oscillation has grown long before the bias catches up, the bias then overshoots and cuts the transistor off, the oscillation dies, and only when the capacitor has discharged does it start again. Reversed, the coupling winding feeds back the opposite of what the tank is doing, so every start is cancelled.
