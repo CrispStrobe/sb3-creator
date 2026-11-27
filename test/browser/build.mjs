@@ -14,4 +14,13 @@ await build({
     define: { 'process.env.NODE_ENV': '"production"' },
     logLevel: 'error',
 });
+await build({
+    entryPoints: [path.join(dir, 'oracle.entry.js')],
+    bundle: true,
+    format: 'iife',
+    platform: 'browser',
+    outfile: path.join(dir, 'oracle.bundle.js'),
+    define: { 'process.env.NODE_ENV': '"production"' },
+    logLevel: 'error',
+});
 console.log('harness bundled');
