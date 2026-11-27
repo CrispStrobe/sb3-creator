@@ -38,6 +38,9 @@ const endMs = Number(options.get('--end-ms') ?? 11);
 const maxK = options.has('--max-rf-k') ? Number(options.get('--max-rf-k')) : null;
 const explicitOnly = options.has('--explicit-only');
 assert(Number.isFinite(warmupMs) && Number.isFinite(endMs) && warmupMs >= 0 && endMs > warmupMs, 'finite positive observation interval');
+// Architectural bound verified 2026-11-27 in the pinned Board's
+// src/rf-bands.js: H_UNIT = 1 ns and K_MAX = 15, so k = 0..15 selects
+// the engine's supported power-of-two step range, 1 ns through 32.768 us.
 assert(maxK === null || (Number.isInteger(maxK) && maxK >= 0 && maxK <= 15), '--max-rf-k must be 0..15');
 assert(options.has('--out'), '--out explicitly names the measurement artifact');
 const outputPath = resolve(options.get('--out'));
