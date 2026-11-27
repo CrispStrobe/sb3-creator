@@ -402,6 +402,10 @@ class Emitter {
     }
 }
 
+// The runtime the generated module imports (kept out of literal import syntax so
+// vendoring scanners do not mistake the template for a real import).
+const RUNTIME_MODULE = './' + 'bwgame.js';
+
 const JS_HELPERS = ['WAIT', 'times', 'num', 'str', 'bool', 'eq', 'lt', 'gt', 'add', 'sub', 'mul', 'div', 'mod', 'round', 'join', 'letterOf', 'length', 'contains', 'mathop', 'lists', 'random', 'attributeOf', 'current', 'daysSince2000'];
 
 export function emitGame (model, lang, meta = {}) {
@@ -417,7 +421,7 @@ export function emitGame (model, lang, meta = {}) {
     ];
     if (L.name === 'js') {
         return [...head,
-            `import { ${JS_HELPERS.join(', ')} } from './bwgame.js';`,
+            `import { ${JS_HELPERS.join(', ')} } from ${JSON.stringify(RUNTIME_MODULE)};`,
             '',
             'export default function setup (game) {',
             '    const stage = game.stage;',

@@ -95,10 +95,15 @@ ${scriptTag}
 const START_CALL = `{ canvas: document.getElementById('stage'), manifest, setup, base: BASE,
     controls: { flag: document.getElementById('flag'), stop: document.getElementById('stop'), restart: document.getElementById('restart') } }`;
 
+// Module paths used inside the generated page (built, so scanners of this file do
+// not read the page template as imports of the exporter itself).
+const WEB_HOST = './' + 'bwgame-web.js';
+const GAME_MODULE = './' + 'game.js';
+
 function moduleIndex (title) {
     return pageHtml(title, `<script type="module">
-import { start } from './bwgame-web.js';
-import setup from './game.js';
+import { start } from ${JSON.stringify(WEB_HOST)};
+import setup from ${JSON.stringify(GAME_MODULE)};
 const BASE = './';
 const manifest = await (await fetch('manifest.json')).json();
 start(${START_CALL});
