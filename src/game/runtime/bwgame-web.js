@@ -181,11 +181,18 @@ export async function start ({ canvas, manifest, setup, base = './', seed, contr
         onError: (e) => console.error('[bwgame]', e)
     });
     setup(game);
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = STAGE_W * dpr;
-    canvas.height = STAGE_H * dpr;
     const ctx = canvas.getContext('2d');
-    ctx.scale(dpr, dpr);
+    // Draw at the displayed size so text and vector costumes stay sharp when
+    // the page scales the 480x360 stage up.
+    const fit = () => {
+        const dpr = window.devicePixelRatio || 1;
+        const k = Math.max(1, (canvas.clientWidth || STAGE_W) / STAGE_W) * dpr;
+        canvas.width = Math.round(STAGE_W * k);
+        canvas.height = Math.round(STAGE_H * k);
+        ctx.setTransform(k, 0, 0, k, 0, 0);
+    };
+    fit();
+    window.addEventListener('resize', fit);
 
     const toStage = (ev) => {
         const r = canvas.getBoundingClientRect();
