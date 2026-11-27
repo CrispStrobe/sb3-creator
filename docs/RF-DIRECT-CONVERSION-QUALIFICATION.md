@@ -217,8 +217,11 @@ The subsequent independent references disable that correction entirely and
 bound RF substeps more finely. In the identical 6–9 ms observation window,
 16 ns gives a steady RF range of 8.898729–8.904473 V and 8 ns gives
 8.897855–8.904867 V. Both report no tone; detector spans are respectively
-0.265 mV and 0.166 mV. They agree with the adopted engine's steady behavior,
-not the historical extinction/restart claim. Coarser 128 ns and 32 ns
+0.265 mV and 0.166 mV. They agree with the adopted engine's steady behavior
+in that window, but refine only the inner RF step: the outer/DC transient
+solver retains its default adaptive profile. They therefore do **not**
+establish convergence of the fully coupled RF/DC trajectory or prove that
+the physical circuit is steady. Coarser 128 ns and 32 ns
 references burst without converging; the 64 ns run refuses a runaway near
 7.896 ms. Those results remain explicitly nonqualifying evidence.
 
@@ -230,9 +233,20 @@ shared norm rejects a valid transistor correction and introduces an extra
 start-to-explicit bracket; the receiver changes by only 14.2 microvolts
 through retained physical coupling. An independent pair of monotone
 nonlinear RC equations reproduces that shared-norm rejection without relying
-on this circuit's output. These results support repairing the bench's quench
-mechanism rather than restoring the numerical artifact. They do not yet
-qualify a replacement circuit or a wider operating range.
+on this circuit's output. This demonstrates a defect in the old shared-norm
+correction; it does not by itself settle the full circuit's coupled behavior.
+Neither a replacement circuit nor a wider operating range is qualified.
+
+A subsequent diagnostic of the **unchanged authored circuit**, keeping the
+production RF correction and using the public outer-step cap of 1 microsecond,
+does produce RF extinction and bursts: 1.603 mV–9.621 V over 6–9 ms, with
+2.342–4.379 V at the receiver detector and a provisional 2767 Hz earphone
+estimate. It completes without a solver failure. This material change means
+the coupled RF/DC feedback and outer-step convergence must be investigated;
+the inner-only steady traces cannot justify changing the lesson or dropping
+its quiet assertion. The subsequent outer refinements and their remaining
+failure are recorded below. The 1-microsecond diagnostic is not a repaired
+production path or a new oracle.
 
 The immutable original-circuit diagnosis, including all failed/coarse traces,
 the 16/8 ns references, the legacy comparison, equation witness and runtime-only
@@ -249,6 +263,135 @@ and build steps from running. A fresh complete hosted run, including those
 steps and WebGL, remains required after the physical blocker is resolved.
 The successful direct-conversion measurements above do not qualify the
 separate Meissner case or the supplier as a whole.
+
+## Coupled RF/DC investigation: qualification remains open
+
+The original 16/8 ns observations refine **only the inner RF integrator**.
+They leave the default outer/DC solver and its accepted-bias coupling in
+place. The later outer-step experiments materially change the original
+circuit's behavior, so the earlier steady traces do not establish a steady
+physical solution. The original receipt is preserved byte-for-byte, with
+SHA-256 `1bb56763ef95923419dda2ddfcab0c84df8702f24bc000b39ae38881ba1ab006`;
+this section corrects its interpretation without rewriting its observations.
+
+The following runs keep the authored circuit, production RF correction and
+all solver budgets unchanged. They use the public
+`configureTransientAnalysis('interactive-v2', { maxStepSec })` API and observe
+the same 150 samples over 6–9 ms. The earphone numbers are diagnostic
+estimates, not accepted frequency oracles.
+
+| Maximum outer step | RF minimum–maximum | Detector minimum–maximum | Earphone estimate | Result |
+| --- | ---: | ---: | ---: | --- |
+| 1 µs | 1.603 mV–9.621 V | 2.342–4.379 V | 2767.45 Hz | Extinction and bursts |
+| 500 ns | 3.208 mV–9.584 V | 2.377–4.271 V | 2936.87 Hz | Extinction and bursts |
+| 250 ns | 1.600 mV–9.657 V | 2.335–4.273 V | 2804.11 Hz | Extinction and bursts |
+| 125 ns | 2.439 mV–9.668 V | 2.349–4.301 V | 2723.14 Hz | Extinction and bursts |
+| 62.5 ns | No observation samples | No observation samples | None | RF runaway at 0.2871 ms, about 228 kV |
+
+The 125/62.5 ns probes split warmup calls into at most 0.5 ms advances and
+record that call schedule. No attempt or RF-substep ceiling was raised.
+The failed finer run prevents an outer-convergence claim. Furthermore, all
+of these runs retain the adaptive inner RF grid and its Catmull–Rom
+observation look-ahead. Refining the outer step alone does not eliminate
+that approximation. A fully coupled reference must resolve both levels;
+neither the historical 819 Hz result nor any entry in this table is a
+replacement target.
+
+Read-only instrumentation of the original circuit identifies a concrete
+history-contract mismatch on Board `b47e7e09`. After a DC step is accepted,
+`RadioFrontEnd.onAccepted()` changes the operating bias. Its comment says to
+discard future RF history integrated under the old bias, but `RfBand.prune()`
+removes old past entries and retains the future tail and its integration
+state. At one accepted time of 368.418 µs, RF state is still at 438.524 µs,
+70.106 µs ahead. The existing inner loop step is about 1.024 µs in that
+startup trace. Later accepted bias updates can therefore reuse RF state
+integrated tens of microseconds ahead with an earlier bias. The instrumented
+default startup uses 1,798 solves over 2 ms; a public 1 µs outer cap uses
+9,766. A fixed cap is a diagnostic, not the proposed production repair.
+The upstream repair is investigating bounded future-history invalidation
+with analytic history controls. No evolving repair prototype is included in
+this checkpoint or declared qualified.
+
+### Rejected circuit changes are retained, not adopted
+
+Before outer-step sensitivity was identified, bounded physical variants
+tested possible base-bias, emitter-current and receiver-loading mechanisms.
+All remained in-memory diagnostics. The unchanged authored circuit is now
+the repair target. The table records why none of those variants was admitted;
+a numerical refusal is not evidence of physical oscillation or proof that
+the corresponding hardware circuit is impossible.
+
+| Runtime-only variant | Observed result and disposition |
+| --- | --- |
+| Feedback winding ratio 0.02 → 0.04 | Production refuses runaway at 6.0205 ms after one sample; the correction-off 16 ns reference refuses at 1.0110 ms. Rejected. |
+| Grounded 100 kΩ bias divider, positions 0.060/0.065/0.070 | All remain below startup. Position 0.065 also lies between the public control's 0.01 increments. Rejected. |
+| Same divider at 0.08 | Early RF range 6.729 mV–9.163 V and successful small/reversed controls initially look promising, but the 22–25 ms minimum is 13.336 mV, above the unchanged 10 mV quiet bound. Rejected. |
+| Same divider at 0.09/0.10 | Position 0.09 has only one quiet sample and irregular output; 0.10 never reaches the quiet bound. Neither has a settled coupled-reference proof. Not admitted. |
+| Divider 0.08, explicit inner 16/8 ns | Both refuse runaway near 0.286 ms. Inner 2/1 ns alone hit the unchanged look-ahead budget; combining them with a public 1 µs outer cap still refuses runaway near 0.279/0.277 ms. No converged reference. |
+| Divider 0.09, emitter 3.3 kΩ, switched bypass 330 nF | Minimum RF is 10.643 mV, above the unchanged quiet bound. Rejected. |
+| 10 kΩ divider, 1 kΩ base feed, 3.3 kΩ emitter, switched bypass 22 nF | Remains steadily active at 8.699–8.736 V without a quench tone. Raising only the emitter resistance to 10 kΩ prevents startup. Both rejected. |
+| Original transmitter, receiver distance 0.50 → 0.63 m | The modelled link coefficient falls from 0.008 to 0.003999; RF remains steady at 8.903–8.917 V without a quench tone. Rejected. |
+
+The earlier original-rheostat positions 0.0/0.6/0.9 and receiver-diode-removal
+isolation remain in the immutable original receipt. Removing the diode
+changes real loading, so its matching old/new transmitter traces do not
+qualify the complete receiver circuit. The retained topology review is a
+contemporaneous hypothesis: its inference from inner-only references is
+superseded by the outer-step evidence above. No circuit value, generator,
+lesson, fixture pin, physical assertion or threshold was changed for any of
+these attempts.
+
+A separate full-port nonlinear Newton reference prototype completed 11/11
+manufactured-equation and refusal controls. It solves the complex endpoint
+equation with independent real-block elimination, finite-difference
+Jacobians, damped Newton steps and a fresh full-equation residual check;
+it does not call the production consistency correction. It refuses after
+bounded iteration/line-search limits rather than substituting an explicit
+step. Those controls do not establish active-circuit root uniqueness,
+full-circuit runtime, or a coupled RF/DC reference trajectory. No complete
+Meissner run was qualified through that prototype, and it is not a proposed
+shipping solver.
+
+### Separate diagnostic receipt
+
+The later evidence is retained in
+[`rf-meissner-coupling-investigation-2026-11-27.json.gz`](../test/measurements/rf-meissner-coupling-investigation-2026-11-27.json.gz)
+with its readable
+[`manifest`](../test/measurements/rf-meissner-coupling-investigation-2026-11-27.manifest.json).
+It contains 29 complete diagnostic records, 2,561 observation samples, 3,136
+accepted-step timing samples, exact replay sources, runtime circuit snapshots
+and original logs: 95 archived files in total. Each archived UTF-8 file has
+its own hash and byte count. The feedback-only runtime circuit is reconstructed
+from the recorded single-field mutation and matches the original record's
+hash. The manifest also lists the archive's compressed and uncompressed
+hashes. Read and verify it without running a simulator:
+
+```sh
+node --input-type=module <<'NODE'
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { gunzipSync } from 'node:zlib';
+const stem = 'test/measurements/rf-meissner-coupling-investigation-2026-11-27';
+const manifest = JSON.parse(readFileSync(`${stem}.manifest.json`, 'utf8'));
+const hash = bytes => createHash('sha256').update(bytes).digest('hex');
+const compressed = readFileSync(`${stem}.json.gz`);
+assert.equal(hash(compressed), manifest.archive.sha256);
+const bytes = gunzipSync(compressed);
+assert.equal(hash(bytes), manifest.archive.uncompressedSha256);
+const receipt = JSON.parse(bytes);
+for (const file of receipt.files) {
+    assert.equal(hash(file.utf8), file.sha256);
+    assert.equal(Buffer.byteLength(file.utf8), file.bytes);
+}
+console.log(receipt.records.map(({ path, disposition }) => ({ path, disposition })));
+NODE
+```
+
+The supplier remains blocked pending a production history/coupling repair,
+independent refinement and the unchanged physical positive/negative gates,
+followed by the complete hosted test shards and WebGL. This checkpoint only
+makes the diagnosis and rejected attempts durable.
 
 ## Reproduction
 
