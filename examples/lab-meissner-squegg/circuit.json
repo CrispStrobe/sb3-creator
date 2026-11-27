@@ -113,6 +113,7 @@
     {
       "id": "potentiometer_7",
       "kind": "potentiometer",
+      "declName": "Cutoff threshold",
       "params": {
         "ohms": 1000000,
         "position": 0.3
@@ -159,7 +160,7 @@
       "id": "capacitor_9",
       "kind": "capacitor",
       "params": {
-        "farads": 4.7e-9
+        "farads": 4.700000000000001e-09
       },
       "x": 289,
       "y": 495,
@@ -201,7 +202,7 @@
       "id": "capacitor_11",
       "kind": "capacitor",
       "params": {
-        "farads": 1e-9
+        "farads": 1e-09
       },
       "x": 345,
       "y": 345,
@@ -341,7 +342,7 @@
       "id": "capacitor_17",
       "kind": "capacitor",
       "params": {
-        "farads": 2.2e-9
+        "farads": 2.2e-09
       },
       "x": 555,
       "y": 495,
@@ -399,6 +400,100 @@
         "a",
         "b"
       ]
+    },
+    {
+      "id": "quench",
+      "kind": "lm393",
+      "params": {},
+      "x": 700,
+      "y": 680
+    },
+    {
+      "id": "bias_feed",
+      "kind": "resistor",
+      "params": {
+        "ohms": 680000
+      },
+      "x": 520,
+      "y": 670
+    },
+    {
+      "id": "pickup_return",
+      "kind": "resistor",
+      "params": {
+        "ohms": 100000
+      },
+      "x": 545,
+      "y": 745
+    },
+    {
+      "id": "detector_load",
+      "kind": "resistor",
+      "params": {
+        "ohms": 68000.0
+      },
+      "x": 690,
+      "y": 760
+    },
+    {
+      "id": "quench_pullup",
+      "kind": "resistor",
+      "params": {
+        "ohms": 10000
+      },
+      "x": 770,
+      "y": 625
+    },
+    {
+      "id": "quench_feedback",
+      "kind": "resistor",
+      "params": {
+        "ohms": 2200000.0
+      },
+      "x": 615,
+      "y": 635
+    },
+    {
+      "id": "pickup",
+      "kind": "capacitor",
+      "params": {
+        "farads": 7e-12
+      },
+      "x": 540,
+      "y": 600
+    },
+    {
+      "id": "detector_cap",
+      "kind": "capacitor",
+      "params": {
+        "farads": 1e-08
+      },
+      "x": 635,
+      "y": 760
+    },
+    {
+      "id": "detector_quench",
+      "kind": "diode",
+      "params": {
+        "vf": 0.35,
+        "is": 1e-07,
+        "n": 1.15,
+        "rs": 0.5
+      },
+      "x": 610,
+      "y": 700
+    },
+    {
+      "id": "bias_clamp",
+      "kind": "diode",
+      "params": {
+        "vf": 0.35,
+        "is": 1e-07,
+        "n": 1.15,
+        "rs": 0.5
+      },
+      "x": 760,
+      "y": 745
     }
   ],
   "wires": [
@@ -440,6 +535,282 @@
         "hole": "t-6"
       },
       "color": "black"
+    },
+    {
+      "id": "wire_qx_vcc_0",
+      "netId": "net_qx_vcc",
+      "from": {
+        "part": "vsource_2",
+        "terminal": "pos"
+      },
+      "to": {
+        "part": "bias_feed",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_qx_vcc_1",
+      "netId": "net_qx_vcc",
+      "from": {
+        "part": "vsource_2",
+        "terminal": "pos"
+      },
+      "to": {
+        "part": "quench",
+        "terminal": "vcc"
+      }
+    },
+    {
+      "id": "wire_qx_vcc_2",
+      "netId": "net_qx_vcc",
+      "from": {
+        "part": "vsource_2",
+        "terminal": "pos"
+      },
+      "to": {
+        "part": "quench_pullup",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_qx_gnd_0",
+      "netId": "net_qx_gnd",
+      "from": {
+        "part": "gnd_3",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "potentiometer_7",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "wire_qx_gnd_1",
+      "netId": "net_qx_gnd",
+      "from": {
+        "part": "gnd_3",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "quench",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_qx_gnd_2",
+      "netId": "net_qx_gnd",
+      "from": {
+        "part": "gnd_3",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "quench",
+        "terminal": "2_neg"
+      }
+    },
+    {
+      "id": "wire_qx_gnd_3",
+      "netId": "net_qx_gnd",
+      "from": {
+        "part": "gnd_3",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "quench",
+        "terminal": "2_pos"
+      }
+    },
+    {
+      "id": "wire_qx_gnd_4",
+      "netId": "net_qx_gnd",
+      "from": {
+        "part": "gnd_3",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "pickup_return",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "wire_qx_gnd_5",
+      "netId": "net_qx_gnd",
+      "from": {
+        "part": "gnd_3",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "detector_load",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "wire_qx_gnd_6",
+      "netId": "net_qx_gnd",
+      "from": {
+        "part": "gnd_3",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "detector_cap",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "wire_qx_bias_0",
+      "netId": "net_qx_bias",
+      "from": {
+        "part": "bias_feed",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "resistor_8",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_qx_bias_1",
+      "netId": "net_qx_bias",
+      "from": {
+        "part": "bias_feed",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "bias_clamp",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "wire_qx_ref_0",
+      "netId": "net_qx_ref",
+      "from": {
+        "part": "potentiometer_7",
+        "terminal": "wiper"
+      },
+      "to": {
+        "part": "quench",
+        "terminal": "1_pos"
+      }
+    },
+    {
+      "id": "wire_qx_ref_1",
+      "netId": "net_qx_ref",
+      "from": {
+        "part": "potentiometer_7",
+        "terminal": "wiper"
+      },
+      "to": {
+        "part": "quench_feedback",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_qx_tank_0",
+      "netId": "net_qx_tank",
+      "from": {
+        "part": "tuning_cap_5",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "pickup",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_qx_ac_0",
+      "netId": "net_qx_ac",
+      "from": {
+        "part": "pickup",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "pickup_return",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_qx_ac_1",
+      "netId": "net_qx_ac",
+      "from": {
+        "part": "pickup",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "detector_quench",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "wire_qx_envelope_0",
+      "netId": "net_qx_envelope",
+      "from": {
+        "part": "detector_quench",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "detector_load",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_qx_envelope_1",
+      "netId": "net_qx_envelope",
+      "from": {
+        "part": "detector_quench",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "detector_cap",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_qx_envelope_2",
+      "netId": "net_qx_envelope",
+      "from": {
+        "part": "detector_quench",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "quench",
+        "terminal": "1_neg"
+      }
+    },
+    {
+      "id": "wire_qx_cutoff_0",
+      "netId": "net_qx_cutoff",
+      "from": {
+        "part": "quench",
+        "terminal": "1_out"
+      },
+      "to": {
+        "part": "quench_pullup",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "wire_qx_cutoff_1",
+      "netId": "net_qx_cutoff",
+      "from": {
+        "part": "quench",
+        "terminal": "1_out"
+      },
+      "to": {
+        "part": "quench_feedback",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "wire_qx_cutoff_2",
+      "netId": "net_qx_cutoff",
+      "from": {
+        "part": "quench",
+        "terminal": "1_out"
+      },
+      "to": {
+        "part": "bias_clamp",
+        "terminal": "cathode"
+      }
     }
   ],
   "holeWires": [
@@ -491,13 +862,6 @@
       "a": "g7",
       "b": "e11",
       "color": "blue"
-    },
-    {
-      "ref": "bbw:breadboard_1:bbw_9",
-      "boardId": "breadboard_1",
-      "a": "f9",
-      "b": "e15",
-      "color": "green"
     },
     {
       "ref": "bbw:breadboard_1:bbw_10",

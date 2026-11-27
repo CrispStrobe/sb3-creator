@@ -35,7 +35,7 @@
    "kind": "mcu",
    "params": {},
    "terminals": [
-    "P1.1"
+    "P1.3"
    ],
    "seat": {
     "boardId": "bb1",
@@ -109,7 +109,7 @@
  "wires": [
   {
    "from": "MCU",
-   "fromTerminal": "P1.1",
+   "fromTerminal": "P1.3",
    "to": "SERVO_servo",
    "toTerminal": "signal"
   },
@@ -150,7 +150,7 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "g4",
+   "a": "g6",
    "b": "b27",
    "color": "green"
   },

@@ -32,6 +32,9 @@ move at all. Parallel branches do not share.
 ```assert
 # Three parallel LED branches: 220R/470R/1k from 5V
 net vsource_1.pos V 5.00 +-0.01
+current led_3 mA -13.04 +-1.5
+current led_11 mA -6.25 +-0.8
+current led_17 mA -2.97 +-0.45
 ```
 
 <!-- engine-provenance -->

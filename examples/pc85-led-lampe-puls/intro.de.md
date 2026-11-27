@@ -9,7 +9,7 @@ Eine einzelne weiße LED atmet sanft: langsam heller, langsam dunkler, endlos. E
 
 ## Probier das
 1. Klick auf **Sim** — die LED pulsiert gleichmäßig.
-2. Die Atemfrequenz hängt von R (100 kΩ) und C (1 µF) ab.
+2. Die Atemfrequenz hängt von R (100 kΩ) und C (4,7 µF) ab.
 3. Kein digitales Signal, keine Stufen — die Helligkeit ändert sich analog.
 
 ## Weiter geht's

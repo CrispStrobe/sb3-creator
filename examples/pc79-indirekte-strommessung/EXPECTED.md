@@ -22,6 +22,7 @@ Battery: EMF = 9 V, r_internal = 0.5 Ω. Series: 1 Ω shunt → 470 Ω load → 
 ```assert
 # 1R shunt: V_shunt = I * 1R ~ 14.5mV, battery with r_internal=0.5R
 net battery_1.pos V 8.99 +-0.10
+current resistor_2 mA -14.54 +-0.7
 ```
 
 <!-- engine-provenance -->

@@ -8,11 +8,12 @@ teaches: [ultrasonic, distance, pulse-timing]
 Ein Ultraschallsensor misst Entfernung durch Puls-Zeitmessung — nähere Objekte bedeuten kürzere Echozeiten.
 
 ## Probier das
-1. Starte das Programm und beobachte das Verhalten.
-2. Ändere den Schwellwert oder Parameter und beobachte die Wirkung.
+1. Starte das Programm und öffne den seriellen Monitor.
+2. Vergleiche die Messwerte bei 40 cm und 120 cm.
+3. Bei 600 cm überschreitet das Echo das Messfenster. Die Ausgabe ist dann 999.
 
 ## Was passiert hier
-Dieser Sketch demonstriert ein Sensor- oder Anzeigemuster. Siehe die .bw-Datei für Details.
+Der Mikrocontroller legt für 10 µs einen hohen Pegel an TRIG. Der Sensor hält ECHO pro Zentimeter Entfernung etwa 58 µs lang auf einem hohen Pegel. Aus der gemessenen Pulsdauer berechnet das Programm die Entfernung in Zentimetern.
 
 ## Weiter geht's
 - Experimentiere mit verschiedenen Sensortypen und Anzeigekonfigurationen.

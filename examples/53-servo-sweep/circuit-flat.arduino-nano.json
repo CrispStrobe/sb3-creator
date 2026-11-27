@@ -26,7 +26,7 @@
       "kind": "arduino_nano",
       "params": {},
       "terminals": [
-        "d13"
+        "d9"
       ],
       "x": 64,
       "y": 269
@@ -50,7 +50,7 @@
       "netId": "bb1:n-col-b17",
       "from": {
         "part": "MCU",
-        "terminal": "d13"
+        "terminal": "d9"
       },
       "to": {
         "part": "SERVO_servo",

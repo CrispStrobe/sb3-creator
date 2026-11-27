@@ -34,6 +34,9 @@ independent.
 ```assert
 # Three parallel LED branches: 330R/330R/470R from 5V
 net vsource_1.pos V 5.00 +-0.01
+current led_3 mA -9.51 +-0.8
+current led_11 mA -9.51 +-0.8
+current led_17 mA -6.77 +-0.6
 ```
 
 <!-- engine-provenance -->

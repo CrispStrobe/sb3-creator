@@ -42,6 +42,7 @@ identical; only the column number changed.
 ```assert
 # 5V -> 470R -> LED: I = 6.25mA, LED anode ~ 2.06V
 net vsource_2.pos V 5.00 +-0.01
+current led_4 mA -6.25 +-1.0
 ```
 
 <!-- engine-provenance -->

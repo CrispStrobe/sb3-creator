@@ -97,7 +97,7 @@
       "id": "capacitor_13",
       "kind": "capacitor",
       "params": {
-        "farads": 0.00001
+        "farads": 1e-05
       },
       "terminals": [
         "a",
@@ -432,18 +432,6 @@
       },
       "to": {
         "part": "timer_555_3",
-        "terminal": "gnd"
-      }
-    },
-    {
-      "id": "wire_10",
-      "netId": "net_8",
-      "from": {
-        "part": "timer_555_3",
-        "terminal": "control"
-      },
-      "to": {
-        "part": "gnd_2",
         "terminal": "gnd"
       }
     },

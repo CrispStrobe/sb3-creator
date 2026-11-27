@@ -26,6 +26,8 @@ Battery: EMF = 9 V, r_internal = 2 Ω. Light load path: 1 kΩ + 470 Ω + green L
 ```assert
 # Battery r_internal=2R: terminal V under dual load
 net battery_1.pos V 8.96 +-0.20
+current led_4 mA -4.71 +-0.6
+current led_5 mA -12.01 +-0.9
 ```
 
 <!-- engine-provenance -->

@@ -5,11 +5,11 @@ prereqs: [pc82-mini-roulette]
 teaches: [tilt-sensor, shake-trigger, 555-timer, CD4017, game]
 ---
 ## Was du siehst
-Ein Glücksrad: schüttle das Gerät (Neigungssensor) und die LEDs rasen los. Die Schüttelbewegung startet den 555-Timer, der das Lauflicht antreibt. Wenn der Sensor zur Ruhe kommt, verlangsamt sich das Rad und stoppt auf einer Position. Sechs LED-Segmente, Rücksetzen nach q6.
+Ein Glücksrad: schüttle das Gerät (Neigungssensor) und die LEDs rasen los. Die Schüttelbewegung startet den 555-Timer, der das Lauflicht antreibt. Wenn der Sensor zur Ruhe kommt, stoppt das Rad nach einer kurzen Verzögerung an seiner letzten Position. Sechs LED-Segmente, Rücksetzen nach q6.
 
 ## Probier das
 1. Aktiviere den Neigungssensor — die LEDs laufen los.
-2. Sensor beruhigt sich → Lauflicht verlangsamt und stoppt.
+2. Sensor beruhigt sich → Lauflicht stoppt nach kurzer Verzögerung.
 3. Die Stoppposition ist unvorhersehbar — abhängig von Schütteldauer und RC-Abklingzeit.
 
 ## Was passiert hier

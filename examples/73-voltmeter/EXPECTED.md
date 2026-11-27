@@ -9,8 +9,7 @@
 
 ## Program
 
-Every 200 ms: read the ADC, convert to millivolts
-(`mv = raw * 5000 / 1023`), print "VOLTMETER" and the mV value.
+Every 200 ms, the program reads the ADC, rounds `raw * 5000 / 1023` to whole millivolts, and prints the result with its mV unit beneath "VOLTMETER".
 
 ## Observable behaviour
 

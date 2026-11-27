@@ -7,7 +7,7 @@ teaches: [inductance, flyback, back-emf, transistor-protection]
 
 ## What you see
 
-An STC12 pin drives a TIP120 Darlington through a 1 kΩ base resistor, and the
+The MCU drives a TIP120 Darlington through a 1 kΩ base resistor, and the
 TIP120 switches a DC motor on and off once a second. The motor is drawn as two
 parts in series — a `dc_motor` for its winding resistance and back-EMF, and a
 1 mH `inductor` for the winding's inductance. What is deliberately **missing**
@@ -79,17 +79,9 @@ standing between your driver stage and an avalanche breakdown once per cycle.
   voltage with a different part and the same idea.
 - **Then:** [54-motor-driver](../54-motor-driver) — an L293D H-bridge, which
   has the flyback diodes built into the chip so you cannot forget them.
-- **Experiment:** delete `l1` from `circuit.json` and re-measure the turn-off.
+- **Experiment:** remove `l1` and reconnect the winding and re-measure the turn-off.
   The spike vanishes completely — a flat 5 V, identical to a circuit with a
   diode fitted. Nothing about the wiring changed; you removed the *physics*.
   That is the sharpest lesson here: a simulator will happily show you a safe
   result for a circuit that would destroy itself on the bench, if the model you
   gave it has no inductance in it.
-
-> **Note on `l1`'s value.** Editing the `henrys` number will not currently
-> change anything the solver does — the engine's transient path reads a
-> different spelling of that parameter, so every inductor is stamped at 1 mH.
-> It is logged in [AUDIT.md](../AUDIT.md). Until it is fixed, treat `l1` as
-> present-or-absent rather than adjustable, and reason about larger coils on
-> paper: a relay winding of tens of millihenries stores far more energy than
-> this motor, and is correspondingly less forgiving.

@@ -4,10 +4,13 @@
 
 MCU P1.0 (data), P1.1 (clock), P1.2 (latch) -> 74HC595 shift register.
 8 outputs Q0-Q7 -> 330 Ohm resistors -> red LEDs (Vf = 2.0 V) -> GND.
+/SRCLR connects to the register supply and /OE connects to GND. The Pico and
+STM32 variants power the register at 3.3 V.
 
 ## Program
 
-Counts 0 to 255 in binary, shifting each byte MSB-first into the 595, then latching.
+Sets the latch, clock, and data low before counting 0 to 255 in binary.
+The program writes raw pin levels, shifts each byte MSB-first, and latches it.
 Increments every 250 ms. Wraps back to 0 after 255.
 
 ## Observable behaviour
@@ -37,6 +40,6 @@ Increments every 250 ms. Wraps back to 0 after 255.
 4. REPEAT 8 for the shift loop, FOREVER for the count loop
 
 ```assert
-# Supply rail: VCC = 5.0V
+# Authored STC12 supply rail: VCC = 5.0 V
 net VCC.vcc V 5.00 +-0.01
 ```

@@ -107,7 +107,7 @@
   },
   {
    "from": "board",
-   "fromTerminal": "pc3",
+   "fromTerminal": "pb1",
    "to": "us",
    "toTerminal": "echo"
   },

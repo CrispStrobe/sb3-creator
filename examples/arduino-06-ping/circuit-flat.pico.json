@@ -89,6 +89,32 @@
       ],
       "x": 134,
       "y": 115
+    },
+    {
+      "id": "echoSeries",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 540,
+      "y": 110
+    },
+    {
+      "id": "echoGround",
+      "kind": "resistor",
+      "params": {
+        "ohms": 1800
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 680,
+      "y": 110
     }
   ],
   "wires": [
@@ -105,15 +131,51 @@
       }
     },
     {
-      "id": "w_flat_1",
-      "netId": "bb1:n-col-t29",
+      "id": "w_echo_module",
+      "netId": "echo_module",
       "from": {
-        "part": "board",
-        "terminal": "gp2"
-      },
-      "to": {
         "part": "us",
         "terminal": "echo"
+      },
+      "to": {
+        "part": "echoSeries",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_echo_gpio",
+      "netId": "echo_gpio",
+      "from": {
+        "part": "echoSeries",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "board",
+        "terminal": "gp15"
+      }
+    },
+    {
+      "id": "w_echo_divider",
+      "netId": "echo_divider",
+      "from": {
+        "part": "echoSeries",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "echoGround",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_echo_ground",
+      "netId": "echo_ground",
+      "from": {
+        "part": "echoGround",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "gnd1",
+        "terminal": "gnd"
       }
     },
     {

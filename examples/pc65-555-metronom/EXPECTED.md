@@ -3,6 +3,10 @@
 ## Circuit
 555 astable. R₁ = 1 kΩ, R₂ = pot (0–100 kΩ), C = 10 µF. Output → buzzer.
 
+
+The timer’s control pin uses a 10 nF bypass capacitor to ground.
+The timing path uses the wiper and B terminal, so turning the pot up increases resistance and lowers the frequency.
+
 ## Observable behaviour
 - **Pot at 0 Ω:** f = 1.44 / ((1k + 0) × 10µ) = 144 Hz — fast clicking.
 - **Pot at 50 kΩ:** f = 1.44 / ((1k + 100k) × 10µ) ≈ 1.43 Hz — ~1.4 clicks/s.

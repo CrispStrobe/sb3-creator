@@ -85,7 +85,7 @@
       "id": "capacitor_7",
       "kind": "capacitor",
       "params": {
-        "farads": 1e-7
+        "farads": 1e-07
       },
       "terminals": [
         "a",
@@ -106,6 +106,15 @@
       "x": 300,
       "y": 380,
       "rotation": 0
+    },
+    {
+      "id": "cv_bypass",
+      "kind": "capacitor",
+      "params": {
+        "farads": 1e-08
+      },
+      "x": 395,
+      "y": 295
     }
   ],
   "wires": [
@@ -219,17 +228,16 @@
     },
     {
       "id": "wire_23",
-      "netId": "net_14",
+      "netId": "net_cv",
       "from": {
         "part": "timer_555_3",
         "terminal": "control"
       },
       "to": {
-        "part": "gnd_2",
-        "terminal": "gnd"
+        "part": "cv_bypass",
+        "terminal": "a"
       }
-    }
-    ,
+    },
     {
       "id": "wire_24",
       "netId": "net_20",
@@ -271,6 +279,18 @@
       "netId": "net_14",
       "from": {
         "part": "buzzer_8",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_cv_gnd",
+      "netId": "net_14",
+      "from": {
+        "part": "cv_bypass",
         "terminal": "b"
       },
       "to": {

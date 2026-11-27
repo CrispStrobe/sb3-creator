@@ -123,7 +123,7 @@
    "kind": "resistor",
    "declName": "r2",
    "params": {
-    "ohms": 10000
+    "ohms": 2200
    },
    "x": 484,
    "y": 255,

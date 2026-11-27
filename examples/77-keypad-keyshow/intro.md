@@ -1,6 +1,6 @@
 # Keyshow: a 4×4 keypad on a 7-segment digit
 
-Press any key on the red keypad — its value (0–F) appears on the digit.
+Press a key on the red keypad. The digit shows its label, with `*`, `#`, and `D` represented by `d`, `E`, and `F` respectively.
 This is the real matrix-scan, not a shortcut: the program drives one row
 low at a time and reads the four columns back, exactly the loop that ran
 on the Prechin A2's silicon. The pin map is the A2's measured one: rows

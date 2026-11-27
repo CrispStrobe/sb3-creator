@@ -10,4 +10,5 @@
 ```assert
 # 9V supply, I = (9-2)/1k = 7mA
 net vsource_1.pos V 9.00 +-0.01
+current led_3 mA -7.0 +-0.7
 ```

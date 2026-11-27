@@ -4,24 +4,36 @@ PIN din = P1.5 OUTPUT
 PIN cs = P1.6 OUTPUT
 PIN clk = P1.7 OUTPUT
 
-GLOBAL row
+GLOBAL column
+GLOBAL command
+
+# Shift an address/data command into the MAX7219, most significant bit first.
+DEFINE write_command:
+  set cs to 0
+  REPEAT 16:
+    IF (command bitand 32768) > 0 THEN:
+      set din to 1
+    ELSE:
+      set din to 0
+    set clk to 1
+    set clk to 0
+    set command to (command shiftleft 1) bitand 65535
+  set cs to 1
 
 STAGE:
-  # MAX7219 8×8 LED matrix showcase: scrolling rows.
   WHEN flag clicked:
-    clear matrix 1
-    set row to 0
+    set clk to 0
+    set cs to 1
+    # Register 12, value 1, wakes the chip.
+    set command to 3073
+    write_command
+    set column to 1
     FOREVER:
-      clear matrix 1
-      set pixel row 0 to 1 on 1
-      set pixel row 1 to 1 on 1
-      set pixel row 2 to 1 on 1
-      set pixel row 3 to 1 on 1
-      set pixel row 4 to 1 on 1
-      set pixel row 5 to 1 on 1
-      set pixel row 6 to 1 on 1
-      set pixel row 7 to 1 on 1
-      change row by 1
-      IF row > 7 THEN:
-        set row to 0
+      set command to (column shiftleft 8) + 255
+      write_command
       wait 0.2 seconds
+      set command to column shiftleft 8
+      write_command
+      change column by 1
+      IF column > 8 THEN:
+        set column to 1

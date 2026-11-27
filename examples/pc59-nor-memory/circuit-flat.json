@@ -193,7 +193,7 @@
       "id": "w_flat_1",
       "netId": "bb1:n-col-b43",
       "from": {
-        "part": "g1",
+        "part": "g2",
         "terminal": "in0"
       },
       "to": {
@@ -217,7 +217,7 @@
       "id": "w_flat_3",
       "netId": "bb1:n-col-b47",
       "from": {
-        "part": "g2",
+        "part": "g1",
         "terminal": "in0"
       },
       "to": {

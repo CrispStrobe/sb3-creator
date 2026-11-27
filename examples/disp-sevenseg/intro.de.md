@@ -11,5 +11,5 @@ Eine 7-Segment-Anzeige zählt von 0 bis 9.
 2. Ändere die Wartezeit für schnelleres Zählen.
 
 ## Was passiert hier
-`show digit N on 1` steuert die 7-Segment-Anzeige. Der MCU setzt die
-richtige Kombination der Segmente (a–g) für jede Ziffer.
+Für jede Ziffer liest der Mikrocontroller die Segmentmaske aus der
+Tabelle und legt die passenden Pegel an die Ausgänge a bis g.

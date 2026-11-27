@@ -24,6 +24,8 @@ Battery: EMF = 9 V, r_internal = 1 Ω. Load: 100 Ω. Also 470 Ω + red LED indic
 ```assert
 # Battery with r_internal=1R: V_terminal = 9 - I*1 under load
 net battery_1.pos V 8.89 +-0.20
+current resistor_2 mA -88.97 +-1.0
+current led_4 mA -14.37 +-0.8
 ```
 
 <!-- engine-provenance -->

@@ -10,3 +10,35 @@
 | Low | High | Low | `0xEF` |
 | High | Low | High | `0xFF` |
 | High | High | Low | `0xEF` |
+
+### 1. Verification
+
+Start at `30` and run to HLT.
+- Set P1 to 0x00 at `30`.
+- Expected PC `37`.
+- Expected accumulator `00.000`.
+- P2 latch = 0xef.
+
+### 2. Verification
+
+Start at `30` and run to HLT.
+- Set P1 to 0x40 at `30`.
+- Expected PC `37`.
+- Expected accumulator `00.000`.
+- P2 latch = 0xef.
+
+### 3. Verification
+
+Start at `30` and run to HLT.
+- Set P1 to 0x02 at `30`.
+- Expected PC `37`.
+- Expected accumulator `00.001`.
+- P2 latch = 0xff.
+
+### 4. Verification
+
+Start at `30` and run to HLT.
+- Set P1 to 0x42 at `30`.
+- Expected PC `37`.
+- Expected accumulator `00.000`.
+- P2 latch = 0xef.

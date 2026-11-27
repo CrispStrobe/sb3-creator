@@ -35,7 +35,7 @@
    "kind": "arduino_nano",
    "params": {},
    "terminals": [
-    "d13"
+    "d9"
    ],
    "seat": {
     "boardId": "bb1",
@@ -99,7 +99,7 @@
  "wires": [
   {
    "from": "MCU",
-   "fromTerminal": "d13",
+   "fromTerminal": "d9",
    "to": "SERVO_servo",
    "toTerminal": "signal"
   },
@@ -140,7 +140,7 @@
   {
    "ref": "bbw:bb1:gen_0",
    "boardId": "bb1",
-   "a": "g17",
+   "a": "c14",
    "b": "b24",
    "color": "green"
   },

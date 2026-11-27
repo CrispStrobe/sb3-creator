@@ -10,4 +10,6 @@
 ```assert
 # 5V, two parallel LED branches through 470R each
 net vsource_1.pos V 5.00 +-0.01
+current led_4 mA -6.4 +-0.8
+current led_5 mA -6.4 +-0.8
 ```
