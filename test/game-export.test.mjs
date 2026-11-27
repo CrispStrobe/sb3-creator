@@ -106,6 +106,36 @@ for (const [name, keys] of Object.entries(DIFFERENTIAL)) {
     });
 }
 
+// ------------------------------------------------------------------ JS <-> Python parity
+
+const PYTHON = (() => { for (const c of ['python', 'python3']) { try { execFileSync(c, ['-c', 'import sys; assert sys.version_info >= (3, 8)'], { stdio: 'ignore' }); return c; } catch { /* next */ } } return null; })();
+const TRACES = path.join(ROOT, 'test', 'fixtures', 'game-traces');
+
+// Each fixture trace drives keys, mouse clicks and typed answers through one
+// gallery game. The exported Python (bwgame.py, headless, no pygame needed) must
+// print exactly the JSON the exported JavaScript produces for the same trace.
+for (const name of ['snake', 'snake_pro', 'breakout', 'invaders', 'pong_ai', 'bomberman', 'tetris', 'connect4', 'game', 'flappy', 'g2048', 'sokoban', 'maze', 'minesweeper', 'tictactoe_ai', 'art', 'animation', 'physics']) {
+    test(`parity: ${name} exported to JavaScript and to Python produces identical state traces`, { skip: !PYTHON && 'no python' }, async () => {
+        const { input } = await build(name);
+        const trace = JSON.parse(readFileSync(path.join(TRACES, `${name}.json`), 'utf8'));
+        const { game, dir } = await loadJsGame(input, trace.seed ?? 1);
+        try {
+            const js = JSON.stringify(game.runTrace(trace));
+            const r = await exportGame(input, { target: 'pygame', title: name });
+            for (const f of ['game.py', 'bwgame.py', 'manifest.json']) writeFileSync(path.join(dir, f), r.files[f]);
+            writeFileSync(path.join(dir, 'trace.json'), JSON.stringify(trace));
+            const py = execFileSync(PYTHON, [path.join(dir, 'bwgame.py'), 'trace', dir, path.join(dir, 'trace.json')],
+                { maxBuffer: 64 << 20, env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1' } }).toString().trim();
+            if (py !== js) {
+                const a = JSON.parse(js), b = JSON.parse(py);
+                const i = a.findIndex((x, k) => JSON.stringify(x) !== JSON.stringify(b[k]));
+                assert.deepEqual(b[i], a[i], `${name}: first difference at sample ${i}`);
+            }
+            assert.equal(py, js);
+        } finally { rmSync(dir, { recursive: true, force: true }); }
+    });
+}
+
 // ------------------------------------------------------------------ exported packages
 
 test('web export: editable modules, a self-contained play.html, manifest and report', async () => {

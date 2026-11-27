@@ -351,7 +351,6 @@ class Emitter {
 
     emit () {
         const L = this.L;
-        const out = [];
         const fnNames = [];
         const body = [];
         for (const t of this.model.code) {
@@ -373,14 +372,12 @@ class Emitter {
                 body.push(...this.fn(pr.fn, ['self', ...this.params.values()], pr.def.body, `${L.comment} define ${pr.def.proccode}${pr.warp ? ' (run without screen refresh)' : ''}`));
                 this.params = null;
             }
-            let i = 0;
             for (const sc of t.scripts) {
                 if (sc.hat.kind === 'unsupported') continue;
                 const base = { flag: 'when_flag_clicked', key: `when_${sc.hat.arg}_key_pressed`, broadcast: `when_i_receive_${sc.hat.arg}`, clicked: 'when_clicked', clone: 'when_i_start_as_a_clone', backdrop: `when_backdrop_switches_to_${sc.hat.arg}` }[sc.hat.kind];
                 const fn = ident(`${tid}_${base}`, this.used);
                 body.push(...this.fn(fn, ['self'], sc.body, null));
                 fnNames.push([key, sc.hat.kind, sc.hat.arg, fn]);
-                i++;
             }
         }
         const reg = fnNames.map(([key, kind, arg, fn]) => `${IND}${L.stmt(`game.on(${L.str(key)}, ${L.str(kind)}, ${arg === null ? L.NULL : L.str(arg)}, ${fn})`)}`);

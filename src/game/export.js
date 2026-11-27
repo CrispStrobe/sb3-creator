@@ -25,7 +25,7 @@ async function sha256 (data) {
 }
 
 function base64 (bytes) {
-    if (typeof Buffer !== 'undefined') return Buffer.from(bytes).toString('base64');
+    if (typeof globalThis.Buffer !== 'undefined') return globalThis.Buffer.from(bytes).toString('base64');
     let s = '';
     for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
     return btoa(s);
