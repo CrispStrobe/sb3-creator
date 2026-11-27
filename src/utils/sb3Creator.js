@@ -17159,6 +17159,11 @@ class SB3Creator {
         // The ATtinys' print/ask: a software UART on SOFT_SERIAL_PINS.
         this._cSoftSerial = (this._cTiny85 || this._cTiny88)
             ? SB3Creator.SOFT_SERIAL_PINS[String(device || '').toLowerCase()] || null : null;
+        if (part?.core === 'atmega32u4') {
+            const reason = 'Use an Arduboy sketch or a compiled .hex to run on Arduboy.';
+            this.cWarn(reason);
+            return `/* ${reason} */\n`;
+        }
         if (part && part.core && part.core !== '8051' && part.core !== 'arduino'
             && part.core !== 'rp2040' && part.core !== 'w65c02' && part.core !== 'z80'
             && part.core !== 'i8086') {
@@ -22837,6 +22842,9 @@ SB3Creator.STC_PARTS = {
     // it does not name, so selecting one of these can never silently produce
     // firmware for a different ARM part. `arcade: true` marks the console
     // faceplate the runtime draws.
+    // Arduboy sketches own the console hardware API. The DEVICE declaration
+    // still identifies the project when its Scratch blocks are saved or loaded.
+    arduboy: { core: 'atmega32u4', adc: false },
     arcade: { core: 'samd51', header: null, portModes: false, aux1T: false, adc: false, arcade: true },
     pybadge: { core: 'samd51', header: null, portModes: false, aux1T: false, adc: true, arcade: true,
         display: 'st7735', displayWidth: 160, displayHeight: 128, neopixels: 5, accelerometer: 'lis3dh' },
@@ -22921,7 +22929,7 @@ SB3Creator.defaultClock = (device) => {
     const part = SB3Creator.STC_PARTS[String(device || '').toLowerCase()];
     if (!part) return 11059200;
     if (part.tiny85 || part.tiny88) return 8000000;
-    if (part.core === 'arduino') return 16000000;
+    if (part.core === 'arduino' || part.core === 'atmega32u4') return 16000000;
     if (part.stm32f0) return 48000000;
     if (part.stm32g0) return 64000000;
     if (part.stm32f1) return 72000000;
