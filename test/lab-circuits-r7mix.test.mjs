@@ -19,6 +19,7 @@ import { join } from 'node:path';
 import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
 import { injectEngine } from '../scripts/lib/engine-surface.mjs';
 import { BENCHES, benchIds } from '../scripts/lib/lab-benches-r7mix.mjs';
+import { mixerCarriers, phaseBeat, periodicTone } from './helpers/mixer-beat.mjs';
 
 const gate = requireSiblings('bw-board', 'bw-circuit-ui');
 siblingGuardTest(gate, 'the lab bench scenarios (set r7mix, the double-balanced mixer IC)');
@@ -222,20 +223,60 @@ describe('lab mixer-IC benches (set r7mix) behave as documented', { skip: SKIP }
     });
 
     test('lab-mixer-direct-conversion: the transmitter heard as a whistle that follows its tuning and its supply', () => {
-        const run = (controls) => {
-            const x = bench('lab-mixer-direct-conversion');
+        const run = (controls, edit = null) => {
+            const x = bench('lab-mixer-direct-conversion', edit);
             for (const [k, v] of Object.entries(controls)) x.set(k, v);
-            x.run(2);
-            const tr = x.trace('spk', 'a', 3, 0.01);
-            return { swing: span(tr), hz: crossings(tr) };
+            // 100 nF into 10 kΩ has a 1 ms input time constant; the 220 µF
+            // speaker coupling has τ = 1.76 ms. At 2 ms the LM386 is still
+            // recovering from saturation, so its crossings are not a beat
+            // measurement. Observe after 8 ms, then compare the actual RF
+            // phase difference, mixer output and complete speaker periods.
+            x.run(8);
+            const trace = [];
+            for (let i = 0; i < 300; i++) {
+                x.run(0.01);
+                trace.push({ tMs: x.t, speaker: x.v('spk', 'a'), mixer: x.v('m', 'out_a'),
+                    ...mixerCarriers(x.b, x.ids.m, x.t / 1000, x.ids.q) });
+            }
+            return trace;
         };
-        // MEASURED 2026-11-25 (bw-board b094eb22): as authored (9 V, both at 0.3) 5833 Hz, 4.2 V p-p
-        // at the speaker; transmitter tuned to 0.302 -> 7167 Hz; transmitter on 6 V -> 1167 Hz.
-        // (First build: 3846 / 1171 / 5518 Hz, on an engine before the radiator fix, bw-board #755.)
-        const base = run({}), tuned = run({ tct: 0.302 }), sagged = run({ vsel: 1 });
-        assert.ok(base.swing > 1, `a loud whistle (${base.swing} V p-p; MEASURED 2026-11-25: 4.2 V)`);
-        near1(base.hz, 5830, 600, 'as authored: the difference of the two oscillators (Hz)');
-        assert.ok(tuned.hz > base.hz + 800, `the transmitter tuned away from the receiver: a higher whistle (${tuned.hz} Hz; MEASURED 2026-11-25: 7167 Hz)`);
-        assert.ok(sagged.hz < base.hz / 2, `the transmitter on 6 V instead of 9 V: its frequency moves towards the receiver, the whistle falls (${sagged.hz} Hz; MEASURED 2026-11-25: 1167 Hz)`);
+        const qualify = (trace, referenceHz, label) => {
+            for (const [field, floor] of [['rfAmplitude', 0.05], ['loAmplitude', 4]]) {
+                const values = trace.map(x => x[field]);
+                assert.ok(Math.min(...values) > floor, `${label}: ${field} remains active`);
+                assert.ok(Math.max(...values) / Math.min(...values) < 1.02, `${label}: ${field} is steady, not a burst`);
+            }
+            const phase = phaseBeat(trace), mixer = periodicTone(trace, 'mixer'), speaker = periodicTone(trace, 'speaker');
+            assert.ok(phase.phaseRms < 0.05, `${label}: coherent carrier difference (${phase.phaseRms} rad RMS)`);
+            near1(phase.hz, referenceHz, 25, `${label}: phase beat against the independent fine-step reference (Hz)`);
+            for (const [name, tone] of [['mixer', mixer], ['speaker', speaker]]) {
+                near1(tone.hz, phase.hz, 20, `${label}: ${name} carries the RF difference (Hz)`);
+                assert.ok(tone.jitter < 0.05, `${label}: ${name} has complete periodic cycles`);
+                assert.ok(tone.cycles >= Math.max(3, Math.floor(referenceHz * 0.003) - 2), `${label}: ${name} is audible throughout the window`);
+            }
+            const values = trace.map(x => x.speaker);
+            assert.ok(Math.max(...values) - Math.min(...values) > 1, `${label}: a loud whistle`);
+            return phase.hz;
+        };
+        // Independent reference: correction OFF, RF steps capped at 128 ns
+        // and 64 ns. Frequencies agree within 0.13 Hz for base/tuned/sagged.
+        // The opposite small-tuning directional control uses 128 ns only.
+        // Historical 5833/7167/1167 speaker counts are retained as rejected
+        // transient evidence in docs/RF-DIRECT-CONVERSION-QUALIFICATION.md.
+        const base = qualify(run({}), 3862.2, '9 V, tuning 0.3');
+        const tuned = qualify(run({ tct: 0.302 }), 6200.8, 'more transmitter capacitance');
+        const sagged = qualify(run({ vsel: 1 }), 4947.6, '6 V transmitter');
+        const opposite = qualify(run({ tct: 0.298 }), 1495.2, 'less transmitter capacitance');
+        assert.ok(tuned > base + 1800 && opposite < base - 1800, 'opposite tuning directions move the beat in opposite directions');
+        assert.ok(sagged > base + 800, 'the lower transmitter supply moves this circuit further from its LO');
+
+        const ids = benchIds(BENCHES['lab-mixer-direct-conversion']);
+        const disconnected = run({}, json => { json.parts = json.parts.filter(p => p.id !== ids.cx); });
+        assert.ok(disconnected.every(x => x.loPeak > 4 && x.transmitterSwing > 1), 'both oscillators still run when their RF link is open');
+        assert.ok(disconnected.every(x => x.rfPeak < 1e-6), 'the open coupling removes the received carrier');
+        const mixerValues = disconnected.map(x => x.mixer);
+        assert.ok(Math.max(...mixerValues) - Math.min(...mixerValues) < 0.002, 'no mixer audio without the RF link');
+        assert.throws(() => periodicTone(disconnected, 'speaker'), /enough complete/,
+            'the remaining speaker coupling-capacitor recovery is not a whistle');
     });
 });
