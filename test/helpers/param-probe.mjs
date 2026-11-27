@@ -333,6 +333,29 @@ export const rank = (s) => (s.generated ? 4 : 0)
 export { MAX_SITES, MAX_SITES_KNOWN_INERT };
 
 /**
+ * The sites of one key in the order they are probed: by rank, and among
+ * equal ranks one site per bench FILE before a second site of any file.
+ *
+ * Eight identical parts in one bench used to take every slot. cp1-cp4-relay-
+ * bank declares relay.dropOutV on its eight relays, all eight coils at 0 V or
+ * at the full battery, and it sorts first, so the cap of six (two for a key
+ * in KNOWN_INERT) never reached lab-relay-hysteresis, the bench built to hold
+ * a coil between drop-out and pull-in. A second part of a bench that did not
+ * move is rarely in a different state; another bench usually is.
+ */
+export function probeOrder (sites) {
+    const seen = new Map();
+    const nth = new Map();
+    for (const s of sites) {
+        const f = `${s.dir}/${s.file}`;
+        const n = seen.get(f) ?? 0;
+        seen.set(f, n + 1);
+        nth.set(s, n);
+    }
+    return [...sites].sort((a, b) => rank(a) - rank(b) || nth.get(a) - nth.get(b));
+}
+
+/**
  * Probe each (kind, key) in `ids` on its best-ranked sites until one moves.
  * Returns the verdicts the gate asserts on, plus per-key cost for whoever is
  * measuring it.
@@ -349,7 +372,7 @@ export function probeKeys (ids, sites, observe, knownInert, baseCache = new Map(
         const all = sites.get(id) || [];
         const key = id.slice(id.indexOf('.') + 1);
         const cap = knownInert.has(id) ? MAX_SITES_KNOWN_INERT : MAX_SITES;
-        const candidates = [...all].sort((a, b) => rank(a) - rank(b)).slice(0, cap);
+        const candidates = probeOrder(all).slice(0, cap);
         const t0 = process.cpuUsage();
         let moved = false, probed = 0;
         for (const site of candidates) {
