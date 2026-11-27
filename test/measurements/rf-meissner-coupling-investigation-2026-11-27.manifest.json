@@ -1,0 +1,1864 @@
+{
+  "schema": "rf-meissner-coupling-investigation-manifest-v1",
+  "date": "2026-11-27",
+  "qualification": "Open. These are retained diagnostics and rejected designs, not shipping evidence or replacement expected values.",
+  "baseline": {
+    "board": "b47e7e09ed873b33ca2fd912b21e136decc5e677",
+    "cui": "ee2b4127a88f1b308f8d749cae4d7c1db1deae9e",
+    "circuitPath": "examples/lab-meissner-squegg/circuit.json",
+    "circuitSha256": "57556cbb06a6469617875398c97eaf37c9821a01dfba2d548a71e2e621524763",
+    "sourceSha256": {
+      "src/radio.js": "375a293c88a1444ebb5b0b6975617fb2f5c45b616d626091b6cd5e15fc7a5874",
+      "src/rf-bands.js": "cbd8e11bcc1b8c037ab97f5ed323604b920d38c145778b9206cc6e3feab3819f",
+      "src/board.js": "79a324643bed8bc9bfd6a659f1a9a6fb3d2f393b712bd332efbd42e8dc05f489",
+      "src/mna.js": "091d6fa1821ee4878b08370a1061bb30246c10fff87871a17da99b2b4c608b48"
+    }
+  },
+  "immutableEarlierReceipt": {
+    "path": "test/measurements/rf-meissner-squegg-original-2026-11-27.json",
+    "sha256": "1bb56763ef95923419dda2ddfcab0c84df8702f24bc000b39ae38881ba1ab006",
+    "alreadyRetained": [
+      "original default and inner-only 128/64/32/16/8 ns traces",
+      "old-global-partition diagnostic and rejected initial instrumentation",
+      "independent shared-norm equation witness",
+      "receiver-diode-removal isolation",
+      "original rheostat positions 0.0, 0.6 and 0.9"
+    ]
+  },
+  "archive": {
+    "path": "test/measurements/rf-meissner-coupling-investigation-2026-11-27.json.gz",
+    "encoding": "gzip of UTF-8 JSON",
+    "bytes": 797814,
+    "sha256": "701bb0f3732afdbb59a46cd487a5228f88d19a48ed78ac422003eb0765cdbdb5",
+    "uncompressedBytes": 4745244,
+    "uncompressedSha256": "4b649a307b2ce2c90ea7f61ccfb8d72cfe3d3a5e664f4e8a4f7ef2680b1ff7cc"
+  },
+  "recordCount": 29,
+  "originalFileCount": 95,
+  "observedSamples": 2561,
+  "acceptedTimingSamples": 3136,
+  "records": [
+    {
+      "path": "consumer-feedback-double-big.json",
+      "sha256": "5af1f4c9343474ed9fbe8b6264ea7271bbd42caa42362e851fb7df11201ea750",
+      "sourcePath": "probe-squegg-feedback-isolation.mjs",
+      "disposition": "Rejected: production RF runaway after one observation; no physical burst verdict.",
+      "observedSamples": 1,
+      "acceptedTimingSamples": 0,
+      "failure": {
+        "message": "RF failure at 6.039999999999999 ms\n+ actual - expected\n\n+ 'RF band at 0.7965 MHz refused: its swing ran away (1.41e+4 V at 6.0205 ms)'\n- null\n",
+        "transient": null,
+        "radio": "RF band at 0.7965 MHz refused: its swing ran away (1.41e+4 V at 6.0205 ms)"
+      },
+      "summary": {
+        "rf": {
+          "min": 8.4583271141956,
+          "max": 8.4583271141956
+        },
+        "base": {
+          "min": 0.8613741840610541,
+          "max": 0.8613741840610541
+        },
+        "emitter": {
+          "min": 0.38735109818530056,
+          "max": 0.38735109818530056
+        },
+        "reservoir": {
+          "min": 0.8614014307590349,
+          "max": 0.8614014307590349
+        },
+        "detector": {
+          "min": 1.5980280381642944,
+          "max": 1.5980280381642944
+        },
+        "bigBypass": {
+          "min": 0.3864854996462608,
+          "max": 0.3864854996462608
+        },
+        "tone": {
+          "hz": 1944.2392191935296,
+          "on": true,
+          "level": 0.7424580554382592,
+          "amps": 0,
+          "irregularity": 0.3965435307968305,
+          "noise": true
+        },
+        "junctions": [
+          {
+            "kind": "bjt",
+            "p": [
+              0,
+              1
+            ],
+            "partId": "npn_6"
+          },
+          {
+            "kind": "diode",
+            "p": [
+              2
+            ],
+            "partId": "diode_16"
+          }
+        ]
+      }
+    },
+    {
+      "path": "consumer-feedback-double-reference-16ns.json",
+      "sha256": "201d9b5b88b394d77afba84f6b4d83c539a1932aa7a41920cf831c272bec595f",
+      "sourcePath": "probe-squegg-feedback-isolation.mjs",
+      "disposition": "Rejected: correction-off inner 16 ns reference refuses runaway before the observation window; outer profile remains default.",
+      "observedSamples": 0,
+      "acceptedTimingSamples": 0,
+      "failure": {
+        "message": "RF failure at 6 ms\n+ actual - expected\n\n+ 'RF band at 0.7965 MHz refused: its swing ran away (2.44e+5 V at 1.0110 ms)'\n- null\n",
+        "transient": null,
+        "radio": "RF band at 0.7965 MHz refused: its swing ran away (2.44e+5 V at 1.0110 ms)"
+      },
+      "summary": null
+    },
+    {
+      "path": "squegg-divider-0060-big.json",
+      "sha256": "334316386f6e96101db1a2cf8a008d632be0048859083dbd149379977b1271c8",
+      "sourcePath": "probe-squegg-divider.mjs",
+      "disposition": "Rejected: below startup, no active RF carrier or detector tone.",
+      "observedSamples": 150,
+      "acceptedTimingSamples": 0,
+      "failure": null,
+      "summary": {
+        "rf": {
+          "min": 5.140355657539025e-7,
+          "max": 0.000025246054778522293
+        },
+        "emitter": {
+          "min": 0.00005438995011998042,
+          "max": 0.00005452631564715804
+        },
+        "reservoir": {
+          "min": 0.5399915185163692,
+          "max": 0.5399915185186132
+        },
+        "detector": {
+          "min": 4.772185035240441e-11,
+          "max": 1.1717333989253506e-10
+        },
+        "bigBypass": {
+          "min": 0.00005438993576367533,
+          "max": 0.00005452631491516879
+        },
+        "tone": {
+          "hz": 0,
+          "on": false,
+          "level": 0,
+          "amps": 0,
+          "irregularity": 0,
+          "noise": false
+        },
+        "junctions": [
+          {
+            "kind": "bjt",
+            "p": [
+              0,
+              1
+            ],
+            "partId": "npn_6"
+          },
+          {
+            "kind": "diode",
+            "p": [
+              2
+            ],
+            "partId": "diode_16"
+          }
+        ]
+      }
+    },
+    {
+      "path": "squegg-divider-0065-big.json",
+      "sha256": "58ae0ae579c949ad5111237d268a3c12a839bedfb8cce67f5d06a798ea515fae",
+      "sourcePath": "probe-squegg-divider.mjs",
+      "disposition": "Rejected: below startup; also between the public potentiometer increments, so not a public-control candidate.",
+      "observedSamples": 150,
+      "acceptedTimingSamples": 0,
+      "failure": null,
+      "summary": {
+        "rf": {
+          "min": 5.140634651754017e-7,
+          "max": 0.000025249829566955373
+        },
+        "emitter": {
+          "min": 0.000058922067397533697,
+          "max": 0.00005907013147715112
+        },
+        "reservoir": {
+          "min": 0.5849905545424183,
+          "max": 0.5849905545450256
+        },
+        "detector": {
+          "min": 4.7654571326313265e-11,
+          "max": 1.1424344054534014e-10
+        },
+        "bigBypass": {
+          "min": 0.000058922051809618054,
+          "max": 0.00005907013068236043
+        },
+        "tone": {
+          "hz": 0,
+          "on": false,
+          "level": 0,
+          "amps": 0,
+          "irregularity": 0,
+          "noise": false
+        },
+        "junctions": [
+          {
+            "kind": "bjt",
+            "p": [
+              0,
+              1
+            ],
+            "partId": "npn_6"
+          },
+          {
+            "kind": "diode",
+            "p": [
+              2
+            ],
+            "partId": "diode_16"
+          }
+        ]
+      }
+    },
+    {
+      "path": "squegg-divider-0070-big.json",
+      "sha256": "18f336aca9c28fddfe26c5d564da912e8854b85b95d247abe67fe83b5484136e",
+      "sourcePath": "probe-squegg-divider.mjs",
+      "disposition": "Rejected: below startup, no active RF carrier or detector tone.",
+      "observedSamples": 150,
+      "acceptedTimingSamples": 0,
+      "failure": null,
+      "summary": {
+        "rf": {
+          "min": 5.140949317522668e-7,
+          "max": 0.000025253604731427247
+        },
+        "emitter": {
+          "min": 0.00006345413831731392,
+          "max": 0.00006361394206855263
+        },
+        "reservoir": {
+          "min": 0.6299895541642893,
+          "max": 0.629989554172389
+        },
+        "detector": {
+          "min": 4.7724424863295304e-11,
+          "max": 1.1692983933666194e-10
+        },
+        "bigBypass": {
+          "min": 0.00006345412149331077,
+          "max": 0.0000636139412106106
+        },
+        "tone": {
+          "hz": 0,
+          "on": false,
+          "level": 0,
+          "amps": 0,
+          "irregularity": 0,
+          "noise": false
+        },
+        "junctions": [
+          {
+            "kind": "bjt",
+            "p": [
+              0,
+              1
+            ],
+            "partId": "npn_6"
+          },
+          {
+            "kind": "diode",
+            "p": [
+              2
+            ],
+            "partId": "diode_16"
+          }
+        ]
+      }
+    },
+    {
+      "path": "squegg-divider-0080-big.json",
+      "sha256": "83fd47b7d8b29747deceb0a279f04766a7da02c5b07e967c01ee9cf2ab251d23",
+      "sourcePath": "probe-squegg-divider.mjs",
+      "disposition": "Unqualified early-window diagnostic: bursts cross the quiet bound, but later-window quiet and independent reference checks fail.",
+      "observedSamples": 150,
+      "acceptedTimingSamples": 0,
+      "failure": null,
+      "summary": {
+        "rf": {
+          "min": 0.006729004368997054,
+          "max": 9.163112731828024
+        },
+        "emitter": {
+          "min": 0.029796490438257047,
+          "max": 0.0461335524503273
+        },
+        "reservoir": {
+          "min": 0.36382214064311147,
+          "max": 0.7113965705793185
+        },
+        "detector": {
+          "min": 2.293604288939029,
+          "max": 4.479962641227471
+        },
+        "bigBypass": {
+          "min": 0.02979951248523472,
+          "max": 0.046138177005731786
+        },
+        "tone": {
+          "hz": 2696.4589427049664,
+          "on": true,
+          "level": 0.9932599298362921,
+          "amps": 0,
+          "irregularity": 0.05624456945640218,
+          "noise": false
+        },
+        "junctions": [
+          {
+            "kind": "bjt",
+            "p": [
+              0,
+              1
+            ],
+            "partId": "npn_6"
+          },
+          {
+            "kind": "diode",
+            "p": [
+              2
+            ],
+            "partId": "diode_16"
+          }
+        ]
+      }
+    },
+    {
+      "path": "squegg-divider-0090-big.json",
+      "sha256": "16de55b1e0e51ad1bce66b52bed4cecbadc4a75b27b4937388602edab68dcf48",
+      "sourcePath": "probe-squegg-divider.mjs",
+      "disposition": "Unqualified diagnostic: only one quiet sample, irregular tone, and no settled coupled-reference qualification.",
+      "observedSamples": 150,
+      "acceptedTimingSamples": 0,
+      "failure": null,
+      "summary": {
+        "rf": {
+          "min": 0.009612253916162135,
+          "max": 9.5655168800874
+        },
+        "emitter": {
+          "min": 0.06751765615277878,
+          "max": 0.09620625470701055
+        },
+        "reservoir": {
+          "min": -0.03482624427074983,
+          "max": 0.762845493542202
+        },
+        "detector": {
+          "min": 2.650325085970308,
+          "max": 4.248130734090744
+        },
+        "bigBypass": {
+          "min": 0.06752444026463807,
+          "max": 0.09621602890508281
+        },
+        "tone": {
+          "hz": 1145.1297346104584,
+          "on": true,
+          "level": 1,
+          "amps": 0,
+          "irregularity": 0.6297911181756648,
+          "noise": true
+        },
+        "junctions": [
+          {
+            "kind": "bjt",
+            "p": [
+              0,
+              1
+            ],
+            "partId": "npn_6"
+          },
+          {
+            "kind": "diode",
+            "p": [
+              2
+            ],
+            "partId": "diode_16"
+          }
+        ]
+      }
+    },
+    {
+      "path": "squegg-divider-0100-big.json",
+      "sha256": "54524ef6055363729d883ce94a081cbe6d20f3c43648267a0105d4831868a989",
+      "sourcePath": "probe-squegg-divider.mjs",
+      "disposition": "Rejected: fails the existing 10 mV quiet bound.",
+      "observedSamples": 150,
+      "acceptedTimingSamples": 0,
+      "failure": null,
+      "summary": {
+        "rf": {
+          "min": 0.09042181155198509,
+          "max": 9.720969956487249
+        },
+        "emitter": {
+          "min": 0.08284187648743128,
+          "max": 0.12744060263148285
+        },
+        "reservoir": {
+          "min": -0.2201200972853077,
+          "max": 0.7868221410402608
+        },
+        "detector": {
+          "min": 3.079096159843134,
+          "max": 4.835074130089419
+        },
+        "bigBypass": {
+          "min": 0.08285006681021588,
+          "max": 0.1274534124295581
+        },
+        "tone": {
+          "hz": 2710.2749912763024,
+          "on": true,
+          "level": 1,
+          "amps": 0,
+          "irregularity": 0.5782783703683917,
+          "noise": true
+        },
+        "junctions": [
+          {
+            "kind": "bjt",
+            "p": [
+              0,
+              1
+            ],
+            "partId": "npn_6"
+          },
+          {
+            "kind": "diode",
+            "p": [
+              2
+            ],
+            "partId": "diode_16"
+          }
+        ]
+      }
+    },
+    {
+      "path": "squegg-divider-0080-steady.json",
+      "sha256": "699b7300d35b8016a40f7e10971ab8672de7a3c0eddb135c508699a1f76cdffb",
+      "sourcePath": "probe-squegg-divider.mjs",
+      "disposition": "Passing small-bypass diagnostic control for a rejected physical variant; not authored-circuit qualification.",
+      "observedSamples": 150,
+      "acceptedTimingSamples": 0,
+      "failure": null,
+      "summary": {
+        "rf": {
+          "min": 8.88542289917032,
+          "max": 8.885462824528886
+        },
+        "emitter": {
+          "min": 0.05363938203478079,
+          "max": 0.05364891546965643
+        },
+        "reservoir": {
+          "min": 0.5873343778807693,
+          "max": 0.5873484860457419
+        },
+        "detector": {
+          "min": 1.1332134519200294,
+          "max": 1.1332322876526437
+        },
+        "bigBypass": {
+          "min": 0,
+          "max": 0
+        },
+        "tone": {
+          "hz": 0,
+          "on": false,
+          "level": 0,
+          "amps": 0,
+          "irregularity": 0,
+          "noise": false
+        },
+        "junctions": [
+          {
+            "kind": "bjt",
+            "p": [
+              0,
+              1
+            ],
+            "partId": "npn_6"
+          },
+          {
+            "kind": "diode",
+            "p": [
+              2
+            ],
+            "partId": "diode_16"
+          }
+        ]
+      }
+    },
+    {
+      "path": "squegg-divider-0080-reversed.json",
+      "sha256": "1264a346de146a459462c7e59193bb1c291a73032df3a46607482a52eff1cc84",
+      "sourcePath": "probe-squegg-divider.mjs",
+      "disposition": "Passing reversed-feedback diagnostic control for a rejected physical variant; not authored-circuit qualification.",
+      "observedSamples": 150,
+      "acceptedTimingSamples": 0,
+      "failure": null,
+      "summary": {
+        "rf": {
+          "min": 1.7110595891273738e-7,
+          "max": 0.000009648985541127116
+        },
+        "emitter": {
+          "min": 0.037877571771331865,
+          "max": 0.037877571856521706
+        },
+        "reservoir": {
+          "min": 0.7134895030842106,
+          "max": 0.7134895030908208
+        },
+        "detector": {
+          "min": 5.6464564214502676e-11,
+          "max": 8.745090046103166e-11
+        },
+        "bigBypass": {
+          "min": 0,
+          "max": 0
+        },
+        "tone": {
+          "hz": 0,
+          "on": false,
+          "level": 0,
+          "amps": 0,
+          "irregularity": 0,
+          "noise": false
+        },
+        "junctions": [
+          {
+            "kind": "bjt",
+            "p": [
+              0,
+              1
+            ],
+            "partId": "npn_6"
+          },
+          {
+            "kind": "diode",
+            "p": [
+              2
+            ],
+            "partId": "diode_16"
+          }
+        ]
+      }
+    },
+    {
+      "path": "squegg-divider-0080-late-big.json",
+      "sha256": "58b1d3200ce885a910d5eda20655cbdb27363d24a84f248c9a519c4a60a335a8",
+      "sourcePath": "probe-squegg-divider.mjs",
+      "disposition": "Rejected: later 22–25 ms window has RF minimum 13.336 mV, above the unchanged 10 mV quiet bound.",
+      "observedSamples": 150,
+      "acceptedTimingSamples": 0,
+      "failure": null,
+      "summary": {
+        "rf": {
+          "min": 0.013336303233680643,
+          "max": 9.039114003988892
+        },
+        "emitter": {
+          "min": 0.029246498393080265,
+          "max": 0.04306780258313508
+        },
+        "reservoir": {
+          "min": 0.47046030797353977,
+          "max": 0.7124657873418749
+        },
+        "detector": {
+          "min": 2.5993800686006447,
+          "max": 4.605566797715118
+        },
+        "bigBypass": {
+          "min": 0.029249137194535237,
+          "max": 0.043071466352829185
+        },
+        "tone": {
+          "hz": 3027.571335257355,
+          "on": true,
+          "level": 0.8865207602694436,
+          "amps": 0,
+          "irregularity": 0.04035288514802383,
+          "noise": false
+        },
+        "junctions": [
+          {
+            "kind": "bjt",
+            "p": [
+              0,
+              1
+            ],
+            "partId": "npn_6"
+          },
+          {
+            "kind": "diode",
+            "p": [
+              2
+            ],
+            "partId": "diode_16"
+          }
+        ]
+      }
+    },
+    {
+      "path": "squegg-divider-0080-reference-16ns.json",
+      "sha256": "db866e87d4191923c131a4f1aa7b3e7a891ead5fd826f6a57cc00e9671498ffe",
+      "sourcePath": "probe-squegg-divider.mjs",
+      "disposition": "Rejected: inner-only explicit reference refuses runaway before the observation window.",
+      "observedSamples": 0,
+      "acceptedTimingSamples": 0,
+      "failure": {
+        "message": "RF failure at 6 ms\n+ actual - expected\n\n+ 'RF band at 0.7972 MHz refused: its swing ran away (1.74e+5 V at 0.2863 ms)'\n- null\n",
+        "transient": null,
+        "radio": "RF band at 0.7972 MHz refused: its swing ran away (1.74e+5 V at 0.2863 ms)"
+      },
+      "summary": null
+    },
+    {
+      "path": "squegg-divider-0080-reference-8ns.json",
+      "sha256": "5a53ca3054df2ac58b6892e647b22b9dccfeaaafdbce40ed0379b1436315ce27",
+      "sourcePath": "probe-squegg-divider.mjs",
+      "disposition": "Rejected: inner-only explicit reference refuses runaway before the observation window.",
+      "observedSamples": 0,
+      "acceptedTimingSamples": 0,
+      "failure": {
+        "message": "RF failure at 6 ms\n+ actual - expected\n\n+ 'RF band at 0.7972 MHz refused: its swing ran away (4.97e+4 V at 0.2859 ms)'\n- null\n",
+        "transient": null,
+        "radio": "RF band at 0.7972 MHz refused: its swing ran away (4.97e+4 V at 0.2859 ms)"
+      },
+      "summary": null
+    },
+    {
+      "path": "squegg-divider-0080-reference-2ns.json",
+      "sha256": "01c4f5542e2762e93d74677ff5bb70750d63f5573a72eb13684a5185e9491a12",
+      "sourcePath": "probe-squegg-divider.mjs",
+      "disposition": "Refused by unchanged 20000-substep look-ahead budget; no physical trajectory verdict.",
+      "observedSamples": 0,
+      "acceptedTimingSamples": 0,
+      "failure": {
+        "message": "RF failure at 6 ms\n+ actual - expected\n\n+ 'RF band at 0.7972 MHz refused: it needed more than 20000 substeps ahead of the circuit (0.0400 ms)'\n- null\n",
+        "transient": null,
+        "radio": "RF band at 0.7972 MHz refused: it needed more than 20000 substeps ahead of the circuit (0.0400 ms)"
+      },
+      "summary": null
+    },
+    {
+      "path": "squegg-divider-0080-reference-1ns.json",
+      "sha256": "8d3fcb2714ca3ce59f28a0bbf621331341e993969c80fbaebe2b31b125247045",
+      "sourcePath": "probe-squegg-divider.mjs",
+      "disposition": "Refused by unchanged 20000-substep look-ahead budget; no physical trajectory verdict.",
+      "observedSamples": 0,
+      "acceptedTimingSamples": 0,
+      "failure": {
+        "message": "RF failure at 6 ms\n+ actual - expected\n\n+ 'RF band at 0.7972 MHz refused: it needed more than 20000 substeps ahead of the circuit (0.0200 ms)'\n- null\n",
+        "transient": null,
+        "radio": "RF band at 0.7972 MHz refused: it needed more than 20000 substeps ahead of the circuit (0.0200 ms)"
+      },
+      "summary": null
+    },
+    {
+      "path": "squegg-divider-0080-bounded-2ns.json",
+      "sha256": "d030de1e434c07d2e9493c6ad921fe0ac78a07715a18c65d2fa359447e2d15d2",
+      "sourcePath": "probe-squegg-divider-bounded.mjs",
+      "disposition": "Rejected: public 1 us outer cap plus inner explicit 2 ns reference still refuses RF runaway; budgets unchanged.",
+      "observedSamples": 0,
+      "acceptedTimingSamples": 0,
+      "failure": {
+        "message": "RF failure at 1 ms\n+ actual - expected\n\n+ 'RF band at 0.7972 MHz refused: its swing ran away (8.06e+5 V at 0.2791 ms)'\n- null\n",
+        "transient": null,
+        "radio": "RF band at 0.7972 MHz refused: its swing ran away (8.06e+5 V at 0.2791 ms)"
+      },
+      "summary": null
+    },
+    {
+      "path": "squegg-divider-0080-bounded-1ns.json",
+      "sha256": "7c4e3c2d8d4af042ef1a2297d034bd9394cff2029e54cfbb8e3a79bd575c78e7",
+      "sourcePath": "probe-squegg-divider-bounded.mjs",
+      "disposition": "Rejected: public 1 us outer cap plus inner explicit 1 ns reference still refuses RF runaway; budgets unchanged.",
+      "observedSamples": 0,
+      "acceptedTimingSamples": 0,
+      "failure": {
+        "message": "RF failure at 1 ms\n+ actual - expected\n\n+ 'RF band at 0.7972 MHz refused: its swing ran away (1.05e+4 V at 0.2774 ms)'\n- null\n",
+        "transient": null,
+        "radio": "RF band at 0.7972 MHz refused: its swing ran away (1.05e+4 V at 0.2774 ms)"
+      },
+      "summary": null
+    },
+    {
+      "path": "squegg-current-limited-0090-big.json",
+      "sha256": "7405f7a06a50ac83736a7b66dbac464948a9ab03bb71f152ba5acacb1ebd7c76",
+      "sourcePath": "probe-squegg-current-limited.mjs",
+      "disposition": "Rejected: 3.3k emitter and 330nF switched bypass produce RF minimum 10.643 mV, above the unchanged 10 mV quiet bound.",
+      "observedSamples": 150,
+      "acceptedTimingSamples": 0,
+      "failure": null,
+      "summary": {
+        "rf": {
+          "min": 0.010642904526790087,
+          "max": 9.032554814088092
+        },
+        "emitter": {
+          "min": 0.10967302456210945,
+          "max": 0.14439796969863838
+        },
+        "reservoir": {
+          "min": 0.48821883255913856,
+          "max": 0.7981713324264289
+        },
+        "detector": {
+          "min": 2.543720969604812,
+          "max": 4.407044705757477
+        },
+        "bigBypass": {
+          "min": 0.10967638610227168,
+          "max": 0.14440236122072544
+        },
+        "tone": {
+          "hz": 3224.5894291509335,
+          "on": true,
+          "level": 0.98108042031768,
+          "amps": 0,
+          "irregularity": 0.044991466098842095,
+          "noise": false
+        },
+        "junctions": [
+          {
+            "kind": "bjt",
+            "p": [
+              0,
+              1
+            ],
+            "partId": "npn_6"
+          },
+          {
+            "kind": "diode",
+            "p": [
+              2
+            ],
+            "partId": "diode_16"
+          }
+        ]
+      }
+    },
+    {
+      "path": "squegg-quench-network-0090-big.json",
+      "sha256": "52d0a70c0af8c8bdc6b0de49fac216aff1c7ec3897d2f2ea1deb39dfd0ad9326",
+      "sourcePath": "probe-squegg-quench-network.mjs",
+      "disposition": "Rejected: 10k divider, 1k base feed, 3.3k emitter and 22nF switched bypass remain steadily active with no quench tone.",
+      "observedSamples": 150,
+      "acceptedTimingSamples": 0,
+      "failure": null,
+      "summary": {
+        "rf": {
+          "min": 8.69938035641824,
+          "max": 8.736476355186118
+        },
+        "emitter": {
+          "min": 0.24312175906685848,
+          "max": 0.24467341813550544
+        },
+        "reservoir": {
+          "min": 0.77629550378245,
+          "max": 0.7799832078193198
+        },
+        "detector": {
+          "min": 1.1111549028222591,
+          "max": 1.112841628291158
+        },
+        "bigBypass": {
+          "min": 0.24312178866446718,
+          "max": 0.24467356393002235
+        },
+        "tone": {
+          "hz": 0,
+          "on": false,
+          "level": 0,
+          "amps": 0,
+          "irregularity": 0,
+          "noise": false
+        },
+        "junctions": [
+          {
+            "kind": "bjt",
+            "p": [
+              0,
+              1
+            ],
+            "partId": "npn_6"
+          },
+          {
+            "kind": "diode",
+            "p": [
+              2
+            ],
+            "partId": "diode_16"
+          }
+        ]
+      }
+    },
+    {
+      "path": "squegg-quench-current-limit-0090-big.json",
+      "sha256": "a7f1e64a09cea1b1b521c8f872b6bdff47610a0ac40ca91c05b77743d96c1eb2",
+      "sourcePath": "probe-squegg-quench-current-limit.mjs",
+      "disposition": "Rejected: increasing the preceding emitter resistance to 10k prevents startup.",
+      "observedSamples": 150,
+      "acceptedTimingSamples": 0,
+      "failure": null,
+      "summary": {
+        "rf": {
+          "min": 0.0000057699703726646866,
+          "max": 0.0000779329077320108
+        },
+        "emitter": {
+          "min": 0.13439406664912376,
+          "max": 0.13439406667092263
+        },
+        "reservoir": {
+          "min": 0.8097579510453334,
+          "max": 0.8097579510489209
+        },
+        "detector": {
+          "min": 3.807898605746685e-10,
+          "max": 1.2771500385218945e-9
+        },
+        "bigBypass": {
+          "min": 0.13439406742622345,
+          "max": 0.13439406745072738
+        },
+        "tone": {
+          "hz": 0,
+          "on": false,
+          "level": 0,
+          "amps": 0,
+          "irregularity": 0,
+          "noise": false
+        },
+        "junctions": [
+          {
+            "kind": "bjt",
+            "p": [
+              0,
+              1
+            ],
+            "partId": "npn_6"
+          },
+          {
+            "kind": "diode",
+            "p": [
+              2
+            ],
+            "partId": "diode_16"
+          }
+        ]
+      }
+    },
+    {
+      "path": "squegg-weaker-pickup-big.json",
+      "sha256": "6bfa6aaf426695855baee097f332090690e40b000c52ae2baf1f445ee3d3229a",
+      "sourcePath": "probe-squegg-weaker-pickup.mjs",
+      "disposition": "Rejected: changing only receiver distance 0.50m to 0.63m leaves a steady carrier and no quench tone.",
+      "observedSamples": 150,
+      "acceptedTimingSamples": 0,
+      "failure": null,
+      "summary": {
+        "rf": {
+          "min": 8.9025780827192,
+          "max": 8.917270364449033
+        },
+        "emitter": {
+          "min": 0.05865425281424573,
+          "max": 0.05887444137021534
+        },
+        "reservoir": {
+          "min": 0.576016671484118,
+          "max": 0.5780383303163732
+        },
+        "detector": {
+          "min": 0.5559499417040309,
+          "max": 0.5566040130906004
+        },
+        "bigBypass": {
+          "min": 0.05865442215911577,
+          "max": 0.05887460672552626
+        },
+        "tone": {
+          "hz": 0,
+          "on": false,
+          "level": 0,
+          "amps": 0,
+          "irregularity": 0,
+          "noise": false
+        },
+        "junctions": [
+          {
+            "kind": "bjt",
+            "p": [
+              0,
+              1
+            ],
+            "partId": "npn_6"
+          },
+          {
+            "kind": "diode",
+            "p": [
+              2
+            ],
+            "partId": "diode_16"
+          }
+        ]
+      }
+    },
+    {
+      "path": "squegg-original-outer-1us.json",
+      "sha256": "a849e3691031310c40db40c9ccb6be0fbf560758b3a3656fa6c20032311dd148",
+      "sourcePath": "probe-squegg-outer-step.mjs",
+      "disposition": "Material diagnostic: unchanged authored circuit bursts with public 1 us outer cap; no convergence or new-oracle claim.",
+      "observedSamples": 150,
+      "acceptedTimingSamples": 0,
+      "failure": null,
+      "summary": {
+        "rf": {
+          "min": 0.001603221969773136,
+          "max": 9.62096073571811
+        },
+        "emitter": {
+          "min": 0.042733735695475,
+          "max": 0.06456611457917288
+        },
+        "reservoir": {
+          "min": -0.18627036163194907,
+          "max": 0.7280170784442216
+        },
+        "detector": {
+          "min": 2.342371330292588,
+          "max": 4.378943787435224
+        },
+        "bigBypass": {
+          "min": 0.04271576932158437,
+          "max": 0.06457264731991348
+        },
+        "tone": {
+          "hz": 2767.4498088384044,
+          "on": true,
+          "level": 0.962651510664778,
+          "amps": 0,
+          "irregularity": 0.0615846230055398,
+          "noise": false
+        },
+        "junctions": [
+          {
+            "kind": "bjt",
+            "p": [
+              0,
+              1
+            ],
+            "partId": "npn_6"
+          },
+          {
+            "kind": "diode",
+            "p": [
+              2
+            ],
+            "partId": "diode_16"
+          }
+        ]
+      }
+    },
+    {
+      "path": "squegg-original-outer-500ns.json",
+      "sha256": "044be868bc912336140a1a5ceb5c83cf5457655c39d0802765c6b76711570b9e",
+      "sourcePath": "probe-squegg-outer-step.mjs",
+      "disposition": "Diagnostic outer refinement: bursts, but transient tone/jitter has not converged and inner RF grid remains adaptive.",
+      "observedSamples": 150,
+      "acceptedTimingSamples": 0,
+      "failure": null,
+      "summary": {
+        "rf": {
+          "min": 0.0032083756053580214,
+          "max": 9.5840169751337
+        },
+        "emitter": {
+          "min": 0.04096146130090458,
+          "max": 0.06394150776330756
+        },
+        "reservoir": {
+          "min": -0.14698269834120667,
+          "max": 0.7290650624744999
+        },
+        "detector": {
+          "min": 2.376539814853679,
+          "max": 4.271479620212576
+        },
+        "bigBypass": {
+          "min": 0.04096555518901443,
+          "max": 0.06394817923255784
+        },
+        "tone": {
+          "hz": 2936.8705001637304,
+          "on": true,
+          "level": 0.9636219030044259,
+          "amps": 0,
+          "irregularity": 0.09776114648731737,
+          "noise": false
+        },
+        "junctions": [
+          {
+            "kind": "bjt",
+            "p": [
+              0,
+              1
+            ],
+            "partId": "npn_6"
+          },
+          {
+            "kind": "diode",
+            "p": [
+              2
+            ],
+            "partId": "diode_16"
+          }
+        ]
+      }
+    },
+    {
+      "path": "squegg-original-outer-250ns.json",
+      "sha256": "ac02969706c6d8c3360b4af98e8f65d0506c76d943150a687e00ca3be22ea115",
+      "sourcePath": "probe-squegg-outer-step.mjs",
+      "disposition": "Diagnostic outer refinement: bursts, but transient tone/jitter has not converged and inner RF grid remains adaptive.",
+      "observedSamples": 150,
+      "acceptedTimingSamples": 0,
+      "failure": null,
+      "summary": {
+        "rf": {
+          "min": 0.0016004903386780769,
+          "max": 9.656556174626775
+        },
+        "emitter": {
+          "min": 0.03974622858315233,
+          "max": 0.05902706267811267
+        },
+        "reservoir": {
+          "min": -0.16521795854134336,
+          "max": 0.7275809876774152
+        },
+        "detector": {
+          "min": 2.3347838780684937,
+          "max": 4.2729893344062
+        },
+        "bigBypass": {
+          "min": 0.0397501926285241,
+          "max": 0.059033092237189354
+        },
+        "tone": {
+          "hz": 2804.113073055558,
+          "on": true,
+          "level": 0.9606434697610514,
+          "amps": 0,
+          "irregularity": 0.04130975197122999,
+          "noise": false
+        },
+        "junctions": [
+          {
+            "kind": "bjt",
+            "p": [
+              0,
+              1
+            ],
+            "partId": "npn_6"
+          },
+          {
+            "kind": "diode",
+            "p": [
+              2
+            ],
+            "partId": "diode_16"
+          }
+        ]
+      }
+    },
+    {
+      "path": "squegg-original-outer-125ns.json",
+      "sha256": "2a8573c7978700b4b00f8492d118f9cd195bb718d5a4ba2ec8b5c4382e974e6f",
+      "sourcePath": "probe-squegg-outer-chunked.mjs",
+      "disposition": "Diagnostic outer refinement: bursts; warmup advances are chunked to at most 0.5ms, and inner RF grid remains adaptive.",
+      "observedSamples": 150,
+      "acceptedTimingSamples": 0,
+      "failure": null,
+      "summary": {
+        "rf": {
+          "min": 0.0024386339902452343,
+          "max": 9.668221049026117
+        },
+        "emitter": {
+          "min": 0.040037664646454856,
+          "max": 0.05822177811444063
+        },
+        "reservoir": {
+          "min": -0.15215674519196978,
+          "max": 0.7228659776572711
+        },
+        "detector": {
+          "min": 2.348846625846983,
+          "max": 4.300724568914289
+        },
+        "bigBypass": {
+          "min": 0.04004165767371873,
+          "max": 0.05822781906386358
+        },
+        "tone": {
+          "hz": 2723.139125858725,
+          "on": true,
+          "level": 0.959318037836299,
+          "amps": 0,
+          "irregularity": 0.021998372776873498,
+          "noise": false
+        },
+        "junctions": [
+          {
+            "kind": "bjt",
+            "p": [
+              0,
+              1
+            ],
+            "partId": "npn_6"
+          },
+          {
+            "kind": "diode",
+            "p": [
+              2
+            ],
+            "partId": "diode_16"
+          }
+        ]
+      }
+    },
+    {
+      "path": "squegg-original-outer-62p5ns.json",
+      "sha256": "58cd4a02249364880d1ad689b0b612cb7c2d532d90244b7b592e3c24b550d512",
+      "sourcePath": "probe-squegg-outer-chunked.mjs",
+      "disposition": "Rejected numerical refinement: RF runaway at 0.2871ms before samples, despite unchanged budgets; no outer or coupled convergence established.",
+      "observedSamples": 0,
+      "acceptedTimingSamples": 0,
+      "failure": {
+        "message": "RF failure at 0.5 ms\n+ actual - expected\n\n+ 'RF band at 0.7972 MHz refused: its swing ran away (2.28e+5 V at 0.2871 ms)'\n- null\n",
+        "transient": null,
+        "radio": "RF band at 0.7972 MHz refused: its swing ran away (2.28e+5 V at 0.2871 ms)"
+      },
+      "summary": null
+    },
+    {
+      "path": "squegg-outer-default-diagnostics.json",
+      "sha256": "40eb6a67d90852c700fb9a03bdb1368d1a1bb094e6105a0c6b8d771bacf4e0ff",
+      "sourcePath": "probe-squegg-outer-diagnostics.mjs",
+      "disposition": "Read-only startup instrumentation: records accepted bias updates and retained future RF state on unchanged b47/default profile.",
+      "observedSamples": 5,
+      "acceptedTimingSamples": 381,
+      "failure": null,
+      "summary": {
+        "rf": {
+          "min": 8.891247513374404,
+          "max": 8.892221525096893
+        },
+        "emitter": {
+          "min": 0.0720198340291702,
+          "max": 0.0728388039768315
+        },
+        "reservoir": {
+          "min": 0.5922860114096359,
+          "max": 0.5931434944923175
+        },
+        "detector": {
+          "min": 1.1266790767803696,
+          "max": 1.1272397511233383
+        },
+        "bigBypass": {
+          "min": 0.0720211384535026,
+          "max": 0.07284018577748472
+        },
+        "tone": {
+          "hz": 0,
+          "on": false,
+          "level": 0,
+          "amps": 0,
+          "irregularity": 0,
+          "noise": false
+        },
+        "junctions": [
+          {
+            "kind": "bjt",
+            "p": [
+              0,
+              1
+            ],
+            "partId": "npn_6"
+          },
+          {
+            "kind": "diode",
+            "p": [
+              2
+            ],
+            "partId": "diode_16"
+          }
+        ]
+      }
+    },
+    {
+      "path": "squegg-outer-1us-diagnostics.json",
+      "sha256": "92d44065c516bd49678a1cb409845a44673b05c838ad23e4272efd15a6fb1c22",
+      "sourcePath": "probe-squegg-outer-diagnostics.mjs",
+      "disposition": "Read-only startup instrumentation: public 1 us outer cap reduces retained old-bias horizon at additional solve cost; not a production repair.",
+      "observedSamples": 5,
+      "acceptedTimingSamples": 2755,
+      "failure": null,
+      "summary": {
+        "rf": {
+          "min": 0.003049490088355571,
+          "max": 0.014127635244359981
+        },
+        "emitter": {
+          "min": 0.03757124908269453,
+          "max": 0.0406926628221442
+        },
+        "reservoir": {
+          "min": 0.43604316542109417,
+          "max": 0.6389023819534607
+        },
+        "detector": {
+          "min": 2.405169069585148,
+          "max": 2.767934861057324
+        },
+        "bigBypass": {
+          "min": 0.03757499981640184,
+          "max": 0.04069673108718608
+        },
+        "tone": {
+          "hz": 0,
+          "on": false,
+          "level": 0,
+          "amps": 0,
+          "irregularity": 0,
+          "noise": false
+        },
+        "junctions": [
+          {
+            "kind": "bjt",
+            "p": [
+              0,
+              1
+            ],
+            "partId": "npn_6"
+          },
+          {
+            "kind": "diode",
+            "p": [
+              2
+            ],
+            "partId": "diode_16"
+          }
+        ]
+      }
+    },
+    {
+      "path": "full-port-newton-reference-validation.json",
+      "sha256": "3f4b1617d1ff1ff84a92869082491425bd3d940aee537e87774c12f8f69c1cf2",
+      "sourcePath": "full-port-newton-reference.mjs",
+      "disposition": "Manufactured and refusal controls for a bounded independent solver prototype only; no full-circuit reference or active-root uniqueness claim.",
+      "observedSamples": 0,
+      "acceptedTimingSamples": 0,
+      "failure": null,
+      "summary": null
+    }
+  ],
+  "files": [
+    {
+      "path": "baseline/examples/lab-meissner-squegg/circuit.json",
+      "role": "unchanged authored circuit",
+      "bytes": 13337,
+      "sha256": "57556cbb06a6469617875398c97eaf37c9821a01dfba2d548a71e2e621524763"
+    },
+    {
+      "path": "build-coupling-evidence.mjs",
+      "role": "receipt assembly source",
+      "bytes": 12807,
+      "sha256": "ea77f620eaa0a3765e3f3ff5d253683dcb79a0454577e7f6bcbb4348344ad4aa"
+    },
+    {
+      "path": "consumer-feedback-double-big.json",
+      "role": "complete diagnostic result",
+      "bytes": 2432,
+      "sha256": "5af1f4c9343474ed9fbe8b6264ea7271bbd42caa42362e851fb7df11201ea750"
+    },
+    {
+      "path": "consumer-feedback-double-big.log",
+      "role": "original diagnostic console log",
+      "bytes": 2045,
+      "sha256": "dbac82a9a893128dd777bfcfc34b7cc39e6b19f77fa96a173c397a83fa095204"
+    },
+    {
+      "path": "consumer-feedback-double-reference-16ns.json",
+      "role": "complete diagnostic result",
+      "bytes": 1338,
+      "sha256": "201d9b5b88b394d77afba84f6b4d83c539a1932aa7a41920cf831c272bec595f"
+    },
+    {
+      "path": "consumer-feedback-double-reference-16ns.log",
+      "role": "original diagnostic console log",
+      "bytes": 1447,
+      "sha256": "f11804aacb87bbc50f602ebdebfbe44407dd40719440631dced97dd4f1e63e67"
+    },
+    {
+      "path": "consumer-feedback-double.runtime-circuit.json",
+      "role": "reconstructed exactly from the recorded single-field mutation; hash matches both original records",
+      "bytes": 7595,
+      "sha256": "4283497e18994cb9a69903986b49ebee18882574aa3bbd55879e099f568d80bf"
+    },
+    {
+      "path": "consumer-topology-review.md",
+      "role": "contemporaneous physical hypothesis, superseded where it infers full-circuit behavior from inner-only references",
+      "bytes": 7906,
+      "sha256": "e3805d8ad2ab62126547b0d9a685b297a89503bdf228f0be1cdb0fca39012265"
+    },
+    {
+      "path": "full-port-newton-reference-validation.json",
+      "role": "complete diagnostic result",
+      "bytes": 7154,
+      "sha256": "3f4b1617d1ff1ff84a92869082491425bd3d940aee537e87774c12f8f69c1cf2"
+    },
+    {
+      "path": "full-port-newton-reference-validation.log",
+      "role": "original diagnostic console log",
+      "bytes": 1120,
+      "sha256": "57463962bc0d33d2e49a15f30b0a4822c49e5ff20420956aafbc0d2d80f817f9"
+    },
+    {
+      "path": "full-port-newton-reference.mjs",
+      "role": "bounded independent nonlinear endpoint solver prototype",
+      "bytes": 12386,
+      "sha256": "680115199100f626cfb45cb3d2010dd6b7a05d7460b517d467805fb001f515d3"
+    },
+    {
+      "path": "full-port-newton-reference.test.mjs",
+      "role": "manufactured equation and refusal controls",
+      "bytes": 12431,
+      "sha256": "5c8bf7beef866d4b742ae23d3f7099373ddce5f14723fa01356d4a9b31ab64e1"
+    },
+    {
+      "path": "probe-squegg-current-limited.mjs",
+      "role": "exact replay source at measurement time",
+      "bytes": 8158,
+      "sha256": "2a16ec096b61e6359139dcf71d9a509a5403acd9c217567e74d65f36a011fa99"
+    },
+    {
+      "path": "probe-squegg-divider-bounded.mjs",
+      "role": "exact replay source at measurement time",
+      "bytes": 8407,
+      "sha256": "bbc178b5b9be124c9e6d8d7fd426cdf2e19ba9a0413e643b1665bc5220dc0250"
+    },
+    {
+      "path": "probe-squegg-divider.mjs",
+      "role": "exact replay source at measurement time",
+      "bytes": 7840,
+      "sha256": "52b7b0b609ae7da9aed279279325d165008626e185dbec2eab33840fd9536e8e"
+    },
+    {
+      "path": "probe-squegg-feedback-isolation.mjs",
+      "role": "exact replay source at measurement time",
+      "bytes": 7269,
+      "sha256": "543b781fb17acefa39bea5a0474ed7290bc14c2dc29a6e022c606e6903eca5de"
+    },
+    {
+      "path": "probe-squegg-outer-chunked.mjs",
+      "role": "exact replay source at measurement time",
+      "bytes": 6946,
+      "sha256": "6e7da2aa83d676453798949bad146a54234495097f48b7623afb5e0486d612fe"
+    },
+    {
+      "path": "probe-squegg-outer-diagnostics.mjs",
+      "role": "exact replay source at measurement time",
+      "bytes": 8815,
+      "sha256": "2beda3ed8f76a4d09a6438764ad0742bdd9162ea67aa848a27722f72db3100a1"
+    },
+    {
+      "path": "probe-squegg-outer-step.mjs",
+      "role": "exact replay source at measurement time",
+      "bytes": 6675,
+      "sha256": "f82516c5bbb625a370883a4ffab0e38f124ca7d0812584b14605ff5d6102abe8"
+    },
+    {
+      "path": "probe-squegg-quench-current-limit.mjs",
+      "role": "exact replay source at measurement time",
+      "bytes": 8314,
+      "sha256": "dde37508e004b88d1dcbcf2b575772af0cae2045e66ce649e257dfc7d8c8f296"
+    },
+    {
+      "path": "probe-squegg-quench-network.mjs",
+      "role": "exact replay source at measurement time",
+      "bytes": 8283,
+      "sha256": "51eccf49b6032fd4457f6d142b900158419cc94153a82653fe0882c95174c19c"
+    },
+    {
+      "path": "probe-squegg-weaker-pickup.mjs",
+      "role": "exact replay source at measurement time",
+      "bytes": 6873,
+      "sha256": "e05111f0a0b68727062c65f041af1cdb0dec03436f812d1fe66235701514359b"
+    },
+    {
+      "path": "squegg-current-limited-0090-big.json",
+      "role": "complete diagnostic result",
+      "bytes": 79091,
+      "sha256": "7405f7a06a50ac83736a7b66dbac464948a9ab03bb71f152ba5acacb1ebd7c76"
+    },
+    {
+      "path": "squegg-current-limited-0090-big.log",
+      "role": "original diagnostic console log",
+      "bytes": 2063,
+      "sha256": "abd86ca350a6c70f3303919e085c0da8325784af78465b270a380fc1157fa6ed"
+    },
+    {
+      "path": "squegg-current-limited-0090-big.runtime-circuit.json",
+      "role": "exact in-memory circuit serialized by the diagnostic",
+      "bytes": 13572,
+      "sha256": "9e42b9782d23942cf221c487b27a84f4470bd8e795e3f68e99dc973548b4f3be"
+    },
+    {
+      "path": "squegg-divider-0060-big.json",
+      "role": "complete diagnostic result",
+      "bytes": 82270,
+      "sha256": "334316386f6e96101db1a2cf8a008d632be0048859083dbd149379977b1271c8"
+    },
+    {
+      "path": "squegg-divider-0060-big.log",
+      "role": "original diagnostic console log",
+      "bytes": 1829,
+      "sha256": "5859a04c62f5c349114cba6e8bd5912651e9456053c59b1f00fa06b9b8df810b"
+    },
+    {
+      "path": "squegg-divider-0060-big.runtime-circuit.json",
+      "role": "exact in-memory circuit serialized by the diagnostic",
+      "bytes": 13574,
+      "sha256": "09cec91f2e728385d104460742353138cbd4a1285619a8c1c84546010ba70b31"
+    },
+    {
+      "path": "squegg-divider-0065-big.json",
+      "role": "complete diagnostic result",
+      "bytes": 82234,
+      "sha256": "58ae0ae579c949ad5111237d268a3c12a839bedfb8cce67f5d06a798ea515fae"
+    },
+    {
+      "path": "squegg-divider-0065-big.log",
+      "role": "original diagnostic console log",
+      "bytes": 1836,
+      "sha256": "baeabe6f573cc616409652675d6552c501659cd5b5021f6194b365cdb23db9fd"
+    },
+    {
+      "path": "squegg-divider-0065-big.runtime-circuit.json",
+      "role": "exact in-memory circuit serialized by the diagnostic",
+      "bytes": 13575,
+      "sha256": "37ddaff2a78ceed1a2c7fe66e49f974a905e6cde141018ebc15e06f6cbebe565"
+    },
+    {
+      "path": "squegg-divider-0070-big.json",
+      "role": "complete diagnostic result",
+      "bytes": 82194,
+      "sha256": "18f336aca9c28fddfe26c5d564da912e8854b85b95d247abe67fe83b5484136e"
+    },
+    {
+      "path": "squegg-divider-0070-big.log",
+      "role": "original diagnostic console log",
+      "bytes": 1842,
+      "sha256": "3d19efd4fe796b87ce1368391045e74c14e079891d6206fe5969599848e0f285"
+    },
+    {
+      "path": "squegg-divider-0070-big.runtime-circuit.json",
+      "role": "exact in-memory circuit serialized by the diagnostic",
+      "bytes": 13574,
+      "sha256": "892ba32fd354706b8c2a5f74f42efbc9d7250103e0e6f40ddc954eeefa4f4ab7"
+    },
+    {
+      "path": "squegg-divider-0080-big.json",
+      "role": "complete diagnostic result",
+      "bytes": 79291,
+      "sha256": "83fd47b7d8b29747deceb0a279f04766a7da02c5b07e967c01ee9cf2ab251d23"
+    },
+    {
+      "path": "squegg-divider-0080-big.log",
+      "role": "original diagnostic console log",
+      "bytes": 1855,
+      "sha256": "a6fd7879569a3a56082156f6cdb678423d2169cecb6bf73f0d235aa45039946d"
+    },
+    {
+      "path": "squegg-divider-0080-big.runtime-circuit.json",
+      "role": "exact in-memory circuit serialized by the diagnostic",
+      "bytes": 13574,
+      "sha256": "247b3161e38aaa2b0835dd1557aa96d1c5426aa854f4de6cfeb717d0dd69ba34"
+    },
+    {
+      "path": "squegg-divider-0080-bounded-1ns.json",
+      "role": "complete diagnostic result",
+      "bytes": 2069,
+      "sha256": "7c4e3c2d8d4af042ef1a2297d034bd9394cff2029e54cfbb8e3a79bd575c78e7"
+    },
+    {
+      "path": "squegg-divider-0080-bounded-1ns.log",
+      "role": "original diagnostic console log",
+      "bytes": 1617,
+      "sha256": "2ecf7e4178cf4ec97ac64401bf4008e001644c4c6c1984aa669247e546907896"
+    },
+    {
+      "path": "squegg-divider-0080-bounded-1ns.runtime-circuit.json",
+      "role": "exact in-memory circuit serialized by the diagnostic",
+      "bytes": 13574,
+      "sha256": "247b3161e38aaa2b0835dd1557aa96d1c5426aa854f4de6cfeb717d0dd69ba34"
+    },
+    {
+      "path": "squegg-divider-0080-bounded-2ns.json",
+      "role": "complete diagnostic result",
+      "bytes": 2069,
+      "sha256": "d030de1e434c07d2e9493c6ad921fe0ac78a07715a18c65d2fa359447e2d15d2"
+    },
+    {
+      "path": "squegg-divider-0080-bounded-2ns.log",
+      "role": "original diagnostic console log",
+      "bytes": 1617,
+      "sha256": "5b7093c74ccf2bd35b1ccd81510db6ba8f3a3acd3e80da4d2537320c2efdf0b6"
+    },
+    {
+      "path": "squegg-divider-0080-bounded-2ns.runtime-circuit.json",
+      "role": "exact in-memory circuit serialized by the diagnostic",
+      "bytes": 13574,
+      "sha256": "247b3161e38aaa2b0835dd1557aa96d1c5426aa854f4de6cfeb717d0dd69ba34"
+    },
+    {
+      "path": "squegg-divider-0080-late-big.json",
+      "role": "complete diagnostic result",
+      "bytes": 79165,
+      "sha256": "58b1d3200ce885a910d5eda20655cbdb27363d24a84f248c9a519c4a60a335a8"
+    },
+    {
+      "path": "squegg-divider-0080-late-big.log",
+      "role": "original diagnostic console log",
+      "bytes": 1870,
+      "sha256": "1d16289a30504d93ccfbbc7dcd8f340c1ae9fb58ea98a3a4d88db27dcfb47d8a"
+    },
+    {
+      "path": "squegg-divider-0080-late-big.runtime-circuit.json",
+      "role": "exact in-memory circuit serialized by the diagnostic",
+      "bytes": 13574,
+      "sha256": "247b3161e38aaa2b0835dd1557aa96d1c5426aa854f4de6cfeb717d0dd69ba34"
+    },
+    {
+      "path": "squegg-divider-0080-reference-16ns.json",
+      "role": "complete diagnostic result",
+      "bytes": 1438,
+      "sha256": "db866e87d4191923c131a4f1aa7b3e7a891ead5fd826f6a57cc00e9671498ffe"
+    },
+    {
+      "path": "squegg-divider-0080-reference-16ns.log",
+      "role": "original diagnostic console log",
+      "bytes": 1542,
+      "sha256": "5ddea5134d50f9c63f3b2d3f5d951b3664bd6559aa59e19aab415f93d1914afd"
+    },
+    {
+      "path": "squegg-divider-0080-reference-16ns.runtime-circuit.json",
+      "role": "exact in-memory circuit serialized by the diagnostic",
+      "bytes": 13574,
+      "sha256": "247b3161e38aaa2b0835dd1557aa96d1c5426aa854f4de6cfeb717d0dd69ba34"
+    },
+    {
+      "path": "squegg-divider-0080-reference-1ns.json",
+      "role": "complete diagnostic result",
+      "bytes": 1485,
+      "sha256": "8d3fcb2714ca3ce59f28a0bbf621331341e993969c80fbaebe2b31b125247045"
+    },
+    {
+      "path": "squegg-divider-0080-reference-1ns.log",
+      "role": "original diagnostic console log",
+      "bytes": 1588,
+      "sha256": "4c4dc16de1c85e10492aadd61d54ab08c99578f3352d2226589ac1404aac34dc"
+    },
+    {
+      "path": "squegg-divider-0080-reference-1ns.runtime-circuit.json",
+      "role": "exact in-memory circuit serialized by the diagnostic",
+      "bytes": 13574,
+      "sha256": "247b3161e38aaa2b0835dd1557aa96d1c5426aa854f4de6cfeb717d0dd69ba34"
+    },
+    {
+      "path": "squegg-divider-0080-reference-2ns.json",
+      "role": "complete diagnostic result",
+      "bytes": 1485,
+      "sha256": "01c4f5542e2762e93d74677ff5bb70750d63f5573a72eb13684a5185e9491a12"
+    },
+    {
+      "path": "squegg-divider-0080-reference-2ns.log",
+      "role": "original diagnostic console log",
+      "bytes": 1588,
+      "sha256": "d6a0cdf1e5ec003e60b48775f0431fa10ca8893635065b450ed67bcbaf608921"
+    },
+    {
+      "path": "squegg-divider-0080-reference-2ns.runtime-circuit.json",
+      "role": "exact in-memory circuit serialized by the diagnostic",
+      "bytes": 13574,
+      "sha256": "247b3161e38aaa2b0835dd1557aa96d1c5426aa854f4de6cfeb717d0dd69ba34"
+    },
+    {
+      "path": "squegg-divider-0080-reference-8ns.json",
+      "role": "complete diagnostic result",
+      "bytes": 1437,
+      "sha256": "5a53ca3054df2ac58b6892e647b22b9dccfeaaafdbce40ed0379b1436315ce27"
+    },
+    {
+      "path": "squegg-divider-0080-reference-8ns.log",
+      "role": "original diagnostic console log",
+      "bytes": 1540,
+      "sha256": "a44adbf23f65314f0d7f3ff3584ca9e1096cb1456c7f4ad80f1fe60fa6f3a45e"
+    },
+    {
+      "path": "squegg-divider-0080-reference-8ns.runtime-circuit.json",
+      "role": "exact in-memory circuit serialized by the diagnostic",
+      "bytes": 13574,
+      "sha256": "247b3161e38aaa2b0835dd1557aa96d1c5426aa854f4de6cfeb717d0dd69ba34"
+    },
+    {
+      "path": "squegg-divider-0080-reversed.json",
+      "role": "complete diagnostic result",
+      "bytes": 78529,
+      "sha256": "1264a346de146a459462c7e59193bb1c291a73032df3a46607482a52eff1cc84"
+    },
+    {
+      "path": "squegg-divider-0080-reversed.log",
+      "role": "original diagnostic console log",
+      "bytes": 1804,
+      "sha256": "9e99d5c2844d120aad79874df8b3c9cad2082b6deeb6a7b727c4c7de8049af30"
+    },
+    {
+      "path": "squegg-divider-0080-reversed.runtime-circuit.json",
+      "role": "exact in-memory circuit serialized by the diagnostic",
+      "bytes": 13574,
+      "sha256": "247b3161e38aaa2b0835dd1557aa96d1c5426aa854f4de6cfeb717d0dd69ba34"
+    },
+    {
+      "path": "squegg-divider-0080-steady.json",
+      "role": "complete diagnostic result",
+      "bytes": 76314,
+      "sha256": "699b7300d35b8016a40f7e10971ab8672de7a3c0eddb135c508699a1f76cdffb"
+    },
+    {
+      "path": "squegg-divider-0080-steady.log",
+      "role": "original diagnostic console log",
+      "bytes": 1767,
+      "sha256": "ecf60f926b73fb5da0063f4f8f7a664abcc1ce2084217ebe76b925c710160dee"
+    },
+    {
+      "path": "squegg-divider-0080-steady.runtime-circuit.json",
+      "role": "exact in-memory circuit serialized by the diagnostic",
+      "bytes": 13574,
+      "sha256": "247b3161e38aaa2b0835dd1557aa96d1c5426aa854f4de6cfeb717d0dd69ba34"
+    },
+    {
+      "path": "squegg-divider-0090-big.json",
+      "role": "complete diagnostic result",
+      "bytes": 78272,
+      "sha256": "16de55b1e0e51ad1bce66b52bed4cecbadc4a75b27b4937388602edab68dcf48"
+    },
+    {
+      "path": "squegg-divider-0090-big.log",
+      "role": "original diagnostic console log",
+      "bytes": 1847,
+      "sha256": "1403f061518c70cdddbb176fb31698563875fdd926027c6fb41ec676d288e148"
+    },
+    {
+      "path": "squegg-divider-0090-big.runtime-circuit.json",
+      "role": "exact in-memory circuit serialized by the diagnostic",
+      "bytes": 13574,
+      "sha256": "994a3ef59a2d1da9958406a3480540cfbd8bd16a446c272a7f9ad41549158740"
+    },
+    {
+      "path": "squegg-divider-0100-big.json",
+      "role": "complete diagnostic result",
+      "bytes": 77972,
+      "sha256": "54524ef6055363729d883ce94a081cbe6d20f3c43648267a0105d4831868a989"
+    },
+    {
+      "path": "squegg-divider-0100-big.log",
+      "role": "original diagnostic console log",
+      "bytes": 1831,
+      "sha256": "cfbcd9428f29e3db838e98534a34c8d565313149b3265ca3a65b30192099c132"
+    },
+    {
+      "path": "squegg-divider-0100-big.runtime-circuit.json",
+      "role": "exact in-memory circuit serialized by the diagnostic",
+      "bytes": 13573,
+      "sha256": "0a8ae4ca0abcb1134e6dc920883dbed2a161de36fd1b929a45210d3dc223b9a6"
+    },
+    {
+      "path": "squegg-divider-startup-summary.json",
+      "role": "derived diagnostic census; original traces remain authoritative",
+      "bytes": 16138,
+      "sha256": "d675598a9a2ac2b209dcd47f5252e57a08d55a86f53faed13e6cf99888bed227"
+    },
+    {
+      "path": "squegg-divider-summary.json",
+      "role": "derived diagnostic census; original traces remain authoritative",
+      "bytes": 11790,
+      "sha256": "11b8c8d0e7a48275df5d154142fbe84afcafbddd8d6c1ef89c78a3e1ed60a570"
+    },
+    {
+      "path": "squegg-original-outer-125ns.json",
+      "role": "complete diagnostic result",
+      "bytes": 78611,
+      "sha256": "2a8573c7978700b4b00f8492d118f9cd195bb718d5a4ba2ec8b5c4382e974e6f"
+    },
+    {
+      "path": "squegg-original-outer-125ns.log",
+      "role": "original diagnostic console log",
+      "bytes": 1573,
+      "sha256": "41e86b034e4c10a598e96df0c94eaa35bd939bc6415125ebe5b1f59b9c105a61"
+    },
+    {
+      "path": "squegg-original-outer-1us.json",
+      "role": "complete diagnostic result",
+      "bytes": 78971,
+      "sha256": "a849e3691031310c40db40c9ccb6be0fbf560758b3a3656fa6c20032311dd148"
+    },
+    {
+      "path": "squegg-original-outer-1us.log",
+      "role": "original diagnostic console log",
+      "bytes": 1402,
+      "sha256": "4ab86eb3ec3c6deafcc6b307a7c7848849dc600e21bc48fe9d128f1ec83f8933"
+    },
+    {
+      "path": "squegg-original-outer-250ns.json",
+      "role": "complete diagnostic result",
+      "bytes": 78691,
+      "sha256": "ac02969706c6d8c3360b4af98e8f65d0506c76d943150a687e00ca3be22ea115"
+    },
+    {
+      "path": "squegg-original-outer-250ns.log",
+      "role": "original diagnostic console log",
+      "bytes": 1405,
+      "sha256": "b34eb9ca4a53c5766a98f2cae2ab3830bad1706255e66b9c31d9bb72ee948093"
+    },
+    {
+      "path": "squegg-original-outer-500ns.json",
+      "role": "complete diagnostic result",
+      "bytes": 78803,
+      "sha256": "044be868bc912336140a1a5ceb5c83cf5457655c39d0802765c6b76711570b9e"
+    },
+    {
+      "path": "squegg-original-outer-500ns.log",
+      "role": "original diagnostic console log",
+      "bytes": 1404,
+      "sha256": "ad0a0cc1601b340549499c46d2a1ad1b685b19031679662b66af4a846fe69b6b"
+    },
+    {
+      "path": "squegg-original-outer-62p5ns.json",
+      "role": "complete diagnostic result",
+      "bytes": 1553,
+      "sha256": "58cd4a02249364880d1ad689b0b612cb7c2d532d90244b7b592e3c24b550d512"
+    },
+    {
+      "path": "squegg-original-outer-62p5ns.log",
+      "role": "original diagnostic console log",
+      "bytes": 1105,
+      "sha256": "b4e19d7963dc34a90928b914b25189f50f0372782ab56cc97018a27e3602f7aa"
+    },
+    {
+      "path": "squegg-outer-1us-diagnostics.json",
+      "role": "complete diagnostic result",
+      "bytes": 2190414,
+      "sha256": "92d44065c516bd49678a1cb409845a44673b05c838ad23e4272efd15a6fb1c22"
+    },
+    {
+      "path": "squegg-outer-1us-diagnostics.log",
+      "role": "original diagnostic console log",
+      "bytes": 1622,
+      "sha256": "963e32f159bea2fc8dd42eb4fae69209eba40500894596dd7c9638a6b93bc217"
+    },
+    {
+      "path": "squegg-outer-default-diagnostics.json",
+      "role": "complete diagnostic result",
+      "bytes": 308436,
+      "sha256": "40eb6a67d90852c700fb9a03bdb1368d1a1bb094e6105a0c6b8d771bacf4e0ff"
+    },
+    {
+      "path": "squegg-outer-default-diagnostics.log",
+      "role": "original diagnostic console log",
+      "bytes": 1597,
+      "sha256": "4b7a092ec5eb0c6c7bba53ca1e8143c5d89d2cbf6e3b0d6f889eed272a7a7484"
+    },
+    {
+      "path": "squegg-quench-current-limit-0090-big.json",
+      "role": "complete diagnostic result",
+      "bytes": 81349,
+      "sha256": "a7f1e64a09cea1b1b521c8f872b6bdff47610a0ac40ca91c05b77743d96c1eb2"
+    },
+    {
+      "path": "squegg-quench-current-limit-0090-big.log",
+      "role": "original diagnostic console log",
+      "bytes": 2081,
+      "sha256": "5bb851d349b5a16cacfc64d16181ccb8dfa457138b360d864001b7cdb495d56c"
+    },
+    {
+      "path": "squegg-quench-current-limit-0090-big.runtime-circuit.json",
+      "role": "exact in-memory circuit serialized by the diagnostic",
+      "bytes": 13571,
+      "sha256": "336b68b3067a2ffcaa37ef853357f7659de2b87dbc917f06aca36348f4ab6c5f"
+    },
+    {
+      "path": "squegg-quench-network-0090-big.json",
+      "role": "complete diagnostic result",
+      "bytes": 79669,
+      "sha256": "52d0a70c0af8c8bdc6b0de49fac216aff1c7ec3897d2f2ea1deb39dfd0ad9326"
+    },
+    {
+      "path": "squegg-quench-network-0090-big.log",
+      "role": "original diagnostic console log",
+      "bytes": 2020,
+      "sha256": "6e5464e69200195188c2f98988e3a53ee2cd4729e50e6d6ad7a476e0af7d9799"
+    },
+    {
+      "path": "squegg-quench-network-0090-big.runtime-circuit.json",
+      "role": "exact in-memory circuit serialized by the diagnostic",
+      "bytes": 13570,
+      "sha256": "7e67df681a4b7e93775e1468447e48876f846fc6c2b63812592479353ef074d7"
+    },
+    {
+      "path": "squegg-weaker-pickup-big.json",
+      "role": "complete diagnostic result",
+      "bytes": 79250,
+      "sha256": "6bfa6aaf426695855baee097f332090690e40b000c52ae2baf1f445ee3d3229a"
+    },
+    {
+      "path": "squegg-weaker-pickup-big.log",
+      "role": "original diagnostic console log",
+      "bytes": 1694,
+      "sha256": "17ec27d81d7ceb0307f56129267c73a32e251b1fc63ce05ec676b029af8dc4ac"
+    },
+    {
+      "path": "squegg-weaker-pickup-big.runtime-circuit.json",
+      "role": "exact in-memory circuit serialized by the diagnostic",
+      "bytes": 13338,
+      "sha256": "244dd16a053d5671fc11e0317c6ee8d70f13f55e0054a20b0ded189bd8da60fd"
+    }
+  ]
+}

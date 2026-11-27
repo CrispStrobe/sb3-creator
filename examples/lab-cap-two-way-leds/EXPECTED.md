@@ -30,7 +30,7 @@ net polarized_cap_8.pos V 0.04 +-0.03
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@de8083c` and `bw-circuit-ui@ee2b412` — the revisions pinned in
+> `bw-board@b47e7e0` and `bw-circuit-ui@ee2b412` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **9 of this page's 26** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;
