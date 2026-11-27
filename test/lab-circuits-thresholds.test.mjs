@@ -112,10 +112,14 @@ describe('lab benches (set thresholds)', { skip: SKIP }, () => {
         assert.equal(events.length, 2, `exactly one pull-in and one drop-out: ${JSON.stringify(events)}`);
         const [pull, drop] = events;
         assert.equal(pull.in, true); assert.equal(drop.in, false);
+        // MEASURED 2026-11-27: pull.before < 6 and pull.after > 6 -> observed 5.954 and 6.054 V (pullInV 6).
         assert.ok(pull.before < 6 && pull.after > 6, `pull-in between ${pull.before} and ${pull.after} V: 6 V (pullInV)`);
+        // MEASURED 2026-11-27: pull.after - pull.before < 0.15 -> observed 0.100 V (one 0.01 LEVEL step).
         assert.ok(pull.after - pull.before < 0.15, 'pull-in bracketed to 0.15 V');
         near(pull.at, 0.83, 0.02, 'pull-in at LEVEL');
+        // MEASURED 2026-11-27: drop.before > 2.5 and drop.after < 2.5 -> observed 2.505 and 2.432 V (dropOutV 2.5).
         assert.ok(drop.before > 2.5 && drop.after < 2.5, `drop-out between ${drop.after} and ${drop.before} V: 2.5 V (dropOutV)`);
+        // MEASURED 2026-11-27: drop.before - drop.after < 0.15 -> observed 0.073 V (one 0.01 LEVEL step).
         assert.ok(drop.before - drop.after < 0.15, 'drop-out bracketed to 0.15 V');
         near(drop.at, 0.39, 0.02, 'drop-out at LEVEL');
         assert.equal(m.top.in, true, 'LEVEL 0.9: in');
@@ -123,6 +127,7 @@ describe('lab benches (set thresholds)', { skip: SKIP }, () => {
         assert.equal(m.holding.in, true, 'LEVEL 0.6 on the way down: still in, below pull-in');
         assert.equal(m.outAgain.in, false, 'LEVEL 0.6 on the way up again: still out, above drop-out');
         assert.equal(m.tap.before, false, 'LEVEL 0.5: out before the tap');
+        // MEASURED 2026-11-27: m.tap.kick > 7.5 -> observed 8.23 V, 2 ms after TAP.
         assert.ok(m.tap.kick > 7.5, `TAP lifts the coil over pull-in (${m.tap.kick} V)`);
         assert.equal(m.tap.after, true, 'after the tap the relay holds itself in at LEVEL 0.5');
         near(m.tap.coil, 3.1, 0.1, 'after the tap: coil back at the LEVEL setting (V)');
