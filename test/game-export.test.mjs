@@ -24,6 +24,8 @@ import { emitGame } from '../src/game/emit.js';
 import { exportGame, loadSb3 } from '../src/game/export.js';
 import { loadJsGame, runVm, runJs } from './helpers/game-differential.mjs';
 import { render as renderSources } from '../scripts/gen-game-runtime-sources.mjs';
+import pythonToPseudocode from '../src/utils/pythonToPseudocode.js';
+import javascriptToPseudocode from '../src/utils/javascriptToPseudocode.js';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const origWarn = console.warn;
@@ -133,6 +135,30 @@ for (const name of ['snake', 'snake_pro', 'breakout', 'invaders', 'pong_ai', 'bo
             }
             assert.equal(py, js);
         } finally { rmSync(dir, { recursive: true, force: true }); }
+    });
+}
+
+// ------------------------------------------------------------------ languages -> the same game
+
+// The workshop's language chain: a program written (or generated) as Python or
+// JavaScript reads back into blocks, and must export the very same game as the
+// pseudocode it came from.
+for (const name of ['breakout', 'snake_pro', 'tetris', 'invaders']) {
+    test(`languages: ${name} as pseudocode, Python and JavaScript exports one identical game`, async () => {
+        const gameOf = async (pseudocode) => {
+            const c = new SB3Creator();
+            c.parse(pseudocode);
+            const input = await loadSb3(new Uint8Array(await (await c.generateSB3()).arrayBuffer()));
+            const { manifest, code } = buildGameModel(input.project, input.files);
+            return emitGame({ manifest, code }, 'js');
+        };
+        const base = new SB3Creator();
+        base.parse(examples[name]);
+        const viaPy = pythonToPseudocode(base.generatePython(undefined, {}));
+        const viaJs = javascriptToPseudocode(base.generateJavaScript(undefined, {}));
+        const direct = await gameOf(examples[name]);
+        assert.equal(await gameOf(viaPy.pseudocode), direct, 'Python -> blocks -> game');
+        assert.equal(await gameOf(viaJs.pseudocode), direct, 'JavaScript -> blocks -> game');
     });
 }
 

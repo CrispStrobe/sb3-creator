@@ -105,7 +105,7 @@ switch (cmd) {
 
     case 'transpile': {
         const file = positional[0] ?? die('transpile needs a file');
-        const to = opts.to ?? die('transpile needs --to c|micropython|python|sb3');
+        const to = opts.to ?? die('transpile needs --to c|micropython|python|javascript|sb3');
         const code = maybeRetarget(readInput(file), opts.device);
         const c = parseBw(code);
         if (to === 'c') {
@@ -123,6 +123,8 @@ switch (cmd) {
         } else if (to === 'python') {
             const r = c.generatePython(undefined, {});
             writeOut(typeof r === 'string' ? r : r.py ?? r.code ?? '', opts.o);
+        } else if (to === 'javascript' || to === 'js') {
+            writeOut(c.generateJavaScript(undefined, {}), opts.o);
         } else if (to === 'sb3') {
             const out = opts.o || file.replace(/\.[^.]+$/, '') + '.sb3';
             const blob = await c.generateSB3();
@@ -542,7 +544,7 @@ switch (cmd) {
         console.error('  bw check <file.bw>');
         console.error('  bw devices [file.bw]');
         console.error('  bw retarget <file.bw> <device> [-o out.bw]');
-        console.error('  bw transpile <file.bw> --to c|micropython|python|sb3 [--device D] [-o out]');
+        console.error('  bw transpile <file.bw> --to c|micropython|python|javascript|sb3 [--device D] [-o out]');
         console.error('  bw read <file.c|file.py> [-o out.bw]');
         console.error('  bw compile <file.bw> [--device D] [-o out]');
         console.error('  bw flash <file.bw|file.py> [--port /dev/cu.usbmodemX]');
