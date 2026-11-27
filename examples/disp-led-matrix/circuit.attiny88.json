@@ -1,0 +1,92 @@
+{
+ "vcc": 5,
+ "parts": [
+  {
+   "id": "vcc1",
+   "kind": "vcc",
+   "params": {},
+   "x": 60,
+   "y": 40
+  },
+  {
+   "id": "gnd1",
+   "kind": "gnd",
+   "params": {},
+   "x": 60,
+   "y": 520
+  },
+  {
+   "id": "mcu1",
+   "kind": "attiny88",
+   "params": {},
+   "x": 80,
+   "y": -60,
+   "rotation": 0
+  },
+  {
+   "id": "mx1",
+   "kind": "max7219",
+   "params": {},
+   "x": 440,
+   "y": 240
+  }
+ ],
+ "wires": [
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": "mx1",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": "mx1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "mcu1",
+   "fromTerminal": "vcc",
+   "to": "vcc1",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "mcu1",
+   "fromTerminal": "vcc",
+   "to": "mx1",
+   "toTerminal": "vcc"
+  },
+  {
+   "from": "mcu1",
+   "fromTerminal": "gnd",
+   "to": "gnd1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "mcu1",
+   "fromTerminal": "gnd",
+   "to": "mx1",
+   "toTerminal": "gnd"
+  },
+  {
+   "from": "mcu1",
+   "fromTerminal": "pb0",
+   "to": "mx1",
+   "toTerminal": "din"
+  },
+  {
+   "from": "mcu1",
+   "fromTerminal": "pb1",
+   "to": "mx1",
+   "toTerminal": "cs"
+  },
+  {
+   "from": "mcu1",
+   "fromTerminal": "pb2",
+   "to": "mx1",
+   "toTerminal": "clk"
+  }
+ ],
+ "holeWires": [],
+ "generated": "benchFor+authored"
+}
