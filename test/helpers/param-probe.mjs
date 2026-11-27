@@ -251,6 +251,14 @@ export function makeObserver ({ Circuit, getDevice, extractors = {}, CardiacPane
 
         const circuit = Circuit.fromJSON(d);
         const board = circuit.board;
+        // A saved Microtronic opens halted. Run its authored program through
+        // the public control, then observe far enough for its 20 Hz input and
+        // output instructions to reach the wires after the switches close.
+        // This retains PR #237's Microtronic timing correction in the newer
+        // shared observer; every other bench keeps its existing sweep.
+        const microtronics = (circuit.parts || []).filter(p => p.kind === 'busch-microtronic');
+        for (const computer of microtronics) board.setDeviceControl(computer.id, 'run', 0);
+        const probeTimes = microtronics.length ? [1, 100] : TIMES;
         // Every manual control DRIVEN for the second half of the sweep.
         //
         // A param behind an open switch is unobservable for a reason that has
@@ -308,10 +316,10 @@ export function makeObserver ({ Circuit, getDevice, extractors = {}, CardiacPane
                 try { board.setPin(pin, 'pushpull', true); } catch { /* a pin the model refuses is not fatal */ }
             }
         };
-        const last = TIMES[TIMES.length - 1];
+        const last = probeTimes[probeTimes.length - 1];
         const anything = controls.length + inputs.length + pins.length > 0;
-        const sweep = [...TIMES.map(t => [false, t]),
-            ...(anything ? TIMES.map(t => [true, t + last]) : [])];
+        const sweep = [...probeTimes.map(t => [false, t]),
+            ...(anything ? probeTimes.map(t => [true, t + last]) : [])];
         let drove = false;
         for (const [driven, ms] of sweep) {
             if (driven && !drove) { drive(); drove = true; }
@@ -327,7 +335,20 @@ export function makeObserver ({ Circuit, getDevice, extractors = {}, CardiacPane
                     ['R:', () => board.resistance(part.id)],
                     ['L:', () => board.ledBrightness(part.id)],
                     ['B:', () => board.buzzerTone(part.id)],
-                    ['D:', () => board.getDeviceState(part.id)],
+                    ['D:', () => {
+                        const state = board.getDeviceState(part.id);
+                        if (part.kind !== 'busch-microtronic' || !state) return state;
+                        // These are copies of the input params used only to
+                        // detect edits. They are not device behavior: retaining
+                        // them let an engine that ignored instructionHz pass
+                        // solely because its cache echoed the changed value.
+                        // Keep the full program, registers, clock, scheduler
+                        // and output state, including their BigInt values.
+                        const observed = {...state};
+                        delete observed._paramsProgram;
+                        delete observed._paramsInstructionHz;
+                        return observed;
+                    }],
                 ];
                 for (const [tag, read] of probes) {
                     // The serialise must sit INSIDE the guard too: a device state
