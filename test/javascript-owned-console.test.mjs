@@ -80,6 +80,87 @@ const twoFlags = [
     '    say "sibling"'
 ].join('\n');
 
+// Scratch permits a hexagonal Boolean reporter in an ordinary value socket.
+// Parse its real condition graph, then move that graph into the requested
+// socket, retaining the serialized SB3 connections and parent relationships.
+const moveConditionToValue = (c, opcode, inputName) => {
+    const blocks = c.project.targets[1].blocks;
+    const [conditionId, condition] = Object.entries(blocks).find(([, b]) => b.opcode === 'control_if');
+    const [receiverId, receiver] = Object.entries(blocks).find(([, b]) => b.opcode === opcode);
+    const reporterId = condition.inputs.CONDITION[1];
+    const firstId = condition.inputs.SUBSTACK[1];
+    blocks[condition.parent].next = firstId;
+    blocks[firstId].parent = condition.parent;
+    receiver.inputs[inputName] = [3, reporterId, [10, '']];
+    blocks[reporterId].parent = receiverId;
+    delete blocks[conditionId];
+    return c;
+};
+
+for (const [opcode, predicates] of [
+    ['operator_gt', ['2 > 1', '1 > 2']],
+    ['operator_lt', ['1 < 2', '2 < 1']],
+    ['operator_equals', ['7 = "7"', '7 = 8']],
+    ['operator_and', ['(2 > 1) and (3 > 1)', '(2 > 1) and (3 < 1)']],
+    ['operator_or', ['(2 < 1) or (3 > 1)', '(2 < 1) or (3 < 1)']],
+    ['operator_not', ['not (2 < 1)', 'not (2 > 1)']]
+]) {
+    test(`admitted ${opcode} reporters retain true and false in value sockets`, async () => {
+        for (const [index, predicate] of predicates.entries()) {
+            const c = moveConditionToValue(creator([
+                'SPRITE Console:',
+                '  WHEN flag clicked:',
+                `    IF ${predicate} THEN:`,
+                '      say "placeholder"'
+            ].join('\n')), 'looks_say', 'MESSAGE');
+            const f = host();
+            f.run(c.generateJavaScript(c.project, options));
+            await f.completion();
+            assert.deepEqual(f.logs, [index === 0], predicate);
+        }
+    });
+}
+
+test('an admitted Boolean value survives assignment and an awaited procedure', async () => {
+    const c = moveConditionToValue(creator([
+        'GLOBAL choice',
+        'SPRITE Console:',
+        '  DEFINE report (value):',
+        '    wait 0.001 seconds',
+        '    say value',
+        '  WHEN flag clicked:',
+        '    IF (2 > 1) and not (3 < 1) THEN:',
+        '      set choice to "placeholder"',
+        '      report (choice)'
+    ].join('\n')), 'data_setvariableto', 'VALUE');
+    const f = host();
+    f.run(c.generateJavaScript(c.project, options));
+    await flush();
+    assert.equal(f.waits[0].scope, f.scopes[0]);
+    assert.deepEqual(f.logs, []);
+    f.waits[0].resolve();
+    await f.completion();
+    assert.deepEqual(f.logs, [true]);
+});
+
+test('an admitted Boolean input question uses its value before awaiting the reply', async () => {
+    const c = moveConditionToValue(creator([
+        'SPRITE Console:',
+        '  WHEN flag clicked:',
+        '    IF 2 < 1 THEN:',
+        '      ask "placeholder" and wait',
+        '      say answer'
+    ].join('\n')), 'sensing_askandwait', 'QUESTION');
+    const f = host();
+    f.run(c.generateJavaScript(c.project, options));
+    await flush();
+    assert.equal(f.questions[0].question, 'false');
+    assert.equal(f.questions[0].scope, f.scopes[0]);
+    f.questions[0].resolve('received');
+    await f.completion();
+    assert.deepEqual(f.logs, ['received']);
+});
+
 test('owned flags register synchronously and keep their delayed completion handles', async () => {
     const source = emit(twoFlags);
     assert.doesNotThrow(() => new Function(source), 'the result is classic-script syntax');
@@ -329,7 +410,12 @@ test('unsupported math variants and separate literal shadow nodes are refused ra
 });
 
 test('owned and refused requests do not alter default source on a reused generator', () => {
-    const c = creator(twoFlags);
+    const c = moveConditionToValue(creator([
+        'SPRITE Console:',
+        '  WHEN flag clicked:',
+        '    IF (2 > 1) and not (3 < 1) THEN:',
+        '      say "placeholder"'
+    ].join('\n')), 'looks_say', 'MESSAGE');
     const ordinary = c.generateJavaScript();
     const legacyAsync = c.generateJavaScript(c.project, {async: true});
     assert.doesNotMatch(ordinary, /codeRun/);

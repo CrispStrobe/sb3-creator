@@ -105,6 +105,13 @@ unsupported behavior in this mode.
 | Math functions | `abs`, `floor`, `ceiling`, `sqrt`, `sin`, `cos`, `tan`, `ln`, `log`, `e ^` and `10 ^`. Other variants are refused. |
 | Literals | Normal serialized SB3 inline number/text values. Separate `math_number`/`text` shadow nodes are refused because the generic JavaScript expression reader does not lower those nodes. |
 
+Comparison and Boolean reporters also retain their Boolean values when connected
+to ordinary value sockets, such as say, assignment, procedure arguments and an
+input question. This mode uses the same comparison/Boolean lowering in those
+positions as in an if condition. It does not substitute `undefined` for an
+admitted reporter. This correction is scoped to the owned output; pre-existing
+generator targets retain their source compatibility.
+
 The only driver is the neutral console shim. `async: true` is required.
 `events: true`, other execution versions and non-shim drivers fail explicitly.
 
@@ -156,3 +163,24 @@ wait or later output. An earlier version of the new contract suite against the
 unchanged baseline produced one ordinary control pass and 33 contract failures.
 These measurements used Node 24.22.3 and the repository's locked dependencies;
 hosted qualification remains a separate landing requirement.
+
+### Boolean value continuation, 27 November 2026
+
+The admitted graph could contain a comparison or Boolean reporter in an ordinary
+value socket, but the existing value reader emitted `undefined` for six such
+opcodes. The owned target now delegates those nodes to the existing condition
+lowering. Eight new executable controls all fail against the prior emitter and
+pass with this correction: both truth values for each of the six opcodes,
+assignment followed by an awaited procedure, and an owned input question.
+
+The focused suite now passes **201/201** tests with no skips, including **44**
+owned-console cases. Emitter ESLint and whitespace checks pass. A fresh comparison
+with `682e462914a22947b196858e5687800521b368e8` preserves **240/240** outputs across
+the same 40-example corpus using default, async, events, async-plus-events,
+comments-disabled and remote-driver options. These local checks used Node
+24.22.3. The 14 newly exercised Boolean-value graphs also preserve **84/84**
+legacy outputs against the previous candidate `c7584fd0f4cbb26e0742d45bfc10a04c47f77ebd`
+with those six options, including after owned generation on the same instance.
+The persistent mode-isolation control now uses a nested Boolean-value graph;
+it checks source stability without specifying the inherited legacy lowering.
+Hosted supplier qualification remains required.
