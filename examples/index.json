@@ -17537,5 +17537,221 @@
       "intro": "lab-relay-hysteresis/intro.md",
       "introDE": "lab-relay-hysteresis/intro.de.md"
     }
+  },
+  {
+    "id": "lab-speaker-click",
+    "title": {
+      "en": "A loudspeaker on a battery only clicks",
+      "de": "Ein Lautsprecher an der Batterie knackt nur"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 1,
+    "files": {
+      "program": "lab-speaker-click/program.bw",
+      "circuit": "lab-speaker-click/circuit.json",
+      "expected": "lab-speaker-click/EXPECTED.md",
+      "intro": "lab-speaker-click/intro.md",
+      "introDE": "lab-speaker-click/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-amp-timbre",
+    "title": {
+      "en": "Same note, different sound: filters after an oscillator",
+      "de": "Derselbe Ton, anderer Klang: Filter hinter einem Oszillator"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-amp-timbre/program.bw",
+      "circuit": "lab-amp-timbre/circuit.json",
+      "expected": "lab-amp-timbre/EXPECTED.md",
+      "intro": "lab-amp-timbre/intro.md",
+      "introDE": "lab-amp-timbre/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-mic-preamp",
+    "title": {
+      "en": "Microphone amplifier: a transistor preamp in front of the amp chip",
+      "de": "Mikrofonverstärker: ein Transistor-Vorverstärker vor dem Verstärkerchip"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-mic-preamp/program.bw",
+      "circuit": "lab-mic-preamp/circuit.json",
+      "expected": "lab-mic-preamp/EXPECTED.md",
+      "intro": "lab-mic-preamp/intro.md",
+      "introDE": "lab-mic-preamp/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-preamp-howl",
+    "title": {
+      "en": "Earphone, preamp, amplifier: the feedback whistle",
+      "de": "Ohrhörer, Vorverstärker, Verstärker: das Rückkopplungspfeifen"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-preamp-howl/program.bw",
+      "circuit": "lab-preamp-howl/circuit.json",
+      "expected": "lab-preamp-howl/EXPECTED.md",
+      "intro": "lab-preamp-howl/intro.md",
+      "introDE": "lab-preamp-howl/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-rod-pickup",
+    "title": {
+      "en": "An untuned ferrite rod hears all stations at once",
+      "de": "Ein unabgestimmter Ferritstab hört alle Sender auf einmal"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-rod-pickup/program.bw",
+      "circuit": "lab-rod-pickup/circuit.json",
+      "expected": "lab-rod-pickup/EXPECTED.md",
+      "intro": "lab-rod-pickup/intro.md",
+      "introDE": "lab-rod-pickup/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-magnet-speed",
+    "title": {
+      "en": "Faster magnet, bigger pulse",
+      "de": "Schnellerer Magnet, größerer Impuls"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-magnet-speed/program.bw",
+      "circuit": "lab-magnet-speed/circuit.json",
+      "expected": "lab-magnet-speed/EXPECTED.md",
+      "intro": "lab-magnet-speed/intro.md",
+      "introDE": "lab-magnet-speed/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-magnet-monostable",
+    "title": {
+      "en": "A falling magnet starts a timer",
+      "de": "Ein fallender Magnet startet einen Zeitschalter"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-magnet-monostable/program.bw",
+      "circuit": "lab-magnet-monostable/circuit.json",
+      "expected": "lab-magnet-monostable/EXPECTED.md",
+      "intro": "lab-magnet-monostable/intro.md",
+      "introDE": "lab-magnet-monostable/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-pulse-flipflop",
+    "title": {
+      "en": "A pulse across a transformer sets a flip-flop",
+      "de": "Ein Impuls über einen Transformator setzt ein Flipflop"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-pulse-flipflop/program.bw",
+      "circuit": "lab-pulse-flipflop/circuit.json",
+      "expected": "lab-pulse-flipflop/EXPECTED.md",
+      "intro": "lab-pulse-flipflop/intro.md",
+      "introDE": "lab-pulse-flipflop/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-coil-audio-link",
+    "title": {
+      "en": "Sound through two windings, and the turns ratio",
+      "de": "Ton durch zwei Wicklungen, und das Windungsverhältnis"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-coil-audio-link/program.bw",
+      "circuit": "lab-coil-audio-link/circuit.json",
+      "expected": "lab-coil-audio-link/EXPECTED.md",
+      "intro": "lab-coil-audio-link/intro.md",
+      "introDE": "lab-coil-audio-link/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-threshold-tester",
+    "title": {
+      "en": "Junction threshold tester with a twin transistor",
+      "de": "Schwellenprüfer für Übergänge mit einem Zwillingstransistor"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 4,
+    "files": {
+      "program": "lab-threshold-tester/program.bw",
+      "circuit": "lab-threshold-tester/circuit.json",
+      "expected": "lab-threshold-tester/EXPECTED.md",
+      "intro": "lab-threshold-tester/intro.md",
+      "introDE": "lab-threshold-tester/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-depletion-touch",
+    "title": {
+      "en": "A transistor that is on until a charge comes near",
+      "de": "Ein Transistor, der leitet, bis eine Ladung kommt"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-depletion-touch/program.bw",
+      "circuit": "lab-depletion-touch/circuit.json",
+      "expected": "lab-depletion-touch/EXPECTED.md",
+      "intro": "lab-depletion-touch/intro.md",
+      "introDE": "lab-depletion-touch/intro.de.md"
+    },
+    "devices": []
+  },
+  {
+    "id": "lab-dual-gate-pinch",
+    "title": {
+      "en": "Two gates, one channel: either one can close it",
+      "de": "Zwei Gates, ein Kanal: jedes kann ihn schließen"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-dual-gate-pinch/program.bw",
+      "circuit": "lab-dual-gate-pinch/circuit.json",
+      "expected": "lab-dual-gate-pinch/EXPECTED.md",
+      "intro": "lab-dual-gate-pinch/intro.md",
+      "introDE": "lab-dual-gate-pinch/intro.de.md"
+    },
+    "devices": []
   }
 ]
