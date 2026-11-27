@@ -11103,6 +11103,14 @@ class SB3Creator {
             if (type === 12 || type === 13) return this.varRef(a);
             return /^-?\d+(\.\d+)?$/.test(String(a)) ? String(a) : this.pyStr(a);
         }
+        // Boolean reporters can occupy ordinary Scratch value sockets too.
+        // Owned-console admission promises these opcodes; use their existing
+        // condition lowering instead of jsRep's unsupported-value fallback.
+        // Keep the legacy targets' source unchanged until separately adopted.
+        if (this._ownedJsConsole && ['operator_gt', 'operator_lt', 'operator_equals',
+            'operator_and', 'operator_or', 'operator_not'].includes(blocks[inner]?.opcode)) {
+            return this.jsCond(inner, blocks);
+        }
         return this.jsRep(blocks[inner], blocks);
     }
 
