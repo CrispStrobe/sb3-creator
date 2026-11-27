@@ -14,6 +14,8 @@
 //                                            C + local toolchain where present
 //                                            (sdcc for the 8051s, arm-none-eabi
 //                                            for the Pico SRAM image)
+//   bw export-game <file> --to web|pygame [-o dir|out.zip]
+//                                            playable game project (bwgame-v1)
 //   bw flash <file.bw|.hex|.bin|.rom> [--port /dev/cu.X] [--engine js|rust]
 //                                            Pico over USB: MicroPython main.py
 //                                            via mpremote, then reset
@@ -33,7 +35,7 @@ const cmd = args[0];
 const positional = [];
 const opts = {};
 for (let i = 1; i < args.length; i++) {
-    if (args[i] === '--to' || args[i] === '--device' || args[i] === '--port' || args[i] === '--firmware' || args[i] === '--engine' || args[i] === '--rust-bin' || args[i] === '--wait' || args[i] === '-o') {
+    if (args[i] === '--to' || args[i] === '--device' || args[i] === '--port' || args[i] === '--firmware' || args[i] === '--engine' || args[i] === '--rust-bin' || args[i] === '--wait' || args[i] === '--title' || args[i] === '-o') {
         opts[args[i].replace(/^-+/, '')] = args[++i];
     } else if (args[i].startsWith('--')) opts[args[i].slice(2)] = true;
     else positional.push(args[i]);
@@ -494,6 +496,47 @@ switch (cmd) {
         break;
     }
 
+    case 'export-game': {
+        // Any source the workshop reads -> blocks -> a playable game project.
+        //   bw export-game <file.bw|.txt|.py|.js|.c|.bas|.sb3> --to web|pygame [-o dir|out.zip]
+        const file = positional[0] ?? die('export-game needs a file');
+        const to = opts.to ?? 'web';
+        if (!['web', 'pygame'].includes(to)) die('export-game needs --to web|pygame');
+        const { exportGame, loadSb3, loadCreator, zipExport } = await import('../src/game/export.js');
+        let input;
+        if (/\.sb3$/i.test(file)) input = await loadSb3(fs.readFileSync(file));
+        else {
+            let code = readInput(file);
+            const reader = /\.py$/i.test(file) ? 'pythonToPseudocode' : /\.js$/i.test(file) ? 'javascriptToPseudocode'
+                : /\.c$/i.test(file) ? 'cToPseudocode' : /\.(bas|basic)$/i.test(file) ? 'basicToPseudocode' : null;
+            if (reader) {
+                const { default: read } = await import(`../src/utils/${reader}.js`);
+                const r = read(code);
+                for (const w of r.warnings || []) console.error(`warning: ${w}`);
+                if (r.ok === false || !r.pseudocode) die(`${reader} refused: ${(r.reasons || r.errors || []).join('; ')}`, 1);
+                code = r.pseudocode;
+            }
+            input = await loadCreator(parseBw(code));
+        }
+        const title = opts.title || path.basename(file).replace(/\.[^.]+$/, '');
+        const r = await exportGame(input, { target: to, title, allowUnsupported: !!opts['allow-unsupported'] });
+        if (!r.ok) die(`export refused, unsupported blocks:\n  ${r.reasons.join('\n  ')}`, 1);
+        for (const [op, e] of Object.entries(r.report.approximate)) console.error(`approximate: ${op} (${e.count}x) — ${e.note}`);
+        const out = opts.o || `${r.name}-${to}`;
+        if (/\.zip$/i.test(out)) {
+            fs.writeFileSync(out, await zipExport(r.files, r.name));
+            console.log(`wrote ${out}`);
+        } else {
+            for (const [rel, data] of Object.entries(r.files)) {
+                const p = path.join(out, rel);
+                fs.mkdirSync(path.dirname(p), { recursive: true });
+                fs.writeFileSync(p, data);
+            }
+            console.log(`wrote ${Object.keys(r.files).length} files to ${out}/ — ${to === 'web' ? 'open play.html' : 'run: python main.py'}`);
+        }
+        break;
+    }
+
     default:
         console.error('bw — the BrickWright workshop CLI');
         console.error('  bw check <file.bw>');
@@ -504,5 +547,6 @@ switch (cmd) {
         console.error('  bw compile <file.bw> [--device D] [-o out]');
         console.error('  bw flash <file.bw|file.py> [--port /dev/cu.usbmodemX]');
         console.error('  bw bake-uf2 <file.bw|file.py> --firmware <micropython.uf2> [-o out.uf2]');
+        console.error('  bw export-game <file.bw|.py|.js|.sb3> --to web|pygame [-o dir|out.zip]');
         process.exit(cmd ? 2 : 0);
 }

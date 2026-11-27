@@ -39,7 +39,7 @@ procedures_definition procedures_call procedures_prototype argument_reporter_str
 `.trim().split(/\s+/));
 
 const APPROX = {
-    sensing_touchingobject: 'Collision uses rotated bounding boxes, not costume pixels.',
+    sensing_touchingobject: 'Collision uses the rotated box around what each costume draws, not exact pixels.',
     sensing_distanceto: 'Exact for sprite centres; matches Scratch.',
     motion_ifonedgebounce: 'Edge detection uses the rotated bounding box, not costume pixels.',
     motion_pointtowards: 'Exact for sprite centres.',
@@ -133,6 +133,48 @@ function jpgSize (b) {
     return null;
 }
 
+// Tight bounds of what an SVG actually draws, from its basic shapes (rect,
+// circle, ellipse, line, polygon/polyline, and paths with absolute coordinates),
+// widened by half the stroke. Returns null (use the full canvas) whenever the
+// geometry is not simple enough to bound exactly: transforms, relative or curved
+// path commands, <use>, <image>, <text>.
+export function svgContentBounds (data) {
+    const text = new TextDecoder().decode(u8(data));
+    if (/\btransform\s*=|<use\b|<image\b|<text\b|<g\b[^>]*\bstyle=/i.test(text)) return null;
+    let l = Infinity, t = Infinity, r = -Infinity, b = -Infinity;
+    const grow = (x0, y0, x1, y1, sw) => {
+        l = Math.min(l, x0 - sw); t = Math.min(t, y0 - sw); r = Math.max(r, x1 + sw); b = Math.max(b, y1 + sw);
+    };
+    const re = /<(rect|circle|ellipse|line|polygon|polyline|path)\b([^>]*)>/gi;
+    let m, seen = 0;
+    while ((m = re.exec(text))) {
+        const tag = m[1].toLowerCase(), attrs = m[2];
+        const a = (n, d = 0) => { const x = new RegExp(`(?:^|\\s)${n}\\s*=\\s*["']([^"']*)["']`, 'i').exec(attrs); return x ? x[1] : d; };
+        const f = (n) => parseFloat(a(n, '0')) || 0;
+        const stroke = a('stroke', 'none');
+        const sw = stroke && stroke !== 'none' ? (parseFloat(a('stroke-width', '1')) || 0) / 2 : 0;
+        seen++;
+        if (tag === 'rect') grow(f('x'), f('y'), f('x') + f('width'), f('y') + f('height'), sw);
+        else if (tag === 'circle') grow(f('cx') - f('r'), f('cy') - f('r'), f('cx') + f('r'), f('cy') + f('r'), sw);
+        else if (tag === 'ellipse') grow(f('cx') - f('rx'), f('cy') - f('ry'), f('cx') + f('rx'), f('cy') + f('ry'), sw);
+        else if (tag === 'line') grow(Math.min(f('x1'), f('x2')), Math.min(f('y1'), f('y2')), Math.max(f('x1'), f('x2')), Math.max(f('y1'), f('y2')), sw);
+        else {
+            let pts;
+            if (tag === 'path') {
+                const d = a('d', '');
+                if (/[a-z]/.test(d.replace(/e[-+]?\d/gi, '')) || /[CSQTA]/.test(d)) return null;
+                pts = d.replace(/[MLHVZ]/g, ' ').trim();
+                if (/[HV]/.test(d)) return null;
+            } else pts = a('points', '');
+            const nums = pts.split(/[\s,]+/).filter(Boolean).map(Number);
+            if (nums.length < 2 || nums.some(Number.isNaN)) return null;
+            for (let i = 0; i + 1 < nums.length; i += 2) grow(nums[i], nums[i + 1], nums[i], nums[i + 1], sw);
+        }
+    }
+    if (!seen || !Number.isFinite(l)) return null;
+    return [l, t, r, b];
+}
+
 export function assetSize (format, data) {
     const b = u8(data);
     if (format === 'svg') return svgSize(b);
@@ -206,10 +248,17 @@ export class GameModelBuilder {
             if (data === null) this.report.unsupported.push({ target: t.name, opcode: 'asset', detail: `missing costume asset ${c.md5ext}` });
             const size = data !== null ? assetSize(fmt, data) : null;
             if (data !== null && !size) this.report.notes.push(`${t.name}/${c.name}: could not read ${fmt} size; using 1×1 bounds`);
+            const w = (size ? size.width : 1), h = (size ? size.height : 1);
+            let box = (fmt === 'svg' && data !== null) ? svgContentBounds(data) : null;
+            // clip to the canvas; fall back to the full canvas
+            box = box ? [Math.max(0, box[0]), Math.max(0, box[1]), Math.min(w, box[2]), Math.min(h, box[3])] : [0, 0, w, h];
+            if (!(box[2] > box[0] && box[3] > box[1])) box = [0, 0, w, h];
             return {
                 name: c.name, file: `assets/${c.md5ext || `${c.assetId}.${fmt}`}`, format: fmt, resolution: res,
-                width: (size ? size.width : 1) / res, height: (size ? size.height : 1) / res,
-                cx: (c.rotationCenterX || 0) / res, cy: (c.rotationCenterY || 0) / res
+                width: w / res, height: h / res,
+                cx: (c.rotationCenterX || 0) / res, cy: (c.rotationCenterY || 0) / res,
+                // what the costume draws (left, top, right, bottom), used for touching/edges/fencing
+                bounds: box.map(v => v / res)
             };
         });
         const sounds = (t.sounds || []).map(s => {

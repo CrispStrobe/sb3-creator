@@ -65,7 +65,7 @@ export const PY = {
     ext: 'py',
     comment: '#',
     str: s => JSON.stringify(String(s)),
-    num: n => (Number.isFinite(n) ? (Number.isInteger(n) ? String(n) : String(n)) : (Number.isNaN(n) ? 'NAN' : (n > 0 ? 'INF' : '-INF'))),
+    num: n => (Number.isFinite(n) ? (Number.isInteger(n) ? String(n) : String(n)) : (Number.isNaN(n) ? 'float("nan")' : (n > 0 ? 'float("inf")' : '-float("inf")'))),
     TRUE: 'True', FALSE: 'False', NULL: 'None',
     and: (a, b) => `(${a} and ${b})`,
     or: (a, b) => `(${a} or ${b})`,
@@ -92,6 +92,22 @@ export const PY = {
 };
 
 const IND = '    ';
+
+const PROMISE_OPS = new Set(['looks_sayforsecs', 'looks_thinkforsecs', 'sensing_askandwait', 'sound_playuntildone']);
+
+// Mark the statements that can be the last one run in a loop iteration and are
+// promise blocks in scratch-vm. Returns the flag name if any were marked.
+function markTrailingPromise (stmts, flag) {
+    const last = stmts[stmts.length - 1];
+    if (!last) return null;
+    if (PROMISE_OPS.has(last.op)) { last.trailingPromise = flag; return flag; }
+    if (last.op === 'control_if' || last.op === 'control_if_else') {
+        const a = markTrailingPromise(last.sub || [], flag);
+        const b = last.op === 'control_if_else' ? markTrailingPromise(last.sub2 || [], flag) : null;
+        return a || b;
+    }
+    return null;
+}
 
 class Emitter {
     constructor (L, model) {
@@ -197,6 +213,11 @@ class Emitter {
     }
 
     stmt (n, d, out) {
+        this.stmt1(n, d, out);
+        if (n.trailingPromise) out.push(IND.repeat(d) + this.L.assign(n.trailingPromise, this.L.TRUE));
+    }
+
+    stmt1 (n, d, out) {
         const L = this.L, m = x => this.m(x), h = x => this.h(x);
         const p = IND.repeat(d);
         const A = k => this.a(n, k);
@@ -205,8 +226,14 @@ class Emitter {
         const YF = e => out.push(p + L.yieldFrom(e));
         const block = (open, body, isLoop) => {
             out.push(p + open);
+            // scratch-vm: when a promise block (say/think for secs, ask, play until
+            // done) is the last statement run in an iteration, its resolution jumps
+            // straight back to the loop and the end-of-iteration yield is skipped.
+            const pe = isLoop && markTrailingPromise(body || [], `pe${this.loop + 1}`);
+            if (pe) { this.loop++; out.push(IND.repeat(d + 1) + (L.name === 'js' ? `let ${pe} = false;` : L.assign(pe, L.FALSE))); }
             this.stack(body || [], d + 1, out);
-            if (isLoop) out.push(IND.repeat(d + 1) + L.yield);
+            if (pe) out.push(IND.repeat(d + 1) + (L.name === 'js' ? `if (!${pe}) yield;` : `if not ${pe}:`), ...(L.name === 'js' ? [] : [IND.repeat(d + 2) + 'yield']));
+            else if (isLoop) out.push(IND.repeat(d + 1) + L.yield);
             if (L.close) out.push(p + L.close);
         };
         switch (n.op) {

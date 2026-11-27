@@ -279,11 +279,13 @@ class Sprite extends Target {
         const c = this.costume;
         if (!c) return { left: this.x, right: this.x, top: this.y, bottom: this.y };
         const s = this.size / 100;
-        let w = c.width * s, h = c.height * s, cx = c.cx * s, cy = c.cy * s;
+        // the costume's drawn content (manifest bounds), else its whole canvas
+        const [bl, bt, br, bb] = c.bounds || [0, 0, c.width, c.height];
         let deg = 0, flip = false;
         if (this.rotationStyle === 'all around') deg = this.direction - 90;
         else if (this.rotationStyle === 'left-right' && this.direction < 0) flip = true;
-        const pts = [[-cx, cy], [w - cx, cy], [w - cx, cy - h], [-cx, cy - h]].map(([px, py]) => flip ? [-px, py] : [px, py]);
+        const pts = [[bl - c.cx, c.cy - bt], [br - c.cx, c.cy - bt], [br - c.cx, c.cy - bb], [bl - c.cx, c.cy - bb]]
+            .map(([px, py]) => [(flip ? -px : px) * s, py * s]);
         const r = radians(-deg), cos = Math.cos(r), sin = Math.sin(r);
         let left = Infinity, right = -Infinity, top = -Infinity, bottom = Infinity;
         for (const [px, py] of pts) {
@@ -344,12 +346,15 @@ class Sprite extends Target {
         return Math.sqrt(((this.x - p[0]) ** 2) + ((this.y - p[1]) ** 2));
     }
     * glideTo (secs, x, y) {
-        const dur = num(secs), sx = this.x, sy = this.y, ex = num(x), ey = num(y);
-        const t0 = this.game.timer();
+        // scratch-vm motion_glidesecstoxy: the first tick only starts the timer.
+        const dur = 1000 * num(secs), sx = this.x, sy = this.y, ex = num(x), ey = num(y);
+        const t0 = this.game.nowMs();
         if (dur <= 0) { this.goTo(ex, ey); return; }
+        yield WAIT;
         for (;;) {
-            const f = (this.game.timer() - t0) / dur;
-            if (f >= 1) { this.goTo(ex, ey); return; }
+            const elapsed = this.game.nowMs() - t0;
+            if (elapsed >= dur) { this.goTo(ex, ey); return; }
+            const f = elapsed / dur;
             this.goTo(sx + ((ex - sx) * f), sy + ((ey - sy) * f));
             yield WAIT;
         }
@@ -488,14 +493,16 @@ export class Game {
     _init () {
         this.random = makeRng(this.seed);
         this.frame = 0;
-        this.timerStart = 0;
+        this.timerStartMs = 0;
         this.threads = [];
         this.keys = new Set();
         this.mouse = { x: 0, y: 0, down: false };
         this.answer = '';
         this.asking = null;
         this.askQueue = [];
-        this.stage = new Stage(this, this.manifest.stage);
+        // Reset the stage in place: generated setup() captured `const stage = game.stage`.
+        const stage = new Stage(this, this.manifest.stage);
+        if (this.stage) { for (const k of Object.keys(this.stage)) delete this.stage[k]; Object.assign(this.stage, stage); } else this.stage = stage;
         this.sprites = this.manifest.sprites.map(d => new Sprite(this, d));
         // drawing order, back to front; manifest lists sprites by layerOrder
         this.layers = [...this.sprites].sort((a, b) => (a.def.layerOrder || 0) - (b.def.layerOrder || 0));
@@ -506,14 +513,17 @@ export class Game {
     }
     // --- registration (called by generated code)
     on (targetName, hat, arg, fn) { this.scripts.push({ target: targetName, hat, arg: arg == null ? null : String(arg), fn }); }
-    // --- clock
-    now () { return this.deterministic ? this.frame / FPS : (performance.now() / 1000); }
-    timer () { return this.now() - this.timerStart; }
-    resetTimer () { this.timerStart = this.now(); }
+    // --- clock (milliseconds, like scratch-vm; deterministic mode counts frames)
+    nowMs () { return this.deterministic ? (this.frame * 1000) / FPS : performance.now(); }
+    now () { return this.nowMs() / 1000; }
+    timer () { return (this.nowMs() - this.timerStartMs) / 1000; }
+    resetTimer () { this.timerStartMs = this.nowMs(); }
+    // scratch-vm control_wait: start a timer, yield once, then yield until
+    // elapsed >= duration (compared in milliseconds, float error included).
     * wait (secs) {
-        const end = this.timer() + num(secs);
+        const start = this.nowMs(), dur = Math.max(0, 1000 * num(secs));
         yield WAIT;
-        while (this.timer() < end - 1e-9) yield WAIT;
+        while (this.nowMs() - start < dur) yield WAIT;
     }
     * waitUntil (cond) { while (!bool(cond())) yield WAIT; }
     * warp (gen) {
