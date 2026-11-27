@@ -2,33 +2,60 @@
  "vcc": 5,
  "parts": [
   {
+   "id": "bb1",
+   "kind": "breadboard",
+   "params": {},
+   "terminals": [],
+   "x": 470,
+   "y": 330,
+   "rotation": 0
+  },
+  {
    "id": "vcc1",
    "kind": "vcc",
    "params": {},
-   "x": 60,
-   "y": 40
+   "x": 58,
+   "y": 115
   },
   {
    "id": "gnd1",
    "kind": "gnd",
    "params": {},
-   "x": 60,
-   "y": 520
+   "x": 134,
+   "y": 115
   },
   {
    "id": "mcu1",
    "kind": "arduino_uno",
    "params": {},
-   "x": 80,
-   "y": -60,
-   "rotation": 0
+   "x": 392,
+   "y": -12,
+   "rotation": 0,
+   "terminals": [
+    "5v",
+    "gnd",
+    "d13",
+    "d12",
+    "d8"
+   ]
   },
   {
    "id": "mx1",
    "kind": "max7219",
    "params": {},
-   "x": 440,
-   "y": 240
+   "x": 64,
+   "y": 255,
+   "seat": {
+    "boardId": "bb1",
+    "leadMap": {
+     "vcc": "a3",
+     "gnd": "a4",
+     "din": "a5",
+     "clk": "a6",
+     "cs": "a7",
+     "dout": "a8"
+    }
+   }
   }
  ],
  "wires": [
@@ -85,8 +112,43 @@
    "fromTerminal": "d8",
    "to": "mx1",
    "toTerminal": "clk"
+  },
+  {
+   "from": "vcc1",
+   "fromTerminal": "vcc",
+   "to": {
+    "board": "bb1",
+    "hole": "t+2"
+   },
+   "color": "red",
+   "genPower": true
+  },
+  {
+   "from": "gnd1",
+   "fromTerminal": "gnd",
+   "to": {
+    "board": "bb1",
+    "hole": "b-2"
+   },
+   "color": "black",
+   "genPower": true
   }
  ],
- "holeWires": [],
- "generated": "benchFor+authored"
+ "holeWires": [
+  {
+   "ref": "bbw:bb1:gen_0",
+   "boardId": "bb1",
+   "a": "b3",
+   "b": "t+3",
+   "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:gen_1",
+   "boardId": "bb1",
+   "a": "b4",
+   "b": "b-4",
+   "color": "black"
+  }
+ ],
+ "generated": "benchFor+authored+seat"
 }
