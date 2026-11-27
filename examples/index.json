@@ -17350,5 +17350,39 @@
       "introDE": "lab-skywave/intro.de.md"
     },
     "devices": []
+  },
+  {
+    "id": "lab-opamp-key-finder-leds",
+    "title": {
+      "en": "Key finder with threshold LEDs",
+      "de": "Schlüsselfinder mit Schwellen-LEDs"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-opamp-key-finder-leds/program.bw",
+      "circuit": "lab-opamp-key-finder-leds/circuit.json",
+      "expected": "lab-opamp-key-finder-leds/EXPECTED.md",
+      "intro": "lab-opamp-key-finder-leds/intro.md",
+      "introDE": "lab-opamp-key-finder-leds/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-relay-hysteresis",
+    "title": {
+      "en": "Relay hysteresis: in at one voltage, out at another",
+      "de": "Relais-Hysterese: ein bei einer Spannung, aus bei einer anderen"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 2,
+    "files": {
+      "program": "lab-relay-hysteresis/program.bw",
+      "circuit": "lab-relay-hysteresis/circuit.json",
+      "expected": "lab-relay-hysteresis/EXPECTED.md",
+      "intro": "lab-relay-hysteresis/intro.md",
+      "introDE": "lab-relay-hysteresis/intro.de.md"
+    }
   }
 ]
