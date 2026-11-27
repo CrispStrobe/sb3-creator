@@ -198,7 +198,10 @@ test('gallery entries name the real CARDIAC files and the capstone circuit conta
 
 test('capstone decisions are stored before OUT and the bootstrap starts from fixed 001 alone', () => {
     const light = assembleCardiac(CARDIAC_EXAMPLES['cardiac-night-light'].source);
-    assert.deepEqual(light.words.filter(word => word.address < 80).map(word => word.value),
+    // The code section is everything below the data section, which the source
+    // opens with `ORG 80` / `sample:` — read the boundary from the assembler.
+    assert.equal(light.symbols.SAMPLE, 80, 'the data section opens at the ORG the source declares');
+    assert.deepEqual(light.words.filter(word => word.address < light.symbols.SAMPLE).map(word => word.value),
         [80, 180, 781, 309, 183, 684, 584, 801, 182, 684, 584, 801]);
     assert.equal(light.symbols.THRESHOLD, 81);
     assert.deepEqual(CARDIAC_EXAMPLES['cardiac-night-light'].expectedOutput, [1, 0, 0, 1]);
