@@ -2,7 +2,7 @@
 
 ## Circuit
 
-Arduino Uno D7 drives TRIG and D8 reads ECHO. The HC-SR04 uses a 5 V supply. Retargeted benches use the GPIO pins in their PART declaration. The Pico and STM32F030 benches drop ECHO to about 3 V with a resistor divider.
+Arduino Uno D7 drives TRIG and D8 reads ECHO. The HC-SR04 uses a 5 V supply. Retargeted benches use the GPIO pins in their PART declaration. The Pico and STM32F030 benches divide ECHO down to their logic level with 1 kΩ over 1.8 kΩ.
 
 ## Program
 

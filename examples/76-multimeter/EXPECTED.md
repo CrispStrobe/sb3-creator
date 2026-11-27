@@ -40,7 +40,7 @@ the reading for the current mode every 50 ms.
 The MODE-button regression test observes `092` on bw-board `d21d6d8b`.
 The LM358 model includes finite open-loop gain and input bias current.
 The feedback resistors turn the inverting input bias into an output
-offset of about −4.25 mV. The small-signal gain is about 46.433.
+offset of about −4.25 mV (hand-derived from the bias current and those resistors). The small-signal gain is about 46.433.
 
     load1 at 50 %  = 50 Ω in series with the 0.02 Ω shunt
     I      = 5 / 50.02                   = 99.9600 mA

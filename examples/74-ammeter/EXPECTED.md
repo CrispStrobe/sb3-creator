@@ -9,7 +9,7 @@
 
 ## Program
 
-Every 200 ms, the program converts the ADC result to whole shunt millivolts. Each millivolt across the 10 Ω shunt corresponds to 0.1 mA. The LCD shows milliamps to one decimal place.
+Every 200 ms, the program converts the ADC result to whole shunt millivolts. The display resolution is 0.1 mA, one millivolt across the 10 Ω shunt. The LCD shows milliamps to one decimal place.
 
 ## Observable behaviour
 
