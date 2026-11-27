@@ -214,7 +214,11 @@ function parseFStringParts (text) {
 }
 
 class Parser {
-    constructor (tokens) { this.toks = tokens; this.p = 0; }
+    constructor (tokens, { source } = {}) {
+        this.toks = tokens;
+        this.p = 0;
+        this.sourceLines = typeof source === 'string' ? source.replace(/\r\n?/g, '\n').split('\n') : null;
+    }
     peek (k = 0) { return this.toks[this.p + k] || { type: 'EOF' }; }
     next () { return this.toks[this.p++]; }
     at (type, value) { const t = this.peek(); return t.type === type && (value === undefined || t.value === value); }
@@ -261,6 +265,19 @@ class Parser {
         if (st && lead && !st.comment) st.comment = lead;
         // The source line, so a front end can say WHERE it could not translate.
         if (st && t.line && st.line === undefined) st.line = t.line;
+        // Optional statement spans belong to the generic Python boundary. Other
+        // readers share this parser and keep their existing AST/diagnostic policy.
+        if (st && this.sourceLines && t.line) {
+            let last = this.p - 1;
+            while (last >= 0 && ['NEWLINE', 'INDENT', 'DEDENT', 'EOF'].includes(this.toks[last].type)) last--;
+            const endLine = Math.max(t.line, this.toks[last]?.line || t.line);
+            const startText = this.sourceLines[t.line - 1] || '';
+            const endText = this.sourceLines[endLine - 1] || '';
+            st.sourceSpan = {
+                start: { line: t.line, column: Math.max(0, startText.search(/\S/)) + 1 },
+                end: { line: endLine, column: endText.trimEnd().length + 1 }
+            };
+        }
         return st;
     }
 
@@ -1127,6 +1144,47 @@ class Translator {
     }
 }
 
+// These constructs were silently accepted with changed semantics by the shared
+// Translator. A different interpreter does not repair that conversion. Refuse
+// them before producing any pseudocode until an exact lowering is qualified.
+// Keep this guard at the generic Python entrypoint: the JavaScript and device
+// readers have separate source contracts despite sharing AST/Translator code.
+function requirePreservedPythonOperations (ast) {
+    const diagnostics = [];
+    const visit = (node, inheritedSpan) => {
+        if (!node || typeof node !== 'object') return;
+        if (Array.isArray(node)) { for (const child of node) visit(child, inheritedSpan); return; }
+        const sourceSpan = node.sourceSpan || inheritedSpan;
+        let code, message;
+        if (node.type === 'BinOp' && node.op === '//') {
+            code = 'python-floor-division';
+            message = 'Floor division (//) has no qualified Python-to-blocks lowering; ordinary division changes its result.';
+        } else if (node.type === 'AugAssign' && !['+', '-'].includes(node.op)) {
+            code = 'python-augmented-assignment';
+            message = `Augmented assignment (${node.op}=) has no qualified Python-to-blocks lowering; it must not become addition.`;
+        } else if (node.type === 'Break' || node.type === 'Continue') {
+            code = `python-${node.type.toLowerCase()}`;
+            message = `${node.type.toLowerCase()} has no qualified Python-to-blocks lowering; omitting it changes loop control.`;
+        }
+        if (code) diagnostics.push({ code, kind: 'unsupported', severity: 'error', message, sourceSpan });
+        for (const [key, value] of Object.entries(node)) {
+            if (key !== 'sourceSpan') visit(value, sourceSpan);
+        }
+    };
+    visit(ast);
+    if (!diagnostics.length) return;
+    diagnostics.sort((a, b) => a.sourceSpan.start.line - b.sourceSpan.start.line ||
+        a.sourceSpan.start.column - b.sourceSpan.start.column);
+    const details = diagnostics.map(d => `Line ${d.sourceSpan.start.line}: ${d.message}`).join('\n');
+    const error = new Error(`Python conversion is unsupported.\n${details}\nKeep this Python source to run it; no converted project was produced.`);
+    error.name = 'PythonConversionError';
+    error.code = 'PYTHON_CONVERSION_UNSUPPORTED';
+    error.isPyConversionError = true;
+    error.sourceSpan = diagnostics[0].sourceSpan;
+    error.diagnostics = diagnostics;
+    throw error;
+}
+
 export default function pythonToPseudocode (source) {
     if (!source || !source.trim()) throw new Error('Python source is empty');
     // MicroPython for a board is Python only in the sense that C for an 8051
@@ -1143,7 +1201,8 @@ export default function pythonToPseudocode (source) {
     // and runloop are the hub's, and they read into the SPIKE vocabulary.
     if (isSpike3Python(source)) return spike3PythonToPseudocode(source);
     const tokens = new Tokenizer(source).tokenize();
-    const ast = new Parser(tokens).parseProgram();
+    const ast = new Parser(tokens, { source }).parseProgram();
+    requirePreservedPythonOperations(ast);
     const t = new Translator();
     const pseudocode = t.program(ast);
     return { pseudocode, warnings: t.warnings };
