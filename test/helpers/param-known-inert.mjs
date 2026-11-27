@@ -98,11 +98,17 @@ export const KNOWN_INERT = new Map([
     // Round-6 r6e benches (2026-11-24). Each key is read by bw-board but only
     // acts on an event or a ramp the static probe never produces. (The
     // bounce keys left on 2026-11-26: the driven pass's press is a change.)
-    ['npn.thermalCoupling', 'BLIND SPOT: lab-resistor-heating\'s thermometer transistors take a share of their resistor\'s RISE, and the resistors warm with a 1 s time constant: within the probe\'s 20 ms nothing has risen to share. test/lab-circuits-r6e.test.mjs heats for 3.5 s and lights the HOT LED.'],
     ['spark_gap.gapMm', 'BLIND SPOT: the gap sets the breakdown voltage (4.35 kV at 1 mm), and lab-comb-jet-spark\'s comb is resting (no charging current) as authored, so no voltage ever reaches the gap in the probe window. test/lab-circuits-r6e.test.mjs combs for a second and counts sparks 430 ms apart.'],
     // 2026-11-26. hall_analog.threshold, relay.pullInV and switchTimeMs and
     // the CP1 connector's clockHz and expansion left this list the same day:
     // the driven pass places the magnet and drives the GPIO, and the
     // attach-time view carries the machine extractor's verdict.
-    ['relay.dropOutV', 'BLIND SPOT: bw-board src/devices/relay.js releases a closed contact only when the coil falls below dropOutV, and checks pull-in first, so the key acts only while the coil sits between dropOutV and pullInV. cp1-cp4-relay-bank, the only bench that declares it, has its coils at 0 V or, with the probe\'s GPIO driven high, near the full 9 V battery: pullInV now answers (the driven pass energises the coils), dropOutV has no coil voltage in its band to act on.'],
+    // relay.dropOutV left it on 2026-11-27: lab-relay-hysteresis parks its
+    // coil at 3.1 V, between drop-out (2.5 V) and pull-in (6 V), and the
+    // driven pass presses TAP, a push through a capacitor that pulls the
+    // relay in and lets the coil fall back into that band; the probe reaches
+    // it since it takes one site per bench before a second (probeOrder).
+    // npn.thermalCoupling left it the same day: with one site per bench
+    // first, the probe reaches lab-tone-thermometer (coupling 0.2 -> 1.74
+    // moves it), which lab-resistor-heating's two transistors had crowded out.
 ]);
