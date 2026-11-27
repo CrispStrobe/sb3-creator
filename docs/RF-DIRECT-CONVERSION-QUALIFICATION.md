@@ -178,3 +178,16 @@ when the observed relative phase rates exceed that sampling bound.
 No claim of general full-dial tuning correctness or passing silence is made
 for that case. It remains reproducible with `--case far-detuned` and must
 receive separate physical/reference investigation before qualification.
+
+## Against bw-board d21d6d8b (2026-11-28)
+
+sb3-creator is to pin bw-board `d21d6d8b`, which predates #782. The settled-beat scenario fails there at its first guard, "9 V, tuning 0.3: rfAmplitude remains active". MEASURED with `node scripts/probe-direct-conversion.mjs --board <d21d6d8b> --cui <ee2b4127> --case base`:
+
+| Quantity, 8–11 ms | d21d6d8b | b47e7e09 (production, above) | Guard |
+| --- | ---: | ---: | --- |
+| received RF at the mixer | 0.0089–0.258 V | 0.095–0.143 V | > 0.05 V, max/min < 1.02 |
+| LO | 2·10⁻⁸ to 13.7 V | 5.775–5.779 V | > 4 V, max/min < 1.02 |
+| transmitter B–C swing | 0.57–15.6 V | steady | — |
+| speaker periodic jitter | 0.91 | ≤ 0.0038 | < 0.05 |
+
+On `d21d6d8b` both oscillators burst, and the probe withholds the phase beat: "the input carrier or LO is below the observation floor". This adoption therefore needs the #782 engine; no assertion was changed to pass on the older one.
