@@ -34,6 +34,8 @@ export function mixerCarriers(board, partId, tSec, transmitterId = null) {
 
 /** Frequency and phase-line residual of arg(RF * conjugate(LO)). */
 export function phaseBeat(trace) {
+    // Analytic basis, audited 2026-11-27: a line fits slope and intercept;
+    // three samples leave a residual degree of freedom to expose curvature.
     assert(trace.length >= 3, 'a phase trace needs at least three samples');
     const samples = [{ t: trace[0].tMs / 1000, phase: trace[0].phase }];
     for (let i = 1; i < trace.length; i++) {
@@ -68,6 +70,8 @@ export function periodicTone(trace, field) {
         if (a < 0 && b >= 0) crossings.push((trace[i - 1].tMs
             + (trace[i].tMs - trace[i - 1].tMs) * -a / (b - a)) / 1000);
     }
+    // Counting basis, audited 2026-11-27: three rising crossings delimit two
+    // complete periods, the minimum for comparing period-to-period jitter.
     assert(crossings.length >= 3, `${field}: enough complete rising periods`);
     const period = (crossings.at(-1) - crossings[0]) / (crossings.length - 1);
     let jitter = 0;
