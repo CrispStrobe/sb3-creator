@@ -20,6 +20,7 @@
 
 import SB3Creator from '../utils/sb3Creator.js';
 import cowgolToPseudocode from '../utils/cowgolToPseudocode.js';
+import {cowgolTargets} from '../utils/cowgol.js';
 
 /** The list of retargetable device ids (the RETARGET_POOLS keys). */
 globalThis.bwDevices = function bwDevices () {
@@ -56,12 +57,42 @@ globalThis.bwTranspileC = function bwTranspileC (pseudocode, device) {
     return c.generateC(undefined, { debug: true });
 };
 
-/** The same bounded Cowgol bridge exposed by the editor and CLI. */
-globalThis.bwTranspileCowgol = function bwTranspileCowgol (pseudocode, device) {
+/** Native generator profiles; compiler installation is discovered separately. */
+globalThis.bwCowgolTargets = cowgolTargets;
+
+/**
+ * The same bounded Cowgol bridge exposed by the editor and CLI.
+ * Omit options.target for reversible host source, or select an exact native
+ * profile from bwCowgolTargets(). A target never implicitly retargets hardware;
+ * pass device separately to request the existing explicit retarget operation.
+ * Refusal throws before any source result crosses the host boundary.
+ */
+globalThis.bwTranspileCowgol = function bwTranspileCowgol (pseudocode, device, options = {}) {
+    if (!options || typeof options !== 'object' || Array.isArray(options) ||
+        Object.keys(options).some(key => key !== 'target' && key !== 'profile')) {
+        throw new Error('Cowgol options must contain only target and profile');
+    }
+    for (const key of ['target', 'profile']) if (Object.hasOwn(options, key) &&
+        (typeof options[key] !== 'string' || !options[key])) {
+        throw new Error('Cowgol ' + key + ' must be a nonempty string');
+    }
     const c = new SB3Creator();
-    c.parse(device ? globalThis.bwRetarget(pseudocode, device) : pseudocode);
-    const result = c.generateCowgol();
+    const native = Object.hasOwn(options, 'target');
+    const checkWarnings = warnings => {
+        if (native && warnings?.length) throw new Error('Native Cowgol source has parser warnings: ' + warnings.join('; '));
+    };
+    c.parse(pseudocode);
+    checkWarnings(c.warnings);
+    if (device) {
+        const retargeted = SB3Creator.retargetPseudocode(pseudocode, device);
+        if (!retargeted.ok) throw new Error('retarget to ' + device + ' refused: ' + (retargeted.reasons || []).join('; '));
+        checkWarnings(retargeted.warnings);
+        c.parse(retargeted.pseudocode);
+        checkWarnings(c.warnings);
+    }
+    const result = c.generateCowgol(undefined, options);
     if (!result.ok) throw new Error('Cowgol refused: ' + result.reasons.join('; '));
+    result.warnings = [...(c.warnings || []), ...result.warnings];
     return result;
 };
 

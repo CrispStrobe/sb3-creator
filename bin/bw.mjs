@@ -9,6 +9,7 @@
 //                                            which ones THIS program fits)
 //   bw retarget <file.bw> <device> [-o out]  same program, the target's pins
 //   bw transpile <file.bw> --to c|cowgol|micropython|python|sb3 [--device D] [-o out]
+//                --to cowgol [--target native-profile]
 //   bw read <file.c|file.cow|file.py> [-o out.bw]     the reverse direction
 //   bw compile <file.bw> [--device D] [-o out]
 //                                            C + local toolchain where present
@@ -35,7 +36,13 @@ const cmd = args[0];
 const positional = [];
 const opts = {};
 for (let i = 1; i < args.length; i++) {
-    if (args[i] === '--to' || args[i] === '--device' || args[i] === '--port' || args[i] === '--firmware' || args[i] === '--engine' || args[i] === '--rust-bin' || args[i] === '--wait' || args[i] === '--title' || args[i] === '-o') {
+    if (args[i].startsWith('--target=')) {
+        opts.target = args[i].slice('--target='.length);
+        if (!opts.target) { console.error('bw: --target needs a native Cowgol profile'); process.exit(2); }
+    } else if (args[i] === '--to' || args[i] === '--device' || args[i] === '--port' || args[i] === '--firmware' || args[i] === '--engine' || args[i] === '--rust-bin' || args[i] === '--wait' || args[i] === '--title' || args[i] === '--target' || args[i] === '-o') {
+        if (args[i] === '--target' && (!args[i + 1] || args[i + 1].startsWith('-'))) {
+            console.error('bw: --target needs a native Cowgol profile'); process.exit(2);
+        }
         opts[args[i].replace(/^-+/, '')] = args[++i];
     } else if (args[i].startsWith('--')) opts[args[i].slice(2)] = true;
     else positional.push(args[i]);
@@ -49,13 +56,14 @@ const writeOut = (text, out) => {
     if (out) { fs.writeFileSync(out, text); console.log(`wrote ${out} (${text.length} bytes)`); }
     else process.stdout.write(text);
 };
-const parseBw = (code) => {
+const parseBw = (code, strict = false) => {
     const c = new SB3Creator();
     try { c.parse(code); } catch (e) { die(`parse error: ${e.message}`, 1); }
+    if (strict && c.warnings?.length) die(`native Cowgol source has parser warnings: ${c.warnings.join('; ')}`, 1);
     for (const w of c.warnings || []) console.error(`warning: ${w}`);
     return c;
 };
-const maybeRetarget = (code, device) => {
+const maybeRetarget = (code, device, strict = false) => {
     if (!device) return code;
     // `spikeprime` is the extension/device name users see; the dialect header
     // predates it and is spelled `DEVICE SPIKE`. This target has domain verbs,
@@ -68,9 +76,14 @@ const maybeRetarget = (code, device) => {
     }
     const r = SB3Creator.retargetPseudocode(code, device);
     if (!r.ok) die(`retarget to ${device} refused: ${r.reasons.join('; ')}`, 1);
+    if (strict && r.warnings?.length) die(`native Cowgol retarget has parser warnings: ${r.warnings.join('; ')}`, 1);
     for (const w of r.warnings || []) console.error(`warning: ${w}`);
     return r.pseudocode;
 };
+
+if (Object.hasOwn(opts, 'target') && (cmd !== 'transpile' || !['cowgol', 'cow'].includes(opts.to))) {
+    die('--target is only supported by transpile --to cowgol');
+}
 
 switch (cmd) {
     case 'check': {
@@ -106,8 +119,28 @@ switch (cmd) {
     case 'transpile': {
         const file = positional[0] ?? die('transpile needs a file');
         const to = opts.to ?? die('transpile needs --to c|cowgol|micropython|python|javascript|sb3');
-        const code = maybeRetarget(readInput(file), opts.device);
-        const c = parseBw(code);
+        let c;
+        if (['cowgol', 'cow'].includes(to) && /\.sb3$/i.test(file)) {
+            // Export the authored graph. Decompiling to text and reparsing can
+            // discard unsupported extension blocks before Cowgol sees them.
+            if (opts.device) die('Cowgol .sb3 export does not accept --device; retarget authored source explicitly first', 1);
+            try {
+                const JSZip = (await import('jszip')).default;
+                const archive = await JSZip.loadAsync(fs.readFileSync(file));
+                const entry = archive.file('project.json');
+                if (!entry) throw new Error('archive has no project.json');
+                const project = JSON.parse(await entry.async('string'));
+                if (!Array.isArray(project?.targets)) throw new Error('project.json has no targets');
+                c = new SB3Creator(); c.project = project;
+            } catch (error) { die(`cannot read .sb3: ${error.message}`, 1); }
+        } else {
+            const text = readInput(file);
+            const native = ['cowgol', 'cow'].includes(to) && Object.hasOwn(opts, 'target');
+            // Retargeting reparses/decompiles the source. Refuse any lossy
+            // parse before that step, as well as after the explicit retarget.
+            if (native && opts.device) parseBw(text, true);
+            c = parseBw(maybeRetarget(text, opts.device, native), native);
+        }
         if (to === 'c') {
             // debug:true = the proven form `bw compile` and the browser use;
             // it forces the cooperative scheduler so `@bw` round-trip markers
@@ -116,7 +149,7 @@ switch (cmd) {
             writeOut(c.generateC(undefined, { debug: true }), opts.o);
             for (const w of c._cWarnings || []) console.error(`warning: ${w}`);
         } else if (to === 'cowgol' || to === 'cow') {
-            const r = c.generateCowgol();
+            const r = c.generateCowgol(undefined, Object.hasOwn(opts, 'target') ? {target: opts.target} : {});
             if (!r.ok) die(`cowgol refused: ${r.reasons.join('; ')}`, 1);
             for (const w of r.warnings || []) console.error(`warning: ${w}`);
             writeOut(r.cowgol, opts.o);
@@ -563,6 +596,8 @@ switch (cmd) {
         console.error('  bw devices [file.bw]');
         console.error('  bw retarget <file.bw> <device> [-o out.bw]');
         console.error('  bw transpile <file.bw> --to c|cowgol|micropython|python|javascript|sb3 [--device D] [-o out]');
+        console.error('               --to cowgol [--target z80-cpm|i8080-cpm|dos|riscv32|eater6502|atmega328p]');
+        console.error('               Cowgol also accepts an authored .sb3 project (without --device).');
         console.error('  bw read <file.c|file.py> [-o out.bw]');
         console.error('  bw compile <file.bw> [--device D] [-o out]');
         console.error('  bw flash <file.bw|file.py> [--port /dev/cu.usbmodemX]');

@@ -156,7 +156,7 @@ COWGOL_ROOT=/path/to/cowgol node --test test/cowgol-compiler.test.mjs
 ```
 
 The Cowgol workflow pins fork commit
-`8e807002bc6d1d457995f2759da262c230d807e1`; no test depends on a moving compiler
+`4082aaba5c023b17f469f74d7a84504e3dbbebd4`; no test depends on a moving compiler
 branch. Native tests explicitly skip when `COWGOL_ROOT` is absent locally; CI
 sets it and runs both. This proves the executable conversion/host contract,
 not a physical hardware run.

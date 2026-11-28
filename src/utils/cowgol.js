@@ -18,8 +18,21 @@ const NATIVE_TARGETS = Object.freeze({
     dos: {devices: ['i8086'], label: 'DOS'},
     riscv32: {devices: ['riscv32'], label: 'RISC-V'},
     eater6502: {devices: ['eater6502'], label: 'Eater 6502', digital: true, clock: 1000000},
-    atmega328p: {devices: ['atmega328p', 'arduino-uno'], label: 'ATmega328P / Uno', digital: true, clock: 16000000, pullups: true}
+    atmega328p: {devices: ['atmega328p', 'arduino-uno'], label: 'ATmega328P / Uno', digital: true, clock: 16000000, pullups: true, delay: true}
 });
+
+/** The checked native generator contracts, not installed compiler discovery.
+ * Return fresh JSON-friendly values so an embedded caller cannot mutate the
+ * generator's device constraints or advertise unsupported capabilities.
+ */
+export function cowgolTargets() {
+    return Object.entries(NATIVE_TARGETS).map(([target, spec]) => ({
+        target, label: spec.label, profile: 'native-int32', devices: [...spec.devices],
+        clock: spec.clock ?? null,
+        capabilities: {console: true, digital: !!spec.digital, pullups: !!spec.pullups,
+            delay: !!spec.delay, canvas: false}
+    }));
+}
 
 // Guard BEFORE performing signed arithmetic. These helpers use only int32,
 // including multiplication's bounds checks: the 8-bit targets have no int64.
@@ -365,9 +378,12 @@ export function generateCowgol(creator, project = creator.project, opts = {}) {
                 break;
             case 'control_forever': emit(depth, 'loop'); sub('SUBSTACK'); emit(depth, 'end loop;'); break;
             case 'control_wait': {
-                if (native) { fail(`Native ${native.label} Cowgol has no qualified timer; wait is unsupported`, b); break; }
+                if (native && !native.delay) { fail(`Native ${native.label} Cowgol has no qualified timer; wait is unsupported`, b); break; }
                 const raw = b.inputs.DURATION?.[1];
-                if (!Array.isArray(raw) || !Number.isFinite(Number(raw[1])) || Number(raw[1]) < 0 || Number(raw[1]) > 2147483.647) fail('Wait requires a nonnegative literal duration within int32 milliseconds', b);
+                // Scratch variable/list primitives carry a display name in
+                // slot 1. A numeric-looking name is not a constant duration.
+                const literal = Array.isArray(raw) && [4, 5, 6, 7, 8, 10].includes(raw[0]);
+                if (!literal || !Number.isFinite(Number(raw[1])) || Number(raw[1]) < 0 || Number(raw[1]) > 2147483.647) fail('Wait requires a nonnegative literal duration within int32 milliseconds', b);
                 else call('bw_delay', [String(Math.round(Number(raw[1]) * 1000))]);
                 break;
             }

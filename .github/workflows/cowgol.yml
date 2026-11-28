@@ -7,6 +7,8 @@ on:
       - 'src/utils/cowgol*.js'
       - 'src/utils/riscvConsole.js'
       - 'src/utils/sb3Creator.js'
+      - 'src/embed/**'
+      - 'scripts/bundle-embed.mjs'
       - 'bin/bw.mjs'
       - 'test/cowgol*.test.mjs'
       - 'test/riscv-console*.test.mjs'
@@ -23,16 +25,17 @@ jobs:
         with:
           node-version: '26'
           cache: npm
-      - run: npm ci --ignore-scripts --omit=dev
+      # The bare-engine surface check builds the real esbuild bundle.
+      - run: npm ci --ignore-scripts
       - uses: actions/checkout@v4
         with:
           repository: CrispStrobe/cowgol
-          ref: 8e807002bc6d1d457995f2759da262c230d807e1
+          ref: 4082aaba5c023b17f469f74d7a84504e3dbbebd4
           path: _cowgol
       - uses: actions/checkout@v4
         with:
           repository: CrispStrobe/stc-compiler
-          ref: f73c443843bbe6ecd524b428d4edcf4e24703c1a
+          ref: 933435f42a7c7e6b236b5032e1b1137ae1820e65
           path: _stc_compiler
       - uses: actions/checkout@v4
         with:
@@ -43,7 +46,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: python3 -m pip install -r _stc_compiler/requirements.txt
-      - run: node --test test/cowgol.test.mjs test/cowgol-compiler.test.mjs test/cowgol-native.test.mjs test/cowgol-native-compiler.test.mjs test/riscv-console.test.mjs test/riscv-console-machine.test.mjs test/pico-repl-transport.test.mjs test/pico-repl-chunking.test.mjs test/pico-repl.test.mjs
+      - run: node --test test/cowgol.test.mjs test/cowgol-compiler.test.mjs test/cowgol-native.test.mjs test/cowgol-native-compiler.test.mjs test/cowgol-surfaces.test.mjs test/riscv-console.test.mjs test/riscv-console-machine.test.mjs test/pico-repl-transport.test.mjs test/pico-repl-chunking.test.mjs test/pico-repl.test.mjs
         env:
           COWGOL_ROOT: '${{ github.workspace }}/_cowgol'
           COWGOL_STC_COMPILER: '${{ github.workspace }}/_stc_compiler'
@@ -61,12 +64,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: CrispStrobe/cowgol
-          ref: 8e807002bc6d1d457995f2759da262c230d807e1
+          ref: 4082aaba5c023b17f469f74d7a84504e3dbbebd4
           path: _cowgol
       - uses: actions/checkout@v4
         with:
           repository: CrispStrobe/stc-compiler
-          ref: 8623a290a50e63d20c93b1ab950220854f5b3a60
+          ref: 933435f42a7c7e6b236b5032e1b1137ae1820e65
           path: _stc_compiler
       - uses: actions/checkout@v4
         with:
@@ -81,9 +84,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends build-essential ninja-build lua5.4 bison flex gpp moreutils nasm 64tass libreadline-dev
           python3 -m pip install --quiet fastapi pydantic
+          npm install --prefix .cowgol-oracles --no-save --ignore-scripts --no-audit --no-fund avr8js@0.21.1
       - name: Build the pinned native bundle and execution oracles
         run: python3 _stc_compiler/scripts/build-cowgol-bundle.py --source _cowgol --oracles
-      - name: Execute generated checked programs on CP/M, DOS, Eater and RISC-V
+      - name: Execute generated checked programs on CP/M, DOS, Eater, RISC-V and ATmega328P
         run: node --test test/cowgol-native-machine.test.mjs
         env:
           REQUIRE_COWGOL_NATIVE_MACHINES: '1'
@@ -92,3 +96,5 @@ jobs:
           COWGOL_CPMEMU: '${{ github.workspace }}/_cowgol/bin/cpmemu'
           COWGOL_EMU2: '${{ github.workspace }}/_cowgol/bin/emu2'
           COWGOL_BW_BOARD: '${{ github.workspace }}/_bw_board'
+          COWGOL_AVR_RUNNER: '${{ github.workspace }}/_cowgol/tests/avr-run.mjs'
+          AVR8JS_ROOT: '${{ github.workspace }}/.cowgol-oracles/node_modules/avr8js'

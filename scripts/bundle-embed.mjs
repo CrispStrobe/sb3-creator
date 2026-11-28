@@ -4,6 +4,7 @@
 // call bwTranspileC / bwRetarget / bwDevices in-process.
 //
 //   node scripts/bundle-embed.mjs            -> writes build/bw-transpiler.embed.js
+//   node scripts/bundle-embed.mjs --output path.js -> writes a separate bundle
 //   node scripts/bundle-embed.mjs --check    -> build in memory, assert it is
 //                                               free of node/browser globals; no write
 //
@@ -19,7 +20,11 @@ const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '..');
 const entry = resolve(root, 'src/embed/transpiler-entry.mjs');
 const jszipStub = resolve(root, 'src/embed/jszip-stub.js');
-const outFile = resolve(root, 'build/bw-transpiler.embed.js');
+const outputIndex = process.argv.indexOf('--output');
+if (outputIndex !== -1 && (!process.argv[outputIndex + 1] || process.argv[outputIndex + 1].startsWith('-'))) {
+    throw new Error('bundle-embed: --output needs a file path');
+}
+const outFile = outputIndex === -1 ? resolve(root, 'build/bw-transpiler.embed.js') : resolve(process.argv[outputIndex + 1]);
 
 const check = process.argv.includes('--check');
 
@@ -56,7 +61,7 @@ if (hits.length) {
 if (check) {
     console.log(`bundle-embed --check: clean, ${(code.length / 1024).toFixed(0)} KiB (not written)`);
 } else {
-    mkdirSync(resolve(root, 'build'), { recursive: true });
+    mkdirSync(dirname(outFile), { recursive: true });
     writeFileSync(outFile, code);
-    console.log(`bundle-embed: wrote build/bw-transpiler.embed.js (${(code.length / 1024).toFixed(0)} KiB)`);
+    console.log(`bundle-embed: wrote ${outFile} (${(code.length / 1024).toFixed(0)} KiB)`);
 }

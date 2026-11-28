@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import SB3Creator from '../src/utils/sb3Creator.js';
 import read from '../src/utils/cowgolToPseudocode.js';
+import {cowgolTargets} from '../src/utils/cowgol.js';
 
 const build = source => { const creator = new SB3Creator(); creator.parse(source); return creator; };
 const generate = (source, target) => build(source).generateCowgol(undefined, {target});
@@ -40,9 +41,9 @@ test('native targets reject incompatible device declarations without executable 
     }
 });
 
-test('native profiles reject canvas, timing and unsupported language semantics before compilation', () => {
+test('native profiles reject canvas and unsupported language semantics before compilation', () => {
     for (const target of targets) for (const statement of [
-        'wait 0.01 seconds', 'clear', 'move 10 steps', 'say x position',
+        'clear', 'move 10 steps', 'say x position',
         'say (3 / 2)', 'say 0.5', 'broadcast "go"'
     ]) {
         const result = generate(`WHEN flag clicked:\n  ${statement}\n`, target);
@@ -55,6 +56,53 @@ test('native profiles reject canvas, timing and unsupported language semantics b
         creator.project.stc = {tables: [{name: 'values', values: [1, 2]}]};
         assert.equal(creator.generateCowgol(undefined, {target}).ok, false);
     }
+});
+
+test('native literal waits use the qualified Uno runtime only', () => {
+    const source = 'DEVICE UNO\nWHEN flag clicked:\n  wait 0.025 seconds\n  wait 0 seconds\n  say 42\n';
+    const result = generate(source, 'atmega328p');
+    assert.equal(result.ok, true, result.reasons.join('; '));
+    assert.match(result.cowgol, /bw_delay\(25\)/);
+    assert.match(result.cowgol, /bw_delay\(0\)/);
+    for (const target of targets.filter(target => target !== 'atmega328p')) {
+        const refused = generate('WHEN flag clicked:\n  wait 0.01 seconds\n', target);
+        assert.equal(refused.ok, false);
+        assert.equal(refused.cowgol, undefined);
+        assert.match(refused.reasons.join('; '), /no qualified timer/);
+    }
+    for (const duration of ['-1', '2147483.648', 'seconds']) {
+        const refused = generate(`GLOBAL seconds = 1\nWHEN flag clicked:\n  wait ${duration} seconds\n`, 'atmega328p');
+        assert.equal(refused.ok, false, duration);
+        assert.equal(refused.cowgol, undefined);
+        assert.match(refused.reasons.join('; '), /literal duration/);
+    }
+    const authored = build('GLOBAL delaySeconds = 7\nWHEN flag clicked:\n  wait delaySeconds seconds\n');
+    const target = authored.project.targets[0];
+    const variable = Object.values(target.variables)[0];
+    variable[0] = '1';
+    const wait = Object.values(target.blocks).find(block => block.opcode === 'control_wait');
+    wait.inputs.DURATION[1][1] = '1';
+    for (const options of [{target: 'atmega328p'}, {}]) {
+        const refused = authored.generateCowgol(undefined, options);
+        assert.equal(refused.ok, false, 'a numeric variable name must not become a literal wait');
+        assert.equal(refused.cowgol, undefined);
+        assert.match(refused.reasons.join('; '), /literal duration/);
+    }
+});
+
+test('native target metadata describes generator contracts without sharing mutable state', () => {
+    const metadata = cowgolTargets();
+    assert.deepEqual(metadata.map(item => item.target), targets);
+    assert.ok(metadata.every(item => item.profile === 'native-int32' && item.capabilities.console));
+    const uno = metadata.find(item => item.target === 'atmega328p');
+    assert.deepEqual(uno.devices, ['atmega328p', 'arduino-uno']);
+    assert.equal(uno.clock, 16000000);
+    assert.equal(uno.capabilities.delay, true);
+    assert.equal(uno.capabilities.pullups, true);
+    assert.ok(metadata.filter(item => item !== uno).every(item => !item.capabilities.delay));
+    uno.devices.push('arduino-nano'); uno.capabilities.canvas = true;
+    assert.equal(generate('DEVICE NANO\nWHEN flag clicked:\n  say 1\n', 'atmega328p').ok, false);
+    assert.equal(cowgolTargets().find(item => item.target === 'atmega328p').capabilities.canvas, false);
 });
 
 test('console-only native profiles refuse GPIO and peripheral metadata even when unused', () => {
