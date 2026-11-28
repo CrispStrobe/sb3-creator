@@ -136,7 +136,7 @@ export default function basicToPseudocode(source, opts = {}) {
                         : portable
                             ? `${location}: To blocks cannot preserve ${token}'s CrispBASIC pin/time semantics; `
                               + 'portable-library calls and definitions are not supported by this converter. Keep this program as BASIC.'
-                            : `${location}: To blocks does not support ${token}; it is also outside CrispBASIC\'s `
+                            : `${location}: To blocks does not support ${token}; it is also outside CrispBASIC's `
                               + 'five-operation portable library. Conversion refused; resolve this operation in the BASIC source.';
                     diagnostics.push({code: dynamic ? 'basic-to-blocks-dynamic-source' : 'crispbasic-to-blocks-unsupported', severity: 'error',
                         line: sourceLine, basicLine: lineNo, operation: token, message});
