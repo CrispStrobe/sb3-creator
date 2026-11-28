@@ -8,8 +8,8 @@
 //   bw devices [file.bw]                     retargetable devices (with a file:
 //                                            which ones THIS program fits)
 //   bw retarget <file.bw> <device> [-o out]  same program, the target's pins
-//   bw transpile <file.bw> --to c|micropython|python|sb3 [--device D] [-o out]
-//   bw read <file.c|file.py> [-o out.bw]     the reverse direction
+//   bw transpile <file.bw> --to c|cowgol|micropython|python|sb3 [--device D] [-o out]
+//   bw read <file.c|file.cow|file.py> [-o out.bw]     the reverse direction
 //   bw compile <file.bw> [--device D] [-o out]
 //                                            C + local toolchain where present
 //                                            (sdcc for the 8051s, arm-none-eabi
@@ -105,7 +105,7 @@ switch (cmd) {
 
     case 'transpile': {
         const file = positional[0] ?? die('transpile needs a file');
-        const to = opts.to ?? die('transpile needs --to c|micropython|python|javascript|sb3');
+        const to = opts.to ?? die('transpile needs --to c|cowgol|micropython|python|javascript|sb3');
         const code = maybeRetarget(readInput(file), opts.device);
         const c = parseBw(code);
         if (to === 'c') {
@@ -115,6 +115,11 @@ switch (cmd) {
             // it the two commands disagreed on the same input.
             writeOut(c.generateC(undefined, { debug: true }), opts.o);
             for (const w of c._cWarnings || []) console.error(`warning: ${w}`);
+        } else if (to === 'cowgol' || to === 'cow') {
+            const r = c.generateCowgol();
+            if (!r.ok) die(`cowgol refused: ${r.reasons.join('; ')}`, 1);
+            for (const w of r.warnings || []) console.error(`warning: ${w}`);
+            writeOut(r.cowgol, opts.o);
         } else if (to === 'micropython') {
             const r = c.generateMicroPython();
             if (!r.ok) die(`micropython refused: ${r.reasons.join('; ')}`, 1);
@@ -141,6 +146,9 @@ switch (cmd) {
         if (/\.c$/i.test(file)) {
             const { default: c2bw } = await import('../src/utils/cToPseudocode.js');
             result = c2bw(src);
+        } else if (/\.(cow|cowgol)$/i.test(file)) {
+            const { default: cow2bw } = await import('../src/utils/cowgolToPseudocode.js');
+            result = cow2bw(src);
         } else if (/\.py$/i.test(file)) {
             if (/^\s*from\s+(machine|microbit)\s+import/m.test(src)) {
                 const { default: mp2bw } = await import('../src/utils/micropythonToPseudocode.js');
@@ -164,7 +172,8 @@ switch (cmd) {
             const project = JSON.parse(projJson);
             const c = new SB3Creator();
             result = { pseudocode: c.decompile(project), warnings: [] };
-        } else die('read understands .c, .py, .js, .bas and .sb3');
+        } else die('read understands .c, .cow, .cowgol, .py, .js, .bas and .sb3');
+        if (result.ok === false) die(`read refused: ${(result.reasons || result.errors || []).join('; ')}`, 1);
         for (const w of result.warnings || []) console.error(`warning: ${w}`);
         writeOut(result.pseudocode ?? '', opts.o);
         break;
@@ -510,7 +519,8 @@ switch (cmd) {
         else {
             let code = readInput(file);
             const reader = /\.py$/i.test(file) ? 'pythonToPseudocode' : /\.js$/i.test(file) ? 'javascriptToPseudocode'
-                : /\.c$/i.test(file) ? 'cToPseudocode' : /\.(bas|basic)$/i.test(file) ? 'basicToPseudocode' : null;
+                : /\.c$/i.test(file) ? 'cToPseudocode' : /\.(cow|cowgol)$/i.test(file) ? 'cowgolToPseudocode'
+                    : /\.(bas|basic)$/i.test(file) ? 'basicToPseudocode' : null;
             if (reader) {
                 const { default: read } = await import(`../src/utils/${reader}.js`);
                 const r = read(code);
@@ -552,7 +562,7 @@ switch (cmd) {
         console.error('  bw check <file.bw>');
         console.error('  bw devices [file.bw]');
         console.error('  bw retarget <file.bw> <device> [-o out.bw]');
-        console.error('  bw transpile <file.bw> --to c|micropython|python|javascript|sb3 [--device D] [-o out]');
+        console.error('  bw transpile <file.bw> --to c|cowgol|micropython|python|javascript|sb3 [--device D] [-o out]');
         console.error('  bw read <file.c|file.py> [-o out.bw]');
         console.error('  bw compile <file.bw> [--device D] [-o out]');
         console.error('  bw flash <file.bw|file.py> [--port /dev/cu.usbmodemX]');

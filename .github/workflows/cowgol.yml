@@ -1,0 +1,32 @@
+name: Cowgol conversion and compiler interoperability
+on:
+  push:
+    branches: ['feat/cowgol-integration-*']
+  pull_request:
+    paths:
+      - 'src/utils/cowgol*.js'
+      - 'src/utils/sb3Creator.js'
+      - 'bin/bw.mjs'
+      - 'test/cowgol*.test.mjs'
+      - 'test/fixtures/cowgol/**'
+      - '.github/workflows/cowgol.yml'
+permissions:
+  contents: read
+jobs:
+  conversion:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '26'
+          cache: npm
+      - run: npm ci --ignore-scripts --omit=dev
+      - uses: actions/checkout@v4
+        with:
+          repository: CrispStrobe/cowgol
+          ref: 02318cfe4de1f5fa4bbef70446764fa8ea8b7cce
+          path: _cowgol
+      - run: node --test test/cowgol.test.mjs test/cowgol-compiler.test.mjs test/pico-repl-transport.test.mjs test/pico-repl-chunking.test.mjs test/pico-repl.test.mjs
+        env:
+          COWGOL_ROOT: '${{ github.workspace }}/_cowgol'

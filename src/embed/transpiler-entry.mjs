@@ -19,6 +19,7 @@
 // (gcc/sdcc/cc65), not transpilation, and stays a toolchain/service step.
 
 import SB3Creator from '../utils/sb3Creator.js';
+import cowgolToPseudocode from '../utils/cowgolToPseudocode.js';
 
 /** The list of retargetable device ids (the RETARGET_POOLS keys). */
 globalThis.bwDevices = function bwDevices () {
@@ -53,6 +54,21 @@ globalThis.bwTranspileC = function bwTranspileC (pseudocode, device) {
     const c = new SB3Creator();
     c.parse(code);
     return c.generateC(undefined, { debug: true });
+};
+
+/** The same bounded Cowgol bridge exposed by the editor and CLI. */
+globalThis.bwTranspileCowgol = function bwTranspileCowgol (pseudocode, device) {
+    const c = new SB3Creator();
+    c.parse(device ? globalThis.bwRetarget(pseudocode, device) : pseudocode);
+    const result = c.generateCowgol();
+    if (!result.ok) throw new Error('Cowgol refused: ' + result.reasons.join('; '));
+    return result;
+};
+
+globalThis.bwReadCowgol = function bwReadCowgol (source) {
+    const result = cowgolToPseudocode(source);
+    if (!result.ok) throw new Error('Cowgol read refused: ' + result.reasons.join('; '));
+    return result;
 };
 
 // A marker the bundle test (and a host, on load) can read to confirm the

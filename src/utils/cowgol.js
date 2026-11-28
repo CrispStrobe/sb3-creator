@@ -11,25 +11,57 @@ const IDENT = /^[A-Za-z_][A-Za-z_0-9]*$/;
 const q = value => JSON.stringify(String(value));
 const isInt32 = value => Number.isInteger(Number(value)) && Number(value) >= -2147483648 && Number(value) <= 2147483647;
 const diagnostic = (message, detail = {}) => ({severity: 'error', code: 'cowgol-unsupported', message, ...detail});
+const INTEGER_PROFILE = 'Cowgol arithmetic is signed int32. This conversion requires intermediate arithmetic values to remain in -2147483648..2147483647; wrapping arithmetic is not a pseudocode equivalence.';
+function stringIssue(value) {
+    const s = String(value);
+    if (/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(s)) return 'Text contains a control character outside the shared newline/tab/return subset';
+    for (let i = 0; i < s.length; i++) {
+        const c = s.charCodeAt(i);
+        if (c >= 0xd800 && c <= 0xdbff) {
+            const next = s.charCodeAt(++i);
+            if (!(next >= 0xdc00 && next <= 0xdfff)) return 'Text contains an unpaired UTF-16 surrogate';
+        } else if (c >= 0xdc00 && c <= 0xdfff) return 'Text contains an unpaired UTF-16 surrogate';
+    }
+    if (new TextEncoder().encode(s).length > 127) return 'Cowgol string literals are limited to 127 UTF-8 bytes';
+    return null;
+}
 
 /** Logical host pin IDs, not an assertion of a native Cowgol MCU backend. */
 export function cowgolPinId(device, where) {
     const d = String(device || '').toLowerCase();
     const p = String(where || '').toUpperCase();
     let m;
-    if (['arduino-uno', 'arduino-nano', 'arduino-mega'].includes(d)) {
+    if (['arduino-uno', 'arduino-nano', 'arduino-mega', 'atmega168p', 'atmega328p'].includes(d)) {
         const mega = d === 'arduino-mega';
         if ((m = /^D(\d+)$/.exec(p)) && +m[1] <= (mega ? 53 : 13)) return +m[1];
         if ((m = /^A(\d+)$/.exec(p)) && +m[1] <= (mega ? 15 : 5)) return (mega ? 54 : 14) + +m[1];
     }
     if (d === 'pico' && (m = /^GP(\d+)$/.exec(p)) && (+m[1] <= 22 || (+m[1] >= 25 && +m[1] <= 28))) return +m[1];
-    if (/^stc(?:12|15|89)/.test(d) && (m = /^P([0-7])\.([0-7])$/.exec(p))) return +m[1] * 8 + +m[2];
+    if (d === 'esp8266' && (m = /^GP([0-5]|1[2-5])$/.exec(p))) return +m[1];
+    if (['microbit', 'calliopemini'].includes(d)) {
+        if (p === 'BUTTON_A') return 5;
+        if (p === 'BUTTON_B') return 11;
+        if ((m = /^P(\d+)$/.exec(p)) && (+m[1] <= 16 || +m[1] === 19 || +m[1] === 20)) return +m[1];
+    }
+    // These port coordinates match the existing C emitters. Eater's PB7 is
+    // reserved for its timer; ATtiny reset/unbonded pads remain unavailable.
+    const port8 = {eater6502: /^P(A[0-7]|B[0-6])$/, attiny85: /^P(B[0-4])$/,
+        attiny88: /^P(B[0-7]|C[0-5]|C7|D[0-7])$/};
+    if (port8[d] && port8[d].test(p)) return (p.charCodeAt(1) - 65) * 8 + Number(p.slice(2));
+    const stm32 = {stm32f030: /^P(A[0-7]|A9|A10|B1)$/,
+        stm32g030: /^P(A(?:[0-9]|1[0-5])|B[0-9]|C1[45])$/,
+        stm32f103: /^P([AB](?:[0-9]|1[0-5])|C1[3-5])$/};
+    if (stm32[d] && stm32[d].test(p)) return (p.charCodeAt(1) - 65) * 16 + Number(p.slice(2));
+    // IN and OUT are separate electrical terminals, even at one Z80 I/O address.
+    if (d === 'z80' && (m = /^(OUT|IN)([0-7])$/.exec(p))) return (m[1] === 'IN' ? 8 : 0) + +m[2];
+    if (d === 'i8086' && (m = /^P([1-3])\.([0-7])$/.exec(p))) return (+m[1] - 1) * 8 + +m[2];
+    if (['stc12c5a60s2', 'stc12c5a16s2', 'stc89c52rc', 'stc89c52', 'stc15f2k60s2', 'stc15w408as'].includes(d) && (m = /^P([0-7])\.([0-7])$/.exec(p))) return +m[1] * 8 + +m[2];
     return null;
 }
 
 /** Generate from the existing project graph rather than reparsing display text. */
 export function generateCowgol(creator, project = creator.project, opts = {}) {
-    const diagnostics = [], warnings = [];
+    const diagnostics = [], warnings = [INTEGER_PROFILE];
     const fail = (message, block = null) => diagnostics.push(diagnostic(message, {
         opcode: block?.opcode || null, blockId: blockIds.get(block) || null
     }));
@@ -49,6 +81,9 @@ export function generateCowgol(creator, project = creator.project, opts = {}) {
     if (scripts.length !== 1) fail(`Cowgol requires exactly one flag script; found ${scripts.length}`);
     if (procs.length) fail('Custom procedures are not yet emitted by this Cowgol generator');
     const active = scripts[0]?.target || targets.find(t => !t.isStage) || targets[0] || {};
+    if (opts.profile !== undefined && opts.profile !== 'host-int32') fail(`Unknown Cowgol profile ${opts.profile}`);
+    if (targets.some(t => !t.isStage && t !== active)) fail('Additional sprite assets/targets need the full Scratch runtime');
+    if (targets.some(t => (t.costumes || []).length > 1 || (t.sounds || []).length > 1)) fail('Additional costumes, backdrops and sounds are outside the Cowgol host subset');
     const stc = project.stc || creator.constructor.readStc?.(project) || {};
     if ((creator.constructor.readBoards?.(project) || []).length > 1) fail('Cowgol host conversion accepts one declared board');
     if (Object.keys(stc.ports || {}).length || Object.keys(stc.parts || {}).length) fail('PORT and PART peripherals need a dedicated Cowgol host binding');
@@ -61,6 +96,8 @@ export function generateCowgol(creator, project = creator.project, opts = {}) {
         if (ids.has(id)) fail(`Aliased pin ${where} needs an explicit shared-pin contract`);
         ids.add(id);
         if (!['input', 'output'].includes(pin.direction)) fail(`Pin ${pin.name} mode ${pin.direction} is not a digital mode`);
+        if (stc.device === 'z80' && ((/^OUT/i.test(where) && pin.direction !== 'output') || (/^IN/i.test(where) && pin.direction !== 'input'))) fail(`Z80 ${where} has a fixed electrical direction`);
+        if (/^BUTTON_[AB]$/i.test(where) && pin.direction !== 'input') fail(`Button ${where} is input-only`);
         pins.set(pin.name, {...pin, where, id});
     }
     const variables = new Map();
@@ -90,7 +127,7 @@ export function generateCowgol(creator, project = creator.project, opts = {}) {
             }
             if (raw[0] === 9 && /^#[\da-f]{6}$/i.test(raw[1])) return {code: String(parseInt(raw[1].slice(1), 16)), type: 'number'};
             if (raw[0] === 10) {
-                if (String(raw[1]).includes('\0')) fail('Embedded NUL cannot round-trip through Cowgol text', owner);
+                const issue = stringIssue(raw[1]); if (issue) fail(issue, owner);
                 return {code: q(raw[1]), type: 'string'};
             }
             if (isInt32(raw[1]) && String(raw[1]).trim() !== '') return {code: String(Number(raw[1])), type: 'number'};
@@ -132,17 +169,20 @@ export function generateCowgol(creator, project = creator.project, opts = {}) {
         '# Arithmetic is signed int32; values must remain in range.', 'include "cowgol.coh";', 'include "brickwright.coh";'];
     const declaration = text => out.push(`# @bw-declaration ${q(text)}`);
     if (stc.device) declaration(`DEVICE ${String(stc.device).toUpperCase()}`);
+    if (stc.clock) declaration(`CLOCK ${stc.clock}`);
     for (const p of pins.values()) declaration(`PIN ${p.name} = ${p.where} ${p.direction.toUpperCase()}${p.activeLow ? ' ACTIVE LOW' : ''}`);
     out.push(`# @bw-target ${JSON.stringify({isStage: !!active.isStage, name: active.name || 'Sprite1', shape: active.costumes?.[0]?._shapeSpec || null})}`);
     for (const v of variables.values()) {
         out.push(`# @bw-variable ${JSON.stringify({id: v.id, name: v.name, scope: v.scope})}`);
         let initial = v.type === 'string' ? q(v.initial ?? '') : String(Number(v.initial || 0));
+        if (v.type === 'string' && stringIssue(v.initial ?? '')) fail(`Initial value of ${v.name}: ${stringIssue(v.initial ?? '')}`);
         if (v.type === 'number' && !isInt32(initial)) { fail(`Initial value of ${v.name} is outside int32`); initial = '0'; }
         out.push(`var ${v.id}: ${v.type === 'string' ? '[uint8]' : 'int32'} := ${initial};`);
     }
     for (const p of pins.values()) out.push(`bw_pin_mode(${p.id ?? 0}, ${p.direction === 'output' ? 1 : p.activeLow ? 2 : 0});`);
-    let loopSeq = 0, mapped = 0;
-    const emit = (depth, line) => out.push('    '.repeat(depth) + line);
+    let loopSeq = 0, mapped = 0, currentBlockId = null;
+    const lineMap = {};
+    const emit = (depth, line) => { if (currentBlockId) lineMap[out.length + 1] = currentBlockId; out.push('    '.repeat(depth) + line); };
     const chain = (first, depth) => {
         let id = first;
         const visited = new Set();
@@ -150,8 +190,9 @@ export function generateCowgol(creator, project = creator.project, opts = {}) {
             if (visited.has(id) || !blocks[id]) { fail('Malformed or cyclic block stack'); break; }
             visited.add(id);
             const b = blocks[id], f = key => b.fields?.[key]?.[0], n = key => numeric(b.inputs?.[key], b);
+            currentBlockId = id;
             const call = (name, args = []) => emit(depth, `${name}(${args.join(', ')});`);
-            const sub = key => chain(b.inputs?.[key]?.[1], depth + 1);
+            const sub = key => { chain(b.inputs?.[key]?.[1], depth + 1); currentBlockId = id; };
             switch (b.opcode) {
             case 'data_setvariableto': case 'data_changevariableby': {
                 const v = variable(b.fields.VARIABLE), rhs = value(b.inputs.VALUE, b);
@@ -225,7 +266,7 @@ export function generateCowgol(creator, project = creator.project, opts = {}) {
     const preview = out.join('\n') + '\n';
     const ok = diagnostics.length === 0;
     return {ok, ...(ok ? {cowgol: preview} : {}), preview, warnings,
-        reasons: diagnostics.map(d => d.message), diagnostics, stats: {mapped, unsupported: diagnostics.length}, profile: opts.profile || 'host-int32'};
+        reasons: diagnostics.map(d => d.message), diagnostics, lineMap, stats: {mapped, unsupported: diagnostics.length}, profile: opts.profile || 'host-int32'};
 }
 
 // A lexer is necessary here: semicolons, # and operator-looking text inside
@@ -243,17 +284,20 @@ function lex(source) {
             i = stop; continue;
         }
         if (ch === '"') {
-            let text = '"', closed = false; const at = line; i++;
+            let value = '', closed = false; const at = line; i++;
             while (i < source.length) {
-                const c = source[i++]; text += c;
-                if (c === '\n') throw new Error(`Line ${at}: newline in a string literal`);
-                if (c === '\\') { text += source[i++] || ''; continue; }
+                const c = source[i++];
+                if (c.charCodeAt(0) < 32) throw new Error(`Line ${at}: unescaped control in a string literal`);
+                if (c === '\\') {
+                    const escaped = source[i++], escapes = {n: '\n', r: '\r', t: '\t', '\\': '\\', '"': '"', "'": "'"};
+                    if (!Object.hasOwn(escapes, escaped)) throw new Error(`Line ${at}: unsupported Cowgol string escape \\${escaped}`);
+                    value += escapes[escaped]; continue;
+                }
                 if (c === '"') { closed = true; break; }
+                value += c;
             }
             if (!closed) throw new Error(`Line ${at}: unterminated string literal`);
-            let value;
-            try { value = JSON.parse(text); } catch { throw new Error(`Line ${at}: unsupported string escape`); }
-            if (value.includes('\0')) throw new Error(`Line ${at}: embedded NUL cannot round-trip as Cowgol text`);
+            const issue = stringIssue(value); if (issue) throw new Error(`Line ${at}: ${issue}`);
             tokens.push({kind: 'string', text: q(value), line: at}); continue;
         }
         const rest = source.slice(i);
@@ -283,6 +327,10 @@ class Reader {
         this.globals = []; this.locals = []; this.declarations = []; this.main = []; this.definitions = [];
         this.target = {isStage: true, name: 'Stage'}; this.pins = new Map(); this.device = opts.device || null;
         this.stats = {lines: source.split(/\r?\n/).length, mapped: 0}; this.depth = 0;
+        this.pinModes = new Set(); this.inProc = null; this.warnings = [INTEGER_PROFILE];
+        this.runtimeStarted = false;
+        this.freshSequence = 0;
+        this.reservedNames = new Set(this.tokens.filter(t => t.kind === 'name').map(t => t.text));
     }
     peek(text) { return text === undefined ? this.tokens[this.i] : this.tokens[this.i].text === text; }
     take(text) {
@@ -291,6 +339,10 @@ class Reader {
         this.i++; return t;
     }
     error(message) { throw new Error(`Line ${this.peek().line}: ${message}`); }
+    freshName() {
+        let name; do { name = `cowgol_local_${this.freshSequence++}`; } while (this.reservedNames.has(name));
+        this.reservedNames.add(name); return name;
+    }
     name() { const t = this.take(); if (t.kind !== 'name') this.error('Expected an identifier'); return t.text; }
     expr(min = 0) {
         let value, t = this.take();
@@ -300,24 +352,39 @@ class Reader {
         } else if (t.kind === 'string') value = {text: t.text, type: 'string'};
         else if (t.text === '(') { value = this.expr(); this.take(')'); }
         else if (t.text === '-' || t.text === '~' || t.text === 'not') {
-            const arg = this.expr(t.text === 'not' ? 3 : 9);
-            if (arg.type === 'string') this.error('Text in an arithmetic/boolean expression');
+            if (t.text === '-' && this.peek().text === '2147483648') {
+                this.take(); value = {text: '-2147483648', type: 'number', constant: -2147483648};
+            } else {
+            const arg = this.expr(t.text === 'not' ? 2 : 9);
+            if (arg.type !== (t.text === 'not' ? 'condition' : 'number')) this.error('Wrong operand type for unary operator');
+            if (t.text === '-' && arg.constant === -2147483648) this.error('Proven int32 overflow in unary negation');
             value = {text: t.text === '-' ? `(0 - ${arg.text})` : t.text === '~' ? `(bitnot ${arg.text})` : `(not ${arg.text})`, type: t.text === 'not' ? 'condition' : 'number',
-                ...(t.text === '-' && arg.constant !== undefined ? {constant: -arg.constant} : {})};
+                typed: arg.typed, ...(t.text === '-' && arg.constant !== undefined ? {constant: -arg.constant} : {})};
+            }
         } else if (t.kind === 'name') {
             if (this.peek('(')) value = this.expressionCall(t.text, this.args());
             else {
                 const v = this.vars.get(t.text);
                 if (!v) this.error(`Undeclared variable ${t.text}`);
-                value = {text: /\s/.test(v.name) ? `(${v.name})` : v.name, type: v.type};
+                value = {text: /\s/.test(v.name) || v.parameter ? `(${v.name})` : v.name, type: v.type, typed: true,
+                    ...(v.constant !== undefined ? {constant: v.constant} : {})};
             }
         } else this.error(`Unsupported expression ${t.text}`);
         while ((PRECEDENCE[this.peek().text] || 0) > min) {
             const op = this.take().text, right = this.expr(PRECEDENCE[op]);
             if (value.type === 'string' || right.type === 'string') this.error('String comparison/concatenation needs an explicit Cowgol string runtime');
             if (op === '/' || op === '%') this.error(`Cowgol ${op} uses integer quotient/remainder; the pseudocode operators differ`);
+            if ((op === 'and' || op === 'or') ? (value.type !== 'condition' || right.type !== 'condition') : (value.type !== 'number' || right.type !== 'number')) this.error(`Wrong operand type for ${op}`);
             const condition = PRECEDENCE[op] <= 3;
-            value = {text: `(${value.text} ${PSEUDO_OP[op] || op} ${right.text})`, type: condition ? 'condition' : 'number'};
+            let constant;
+            if (!condition && value.constant !== undefined && right.constant !== undefined) {
+                const a = BigInt(value.constant), b = BigInt(right.constant);
+                const result = op === '+' ? a + b : op === '-' ? a - b : op === '*' ? a * b : op === '&' ? a & b : op === '|' ? a | b : a ^ b;
+                if (result < -2147483648n || result > 2147483647n) this.error('Proven int32 overflow is outside the convertible numeric profile');
+                constant = Number(result);
+            }
+            value = {text: `(${value.text} ${PSEUDO_OP[op] || op} ${right.text})`, type: condition ? 'condition' : 'number', typed: value.typed || right.typed,
+                ...(constant !== undefined ? {constant} : {})};
         }
         if (this.peek('as')) this.error('Explicit casts and narrowing are not losslessly representable in pseudocode');
         return value;
@@ -334,11 +401,11 @@ class Reader {
     }
     expressionCall(name, a) {
         const constants = {bw_x: 'x position', bw_y: 'y position', bw_direction: 'direction'};
-        if (constants[name]) { this.count(name, a, 0); return {text: constants[name], type: 'number'}; }
+        if (constants[name]) { this.count(name, a, 0); return {text: constants[name], type: 'number', typed: true}; }
         if (name === 'bw_digital_read') {
             this.count(name, a, 1); const p = this.pin(a[0]);
             const read = `(read ${p.name})`;
-            return {text: p.activeLow ? `(1 - ${read})` : read, type: 'number'};
+            return {text: p.activeLow ? `(1 - ${read})` : read, type: 'number', typed: true};
         }
         this.error(`Unsupported expression call ${name}`);
     }
@@ -347,15 +414,17 @@ class Reader {
         if (!match) this.error('Malformed Brickwright metadata');
         let data; try { data = JSON.parse(match[2]); } catch { this.error('Malformed Brickwright metadata JSON'); }
         if (match[1] === '@bw-target') {
-            if (!data || typeof data.name !== 'string' || /[\r\n]/.test(data.name) || (data.shape !== null && typeof data.shape !== 'string')) this.error('Invalid target metadata');
+            if (!data || typeof data.isStage !== 'boolean' || typeof data.name !== 'string' || /[\r\n]/.test(data.name) || (data.shape !== null && (typeof data.shape !== 'string' || /[\r\n]/.test(data.shape)))) this.error('Invalid target metadata');
             this.target = data;
         } else if (match[1] === '@bw-variable') {
             if (!data || !IDENT.test(data.id) || typeof data.name !== 'string' || /[\r\n]/.test(data.name) || !['global', 'local'].includes(data.scope)) this.error('Invalid variable metadata');
             this.aliases.set(data.id, data);
+            this.reservedNames.add(data.name);
         } else if (match[1] === '@bw-declaration') {
             if (typeof data !== 'string' || /[\r\n]/.test(data)) this.error('Invalid declaration metadata');
             let m;
             if ((m = /^DEVICE ([\w-]+)$/i.exec(data))) this.device = m[1];
+            else if (/^CLOCK [1-9][0-9]*$/i.test(data)) { /* Preserved device timing declaration. */ }
             else if ((m = /^PIN (\w+) = ([\w.]+) (INPUT|OUTPUT)( ACTIVE LOW)?$/i.exec(data))) {
                 const id = cowgolPinId(this.device, m[2]);
                 if (id === null || this.pins.has(id)) this.error('Unmapped or aliased pin declaration');
@@ -375,7 +444,10 @@ class Reader {
         while (this.peek().kind !== 'eof' && !stop.includes(this.peek().text)) this.statement(out, depth);
     }
     statement(out, depth) {
-        if (this.peek().kind === 'meta') { this.metadata(); return; }
+        if (this.peek().kind === 'meta') {
+            if (depth || this.runtimeStarted || this.definitions.length) this.error('Project metadata is allowed only in the preamble');
+            this.metadata(); return;
+        }
         const keyword = this.peek().text;
         this.stats.mapped++;
         if (keyword === 'include') {
@@ -386,64 +458,98 @@ class Reader {
         if (keyword === 'var') {
             this.take(); const id = this.name(); let type = null;
             if (this.peek(':')) { this.take(':'); type = this.type(); }
-            let value = {text: type === 'string' ? '""' : '0', type: type || 'number', constant: 0};
-            if (this.peek(':=')) { this.take(':='); value = this.expr(); }
+            if (!this.peek(':=')) this.error(`Uninitialized Cowgol variable ${id} has no deterministic pseudocode initializer`);
+            this.take(':='); const value = this.expr();
             this.take(';');
+            if (!type && value.type === 'number' && !value.typed) this.error(`Cowgol cannot infer the type of the untyped constant for ${id}; declare int32`);
             type = type || value.type;
             if (type !== value.type) this.error(`Variable ${id} changes type`);
             if (this.vars.has(id)) this.error(`Variable shadowing/redefinition ${id} is not supported`);
-            const alias = this.aliases.get(id), name = alias?.name || id;
-            this.vars.set(id, {name, type});
-            if (depth === 0 && out === this.main && out.length === 0) {
-                (alias?.scope === 'local' ? this.locals : this.globals).push(`${alias?.scope === 'local' ? 'LOCAL' : 'GLOBAL'} ${name} = ${value.text}`);
+            const alias = this.aliases.get(id), originalName = alias?.name || id;
+            // The dialect's `set x/size/volume/...` commands are not scalar
+            // assignments. Give authored names a distinct scalar spelling.
+            const name = this.inProc || /^(x|y|size|volume|tempo)$/i.test(originalName) ? this.freshName() : originalName;
+            if (name !== originalName && !this.inProc) this.warnings.push(`Variable ${originalName} is named ${name} in pseudocode to avoid a built-in command`);
+            this.vars.set(id, {name, type, ...(value.constant !== undefined ? {constant: value.constant} : {})});
+            if (depth === 0 && out === this.main && !this.runtimeStarted) {
+                const literal = /^-?\d+$/.test(value.text) || /^"/.test(value.text);
+                (alias?.scope === 'local' ? this.locals : this.globals).push(`${alias?.scope === 'local' ? 'LOCAL' : 'GLOBAL'} ${name} = ${literal ? value.text : type === 'string' ? '""' : '0'}`);
+                // Cowgol initializers execute on every fresh program start.
+                // Scratch variable defaults alone do not reset on green flag.
+                this.line(out, `set ${name} to ${value.text}`, depth);
             } else this.line(out, `set ${name} to ${value.text}`, depth);
             return;
         }
         if (keyword === 'if') {
+            this.runtimeStarted = true;
             this.take(); const c = this.expr(); this.take('then');
-            if (c.type === 'string') this.error('Text cannot be a Cowgol condition');
-            this.line(out, `IF ${c.type === 'condition' ? c.text : `(${c.text} != 0)`} THEN:`, depth);
+            if (c.type !== 'condition') this.error('Cowgol requires a comparison/boolean condition');
+            for (const v of this.vars.values()) delete v.constant;
+            this.line(out, `IF ${c.text} THEN:`, depth);
             const bodyAt = out.length; this.statements(out, depth + 1, ['else', 'elseif', 'end']);
             if (out.length === bodyAt) this.line(out, 'PASS:', depth + 1);
             let elseDepth = depth;
             while (this.peek('elseif')) {
+                for (const v of this.vars.values()) delete v.constant;
                 this.take(); const condition = this.expr(); this.take('then');
+                if (condition.type !== 'condition') this.error('Cowgol requires a comparison/boolean condition');
                 this.line(out, 'ELSE:', elseDepth); elseDepth++;
                 this.line(out, `IF ${condition.text} THEN:`, elseDepth); this.statements(out, elseDepth + 1, ['else', 'elseif', 'end']);
             }
-            if (this.peek('else')) { this.take(); this.line(out, 'ELSE:', elseDepth); const at = out.length; this.statements(out, elseDepth + 1, ['end']); if (out.length === at) this.line(out, 'PASS:', elseDepth + 1); }
-            this.take('end'); this.take('if'); this.take(';'); return;
+            if (this.peek('else')) {
+                for (const v of this.vars.values()) delete v.constant;
+                this.take(); this.line(out, 'ELSE:', elseDepth); const at = out.length;
+                this.statements(out, elseDepth + 1, ['end']); if (out.length === at) this.line(out, 'PASS:', elseDepth + 1);
+            }
+            this.take('end'); this.take('if'); this.take(';');
+            for (const v of this.vars.values()) delete v.constant;
+            return;
         }
         if (keyword === 'while' || keyword === 'loop') {
+            this.runtimeStarted = true;
             this.take();
-            if (keyword === 'while') { const c = this.expr(); this.take('loop'); this.line(out, `REPEAT UNTIL (not ${c.text}):`, depth); }
+            if (keyword === 'while') { const c = this.expr(); this.take('loop'); if (c.type !== 'condition') this.error('Cowgol while requires a comparison/boolean condition'); this.line(out, `REPEAT UNTIL (not ${c.text}):`, depth); }
             else this.line(out, 'FOREVER:', depth);
-            this.statements(out, depth + 1, ['end']); this.take('end'); this.take('loop'); this.take(';'); return;
+            for (const v of this.vars.values()) delete v.constant;
+            this.statements(out, depth + 1, ['end']); this.take('end'); this.take('loop'); this.take(';');
+            for (const v of this.vars.values()) delete v.constant;
+            return;
         }
         if (keyword === 'sub') {
             if (depth || out !== this.main) this.error('Nested procedures are not supported');
+            const enclosingVars = new Map(this.vars);
+            const mainWasStarted = this.runtimeStarted;
+            for (const v of this.vars.values()) delete v.constant;
             this.take(); const name = this.name(); this.take('('); const params = [];
             if (!this.peek(')')) do {
                 const id = this.name(); this.take(':'); const type = this.type();
                 if (this.vars.has(id)) this.error(`Parameter shadowing ${id} is not supported`);
-                this.vars.set(id, {name: id, type}); params.push(id);
+                this.vars.set(id, {name: id, type, parameter: true}); params.push({id, type});
                 if (!this.peek(',')) break; this.take(',');
             } while (true);
-            this.take(')'); this.take('is'); this.procs.set(name, params.length);
-            this.definitions.push(`DEFINE ${name}${params.map(p => ` (${p})`).join('')}:`);
+            this.take(')'); this.take('is'); this.procs.set(name, params);
+            this.inProc = name;
+            this.definitions.push(`DEFINE ${name}${params.map(p => ` (${p.id})`).join('')}:`);
             this.statements(this.definitions, 1, ['end']); this.take('end'); this.take('sub'); this.take(';');
-            for (const p of params) this.vars.delete(p);
+            this.vars = enclosingVars;
+            for (const v of this.vars.values()) delete v.constant;
+            this.inProc = null;
+            this.runtimeStarted = mainWasStarted;
             return;
         }
         const name = this.name();
         if (this.peek(':=')) {
+            this.runtimeStarted = true;
             this.take(); const v = this.vars.get(name); if (!v) this.error(`Assignment to undeclared ${name}`);
+            if (v.parameter) this.error(`Mutable procedure parameter ${name} requires a local copy before pseudocode conversion`);
             const rhs = this.expr(); this.take(';'); if (rhs.type !== v.type) this.error(`Assignment changes type of ${name}`);
+            if (rhs.constant !== undefined) v.constant = rhs.constant; else delete v.constant;
             this.line(out, `set ${v.name} to ${rhs.text}`, depth); return;
         }
         const a = this.args(); this.take(';'); this.call(out, depth, name, a);
     }
     call(out, depth, name, args) {
+        if (name !== 'bw_pin_mode' && out === this.main) this.runtimeStarted = true;
         const a = args.map(v => v.text), line = text => this.line(out, text, depth);
         const simple = {
             bw_go_to: [2, () => `go to x: ${a[0]} y: ${a[1]}`], bw_move: [1, () => `move ${a[0]} steps`],
@@ -474,8 +580,10 @@ class Reader {
         }
         if (name === 'bw_pin_mode') {
             this.count(name, args, 2); const p = this.pin(args[0]);
+            if (depth || this.runtimeStarted || this.pinModes.has(args[0].constant)) this.error('Pin-mode setup is allowed once per declared pin in the preamble');
             const expected = p.direction === 'output' ? 1 : p.activeLow ? 2 : 0;
             if (args[1].constant !== expected) this.error('Runtime pin-mode changes cannot replace a static PIN declaration');
+            this.pinModes.add(args[0].constant);
             return;
         }
         if (name === 'bw_digital_write' || name === 'bw_digital_toggle') {
@@ -487,7 +595,11 @@ class Reader {
             return;
         }
         if (this.procs.has(name)) {
-            this.count(name, args, this.procs.get(name)); line(`call ${name}${a.map(v => ` ${v}`).join('')}`); return;
+            if (this.inProc === name) this.error('Cowgol does not permit recursive procedures');
+            const params = this.procs.get(name); this.count(name, args, params.length);
+            if (args.some((v, i) => v.type !== params[i].type)) this.error(`Argument type mismatch for ${name}`);
+            for (const v of this.vars.values()) delete v.constant;
+            line(`call ${name}${a.map(v => ` ${v}`).join('')}`); return;
         }
         this.error(`Unsupported statement call ${name}`);
     }
@@ -509,7 +621,7 @@ export function cowgolToPseudocode(source, opts = {}) {
     const text = String(source ?? '');
     try {
         const reader = new Reader(text, opts), pseudocode = reader.run();
-        return {ok: true, pseudocode, warnings: [], reasons: [], diagnostics: [], stats: reader.stats};
+        return {ok: true, pseudocode, warnings: reader.warnings, reasons: [], diagnostics: [], stats: reader.stats};
     } catch (error) {
         const message = String(error.message || error);
         return {ok: false, pseudocode: '', preview: text.split('\n').map(l => `# Cowgol: ${l}`).join('\n'),

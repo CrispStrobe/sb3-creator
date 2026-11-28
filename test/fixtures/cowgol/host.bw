@@ -1,0 +1,21 @@
+DEVICE ARDUINO-UNO
+PIN led = D13 OUTPUT ACTIVE LOW
+GLOBAL n
+SPRITE Cow:
+  WHEN flag clicked:
+    set n to 2
+    REPEAT 3:
+      change n by 1
+      IF n > 2 THEN:
+        turn on led
+        toggle led
+        say n
+      ELSE:
+        say "none"
+    clear
+    set pen color to #12ab34
+    pen down
+    go to x: 30 y: -20
+    move 10 steps
+    turn left 90 degrees
+    wait 0.025 seconds

@@ -1,0 +1,17 @@
+mode 13 1
+write 13 0
+toggle 13 1
+number 3
+write 13 0
+toggle 13 1
+number 4
+write 13 0
+toggle 13 1
+number 5
+clear 0
+pen_colour 1223476
+pen_down
+goto 30 -20
+move 10
+turn -90
+delay 25
