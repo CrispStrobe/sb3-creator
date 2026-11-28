@@ -33,6 +33,24 @@ test('strings preserve quotes, backslashes, delimiters, Unicode and numeric text
     }
 });
 
+test('text variable initializers keep numeric spelling and empty text', () => {
+    for (const value of ['001', '', '+3', ' 3 ', '0', '1e3']) {
+        const {result, again} = roundtrip(`GLOBAL text = ${JSON.stringify(value)}\nWHEN flag clicked:\n  say text\n`);
+        assert.match(result.cowgol, /bw_print_text\(bw_v0\)/);
+        const stage = again.project.targets.find(target => target.isStage);
+        assert.equal(Object.values(stage.variables)[0][1], value);
+        const initialize = Object.values(stage.blocks).find(block => block.opcode === 'data_setvariableto');
+        assert.deepEqual(initialize.inputs.VALUE[1], [10, value]);
+    }
+    const c = build('GLOBAL value = 0\nWHEN flag clicked:\n  say value\n');
+    for (const invalid of [null, false, {}, []]) {
+        Object.values(c.project.targets[0].variables)[0][1] = invalid;
+        const result = c.generateCowgol();
+        assert.equal(result.ok, false);
+        assert.match(result.reasons.join('; '), /not a number or text/);
+    }
+});
+
 test('turtle canvas operations round-trip through explicit callbacks', () => {
     const {result, back} = roundtrip('SPRITE Cow:\n  WHEN flag clicked:\n    clear\n    set pen color to #123456\n    set pen size to 2\n    pen down\n    go to x: 12 y: -4\n    move 10 steps\n    turn right 90 degrees\n    pen up\n');
     assert.match(result.cowgol, /bw_go_to\(12, -4\)/);

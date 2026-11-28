@@ -31,3 +31,10 @@ test('generated strings survive the real compiler and host callback byte-for-byt
     const pseudocode = 'WHEN flag clicked:\n' + messages.map(s => `  say ${JSON.stringify(s)}\n`).join('');
     assert.equal(run(t, pseudocode), messages.map(s => `say ${s}\n`).join(''));
 });
+
+test('text variable initializers retain their exact spelling in real Cowgol', {skip: !fork}, t => {
+    const values = ['001', '', '+3', ' 3 ', '0', '1e3'];
+    const source = values.map((value, i) => `GLOBAL text${i} = ${JSON.stringify(value)}\n`).join('') +
+        'WHEN flag clicked:\n' + values.map((_, i) => `  say text${i}\n`).join('');
+    assert.equal(run(t, source), values.map(value => `say ${value}\n`).join(''));
+});

@@ -109,7 +109,10 @@ export function generateCowgol(creator, project = creator.project, opts = {}) {
     const targetVars = [targets.find(t => t.isStage), ...(active.isStage ? [] : [active])].filter(Boolean);
     for (const t of targetVars) for (const [id, [name, initial]] of Object.entries(t.variables || {})) {
         const v = {id: `bw_v${variables.size}`, name, initial, scope: t.isStage ? 'global' : 'local', type: 'number'};
-        if (typeof initial === 'string' && !isInt32(initial)) v.type = 'string';
+        // Initial text is still text when Number() could coerce it: "001",
+        // "", and "+3" have different visible output from 1, 0, and 3.
+        if (typeof initial === 'string') v.type = 'string';
+        else if (typeof initial !== 'number') fail(`Initial value of ${name} is not a number or text`);
         variables.set(id, v);
         if (names.has(name) && names.get(name).scope === v.scope) fail(`Ambiguous variable ${name}`);
         names.set(name, v);
