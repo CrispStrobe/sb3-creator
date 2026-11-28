@@ -144,6 +144,8 @@ for (const [source, code] of [
     ['PRINT NOT FNdigitalRead(2)', 'bitwise'],
     ['PRINT FNdigitalRead(2) AND 1', 'bitwise'],
     ['PRINT (FNdigitalRead(2)=1)+1', 'boolean-value'],
+    ['PRINT ABS(FNdigitalRead(2)=1)>=0', 'constant-predicate'],
+    ['PRINT (FNdigitalRead(2)=1)>0', 'constant-predicate'],
     ['n%=1.5', 'statement'],
     ['UPPER=1', 'statement'],
     ['PRINT RND(2)', 'expression'],
@@ -226,7 +228,11 @@ test('portable source requirement survives parse, serialization and decompile an
     const creator = new SB3Creator(); creator.parse(source);
     assert.deepEqual(creator.project.crispbasicSource, {schemaVersion: 1, requiredRuntime: 'crispbasic'});
     const clone = JSON.parse(JSON.stringify(creator.project));
-    assert.match(creator.decompile(clone), /^# @crispbasic-portable 1\n/);
+    const decompiled = creator.decompile(clone);
+    assert.match(decompiled, /^# @crispbasic-portable 1\n/);
+    assert.equal((decompiled.match(/@crispbasic-portable/g) || []).length, 1, 'reserved metadata is not duplicated as a block comment');
+    const reparsed = new SB3Creator(); reparsed.parse(decompiled);
+    assert.deepEqual(reparsed.project.crispbasicSource, clone.crispbasicSource);
     for (const method of ['generatePython', 'generateJavaScript', 'generateHostC', 'generateMicroPython', 'generateC']) {
         assert.throws(() => creator[method](clone), error => error.code === 'crispbasic-runtime-required', method);
     }
@@ -275,4 +281,20 @@ test('CLI converts portable source only through an explicit mode and preserves o
             assert.equal(readFileSync(output, 'utf8'), 'KEEP EXISTING OUTPUT\n');
         }
     } finally { rmSync(directory, {recursive: true, force: true}); }
+});
+
+
+test('portable PRINT preserves embedded quotes and literal backslashes through both directions', () => {
+    const original = 'PRINT "Aa""BB"\nPRINT "C:\\tmp\\x"\nEND\n';
+    const converted = accepted(original);
+    assert.match(converted.basic, /^PRINT "Aa""BB"$/m);
+    assert.match(converted.basic, /^PRINT "C:\\tmp\\x"$/m);
+});
+
+
+test('negative literal math operands remain operands, never a variable named abs-of', () => {
+    const result = accepted('PRINT ABS(-1)\nPRINT INT(-1.5)\nEND');
+    assert.match(result.basic, /^PRINT ABS\(-1\)$/m);
+    assert.match(result.basic, /^PRINT INT\(-1.5\)$/m);
+    assert.doesNotMatch(result.basic, /abs_of|floor_of/);
 });

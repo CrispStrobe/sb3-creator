@@ -753,7 +753,7 @@ function readPortableBasic(stmts, stats) {
             } else if (token === 'ABS' || token === 'INT') {
                 take('('); const value = parse(); take(')');
                 left = value.condition !== undefined ? predicate(value.condition, token === 'ABS' ? 'bit' : value.kind) :
-                    node(`(${token === 'ABS' ? 'abs' : 'floor'} of ${value.text})`,
+                    node(`(${token === 'ABS' ? 'abs' : 'floor'} of (${value.text}))`,
                         token === 'ABS' && isBBCBool(value) ? 'bit' : value.kind === 'bit' ? 'bit' : 'number');
             } else if (token && /^[a-z_][a-z0-9_]*$/.test(token)) left = node(scalar(token));
             else fail('expression', `Unsupported token ${token ?? '(end)'} in ${input}.`);
@@ -764,8 +764,8 @@ function readPortableBasic(stmts, stats) {
                         const positive = left.kind === 'bit';
                         const same = op === '<>' || op === (positive ? '>' : '<');
                         const inverse = op === '=' || op === (positive ? '<=' : '>=');
-                        left = same ? predicate(left.condition) : inverse ? predicate(`not (${left.condition})`) :
-                            literal(op === '>=' || op === '<=' ? -1 : 0);
+                        if (!same && !inverse) fail('constant-predicate', 'This comparison has a constant result but its operand must still be evaluated; use an explicit numeric assignment first.');
+                        left = same ? predicate(left.condition) : predicate(`not (${left.condition})`);
                     } else {
                         left = predicate(`(${requireNumber(left)} ${op === '<>' ? '!=' : op} ${requireNumber(right)})`);
                     }

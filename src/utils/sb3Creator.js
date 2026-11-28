@@ -8578,7 +8578,13 @@ class SB3Creator {
     parse(pseudocode) {
         const portableSource = validateCrispBasicPseudocode(pseudocode);
         this.reset();
-        if (portableSource) this.project.crispbasicSource = {schemaVersion: 1, requiredRuntime: 'crispbasic'};
+        if (portableSource) {
+            this.project.crispbasicSource = {schemaVersion: 1, requiredRuntime: 'crispbasic'};
+            // This directive is project metadata, not a block comment. Keeping
+            // it in the comment stream would make decompile emit it twice and
+            // cause a correctly preserved source to fail duplicate validation.
+            pseudocode = pseudocode.replace(/^[ \t]*#[ \t]*@crispbasic-portable\b[^\r\n]*$/gm, '');
+        }
         if (!pseudocode.trim()) {
             throw new ParseError("Pseudocode is empty");
         }
@@ -17014,7 +17020,7 @@ class SB3Creator {
                 case 'stc12_print': {
                     const mode = f('MODE');
                     if (mode === 'text') {
-                        emit(`PRINT "${String(this.dtext(b.inputs.VALUE, blocks)).replace(/"/g, '').replace(/[\r\n]+/g, ' ')}"`);
+                        emit(`PRINT "${String(this.dtext(b.inputs.VALUE, blocks)).replace(/"/g, crisp ? '""' : '').replace(/[\r\n]+/g, ' ')}"`);
                     } else emit(`PRINT ${v('VALUE')}`);
                     return;
                 }
