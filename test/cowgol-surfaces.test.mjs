@@ -74,6 +74,25 @@ test('embedded target selection refuses unsupported semantics without changing i
     assert.ok(host.bwTranspileCowgol(warned).warnings.some(warning => warning.includes('COMPARISON')));
 });
 
+test('embedded Nano selection retains the board contract and can intentionally retarget GPIO', () => {
+    const host = bareEngine();
+    const source = 'DEVICE NANO\nPIN led = D13 OUTPUT\nWHEN flag clicked:\n  turn on led\n  wait 0.007 seconds\n  turn off led\n';
+    const result = host.bwTranspileCowgol(source, undefined, {target: 'arduino-nano'});
+    assert.equal(result.target, 'arduino-nano');
+    assert.equal(result.cowgol, creator(source).generateCowgol(undefined, {target: 'arduino-nano'}).cowgol);
+    assert.match(result.cowgol, /DEVICE ARDUINO-NANO/);
+    assert.match(result.cowgol, /bw_delay\(7\)/);
+    assert.throws(() => host.bwTranspileCowgol(source, undefined, {target: 'atmega328p'}), /cannot run DEVICE/);
+    const pico = 'DEVICE PICO\nPIN led = GP25 OUTPUT\nWHEN flag clicked:\n  turn on led\n';
+    const retargeted = host.bwTranspileCowgol(pico, 'arduino-nano', {target: 'arduino-nano'});
+    assert.equal(retargeted.ok, true);
+    assert.match(retargeted.cowgol, /DEVICE ARDUINO-NANO/);
+    const profile = host.bwCowgolTargets().find(item => item.target === 'arduino-nano');
+    assert.equal(profile.memory.flashLimit, 30720);
+    profile.memory.flashLimit = 32768;
+    assert.equal(host.bwCowgolTargets().find(item => item.target === 'arduino-nano').memory.flashLimit, 30720);
+});
+
 test('producer CLI exports checked native Cowgol and preserves files on every refusal', t => {
     const work = fs.mkdtempSync(path.join(root, '.cowgol-surfaces-'));
     t.after(() => fs.rmSync(work, {recursive: true, force: true}));
@@ -157,4 +176,30 @@ test('CLI Cowgol .sb3 export validates the authored graph before any lossy conve
     assert.notEqual(result.status, 0);
     assert.match(result.stderr, /no targets/);
     assert.equal(fs.readFileSync(output, 'utf8'), keep);
+});
+
+test('producer CLI keeps Nano identity and refuses Uno substitution and analog-only pins', t => {
+    const work = fs.mkdtempSync(path.join(root, '.cowgol-nano-cli-'));
+    t.after(() => fs.rmSync(work, {recursive: true, force: true}));
+    const input = path.join(work, 'nano.bw'), output = path.join(work, 'nano.cow');
+    const source = 'DEVICE NANO\nPIN led = D13 OUTPUT\nWHEN flag clicked:\n  turn on led\n  wait 0.001 seconds\n  turn off led\n';
+    const cli = target => spawnSync(process.execPath, [path.join(root, 'bin/bw.mjs'),
+        'transpile', input, '--to', 'cowgol', `--target=${target}`, '-o', output], {cwd: root, encoding: 'utf8'});
+    fs.writeFileSync(input, source);
+    let result = cli('arduino-nano');
+    assert.equal(result.status, 0, result.stderr);
+    const generated = fs.readFileSync(output, 'utf8');
+    assert.match(generated, /DEVICE ARDUINO-NANO/);
+    assert.match(generated, /bw_delay\(1\)/);
+    result = cli('atmega328p');
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /cannot run DEVICE/);
+    assert.equal(fs.readFileSync(output, 'utf8'), generated);
+    for (const mode of ['INPUT', 'ANALOG']) {
+        fs.writeFileSync(input, `DEVICE NANO\nPIN input = A6 ${mode}\nWHEN flag clicked:\n  say 1\n`);
+        result = cli('arduino-nano');
+        assert.notEqual(result.status, 0);
+        assert.match(result.stderr, /analog-input only|not a digital mode/);
+        assert.equal(fs.readFileSync(output, 'utf8'), generated);
+    }
 });

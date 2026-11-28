@@ -18,7 +18,15 @@ const NATIVE_TARGETS = Object.freeze({
     dos: {devices: ['i8086'], label: 'DOS'},
     riscv32: {devices: ['riscv32'], label: 'RISC-V'},
     eater6502: {devices: ['eater6502'], label: 'Eater 6502', digital: true, clock: 1000000},
-    atmega328p: {devices: ['atmega328p', 'arduino-uno'], label: 'ATmega328P / Uno', digital: true, clock: 16000000, pullups: true, delay: true}
+    atmega328p: {devices: ['atmega328p', 'arduino-uno'], label: 'ATmega328P / Uno', digital: true,
+        mcu: 'atmega328p', clock: 16000000, pullups: true, delay: true,
+        memory: {flashLimit: 32256, ramBytes: 2048, heapBytes: 512, stackReserve: 512}},
+    // Classic Nano has the same CPU and GPIO runtime, but a separate board
+    // contract: both official ATmega328P bootloader choices reserve 2 KiB.
+    // A6/A7 are analog-input only and have no native digital binding.
+    'arduino-nano': {devices: ['arduino-nano'], label: 'Arduino Nano (classic ATmega328P)', digital: true,
+        mcu: 'atmega328p', clock: 16000000, pullups: true, delay: true,
+        memory: {flashLimit: 30720, ramBytes: 2048, heapBytes: 512, stackReserve: 512}}
 });
 
 /** The checked native generator contracts, not installed compiler discovery.
@@ -28,7 +36,8 @@ const NATIVE_TARGETS = Object.freeze({
 export function cowgolTargets() {
     return Object.entries(NATIVE_TARGETS).map(([target, spec]) => ({
         target, label: spec.label, profile: 'native-int32', devices: [...spec.devices],
-        clock: spec.clock ?? null,
+        clock: spec.clock ?? null, mcu: spec.mcu ?? null,
+        memory: spec.memory ? {...spec.memory} : null,
         capabilities: {console: true, digital: !!spec.digital, pullups: !!spec.pullups,
             delay: !!spec.delay, canvas: false}
     }));
@@ -193,7 +202,7 @@ export function generateCowgol(creator, project = creator.project, opts = {}) {
         if (native?.digital && pin.direction === 'input' && pin.activeLow && !native.pullups) {
             fail(`Native ${native.label} Cowgol has no input pull-up binding for active-low pin ${pin.name}`);
         }
-        if (opts.target === 'atmega328p' && id !== null && (id < 2 || id > 19)) {
+        if (native?.mcu === 'atmega328p' && id !== null && (id < 2 || id > 19)) {
             fail(`Native ATmega328P Cowgol reserves D0/D1 for USART0; ${where} is not available as GPIO`);
         }
         if (stc.device === 'z80' && ((/^OUT/i.test(where) && pin.direction !== 'output') || (/^IN/i.test(where) && pin.direction !== 'input'))) fail(`Z80 ${where} has a fixed electrical direction`);

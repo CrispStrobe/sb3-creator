@@ -35,7 +35,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: CrispStrobe/stc-compiler
-          ref: 933435f42a7c7e6b236b5032e1b1137ae1820e65
+          ref: d54f5d9d9583a1cafecc5f2e4d5ec33b3f1db7e6
           path: _stc_compiler
       - uses: actions/checkout@v4
         with:
@@ -69,7 +69,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: CrispStrobe/stc-compiler
-          ref: 933435f42a7c7e6b236b5032e1b1137ae1820e65
+          ref: d54f5d9d9583a1cafecc5f2e4d5ec33b3f1db7e6
           path: _stc_compiler
       - uses: actions/checkout@v4
         with:
@@ -87,7 +87,7 @@ jobs:
           npm install --prefix .cowgol-oracles --no-save --ignore-scripts --no-audit --no-fund avr8js@0.21.1
       - name: Build the pinned native bundle and execution oracles
         run: python3 _stc_compiler/scripts/build-cowgol-bundle.py --source _cowgol --oracles
-      - name: Execute generated checked programs on CP/M, DOS, Eater, RISC-V and ATmega328P
+      - name: Execute generated checked programs on CP/M, DOS, Eater, RISC-V, Uno and Nano
         run: node --test test/cowgol-native-machine.test.mjs
         env:
           REQUIRE_COWGOL_NATIVE_MACHINES: '1'

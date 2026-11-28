@@ -26,6 +26,7 @@ The producer CLI exposes the same checked profiles explicitly:
 ```sh
 node bin/bw.mjs transpile example.bw --to cowgol --target dos -o example.cow
 node bin/bw.mjs transpile blink.bw --to cowgol --target atmega328p -o blink.cow
+node bin/bw.mjs transpile nano.bw --to cowgol --target arduino-nano -o nano.cow
 ```
 
 Omitting `--target` preserves the reversible host export. `--target` selects a
@@ -61,6 +62,10 @@ the exact target, label, accepted devices, canonical clock where required, and
 console, digital, pull-up, delay and canvas capabilities. This describes the
 generator's qualified subset; it does not report installed compilers, connected
 hardware or a hardware execution guarantee.
+AVR profiles additionally expose their exact `mcu` and a fresh `memory` object
+with `flashLimit`, `ramBytes`, `heapBytes`, and `stackReserve`, all in bytes.
+Other profiles return `null` for those fields. These are compile-time board
+limits, not measurements of a particular program's memory use.
 
 ## Qualified targets
 
@@ -72,6 +77,7 @@ hardware or a hardware execution guarantee.
 | `riscv32` | `RISCV32` and its ordinary parser aliases | Same console subset, RV32 ELF |
 | `eater6502` | `EATER6502`, 1 MHz | Console plus VIA digital PA0–PA7 and PB0–PB7 |
 | `atmega328p` | `ATMEGA328P` or `ARDUINO-UNO`, 16 MHz | Serial console, digital D2–D13 and A0–A5, literal millisecond waits |
+| `arduino-nano` | `ARDUINO-NANO` or `NANO`, 16 MHz | Classic ATmega328P Nano: same digital/serial/wait subset, with a separate 30720-byte flash limit |
 
 A declaration-free console program can use any target. An explicit incompatible
 device refuses; the caller must obtain an intentional retargeted project before
@@ -87,7 +93,20 @@ Eater digital input has no internal pull-up binding: an `INPUT ACTIVE LOW`
 declaration, which requests that mode in the shared contract, refuses. Active-low
 outputs are supported. AVR supports floating input, output and input with pull-up;
 D0/D1 remain reserved for USART0. Both runtimes toggle their output latch instead
-of the measured electrical input. AVR Nano is not an alias for this profile.
+of the measured electrical input.
+
+The classic Nano is a separate `arduino-nano` target, not an alias for Uno.
+Its compiler reserves the top 2048 bytes of flash, so the application must fit
+below `0x7800` (30720 bytes). This follows the official
+[Arduino AVR Nano definitions](https://github.com/arduino/ArduinoCore-avr/blob/master/boards.txt),
+which set the same 30720-byte application limit, 2048-byte SRAM and 16 MHz clock
+for both ATmega328P bootloader choices. Uno retains its 32256-byte limit.
+Both profiles reserve 512 bytes of SRAM for the Cowgol heap and at least 512
+bytes for the native stack. Nano A6/A7 remain analog-input-only pads; analog
+operations have no native Cowgol binding and refuse, including unused analog
+declarations. This profile does not cover ATmega168 Nano, Nano Every, Nano 33,
+Nano ESP32 or other boards bearing the Nano name. Runtime serial is 9600 baud;
+the separate bootloader upload speed is not changed by this source generator.
 
 AVR literal waits call the native blocking `bw_delay` binding. Durations must
 be nonnegative literals within signed int32 milliseconds; as with ordinary
@@ -132,7 +151,8 @@ range warning.
 ## Verification
 
 `test/cowgol-native.test.mjs` checks all target/device contracts, unsupported
-surface refusal, Eater PB7, AVR reserved pins/pull-ups, and source line mappings.
+surface refusal, Eater PB7, AVR reserved pins/pull-ups, Nano board memory and
+analog-only pin boundaries, and source line mappings.
 `test/cowgol-native-compiler.test.mjs` compiles the generated source with the
 actual pinned Cowgol compiler and executes it. It checks the signed limits,
 all operand-sign combinations, overflowing intermediates, nested calls,
@@ -140,7 +160,7 @@ short-circuit conditions, loop re-evaluation and GPIO/polarity callback traces.
 These host executions qualify generator/language behavior; native machine
 execution is additionally exercised by `test/cowgol-native-machine.test.mjs`.
 That suite compiles actual Z80 CP/M, 8080-compatible CP/M, DOS, Eater, RISC-V and
-ATmega328P images through the pinned service and runs them on cpmemu, emu2,
+ATmega328P/Uno and classic Nano images through the pinned service and runs them on cpmemu, emu2,
 Brickwright's exact 6502 and RV32 machines, and avr8js 0.21.1. It reuses the host
 suite's mathematical boundary oracle and all
 overflow cases, checks lazy conditions and loops, and requires no ROM writes
@@ -151,7 +171,8 @@ The RV32 tests boot the service's actual returned ELF image, independently of
 the older checked RISC-V C generator. AVR executes the actual returned HEX,
 checks generated arithmetic and refusal paths, verifies active-low GPIO and
 pull-ups, and cold-boots twice from nonzero SRAM. Its GPIO trace measures the
-generated 0, 1 and 7 ms pulse intervals at the real emulated CPU cycle count;
+generated 0, 1 and 7 ms pulse intervals at the real emulated CPU cycle count for
+both distinct AVR board targets;
 every execution must keep flash intact and remain within the reserved stack.
 `test/cowgol-surfaces.test.mjs` builds the embedded bundle, checks native source
 equivalence in a bare VM, and exercises CLI refusal without overwriting files.

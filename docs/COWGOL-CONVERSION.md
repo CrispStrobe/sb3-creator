@@ -19,8 +19,9 @@ names the first or all unsupported operations. Callers must check `ok` before
 running or replacing a program. The CLI exits unsuccessfully and preserves an
 existing output file when conversion refuses.
 
-Passing `{target: 'z80-cpm'}`, `i8080-cpm`, `dos`, `riscv32`, `eater6502`, or
-`atmega328p` selects a separate checked native execution profile. It restricts
+Passing `{target: 'z80-cpm'}`, `i8080-cpm`, `dos`, `riscv32`, `eater6502`,
+`atmega328p`, or the classic Nano's distinct `arduino-nano` target selects a
+separate checked native execution profile. It restricts
 the generated calls to that runtime, checks arithmetic before it can overflow,
 and lowers lazy conditions to explicit branches. See
 [COWGOL-NATIVE.md](COWGOL-NATIVE.md) for the exact device, GPIO and runtime

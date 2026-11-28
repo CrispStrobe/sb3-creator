@@ -55,7 +55,9 @@ test('native Eater and AVR digital profiles emit executable pin modes, polarity 
     const eater = run(t, 'DEVICE EATER6502\nPIN led = PB7 OUTPUT ACTIVE LOW\nPIN button = PA0 INPUT\nWHEN flag clicked:\n  turn on led\n  toggle led\n  IF (0 = 1) and (read button = 1) THEN:\n    say "wrong"\n  say read button\n', {target: 'eater6502', trace: true});
     assert.equal(eater.status, 0, eater.stdout + eater.stderr);
     assert.equal(eater.stdout, 'mode 15 1\nmode 0 0\nwrite 15 0\ntoggle 15 1\nread 0\nnumber 1\n');
-    const avr = run(t, 'DEVICE UNO\nPIN led = D13 OUTPUT ACTIVE LOW\nPIN button = A5 INPUT ACTIVE LOW\nWHEN flag clicked:\n  turn on led\n  toggle led\n  say read button\n', {target: 'atmega328p', trace: true});
-    assert.equal(avr.status, 0, avr.stdout + avr.stderr);
-    assert.equal(avr.stdout, 'mode 13 1\nmode 19 2\nwrite 13 0\ntoggle 13 1\nread 19\nnumber 0\n');
+    for (const [target, device] of [['atmega328p', 'UNO'], ['arduino-nano', 'NANO']]) {
+        const avr = run(t, `DEVICE ${device}\nPIN led = D13 OUTPUT ACTIVE LOW\nPIN button = A5 INPUT ACTIVE LOW\nWHEN flag clicked:\n  turn on led\n  toggle led\n  say read button\n`, {target, trace: true});
+        assert.equal(avr.status, 0, avr.stdout + avr.stderr);
+        assert.equal(avr.stdout, 'mode 13 1\nmode 19 2\nwrite 13 0\ntoggle 13 1\nread 19\nnumber 0\n');
+    }
 });

@@ -16,15 +16,16 @@ const avrRunner = process.env.COWGOL_AVR_RUNNER;
 const avrRoot = process.env.AVR8JS_ROOT;
 const required = process.env.REQUIRE_COWGOL_NATIVE_MACHINES === '1';
 const boardPin = 'd21d6d8b819263eb08231134b7556efa82289a90';
-const targets = ['z80-cpm', 'i8080-cpm', 'dos', 'eater6502', 'riscv32', 'atmega328p'];
+const targets = ['z80-cpm', 'i8080-cpm', 'dos', 'eater6502', 'riscv32', 'atmega328p', 'arduino-nano'];
+const isAvr = target => ['atmega328p', 'arduino-nano'].includes(target);
 const binaryExtension = target => target === 'dos' ? 'exe' : target === 'eater6502' ? 'bin' :
-    target === 'riscv32' ? 'elf' : target === 'atmega328p' ? 'hex' : 'com';
+    target === 'riscv32' ? 'elf' : isAvr(target) ? 'hex' : 'com';
 const usesBoard = target => target === 'eater6502' || target === 'riscv32';
 const oracle = target => process.env[target === 'dos' ? 'COWGOL_EMU2' : 'COWGOL_CPMEMU'];
 const prerequisites = target => [
     ['COWGOL_STC_COMPILER', service && path.join(service, 'cowgol_build.py')],
     ['COWGOL_BUNDLE', bundle && path.join(bundle, 'manifest.json')],
-    ...(target === 'atmega328p' ? [['COWGOL_AVR_RUNNER', avrRunner],
+    ...(isAvr(target) ? [['COWGOL_AVR_RUNNER', avrRunner],
         ['AVR8JS_ROOT', avrRoot && path.join(avrRoot, 'package.json')]] :
         usesBoard(target) ? [['COWGOL_BW_BOARD', board && path.join(board,
         target === 'eater6502' ? 'src/m6502-machine.js' : 'src/riscv32-machine.js')]] :
@@ -38,7 +39,7 @@ async function machine(t, target) {
     if (usesBoard(target)) {
         assert.equal(execFileSync('git', ['-C', board, 'rev-parse', 'HEAD'], {encoding: 'utf8'}).trim(), boardPin);
     }
-    if (target === 'atmega328p') {
+    if (isAvr(target)) {
         assert.equal(JSON.parse(fs.readFileSync(path.join(avrRoot, 'package.json'), 'utf8')).version, '0.21.1');
     }
     const work = fs.mkdtempSync(path.join(process.cwd(), '.cowgol-native-machine-'));
@@ -62,16 +63,16 @@ if sys.argv[3] == "riscv32" and os.environ.get("COWGOL_RISCV_GCC_STAGE"):
     import app
     app.RISCV_GCC_STAGE = os.environ["COWGOL_RISCV_GCC_STAGE"]
     app.RISCV_GCC_STAGE_BIN = str(pathlib.Path(app.RISCV_GCC_STAGE) / "bin")
-if sys.argv[3] == "atmega328p" and os.environ.get("COWGOL_AVR_GCC_ROOT"):
+if sys.argv[3] in ("atmega328p", "arduino-nano") and os.environ.get("COWGOL_AVR_GCC_ROOT"):
     import app
     app.stage_avr = lambda: str(pathlib.Path(os.environ["COWGOL_AVR_GCC_ROOT"]) / "bin")
-elif sys.argv[3] == "atmega328p" and os.environ.get("COWGOL_AVR_STAGE"):
+elif sys.argv[3] in ("atmega328p", "arduino-nano") and os.environ.get("COWGOL_AVR_STAGE"):
     import app
     app.AVR_STAGE = os.environ["COWGOL_AVR_STAGE"]
     app.AVR_STAGE_BIN = str(pathlib.Path(app.AVR_STAGE) / "bin")
     app._AVR_STAMP = str(pathlib.Path(app.AVR_STAGE) / ".bundle-fingerprint")
 request = SimpleNamespace(code=pathlib.Path(sys.argv[2]).read_text(), language="cowgol",
-    target=sys.argv[3], format="elf" if sys.argv[3] == "riscv32" else "hex" if sys.argv[3] == "atmega328p" else "bin",
+    target=sys.argv[3], format="elf" if sys.argv[3] == "riscv32" else "hex" if sys.argv[3] in ("atmega328p", "arduino-nano") else "bin",
     options=[], defines={}, disassemble=False, symbols=False)
 result = cowgol_build.build_cowgol(request)
 if not result.get("success"):
@@ -82,10 +83,11 @@ print(json.dumps({key: result.get(key) for key in ("target", "toolchain", "compi
         assert.equal(compiled.target, target);
         assert.equal(fs.statSync(binary).size, compiled.bytes);
         assert.match(compiled.compiler_commit, /^[a-f0-9]{40}$/);
-        if (target === 'atmega328p') {
+        if (isAvr(target)) {
             const layout = compiled.memory_layout;
-            assert.equal(compiled.toolchain, 'cowgol-atmega328p');
-            assert.equal(layout.flash_limit, 32256);
+            assert.equal(compiled.toolchain, `cowgol-${target}`);
+            assert.equal(layout.flash_limit, target === 'arduino-nano' ? 30720 : 32256);
+            assert.ok(layout.flash_end <= layout.flash_limit, 'image must retain the selected board bootloader area');
             assert.equal(layout.stack_start, 0x700);
             assert.ok(layout.bss_end <= layout.stack_start);
             const layoutFile = `${binary}.layout.json`;
@@ -166,8 +168,9 @@ WHEN flag clicked:
     assert.deepEqual(observed.via, {ora: 0, orb: 0x80, ddra: 0, ddrb: 0x80});
 });
 
-test('ATmega328P generated GPIO preserves active-low input, output latch and cold initialization', gate('atmega328p'), async t => {
-    const source = `DEVICE UNO
+for (const [target, device] of [['atmega328p', 'UNO'], ['arduino-nano', 'NANO']]) {
+    test(`${target} generated GPIO preserves active-low input, output latch and cold initialization`, gate(target), async t => {
+        const source = `DEVICE ${device}
 PIN led = D13 OUTPUT ACTIVE LOW
 PIN button = A5 INPUT ACTIVE LOW
 GLOBAL count = 6
@@ -179,22 +182,22 @@ WHEN flag clicked:
   say count
   say "GPIO done"
 `;
-    const run = await machine(t, 'atmega328p');
-    const {observed} = run(source, {pins: {'19': false}, runs: 2});
-    assert.deepEqual(observed.runs.map(run => run.text), ['1\n8\nGPIO done\n', '1\n8\nGPIO done\n']);
-    for (const run of observed.runs) {
-        assert.equal(run.registers.B.ddr & 32, 32);
-        assert.equal(run.registers.B.port & 32, 32);
-        assert.equal(run.registers.C.ddr & 32, 0);
-        assert.equal(run.registers.C.port & 32, 32);
-        assert.equal(run.registers.C.pin & 32, 0);
-    }
-});
+        const run = await machine(t, target);
+        const {observed} = run(source, {pins: {'19': false}, runs: 2});
+        assert.deepEqual(observed.runs.map(run => run.text), ['1\n8\nGPIO done\n', '1\n8\nGPIO done\n']);
+        for (const run of observed.runs) {
+            assert.equal(run.registers.B.ddr & 32, 32);
+            assert.equal(run.registers.B.port & 32, 32);
+            assert.equal(run.registers.C.ddr & 32, 0);
+            assert.equal(run.registers.C.port & 32, 32);
+            assert.equal(run.registers.C.pin & 32, 0);
+        }
+    });
 
-test('ATmega328P generated waits hold a real GPIO pulse for the requested milliseconds', gate('atmega328p'), async t => {
-    const run = await machine(t, 'atmega328p');
-    for (const milliseconds of [0, 1, 7]) {
-        const source = `DEVICE UNO
+    test(`${target} generated waits hold a real GPIO pulse for the requested milliseconds`, gate(target), async t => {
+        const run = await machine(t, target);
+        for (const milliseconds of [0, 1, 7]) {
+            const source = `DEVICE ${device}
 PIN led = D13 OUTPUT
 WHEN flag clicked:
   turn on led
@@ -202,19 +205,20 @@ WHEN flag clicked:
   turn off led
   say "blink done"
 `;
-        const {observed} = run(source, {runs: 2});
-        for (const observedRun of observed.runs) {
-            assert.equal(observedRun.text, 'blink done\n');
-            const edges = observedRun.gpio.filter(edge => edge.bank === 'B' &&
-                (edge.ddr & 32) && ((edge.value ^ edge.previous) & 32));
-            assert.equal(edges.length, 2);
-            assert.equal(edges[0].value & 32, 32);
-            assert.equal(edges[1].value & 32, 0);
-            const cycles = edges[1].cycle - edges[0].cycle;
-            assert.ok(cycles >= milliseconds * 16000,
-                `GPIO pulse ${cycles} cycles is shorter than ${milliseconds} ms at 16 MHz`);
-            assert.ok(cycles <= milliseconds * 16050 + 1000,
-                `GPIO pulse ${cycles} cycles exceeds the qualified delay plus call overhead`);
+            const {observed} = run(source, {runs: 2});
+            for (const observedRun of observed.runs) {
+                assert.equal(observedRun.text, 'blink done\n');
+                const edges = observedRun.gpio.filter(edge => edge.bank === 'B' &&
+                    (edge.ddr & 32) && ((edge.value ^ edge.previous) & 32));
+                assert.equal(edges.length, 2);
+                assert.equal(edges[0].value & 32, 32);
+                assert.equal(edges[1].value & 32, 0);
+                const cycles = edges[1].cycle - edges[0].cycle;
+                assert.ok(cycles >= milliseconds * 16000,
+                    `GPIO pulse ${cycles} cycles is shorter than ${milliseconds} ms at 16 MHz`);
+                assert.ok(cycles <= milliseconds * 16050 + 1000,
+                    `GPIO pulse ${cycles} cycles exceeds the qualified delay plus call overhead`);
+            }
         }
-    }
-});
+    });
+}

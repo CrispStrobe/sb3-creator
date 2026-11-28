@@ -6,7 +6,7 @@ import {cowgolTargets} from '../src/utils/cowgol.js';
 
 const build = source => { const creator = new SB3Creator(); creator.parse(source); return creator; };
 const generate = (source, target) => build(source).generateCowgol(undefined, {target});
-const targets = ['z80-cpm', 'i8080-cpm', 'dos', 'riscv32', 'eater6502', 'atmega328p'];
+const targets = ['z80-cpm', 'i8080-cpm', 'dos', 'riscv32', 'eater6502', 'atmega328p', 'arduino-nano'];
 
 test('native profiles qualify declaration-free console Blocks for every actual compiler target', () => {
     for (const target of targets) {
@@ -22,14 +22,14 @@ test('native profiles qualify declaration-free console Blocks for every actual c
 
 test('native targets reject incompatible device declarations without executable output', () => {
     for (const [target, device] of [['z80-cpm', 'i8086'], ['i8080-cpm', 'eater6502'],
-        ['dos', 'z80'], ['riscv32', 'arduino-uno'], ['eater6502', 'atmega328p'], ['atmega328p', 'arduino-nano']]) {
+        ['dos', 'z80'], ['riscv32', 'arduino-uno'], ['eater6502', 'atmega328p'], ['atmega328p', 'arduino-nano'], ['arduino-nano', 'arduino-uno'], ['arduino-nano', 'atmega168p']]) {
         const result = generate(`DEVICE ${device}\nWHEN flag clicked:\n  say 1\n`, target);
         assert.equal(result.ok, false, target);
         assert.equal(result.cowgol, undefined);
         assert.match(result.reasons.join('; '), /cannot run DEVICE/);
     }
     for (const [target, device] of [['z80-cpm', 'z80'], ['i8080-cpm', 'z80'], ['dos', '8086'],
-        ['riscv32', 'rv32'], ['eater6502', 'eater6502'], ['atmega328p', 'atmega328p'], ['atmega328p', 'uno']]) {
+        ['riscv32', 'rv32'], ['eater6502', 'eater6502'], ['atmega328p', 'atmega328p'], ['atmega328p', 'uno'], ['arduino-nano', 'nano'], ['arduino-nano', 'arduino-nano']]) {
         const result = generate(`DEVICE ${device}\nWHEN flag clicked:\n  say 1\n`, target);
         assert.equal(result.ok, true, result.reasons.join('; '));
     }
@@ -58,13 +58,13 @@ test('native profiles reject canvas and unsupported language semantics before co
     }
 });
 
-test('native literal waits use the qualified Uno runtime only', () => {
+test('native literal waits use the qualified AVR board runtimes only', () => {
     const source = 'DEVICE UNO\nWHEN flag clicked:\n  wait 0.025 seconds\n  wait 0 seconds\n  say 42\n';
     const result = generate(source, 'atmega328p');
     assert.equal(result.ok, true, result.reasons.join('; '));
     assert.match(result.cowgol, /bw_delay\(25\)/);
     assert.match(result.cowgol, /bw_delay\(0\)/);
-    for (const target of targets.filter(target => target !== 'atmega328p')) {
+    for (const target of targets.filter(target => !['atmega328p', 'arduino-nano'].includes(target))) {
         const refused = generate('WHEN flag clicked:\n  wait 0.01 seconds\n', target);
         assert.equal(refused.ok, false);
         assert.equal(refused.cowgol, undefined);
@@ -99,7 +99,17 @@ test('native target metadata describes generator contracts without sharing mutab
     assert.equal(uno.clock, 16000000);
     assert.equal(uno.capabilities.delay, true);
     assert.equal(uno.capabilities.pullups, true);
-    assert.ok(metadata.filter(item => item !== uno).every(item => !item.capabilities.delay));
+    const nano = metadata.find(item => item.target === 'arduino-nano');
+    assert.deepEqual(nano.devices, ['arduino-nano']);
+    assert.equal(nano.clock, 16000000);
+    assert.equal(nano.mcu, 'atmega328p');
+    assert.deepEqual(nano.memory, {flashLimit: 30720, ramBytes: 2048, heapBytes: 512, stackReserve: 512});
+    assert.equal(uno.memory.flashLimit, 32256);
+    assert.equal(nano.capabilities.delay, true);
+    assert.equal(nano.capabilities.pullups, true);
+    assert.ok(metadata.filter(item => item !== uno && item !== nano).every(item => !item.capabilities.delay));
+    nano.memory.flashLimit = 32768;
+    assert.equal(cowgolTargets().find(item => item.target === 'arduino-nano').memory.flashLimit, 30720);
     uno.devices.push('arduino-nano'); uno.capabilities.canvas = true;
     assert.equal(generate('DEVICE NANO\nWHEN flag clicked:\n  say 1\n', 'atmega328p').ok, false);
     assert.equal(cowgolTargets().find(item => item.target === 'atmega328p').capabilities.canvas, false);
@@ -164,4 +174,28 @@ test('native helpers preserve block line mappings and default reversible source 
     assert.equal(original.profile, 'host-int32');
     assert.doesNotMatch(original.cowgol, /bw_checked_/);
     assert.equal(read(original.cowgol).ok, true);
+});
+
+test('classic Nano has an explicit board profile with bounded digital pins and waits', () => {
+    const source = 'DEVICE NANO\nCLOCK 16000000\nPIN led = D13 OUTPUT ACTIVE LOW\nPIN button = A5 INPUT ACTIVE LOW\nWHEN flag clicked:\n  turn on led\n  wait 0.007 seconds\n  toggle led\n  say read button\n';
+    const result = generate(source, 'arduino-nano');
+    assert.equal(result.ok, true, result.reasons.join('; '));
+    assert.match(result.cowgol, /DEVICE ARDUINO-NANO/);
+    assert.match(result.cowgol, /bw_pin_mode\(19, 2\)/);
+    assert.match(result.cowgol, /bw_delay\(7\)/);
+    assert.match(result.cowgol, /bw_digital_write\(13, 0\)/);
+    for (const pin of ['D0', 'D1']) {
+        const refused = generate(`DEVICE NANO\nPIN serial = ${pin} OUTPUT\nWHEN flag clicked:\n  say 1\n`, 'arduino-nano');
+        assert.equal(refused.ok, false);
+        assert.match(refused.reasons.join('; '), /reserves D0\/D1/);
+    }
+    for (const pin of ['A6', 'A7']) {
+        assert.throws(() => build(`DEVICE NANO\nPIN input = ${pin} INPUT\nWHEN flag clicked:\n  say 1\n`), /analog-input only/);
+        const refused = generate(`DEVICE NANO\nPIN input = ${pin} ANALOG\nWHEN flag clicked:\n  say 1\n`, 'arduino-nano');
+        assert.equal(refused.ok, false);
+        assert.equal(refused.cowgol, undefined);
+        assert.match(refused.reasons.join('; '), /not a digital mode/);
+    }
+    assert.equal(generate('DEVICE NANO\nCLOCK 8000000\nWHEN flag clicked:\n  say 1\n', 'arduino-nano').ok, false);
+    assert.equal(generate(source, 'atmega328p').ok, false, 'Nano cannot silently inherit the larger Uno flash region');
 });
