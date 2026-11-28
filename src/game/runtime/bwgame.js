@@ -280,12 +280,14 @@ class Sprite extends Target {
         this.pen = { down: false, size: 1, hue: 66.66, saturation: 100, brightness: 100, transparency: 0 };
     }
     // --- geometry
-    bounds () {
+    // whole=false: what the costume draws (manifest bounds; Scratch's silhouette bounds,
+    // used for touching, edges and bounce). whole=true: the full costume rectangle, which
+    // scratch-render uses to fence a sprite onto the stage (getFastBounds).
+    bounds (whole = false) {
         const c = this.costume;
         if (!c) return { left: this.x, right: this.x, top: this.y, bottom: this.y };
         const s = this.size / 100;
-        // the costume's drawn content (manifest bounds), else its whole canvas
-        const [bl, bt, br, bb] = c.bounds || [0, 0, c.width, c.height];
+        const [bl, bt, br, bb] = (!whole && c.bounds) || [0, 0, c.width, c.height];
         let deg = 0, flip = false;
         if (this.rotationStyle === 'all around') deg = this.direction - 90;
         else if (this.rotationStyle === 'left-right' && this.direction < 0) flip = true;
@@ -300,8 +302,9 @@ class Sprite extends Target {
         return { left, right, top, bottom };
     }
     _fenced (nx, ny) {
-        // scratch-render getFencedPositionOfDrawable: keep a sliver (≤15px) on stage.
-        const b = this.bounds();
+        // scratch-render getFencedPositionOfDrawable: keep a sliver (≤15px) on stage,
+        // measured on the full costume rectangle.
+        const b = this.bounds(true);
         const dx = nx - this.x, dy = ny - this.y;
         const FW = 15;
         const sx = (STAGE_W / 2) - Math.min(FW, Math.floor((b.right - b.left) / 2));
@@ -430,7 +433,8 @@ class Sprite extends Target {
         const py = ((-dx * sin) + (dy * cos)) / s;
         if (flip) px = -px;
         const u = Math.floor((px + c.cx) * r.scale), v = Math.floor((c.cy - py) * r.scale);
-        return (u < 0 || v < 0 || u >= r.width || v >= r.height) ? null : (v * r.width) + u;
+        // NaN-safe (an unset mouse position maps to NaN): only in-range indices pass.
+        return (u >= 0 && v >= 0 && u < r.width && v < r.height) ? (v * r.width) + u : null;
     }
     // RGBA at a stage point (after ghost), or null where this sprite draws nothing.
     pixelAt (sx, sy) {

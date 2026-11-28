@@ -89,6 +89,10 @@ window.ORACLE = {
         Date.now = () => now;
         window.setTimeout = (fn, ms = 0, ...a) => { const id = tid++; timers.set(id, { start: now, ms: Number(ms || 0), fn: () => fn(...a) }); return id; };
         window.clearTimeout = id => { timers.delete(id); };
+        // The project timer reads runtime.currentMSecs, refreshed only inside _step; the
+        // green flag resets the timer before the first step, so align it with the
+        // virtual clock now (otherwise it holds a real-time value from loading).
+        vm.runtime.updateCurrentMSecs();
         const out = [];
         try {
             const sample = new Set(trace.sample || []);

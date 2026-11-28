@@ -1090,6 +1090,19 @@ def color_to_rgb(c):
     return [(n >> 16) & 0xFF, (n >> 8) & 0xFF, n & 0xFF, a if a > 0 else 255]
 
 
+def color_matches(rgb, want):
+    """Scratch's touching-colour tolerance: top 5 bits of red and green, top 4 of blue."""
+    return ((rgb[0] & 0xF8) == (want[0] & 0xF8)) and ((rgb[1] & 0xF8) == (want[1] & 0xF8)) and \
+        ((rgb[2] & 0xF0) == (want[2] & 0xF0))
+
+
+def blend(dst, src):
+    """Source-over blend of an RGBA pixel onto an opaque RGB colour (integer result)."""
+    a = src[3] / 255
+    return [int(_jsround((src[0] * a) + (dst[0] * (1 - a)))), int(_jsround((src[1] * a) + (dst[1] * (1 - a)))),
+            int(_jsround((src[2] * a) + (dst[2] * (1 - a))))]
+
+
 # ---------------------------------------------------------------- key names
 
 _KEY_ALIASES = {' ': 'space', 'arrowleft': 'left arrow', 'arrowright': 'right arrow', 'arrowup': 'up arrow',
@@ -1368,7 +1381,7 @@ class Sprite(Target):
     def _target_xy(self, what):
         w = str_(what)
         if w == '_mouse_':
-            return [self.game.mouse.x, self.game.mouse.y]
+            return [num(self.game.mouse.x), num(self.game.mouse.y)]
         if w == '_random_':
             rx = _jsround(STAGE_W * (self.game.random() - 0.5))
             ry = _jsround(STAGE_H * (self.game.random() - 0.5))
@@ -1527,24 +1540,118 @@ class Sprite(Target):
     def go_backward(self, n):
         self.game._layer(self, 'backward', num(n))
 
+    # --- pixels (costume rasters; see src/game/raster.js)
+    def _raster(self):
+        """The costume raster for the current costume, or None (box geometry is used then)."""
+        c = self.costume
+        return self.game.raster(c['raster']) if (c and c.get('raster')) else None
+
+    def _raster_px(self, sx, sy, r):
+        """Map a stage point to the costume raster's pixel index; None when off the raster."""
+        c = self.costume
+        s = self.size / 100
+        deg = 0
+        flip = False
+        if self.rotation_style == 'all around':
+            deg = self.direction - 90
+        elif self.rotation_style == 'left-right' and self.direction < 0:
+            flip = True
+        rad = _radians(-deg)
+        cos = _cos(rad)
+        sin = _sin(rad)
+        dx = sx - self.x
+        dy = sy - self.y
+        px = _jsdiv((dx * cos) + (dy * sin), s)
+        py = _jsdiv((-dx * sin) + (dy * cos), s)
+        if flip:
+            px = -px
+        u = _jsfloor((px + c['cx']) * r['scale'])
+        v = _jsfloor((c['cy'] - py) * r['scale'])
+        if not (u >= 0 and v >= 0 and u < r['width'] and v < r['height']):
+            return None
+        return int(v) * r['width'] + int(u)
+
+    def pixel_at(self, sx, sy):
+        """RGBA at a stage point (after ghost), or None where this sprite draws nothing."""
+        if not (_is_num(sx) and _is_num(sy)):
+            return None  # mouse position not set yet
+        r = self._raster()
+        if not r:
+            b = self.bounds()
+            return (0, 0, 0, 255) if (sx >= b.left and sx <= b.right and sy >= b.bottom and sy <= b.top) else None
+        i = self._raster_px(sx, sy, r)
+        if i is None:
+            return None
+        px = r['rgba']
+        a = px[i * 4 + 3]
+        if a == 0:
+            return None
+        ghost = _jsmax(0, _jsmin(100, _truthy_num(self.effects.get('ghost', 0))))
+        return (px[i * 4], px[i * 4 + 1], px[i * 4 + 2], int(_jsround(a * (1 - (ghost / 100)))))
+
+    def _each_point(self, b, fn):
+        """Stage pixel centres inside a box, clipped to the stage, as Scratch's CPU checks do."""
+        x0 = _jsmax(_jsfloor(b.left), -STAGE_W / 2)
+        x1 = _jsmin(_jsceil(b.right), STAGE_W / 2)
+        y0 = _jsmax(_jsfloor(b.bottom), -STAGE_H / 2)
+        y1 = _jsmin(_jsceil(b.top), STAGE_H / 2)
+        y = y1 - 1
+        while y >= y0:
+            x = x0
+            while x < x1:
+                if fn(x + 0.5, y + 0.5):
+                    return True
+                x += 1
+            y -= 1
+        return False
+
     # --- sensing
     def touching(self, what):
         w = str_(what)
         if not self.visible:
             return False
         b = self.bounds()
+        pixels = bool(self._raster())
         if w == '_mouse_':
             m = self.game.mouse
-            return m.x >= b.left and m.x <= b.right and m.y >= b.bottom and m.y <= b.top
+            if m.x is UNDEFINED:
+                return False
+            if not pixels:
+                return m.x >= b.left and m.x <= b.right and m.y >= b.bottom and m.y <= b.top
+            return self.pixel_at(m.x, m.y) is not None
         if w == '_edge_':
             return b.left < -STAGE_W / 2 or b.right > STAGE_W / 2 or b.top > STAGE_H / 2 or b.bottom < -STAGE_H / 2
         for o in self.game.sprites_named(w):
             if o is self or not o.visible or not o.alive:
                 continue
             ob = o.bounds()
-            if b.left < ob.right and b.right > ob.left and b.bottom < ob.top and b.top > ob.bottom:
+            if not (b.left < ob.right and b.right > ob.left and b.bottom < ob.top and b.top > ob.bottom):
+                continue
+            if not pixels or not o._raster():
+                return True
+            box = Bounds(_jsmax(b.left, ob.left), _jsmin(b.right, ob.right), _jsmin(b.top, ob.top),
+                         _jsmax(b.bottom, ob.bottom))
+            if self._each_point(box, lambda x, y: self.pixel_at(x, y) is not None and o.pixel_at(x, y) is not None):
                 return True
         return False
+
+    def touching_color(self, color):
+        if not self.visible or not self._raster():
+            return False
+        want = color_to_rgb(color)
+        return self._each_point(self.bounds(), lambda x, y: self.pixel_at(x, y) is not None and
+                                color_matches(self.game.composite_at(x, y, self), want))
+
+    def color_touching_color(self, mine, other):
+        if not self.visible or not self._raster():
+            return False
+        a = color_to_rgb(mine)
+        b = color_to_rgb(other)
+
+        def hit(x, y):
+            p = self.pixel_at(x, y)
+            return p is not None and color_matches(p, a) and color_matches(self.game.composite_at(x, y, self), b)
+        return self._each_point(self.bounds(), hit)
 
     # --- pen
     def pen_down(self):
@@ -1635,8 +1742,10 @@ class Mouse:
     __slots__ = ('x', 'y', 'down')
 
     def __init__(self):
-        self.x = 0.0
-        self.y = 0.0
+        # scratch-vm leaves the mouse position undefined until the first mouse event:
+        # `mouse x` then compares as the string "undefined" and nothing touches the pointer.
+        self.x = UNDEFINED
+        self.y = UNDEFINED
         self.down = False
 
 
@@ -1672,8 +1781,9 @@ class AskEntry:
 
 class Game:
     def __init__(self, manifest, *, deterministic=True, realtime=False, seed=None, pen=None, audio=None,
-                 on_ask=None, on_error=None):
+                 on_ask=None, on_error=None, rasters=None):
         self.manifest = manifest
+        self.rasters = rasters or {}
         self.contract = CONTRACT
         self.deterministic = deterministic is not False and realtime is not True
         self.seed = 1 if seed is None else seed
@@ -1712,6 +1822,34 @@ class Game:
         self.clone_count = 0
         self.stopped = False
         self.pen.clear()
+
+    # --- costume rasters (rasters: {'assets/raster/x.bwr': {width, height, scale, rgba}})
+    def raster(self, file):
+        return self.rasters.get(file) or None
+
+    def composite_at(self, x, y, except_):
+        """The colour Scratch would read at a stage point with `except_` hidden: backdrop,
+        pen layer (when the host can sample it) and every other visible sprite, blended."""
+        rgb = [255, 255, 255]
+        bd = self.stage.costume
+        r = self.raster(bd['raster']) if (bd and bd.get('raster')) else None
+        if r:
+            u = _jsfloor((x + bd['cx']) * r['scale'])
+            v = _jsfloor((bd['cy'] - y) * r['scale'])
+            if u >= 0 and v >= 0 and u < r['width'] and v < r['height']:
+                i = (int(v) * r['width'] + int(u)) * 4
+                rgb = blend(rgb, r['rgba'][i:i + 4])
+        sample = getattr(self.pen, 'sample', None)
+        pen = sample(x, y) if sample else None
+        if pen:
+            rgb = blend(rgb, pen)
+        for s in self.layers:
+            if s is except_ or not s.alive or not s.visible:
+                continue
+            p = s.pixel_at(x, y)
+            if p:
+                rgb = blend(rgb, p)
+        return rgb
 
     # --- registration (called by generated code)
     def on(self, target_name, hat, arg, fn):
@@ -1855,9 +1993,7 @@ class Game:
         for s in list(reversed(self.layers)):
             if not s.alive or not s.visible:
                 continue
-            b = s.bounds()
-            m = self.mouse
-            if m.x >= b.left and m.x <= b.right and m.y >= b.bottom and m.y <= b.top:
+            if s.pixel_at(self.mouse.x, self.mouse.y) is not None:
                 self._start(lambda sc: sc.hat == 'clicked', True, s)
                 return
         self._start(lambda sc: sc.hat == 'clicked' and sc.target == '_stage_', True, self.stage)
@@ -2345,6 +2481,37 @@ def load_manifest(path):
         return json.load(fh)
 
 
+def read_raster(data):
+    """Decode a BWR1 costume raster: '<4sHHf' header (magic, width, height, f32 scale)
+    followed by a zlib stream of width*height*4 RGBA bytes."""
+    import struct
+    import zlib
+    magic, w, h, scale = struct.unpack('<4sHHf', data[:12])
+    if magic != b'BWR1':
+        raise ValueError('not a BWR1 raster')
+    rgba = zlib.decompress(data[12:])
+    if len(rgba) != w * h * 4:
+        raise ValueError('raster size mismatch')
+    return {'width': w, 'height': h, 'scale': scale, 'rgba': rgba}
+
+
+def load_rasters(manifest, base_dir):
+    """{manifest path: raster} for every costume whose manifest entry has 'raster'."""
+    import os
+    out = {}
+    for t in [manifest['stage']] + list(manifest['sprites']):
+        for c in t.get('costumes') or []:
+            f = c.get('raster')
+            if not f or f in out:
+                continue
+            try:
+                with open(os.path.join(base_dir, f), 'rb') as fh:
+                    out[f] = read_raster(fh.read())
+            except (OSError, ValueError) as e:
+                sys.stderr.write('[bwgame] raster %s: %s\n' % (f, e))
+    return out
+
+
 def load_setup(export_dir):
     """Import <export_dir>/game.py and return its setup(game). Makes `import bwgame` resolve to
     this very module, so WAIT/StopThread identities are shared."""
@@ -2529,6 +2696,16 @@ class _Renderer:
                     pg.draw.circle(surf, c, (round(q[0]), round(q[1])), wid / 2)
         self._with_alpha(col, draw)
 
+    def pen_sample(self, x, y):
+        if not (_is_finite(x) and _is_finite(y)):
+            return None
+        u = int(_jsfloor((x + STAGE_W / 2) * self.scale))
+        v = int(_jsfloor((STAGE_H / 2 - y) * self.scale))
+        if u < 0 or v < 0 or u >= self.W or v >= self.H:
+            return None
+        c = self.pen_layer.get_at((u, v))
+        return (c.r, c.g, c.b, c.a) if c.a else None
+
     def pen_stamp(self, s):
         if s.visible or True:
             self.draw_sprite(self.pen_layer, s)
@@ -2664,6 +2841,10 @@ class _WindowPen:
         if self.r:
             self.r.pen_stamp(s)
 
+    def sample(self, x, y):
+        """Pen pixel at a stage point for touching colour (RGBA), or None where nothing is drawn."""
+        return self.r.pen_sample(x, y) if self.r else None
+
 
 class _WindowAudio:
     def __init__(self, pygame, game_dir):
@@ -2753,7 +2934,7 @@ def run_window(manifest_path, setup, *, scale=1, seed=None, title=None, determin
     pen.r = renderer
     audio = _WindowAudio(pygame, game_dir)
     game = Game(manifest, deterministic=deterministic, seed=seed if seed is not None else (trace or {}).get('seed'),
-                pen=pen, audio=audio)
+                pen=pen, audio=audio, rasters=load_rasters(manifest, game_dir))
     setup(game)
     events = (trace or {}).get('events') or []
     if trace is None:
@@ -2833,7 +3014,7 @@ def _main(argv):
         manifest = load_manifest(os.path.join(export_dir, 'manifest.json'))
         with open(trace_path, 'r', encoding='utf-8') as fh:
             trace = json.load(fh)
-        game = Game(manifest, seed=trace.get('seed'))
+        game = Game(manifest, seed=trace.get('seed'), rasters=load_rasters(manifest, export_dir))
         setup(game)
         out = js_json(game.run_trace(trace)) + '\n'
         sys.stdout.buffer.write(out.encode('utf-8', 'surrogatepass'))
