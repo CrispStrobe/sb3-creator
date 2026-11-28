@@ -66,6 +66,21 @@ are different. Math domain errors remain BASIC errors. The BASIC generator's
 `ceiling` lowering is `-INT(-x)`, which is correct for positive and negative
 fractions and evaluates an electrical input only once.
 
+## Added circuit profiles
+
+`DEVICE PYBADGE` can now use D2, D3, D5, D6, D9–D13 and A0–A5 in both source
+directions. Digital labels retain their Arduino digital IDs; analog-labelled
+pads use A0 = 14 through A5 = 19 as digital GPIO. SDA/SCL, STEMMA aliases and
+nonexistent D/A labels are refused. PyBadge LC's virtual pins do not inherit
+this physical profile. The board host also exposes independent RX/TX/FREE and
+SPI pad names, but those six labels remain outside the source parser's narrower
+existing vocabulary.
+
+`DEVICE STC15F2K60S2` retains its `8 * port + bit` logical numbering. Its
+additional DIP-40 P4.1/P4.2/P4.4/P4.5 and P5.4/P5.5 pads therefore use
+33/34/36/37 and 44/45. Source numbering is shared with the generic STC profile;
+the connected circuit host still checks the exact package's exposed pads.
+
 ## Verification
 
 The focused source and CLI boundary suite is:

@@ -51,7 +51,7 @@ export function validateCrispBasicProject(project) {
 export const CRISPBASIC_DIGITAL_DEVICES = Object.freeze([
     'arduino-uno', 'arduino-nano', 'arduino-mega', 'pico',
     'stc12c5a60s2', 'stc12c5a16s2', 'stc89c52rc', 'stc89c52', 'stc15f2k60s2', 'stc15w408as',
-    'microbit', 'calliopemini', 'cpx', 'attiny85', 'attiny88', 'stm32f030', 'esp8266', 'eater6502'
+    'microbit', 'calliopemini', 'cpx', 'pybadge', 'attiny85', 'attiny88', 'stm32f030', 'esp8266', 'eater6502'
 ]);
 export const hasCrispBasicPinMap = device => CRISPBASIC_DIGITAL_DEVICES.includes(String(device).toLowerCase());
 export function crispBasicLogicalPin(device, terminal) {
@@ -70,6 +70,11 @@ export function crispBasicLogicalPin(device, terminal) {
     } else if (device === 'microbit' && (m = /^P(0|1|2|8|12|16)$/.exec(where))) return Number(m[1]);
     else if (device === 'calliopemini' && (m = /^P([0-3])$/.exec(where))) return Number(m[1]);
     else if (device === 'cpx' && (m = /^A([0-7])$/.exec(where))) return Number(m[1]);
+    // Keep the source dialect's existing D/A vocabulary. The circuit profile
+    // also exposes named RX/TX/FREE/SPI pads; they are not parser aliases for
+    // these terminals, and SDA/SCL overlap other modeled electrical pads.
+    else if (device === 'pybadge' && (m = /^D(2|3|5|6|9|10|11|12|13)$/.exec(where))) return Number(m[1]);
+    else if (device === 'pybadge' && (m = /^A([0-5])$/.exec(where))) return 14 + Number(m[1]);
     else if (device === 'attiny85' && (m = /^PB([0-4])$/.exec(where))) return 8 + Number(m[1]);
     else if (device === 'attiny88' && /^(PB[0-7]|PC[0-5]|PC7|PD[0-7])$/.test(where)) return (where.charCodeAt(1) - 65) * 8 + Number(where.slice(2));
     else if (device === 'stm32f030' && /^(PA[0-7]|PA9|PA10|PB1)$/.test(where)) return (where.charCodeAt(1) - 65) * 16 + Number(where.slice(2));
