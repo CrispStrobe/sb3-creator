@@ -85,7 +85,7 @@
       "id": "capacitor_7",
       "kind": "capacitor",
       "params": {
-        "farads": 0.00001
+        "farads": 1e-05
       },
       "terminals": [
         "a",
@@ -123,6 +123,18 @@
       "x": 300,
       "y": 400,
       "rotation": 0
+    },
+    {
+      "id": "retrigger_diode",
+      "kind": "diode",
+      "params": {
+        "vf": 0.35,
+        "is": 1e-07,
+        "n": 1.15,
+        "rs": 0.5
+      },
+      "x": 370,
+      "y": 230
     }
   ],
   "wires": [
@@ -247,18 +259,6 @@
       }
     },
     {
-      "id": "wire_24",
-      "netId": "net_13",
-      "from": {
-        "part": "timer_555_3",
-        "terminal": "control"
-      },
-      "to": {
-        "part": "gnd_2",
-        "terminal": "gnd"
-      }
-    },
-    {
       "id": "wire_26",
       "netId": "net_25",
       "from": {
@@ -293,8 +293,7 @@
         "part": "gnd_2",
         "terminal": "gnd"
       }
-    }
-    ,
+    },
     {
       "id": "wire_30",
       "netId": "net_21",
@@ -317,6 +316,30 @@
       "to": {
         "part": "gnd_2",
         "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_retrigger_a",
+      "netId": "net_21",
+      "from": {
+        "part": "capacitor_7",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "retrigger_diode",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "wire_retrigger_k",
+      "netId": "net_16",
+      "from": {
+        "part": "timer_555_3",
+        "terminal": "trigger"
+      },
+      "to": {
+        "part": "retrigger_diode",
+        "terminal": "cathode"
       }
     }
   ],

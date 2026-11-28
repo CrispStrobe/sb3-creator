@@ -10,10 +10,10 @@
 ## Observable behaviour
 - Siren: the pitch glides up for about 380 ms and down for about 285 ms, over and over.
 - Canary: it glides up for 378 ms and snaps back in 3 ms: a chirp, again and again.
-- Bottom of the ramp about 551 Hz, top about 726 Hz.
+- Bottom of the ramp about 513 Hz, top about 684 Hz.
 
 ## Measured on the engine
-`test/lab-circuits-r6e.test.mjs`: siren climb 380 ms, fall 285 ms; canary climb 378 ms, drop 3 ms (ramp watched with SOUND off). Pitch at the bottom 551 Hz with the base return at 3.03 V, at the top 726 Hz at 7.14 V (SOUND on for 10 ms at each point).
+`test/lab-circuits-r6e.test.mjs`: siren climb 380 ms, fall 285 ms; canary climb 378 ms, drop 3 ms (ramp watched with SOUND off). Pitch at the bottom 513 Hz with the base return at 3.03 V, at the top 684 Hz at 7.14 V (SOUND on for 10 ms at each point, the tone read before SOUND opens again).
 
 ## What this verifies
 1. A slow oscillator can steer a fast one: a voltage-controlled oscillator.
@@ -33,7 +33,7 @@ net resistor_12.b V 3.03 +-0.02
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@2965782` and `bw-circuit-ui@e3441d2` — the revisions pinned in
+> `bw-board@d21d6d8` and `bw-circuit-ui@d9e0982` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **18 of this page's 31** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;

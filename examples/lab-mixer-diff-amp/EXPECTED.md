@@ -27,9 +27,9 @@ net sa612_20.osc_b V 5.053 +-0.02
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@2965782` and `bw-circuit-ui@e3441d2` — the revisions pinned in
+> `bw-board@d21d6d8` and `bw-circuit-ui@d9e0982` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
-> **17 of this page's 36** numeric claims against that engine
+> **17 of this page's 35** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs lab-mixer-diff-amp` prints them one by one.
 <!-- engine-provenance -->

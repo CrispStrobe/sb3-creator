@@ -15,30 +15,31 @@ GLOBAL level
 STAGE:
   # LED bargraph showcase: 8-LED level meter driven by a pot.
   WHEN flag clicked:
+    # The package anodes connect to VCC on every variant. A low cathode lights a segment.
     FOREVER:
       set level to read pot / 128
-      turn off led0
-      turn off led1
-      turn off led2
-      turn off led3
-      turn off led4
-      turn off led5
-      turn off led6
-      turn off led7
+      set led0 to 1
+      set led1 to 1
+      set led2 to 1
+      set led3 to 1
+      set led4 to 1
+      set led5 to 1
+      set led6 to 1
+      set led7 to 1
       IF level > 0 THEN:
-        turn on led0
+        set led0 to 0
       IF level > 1 THEN:
-        turn on led1
+        set led1 to 0
       IF level > 2 THEN:
-        turn on led2
+        set led2 to 0
       IF level > 3 THEN:
-        turn on led3
+        set led3 to 0
       IF level > 4 THEN:
-        turn on led4
+        set led4 to 0
       IF level > 5 THEN:
-        turn on led5
+        set led5 to 0
       IF level > 6 THEN:
-        turn on led6
+        set led6 to 0
       IF level > 7 THEN:
-        turn on led7
+        set led7 to 0
       wait 0.1 seconds

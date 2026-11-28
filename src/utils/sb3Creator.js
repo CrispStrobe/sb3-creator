@@ -6896,7 +6896,8 @@ class SB3Creator {
         if ((match = matchTopLevel(line, /^print\s+(.+)$/i))) {
             const { id, block } = cmd('stc12_print');
             block[id].inputs.VALUE = val(match[1]);
-            block[id].fields.MODE = ['number', null];
+            // A reporter can yield text or a number when evaluated in the VM.
+            block[id].fields.MODE = ['auto', null];
             return ret(block);
         }
         // ---- micro:bit+ display group (docs/microbitplus/DUAL-LOWERING-ORACLE.md D1–D5).
@@ -11103,6 +11104,14 @@ class SB3Creator {
             if (type === 12 || type === 13) return this.varRef(a);
             return /^-?\d+(\.\d+)?$/.test(String(a)) ? String(a) : this.pyStr(a);
         }
+        // Boolean reporters can occupy ordinary Scratch value sockets too.
+        // Owned-console admission promises these opcodes; use their existing
+        // condition lowering instead of jsRep's unsupported-value fallback.
+        // Keep the legacy targets' source unchanged until separately adopted.
+        if (this._ownedJsConsole && ['operator_gt', 'operator_lt', 'operator_equals',
+            'operator_and', 'operator_or', 'operator_not'].includes(blocks[inner]?.opcode)) {
+            return this.jsCond(inner, blocks);
+        }
         return this.jsRep(blocks[inner], blocks);
     }
 
@@ -11253,10 +11262,14 @@ class SB3Creator {
             case 'control_repeat_until': return block(`while (!(${cond()})) {`, 'SUBSTACK');
             case 'control_if': return block(`if (${cond()}) {`, 'SUBSTACK');
             case 'control_if_else': return [pad + `if (${cond()}) {`, ...sub('SUBSTACK'), pad + '} else {', ...sub('SUBSTACK2'), pad + '}'];
-            case 'control_wait': return line(`scratch.wait(${v('DURATION')});`);
+            case 'control_wait': return line(this._ownedJsConsole
+                ? `await codeRun.sleep(Number(${v('DURATION')}) * 1000);`
+                : `scratch.wait(${v('DURATION')});`);
             case 'control_wait_until': return line(`scratch.wait_until(${cond()});`);
             case 'control_stop': return f('STOP_OPTION') === 'this script' ? line('return;') : line(this.scratchCall(b, blocks, this.jsVal).call + ';');
-            case 'sensing_askandwait': this._jsUses.answer = true; return line(`answer = prompt(String(${v('QUESTION')}));`);
+            case 'sensing_askandwait': this._jsUses.answer = true; return line(this._ownedJsConsole
+                ? `answer = await codeRun.input(String(${v('QUESTION')}));`
+                : `answer = prompt(String(${v('QUESTION')}));`);
             case 'data_setvariableto': return line(`${this.varRef(f('VARIABLE'))} = ${v('VALUE')};`);
             case 'data_changevariableby': return line(`${this.varRef(f('VARIABLE'))} += ${v('VALUE')};`);
             case 'data_addtolist': return line(`${L('LIST')}.push(${v('ITEM')});`);
@@ -11274,6 +11287,7 @@ class SB3Creator {
                     args.push(tok === '%b' ? this.jsCond(input[1], blocks) : this.jsVal(input, blocks));
                     return '';
                 });
+                if (this._ownedJsConsole) args.unshift('codeRun');
                 const fn = this.pyName(this._curPrefix + this.pyProcRaw(m.proccode));
                 return line(`${this._async ? 'await ' : ''}${fn}(${args.join(', ')});`);
             }
@@ -11290,12 +11304,62 @@ class SB3Creator {
         }
     }
 
+    // This opt-in is a console lifetime contract, not a stage/game exporter.
+    // Validate the whole supplied graph (including disconnected blocks) before
+    // emitting anything: an unknown opcode must not become a silent stub here.
+    ownedJavaScriptConsole(project, opts) {
+        if (!opts || opts.execution === undefined) return false;
+        const refuse = reason => { throw new Error(`owned-console-v1: ${reason}`); };
+        if (opts.execution !== 'owned-console-v1') refuse(`unknown execution contract ${String(opts.execution)}`);
+        if (opts.async !== true) refuse('requires async: true');
+        if (opts.events) refuse('event registration requires a separate event-program lifetime');
+        if (opts.driver !== undefined && opts.driver !== 'shim') refuse('only the console shim driver is supported');
+        const admitted = new Set([
+            'event_whenflagclicked', 'procedures_definition', 'procedures_prototype', 'procedures_call',
+            'argument_reporter_string_number', 'argument_reporter_boolean',
+            'control_repeat', 'control_if', 'control_if_else', 'control_wait',
+            'looks_say', 'looks_think', 'sensing_askandwait', 'sensing_answer',
+            'data_setvariableto', 'data_changevariableby', 'data_addtolist', 'data_deleteoflist',
+            'data_deletealloflist', 'data_insertatlist', 'data_replaceitemoflist',
+            'data_itemoflist', 'data_lengthoflist', 'data_listcontainsitem',
+            'operator_add', 'operator_subtract', 'operator_multiply', 'operator_divide', 'operator_mod',
+            'operator_random', 'operator_round', 'operator_mathop', 'operator_join', 'operator_letter_of',
+            'operator_length', 'operator_contains', 'operator_gt', 'operator_lt', 'operator_equals',
+            'operator_and', 'operator_or', 'operator_not'
+        ]);
+        for (const target of project.targets || []) {
+            for (const [id, block] of Object.entries(target.blocks || {})) {
+                const opcode = block && block.opcode;
+                const where = `${String(target.name || 'target')} / ${id}`;
+                if (!admitted.has(opcode)) refuse(`unsupported block ${String(opcode)} at ${where}`);
+                if (opcode === 'procedures_prototype' && block.mutation &&
+                    (block.mutation.warp === 'true' || block.mutation.warp === true)) {
+                    refuse(`run-without-screen-refresh procedure at ${where} requires a scheduler contract`);
+                }
+                if (opcode === 'operator_mathop' && ![
+                    'abs', 'floor', 'ceiling', 'sqrt', 'sin', 'cos', 'tan', 'ln', 'log', 'e ^', '10 ^'
+                ].includes(block.fields && block.fields.OPERATOR && block.fields.OPERATOR[0])) {
+                    refuse(`unsupported math function at ${where}`);
+                }
+            }
+        }
+        return true;
+    }
+
     generateJavaScript(project = this.project, opts = {}) {
+        this._ownedJsConsole = this.ownedJavaScriptConsole(project, opts);
         this._driverPins = (project.stc && project.stc.pins) || null;
         this._driverStc = project.stc || null;  // PORT/PART tables for the stc12 driver
         this._nativePinExpr = null;   // MicroPython-only; must not leak in here
         this._nativeScratchExpr = null;
         this._pyNames = new Map();
+        if (this._ownedJsConsole) {
+            // A learner variable or procedure argument named codeRun must not
+            // replace the injected owner. Reserve the console's other bindings
+            // and generated expression helpers for the same reason.
+            for (const name of ['codeRun', 'console', 'scratch', 'Math', 'Number', 'String', 'Error', 'Proxy',
+                'answer', '_eq', '_truthy', '_rand']) this._pyNames.set(Symbol(name), name);
+        }
         this._jsUses = { rand: false, eq: false, truthy: false, answer: false, fact: false, arrays: false, sumdigits: false, multiple: false };
         this._runtimesUsed = new Set();
         this._async = !!(opts && opts.async);
@@ -11346,6 +11410,7 @@ class SB3Creator {
                     const proto = blocks[b.inputs.custom_block[1]];
                     const m = proto.mutation;
                     const argNames = JSON.parse(m.argumentnames || '[]').map((n) => this.pyName(n));
+                    if (this._ownedJsConsole) argNames.unshift('codeRun');
                     const fn = this.pyName(pfx + this.pyProcRaw(m.proccode));
                     const marker = `scratch.defblock(${this.pyStr(m.proccode)}, ${m.warp === 'true' ? 1 : 0});`;
                     defs.push([marker, `${af}function ${fn}(${argNames.join(', ')}) {`, ...this.jsStackFrom(b.next, blocks, 1), '}'].join('\n'));
@@ -11355,11 +11420,11 @@ class SB3Creator {
                     // A comment on the hat belongs to the script, and was being dropped.
                     const note = this.codeCommentLines(Object.keys(blocks)
                         .find((k) => blocks[k] === b), '', '//');
-                    let code = [...note, `${af}function ${name}() {`,
+                    let code = [...note, `${af}function ${name}(${this._ownedJsConsole ? 'codeRun' : ''}) {`,
                         ...this.jsStackFrom(b.next, blocks, 1), '}'].join('\n');
                     if (!isFlag) code = `// ${this.decompileHat(b, blocks)}  (event handler — call it when that event happens)\n` + code;
                     defs.push(code);
-                    if (isFlag) flagCalls.push(`${name}();`);
+                    if (isFlag) flagCalls.push(this._ownedJsConsole ? `codeRun.spawn(${name});` : `${name}();`);
                 }
             }
             bodyBlocks.push({ markers: this.scratchStructMarkers(t).map((l) => l + ';'), defs });
@@ -11369,8 +11434,20 @@ class SB3Creator {
         const out = [];
         out.push('// Generated by Brickwright — blocks → JavaScript.');
         out.push('// Scratch blocks (motion/looks/sensing/…) map to a `scratch` runtime object;');
-        out.push('// sprite structure is marked by scratch.sprite()/costume() so it round-trips to blocks.');
+        out.push(this._ownedJsConsole
+            ? '// Structure markers are retained; the current JS reader does not admit this async contract.'
+            : '// sprite structure is marked by scratch.sprite()/costume() so it round-trips to blocks.');
         out.push('');
+        if (this._ownedJsConsole) {
+            out.push('// owned-console-v1: registered async flag tasks, awaited input and finite waits.');
+            out.push('// Console preview only; no stage, events, hardware or game scheduler.');
+            out.push('if (typeof codeRun === "undefined" || !codeRun || codeRun.version !== 1 ||');
+            out.push('    typeof codeRun.spawn !== "function" || typeof codeRun.input !== "function" ||');
+            out.push('    typeof codeRun.sleep !== "function") {');
+            out.push('    throw new Error("This generated program requires the owned-console-v1 codeRun API.");');
+            out.push('}');
+            out.push('');
+        }
         // `is multiple of` gets its own function: `x % y === 0` is a different
         // block that means the same thing, and the way back cannot guess which.
         if (this._jsUses.multiple) out.push('function _multiple(a, b) { return Number(b) !== 0 && Number(a) % Number(b) === 0; }');
@@ -11400,7 +11477,7 @@ class SB3Creator {
         if (eventRegs.length || flagCalls.length) {
             out.push('// run');
             out.push(...eventRegs);
-            out.push(...flagCalls.map((c) => (this._async ? `(async () => { await ${c} })();` : c)));
+            out.push(...flagCalls.map((c) => (this._async && !this._ownedJsConsole ? `(async () => { await ${c} })();` : c)));
         }
         return out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
     }
@@ -17390,6 +17467,11 @@ class SB3Creator {
         // The ATtinys' print/ask: a software UART on SOFT_SERIAL_PINS.
         this._cSoftSerial = (this._cTiny85 || this._cTiny88)
             ? SB3Creator.SOFT_SERIAL_PINS[String(device || '').toLowerCase()] || null : null;
+        if (part?.core === 'atmega32u4') {
+            const reason = 'Use an Arduboy sketch or a compiled .hex to run on Arduboy.';
+            this.cWarn(reason);
+            return `/* ${reason} */\n`;
+        }
         if (part && part.core && part.core !== '8051' && part.core !== 'arduino'
             && part.core !== 'rp2040' && part.core !== 'w65c02' && part.core !== 'z80'
             && part.core !== 'i8086') {
@@ -22807,6 +22889,13 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
     // is the LED pin on the AVR boards, poison for an open-drain line.
     // Reserve the pair up front so no other pin is allocated onto it.
     const pinLnames = new Set(stc.pins.map((p) => String(p.name).toLowerCase()));
+    // An explicit servo channel and its conventional signal declaration
+    // stay on the same hardware output as the firmware driver. Older
+    // programs with a plain GPIO named servo keep their ordinary mapping.
+    const servoOne = used.servo && stc.pins.some(p => p.name.toLowerCase() === 'servo' && p.direction === 'output')
+        && stc.parts?.some(p => p.type === 'servo' && p.channel === 1);
+    const servoPin = servoOne && ({8051: 'P1.3', avr: device === 'arduino-mega' ? 'D11' : 'D9', arm: 'GP16'})[core];
+    if (servoPin) taken.add(servoPin);
     const hasI2cPart = (stc.parts || []).some((pt) => PIN_ROLE_PARTS[pt.type] && PIN_ROLE_PARTS[pt.type].bus === 'i2c');
     const i2cConv = (pinLnames.has('sda') && pinLnames.has('scl')) || hasI2cPart
         ? SB3Creator.I2C_PINS[device] : null;
@@ -22838,7 +22927,9 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
             newPins.push({ ...pin, where: i2cConv[lname], activeLow: false, port: undefined, bit: undefined });
             continue;
         }
-        if (pin.direction === 'analog') {
+        if (servoPin && lname === 'servo' && pin.direction === 'output') {
+            where = servoPin;
+        } else if (pin.direction === 'analog') {
             where = take(pools.analog);
             if (!where) reasons.push(`more analog pins than ${device}'s convention offers (${pools.analog.length})`);
         } else if (pin.direction === 'input') {
@@ -23059,6 +23150,9 @@ SB3Creator.STC_PARTS = {
     // it does not name, so selecting one of these can never silently produce
     // firmware for a different ARM part. `arcade: true` marks the console
     // faceplate the runtime draws.
+    // Arduboy sketches own the console hardware API. The DEVICE declaration
+    // still identifies the project when its Scratch blocks are saved or loaded.
+    arduboy: { core: 'atmega32u4', adc: false },
     arcade: { core: 'samd51', header: null, portModes: false, aux1T: false, adc: false, arcade: true },
     pybadge: { core: 'samd51', header: null, portModes: false, aux1T: false, adc: true, arcade: true,
         display: 'st7735', displayWidth: 160, displayHeight: 128, neopixels: 5, accelerometer: 'lis3dh' },
@@ -23143,7 +23237,7 @@ SB3Creator.defaultClock = (device) => {
     const part = SB3Creator.STC_PARTS[String(device || '').toLowerCase()];
     if (!part) return 11059200;
     if (part.tiny85 || part.tiny88) return 8000000;
-    if (part.core === 'arduino') return 16000000;
+    if (part.core === 'arduino' || part.core === 'atmega32u4') return 16000000;
     if (part.stm32f0) return 48000000;
     if (part.stm32g0) return 64000000;
     if (part.stm32f1) return 72000000;

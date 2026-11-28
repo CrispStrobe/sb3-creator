@@ -46,6 +46,19 @@ import { applyParam, parseParamKey } from './bench-inputs.mjs';
 const VISUAL_ONLY = new Set(['label', 'wire_jumper']);
 
 const MCU_KIND = /^(mcu|arduino_|pi_pico|attiny|atmega|stc\d|w65c|m?6502|z80|esp)/i;
+/**
+ * A part whose pins are GPIO the bench can drive: the processor kinds above,
+ * or any model that declares gpioFollowsPinStates (bw-board board.js
+ * _mcuSurfaceTerminals reads the same flag). The list alone missed every
+ * machine connector — the 56 CP1 lessons' system connector among them — so
+ * the pin-drive operating points never reached a relay a CP1 port switches,
+ * and cp1-cp4-relay-signals' lit-branch current had no state to answer in.
+ */
+export function isMcuKind (kind) {
+    const k = String(kind || '');
+    if (MCU_KIND.test(k)) return true;
+    try { return Boolean(engine?.getDevice?.(k)?.gpioFollowsPinStates); } catch { return false; }
+}
 const CLOCKED_KIND = /^(timer_555|timer_|crystal|oscillator)/i;
 /** Parts whose output is an input this gate has no channel to supply. */
 const DRIVEN_KIND = /^(sound_module|microphone|function_gen)/i;
@@ -66,10 +79,10 @@ let engine = null;
 
 export async function loadEngine (paths) {
     if (engine) return engine;
-    const { Circuit } = await injectEngine({
+    const { Circuit, board } = await injectEngine({
         board: paths['bw-board'], cui: paths['bw-circuit-ui'],
     });
-    engine = { Circuit };
+    engine = { Circuit, getDevice: board.getDevice };
     return engine;
 }
 
@@ -88,8 +101,20 @@ export function benchClass (data) {
     // An antenna receives a broadcast of modulated carriers (bw-board's radio
     // front end): what such a bench is about is RF amplitude per station and
     // detected audio over time, neither of which one DC solve contains.
-    if (kinds.includes('antenna'))
+    // A dipole is the same receiver at VHF (bw-board radio.js expandRadio
+    // feeds the broadcast into an antenna, a dipole or a linked RF coil).
+    if (kinds.includes('antenna') || kinds.includes('dipole'))
         return 'radio bench — the antenna receives a modulated broadcast, so the claim is about RF and audio over time and a solve is an instant';
+    // An RF tank coil (a ferrite rod or VHF coil, or an air coil linked to
+    // another) puts the bench on bw-board's RF bands (radio.js expandRadio):
+    // its oscillators and detectors are envelopes run over time, so what the
+    // bench is about — a swing, a squeg, a beat, a detected tone — is not in
+    // one solve. Its scenario test (lab-circuits-r7*, -rf, -r11) runs it. The
+    // solve is also the dearest in the corpus: a minute of CPU per 40 ms on
+    // lab-rf-remote (MEASURED 2026-11-26).
+    if ((data.parts || []).some(p => p.kind === 'ferrite_coil' || p.kind === 'vhf_coil'
+        || (p.kind === 'air_coil' && p.params?.linkTo)))
+        return 'RF bench — a tank coil puts it on the engine\'s RF bands, so the claim is about an oscillation or a detected signal over time and a solve is an instant';
     if (kinds.some(k => DRIVEN_KIND.test(k)))
         return 'the bench is driven by a module whose output level is an input this gate cannot set';
     // Sensing transducers (bw-board acoustics.js, sensing-transducers.js): what
@@ -189,7 +214,7 @@ function solveUncached (dir, controls, atMs) {
     // solves exactly rather than being declined as "a firmware state". 120
     // claims across the MCU benches were unverified for want of this.
     if (controls.__pins) {
-        const mcus = parts.filter(p => MCU_KIND.test(p.kind || ''));
+        const mcus = parts.filter(p => isMcuKind(p.kind));
         const wiredPins = (id) => {
             const out = [];
             for (const net of nets)
@@ -425,6 +450,35 @@ function solveUncached (dir, controls, atMs) {
     }
 
     return { voltage, current, measurands, parts, nets, supplyA, silent, board };
+}
+
+/**
+ * The least current Ohm's law says this solve carries: the largest
+ * drop / ohms over the resistors that declare their ohms. A resistor cannot
+ * drop volts without passing current, so this is a floor that needs no
+ * readback at all.
+ *
+ * It is what "the elements are dropping volts, so current is flowing" has to
+ * mean. ANY drop is not enough: the supply's own terminals drop its volts,
+ * and an off transistor, an open relay contact or a dark phototransistor
+ * holds the whole rail across itself while carrying nothing. Reading "a drop
+ * above 0.1 V somewhere" as "current flows" made a bench that is simply OFF
+ * at every point a claim routes to (lab-light-thyristor in the dark, the
+ * relay-signal lesson with no firmware running) indistinguishable from one
+ * whose engine lost its current readback. avr01-blink, the case the rule was
+ * written for, drops 2.5020 V across its 220 Ω: 11 mA by Ohm, and that still
+ * reads as conducting here.
+ */
+export function ohmicFloorA (s) {
+    let floor = 0;
+    for (const p of s.parts || []) {
+        if (p.kind !== 'resistor') continue;
+        const ohms = p.params?.ohms;
+        if (typeof ohms !== 'number' || !(ohms > 0)) continue;
+        const d = (s.measurands || []).find(m => m.kind === 'drop' && m.label === `across ${p.id}`);
+        if (d) floor = Math.max(floor, d.si / ohms);
+    }
+    return floor;
 }
 
 /** Every resistance/capacitance/inductance/forward-drop/supply the bench declares. */

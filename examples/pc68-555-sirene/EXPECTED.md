@@ -3,6 +3,10 @@
 ## Circuit
 555 astable. R₁ = 1 kΩ, R₂ = pot (0–47 kΩ), C = 100 nF. Output → 100 Ω → buzzer.
 
+
+The timer’s control pin uses a 10 nF bypass capacitor to ground.
+The timing path uses the wiper and B terminal, so turning the pot up increases resistance and lowers the frequency.
+
 ## Observable behaviour
 - **Pot at 0:** f = 1.44 / ((1k + 0) × 100n) = 14,400 Hz — high pitch (may be above buzzer range).
 - **Pot at 20 kΩ:** f = 1.44 / ((1k + 40k) × 100n) ≈ 351 Hz.

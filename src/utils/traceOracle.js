@@ -31,6 +31,7 @@ const KNOWN = new Set([
     'data_setvariableto', 'data_changevariableby',
     'stc12_setpin', 'stc12_toggle', 'stc12_writepin', 'stc12_setpwm',
     'stc12_settone', 'stc12_print', 'stc12_read', 'stc12_setpart', 'stc12_chiptemp',
+    'stc12_tableindex',
     'devices_setservo', 'devices_servoangle',
     'devices_setmotor', 'devices_motorspeed', 'devices_motordirection',
     'devices_setdirection',
@@ -310,6 +311,16 @@ export function interpretTrace(project, opts = {}) {
                     if (a && a.has(fld('VALUE'))) return a.get(fld('VALUE'));
                 }
                 return 0;
+            }
+            // TABLE lookup: a constant from code-space flash, indexed exactly as
+            // the emitted C does it (`bw_tab_x[bw_clamp(i, len - 1)]`): an index
+            // below 0 reads the first entry, one past the end the last.
+            case 'stc12_tableindex': {
+                const lower = String(fld('TABLE')).toLowerCase();
+                const tbl = (stc.tables || []).find(t => String(t.name).toLowerCase() === lower);
+                if (!tbl || !tbl.values.length) return 0;
+                const i = Math.trunc(num(inp('INDEX')));
+                return tbl.values[Math.max(0, Math.min(tbl.values.length - 1, i))];
             }
             // The chip's own sensor reads the bench: opts.chipTemperatureC, 25 by default.
             case 'stc12_chiptemp': return Math.round(opts.chipTemperatureC ?? 25);

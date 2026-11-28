@@ -136,7 +136,7 @@
   {
    "id": "MOTOR_motor",
    "kind": "dc_motor",
-   "params": {},
+   "params": { "J": 0.00001, "friction": 0.0002 },
    "terminals": [
     "a",
     "b"
@@ -170,6 +170,20 @@
    },
    "x": 498,
    "y": 255
+  },
+  {
+   "id": "R_motorReset",
+   "kind": "resistor",
+   "params": {
+    "ohms": 100000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 428,
+   "y": 404,
+   "rotation": 0
   }
  ],
  "wires": [
@@ -258,6 +272,18 @@
    },
    "color": "black",
    "genPower": true
+  },
+  {
+   "from": "R_motorReset",
+   "fromTerminal": "a",
+   "to": "Q_motor",
+   "toTerminal": "base"
+  },
+  {
+   "from": "R_motorReset",
+   "fromTerminal": "b",
+   "to": "Q_motor",
+   "toTerminal": "emitter"
   }
  ],
  "holeWires": [

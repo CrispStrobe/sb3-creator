@@ -85,7 +85,7 @@
   {
    "id": "px0",
    "kind": "neopixel",
-   "params": {},
+   "params": {"pixels": 1},
    "x": 400,
    "y": 255,
    "seat": {
@@ -101,7 +101,7 @@
   {
    "id": "px1",
    "kind": "neopixel",
-   "params": {},
+   "params": {"pixels": 1},
    "x": 470,
    "y": 255,
    "seat": {
@@ -117,7 +117,7 @@
   {
    "id": "px2",
    "kind": "neopixel",
-   "params": {},
+   "params": {"pixels": 1},
    "x": 540,
    "y": 255,
    "seat": {

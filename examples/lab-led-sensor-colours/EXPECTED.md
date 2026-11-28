@@ -10,13 +10,14 @@ Voltmeter readings (selector at red sensor = position 0, IR sensor = position 1)
 
 | lamps on | red LED sensor | IR LED sensor |
 |---|---|---|
-| red | 0.45 V | 2.48 V |
-| IR | nothing (0.005 V, the amplifier's floor) | 0.56 V |
-| both | 0.45 V | 3.04 V |
+| red | 0.41 V | 2.43 V |
+| IR | nothing (0.005 V, the amplifier's floor) | 0.52 V |
+| both | 0.41 V | 3.00 V |
 | none | nothing | nothing |
 
 - The red LED sensor is blind to infrared: switching the IR lamp on adds nothing.
 - The IR LED sensor answers both lamps, and with both on the two photocurrents add.
+- Every reading is the photocurrent times 1 MΩ less about 43 mV: the LM358's own input bias current flows out of its − input through the same 1 MΩ.
 - An LED used as a sensor only responds to light of shorter wavelength (more energetic photons) than the light it would emit itself. Red (640 nm) is shorter than infrared (940 nm), so the IR LED sees red; the red LED cannot see infrared.
 - In this model an LED sees its own colour only weakly, so the IR sensor reads the red lamp more strongly than the IR lamp.
 
@@ -25,7 +26,8 @@ Voltmeter readings (selector at red sensor = position 0, IR sensor = position 1)
 2. A transimpedance amplifier turns microamps into volts.
 
 ```assert
-# Red lamp on, selector on the red LED sensor: its photocurrent x 1 MOhm.
-net lm358_12.1_out V 0.452 +-0.01
+# Red lamp on, selector on the red LED sensor: its photocurrent x 1 MOhm,
+# less the - input's bias current (42.5 nA) x 1 MOhm.
+net lm358_12.1_out V 0.409 +-0.01
 net lm358_12.1_neg V 0.000 +-0.005
 ```

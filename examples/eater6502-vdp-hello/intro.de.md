@@ -9,11 +9,11 @@ Der 6502-Breadboard-Computer erweitert um einen TMS9918A-Videoprozessor. Der VDP
 
 ## Probier das
 1. Starte die Simulation und sieh "HELLO" auf dem Videodisplay erscheinen — der 6502 schreibt Zeichen in das Video-RAM des VDP.
-2. Aendere den Textstring im ROM und beobachte die Aktualisierung der Anzeige.
+2. Aendere die Nachricht mit den vier geladenen Buchstaben oder lade Muster fuer weitere Zeichen.
 3. Versuche, an verschiedene Bildschirmpositionen zu schreiben, indem du die Namentabellenadresse des VDP aenderst.
 
 ## Was passiert hier
-Der TMS9918A hat eigene 16 KB Video-RAM und erzeugt ein Videosignal unabhaengig von der CPU. Der 6502 kommuniziert mit ihm ueber zwei I/O-Ports: einen fuer Daten, einen fuer Befehle. Um Text anzuzeigen, richtet die CPU die Register des VDP ein (Bildschirmmodus, Farben, Speicheraufteilung) und schreibt dann Zeichencodes ins Video-RAM. Der VDP rendert diese Zeichen mit 60 Hz in Pixel, unter Verwendung seines eingebauten Zeichensatzes. Die CPU muss die Daten nur einmal schreiben — der VDP aktualisiert den Bildschirm selbststaendig.
+Der TMS9918A hat eigene 16 KB Video-RAM und erzeugt ein Videosignal unabhaengig von der CPU. Der 6502 kommuniziert mit ihm ueber zwei I/O-Ports: einen fuer Daten, einen fuer Befehle. Um Text anzuzeigen, richtet die CPU die Register des VDP ein (Bildschirmmodus, Farben, Speicheraufteilung) laedt die Pixelmuster der Buchstaben und schreibt dann die Zeichencodes in die Namentabelle. Der VDP rendert die Muster mit 60 Hz. Die CPU muss die Daten nur einmal schreiben — der VDP aktualisiert den Bildschirm selbststaendig.
 
 ## Warum das wichtig ist
 So haben Heimcomputer der 1980er Jahre Grafik dargestellt. Der VDP lagert die gesamte Videoerzeugung von der CPU aus, was essenziell ist, wenn die CPU langsam ist. Diese Arbeitsteilung zu verstehen — CPU fuer Logik, dedizierter Chip fuer die Anzeige — ist dasselbe Prinzip hinter modernen GPUs. Retro-Computing macht es in menschlich lesbarem Massstab sichtbar.

@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "mode": "play",
+  "widgets": [
+    {
+      "name": "Video",
+      "type": "simplevga",
+      "config": {
+        "width": 256,
+        "height": 192
+      },
+      "layout": {
+        "x": 10,
+        "y": 10,
+        "w": 336,
+        "h": 252
+      },
+      "binding": {
+        "target": "part",
+        "partId": "vdp1"
+      }
+    }
+  ]
+}

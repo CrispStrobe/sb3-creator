@@ -22,11 +22,12 @@ Battery: EMF = 9 V, r_internal = 0.5 Ω. Series: 1 Ω shunt → 470 Ω load → 
 ```assert
 # 1R shunt: V_shunt = I * 1R ~ 14.5mV, battery with r_internal=0.5R
 net battery_1.pos V 8.99 +-0.10
+current resistor_2 mA -14.54 +-0.7
 ```
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@2965782` and `bw-circuit-ui@e3441d2` — the revisions pinned in
+> `bw-board@d21d6d8` and `bw-circuit-ui@d9e0982` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **11 of this page's 11** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;

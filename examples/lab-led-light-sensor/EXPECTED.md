@@ -20,8 +20,9 @@
 - Turning the knob moves the switch-on level.
 
 ```assert
-# light 0.8: 4 uA through 1 MOhm, inverting input held at 0 V
-net u1.1_out V 4.00 +-0.02
+# light 0.8: 4 uA through 1 MOhm, less the - input's own bias current
+# (42.5 nA, 42.5 mV); inverting input held at 0 V
+net u1.1_out V 3.957 +-0.02
 net u1.1_neg V 0.00 +-0.01
 net u1.2_pos V 2.47 +-0.02
 ```

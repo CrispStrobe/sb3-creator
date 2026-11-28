@@ -1,0 +1,23 @@
+; Original Brickwright CARDIAC example: one decision per input sample.
+; Numeric I/O is historical; a circuit adapter is a modern Brickwright device.
+; OUT emits memory, so each branch stores its decision before output.
+ORG 01
+ENTRY again
+again: INP sample
+       CLA sample
+       SUB threshold
+       TAC dark
+       CLA zero
+       STO decision
+       OUT decision
+       JMP again
+dark:  CLA one
+       STO decision
+       OUT decision
+       JMP again
+ORG 80
+sample:    DAT 0
+threshold: DAT 500
+one:       DAT 1
+zero:      DAT 0
+decision:  DAT 0

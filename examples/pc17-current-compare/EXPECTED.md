@@ -32,11 +32,14 @@ move at all. Parallel branches do not share.
 ```assert
 # Three parallel LED branches: 220R/470R/1k from 5V
 net vsource_1.pos V 5.00 +-0.01
+current led_3 mA -13.04 +-1.5
+current led_11 mA -6.25 +-0.8
+current led_17 mA -2.97 +-0.45
 ```
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@2965782` and `bw-circuit-ui@e3441d2` — the revisions pinned in
+> `bw-board@d21d6d8` and `bw-circuit-ui@d9e0982` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **16 of this page's 26** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;

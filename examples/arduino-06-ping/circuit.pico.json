@@ -95,6 +95,32 @@
    "params": {},
    "x": 134,
    "y": 115
+  },
+  {
+   "id": "echoSeries",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 540,
+   "y": 110
+  },
+  {
+   "id": "echoGround",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1800
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 680,
+   "y": 110
   }
  ],
  "wires": [
@@ -117,10 +143,28 @@
    "toTerminal": "trig"
   },
   {
-   "from": "board",
-   "fromTerminal": "gp2",
-   "to": "us",
-   "toTerminal": "echo"
+   "from": "us",
+   "fromTerminal": "echo",
+   "to": "echoSeries",
+   "toTerminal": "a"
+  },
+  {
+   "from": "echoSeries",
+   "fromTerminal": "b",
+   "to": "board",
+   "toTerminal": "gp15"
+  },
+  {
+   "from": "echoSeries",
+   "fromTerminal": "b",
+   "to": "echoGround",
+   "toTerminal": "a"
+  },
+  {
+   "from": "echoGround",
+   "fromTerminal": "b",
+   "to": "gnd1",
+   "toTerminal": "gnd"
   },
   {
    "from": "board",
@@ -181,13 +225,6 @@
    "a": "b30",
    "b": "b-30",
    "color": "black"
-  },
-  {
-   "ref": "bbw:bb1:gen_2",
-   "boardId": "bb1",
-   "a": "b6",
-   "b": "b29",
-   "color": "green"
   },
   {
    "ref": "bbw:bb1:gen_3",

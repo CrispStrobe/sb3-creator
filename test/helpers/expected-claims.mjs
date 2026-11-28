@@ -86,7 +86,13 @@ const UNIT_ALT = Object.keys(UNIT)
 // pc34-polarity-protector's whole table is "| −9 V | −4.4955 V |". Reading only
 // the ASCII hyphen turns every one of those into its positive twin, which is a
 // claim silently checked against the wrong number.
-const NUM = new RegExp(String.raw`(?<![\w.])([-−–]?\d+(?:\.\d+)?)\s*(${UNIT_ALT})(?![\w])`, 'g');
+//
+// A unit followed by `/` and another unit is a RATE, not that quantity:
+// lab-vhf-superhet's "98.0 MHz (50 mV/m, 1 kHz tone)" is a field strength,
+// and reading it as 50 mV held the page to a node voltage it never claimed.
+// The corpus writes mV/m, mV/Pa, mV/K, mA/V, V/µs, Hz/V, kΩ/V — none of them
+// is a voltage, a current, a frequency or a resistance.
+const NUM = new RegExp(String.raw`(?<![\w.])([-−–]?\d+(?:\.\d+)?)\s*(${UNIT_ALT})(?![\w]|\s?\/\s?[A-Za-zµ°Ω√])`, 'g');
 /**
  * A leading dash is a SIGN only where a sign can stand. Between two quantities
  * it is a range: pc74-ldr-555-blinker's "R2 = LDR (1 kΩ–100 kΩ)" is a span, and

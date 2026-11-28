@@ -11,9 +11,9 @@
 ## Observable behaviour
 - Meter straight on the divider: it reads about 2.34 V instead of 4.5 V. Its own resistance in parallel with the lower 220 kΩ pulls the divider down.
 - Meter behind the follower: about 4.22 V. The follower takes almost nothing from the divider (which stays near 4.45 V); the reading is short of it by the drop of the protection diode, which carries less than half a microamp.
-- ×10 stage with nothing connected: the second meter rests at zero (5 mV, the output's floor).
+- ×10 stage with nothing connected: the second meter shows about 0.48 V. That is the LM324's input bias current (about 47 nA out of its + input) flowing through the 1 MΩ: 48 mV, times ten.
 - **Probe** pressed: 0.49 V in, about 4.9 V on the second meter.
-- The simulated op-amp has no input bias current. On a real chip that current, flowing through the 1 MΩ input resistor, would show up ×10 on the second meter with nothing connected, and a real circuit nulls it with a pot; here there is nothing to null, so the bench has no pot.
+- A real circuit nulls that offset with a pot (lab-opamp-meter-stages does); this bench has none, so the reading with nothing connected is the offset itself.
 
 ## What this verifies
 1. A meter is part of the circuit it measures: on a high-resistance divider the plain meter reads far too low.
@@ -22,8 +22,9 @@
 
 ```assert
 # meter straight on the divider (as loaded): pulled down to 2.34 V; the
-# follower's input one diode drop lower; the x10 stage idle
+# follower's input one diode drop lower; the x10 stage shows its input
+# bias current through 1 MΩ, ten times over
 net resistor_4.b V 2.336 +-0.01
 net lm324_3.1_pos V 2.134 +-0.02
-net lm324_3.2_out V 0.005 +-0.005
+net lm324_3.2_out V 0.476 +-0.02
 ```

@@ -36,7 +36,7 @@ const devices = Object.keys(SB3Creator.RETARGET_POOLS)
 // Device-only examples (micro:bit, SPIKE Prime) compile down a non-C path.
 // MicroPython boards can retarget program text, but stay outside this gallery
 // sweep until the circuit transformer can build their matching benches.
-const generic = index.filter(e => e.kind === 'program' && Array.isArray(e.devices) &&
+const generic = index.filter(e => e.kind === 'program' && Boolean(e.files?.program) && Array.isArray(e.devices) &&
     allowsRetargeting(e) && e.authored !== 'microbit' && e.authored !== 'spike');
 
 // ---- 1. Computed device lists match dry-run --------------------------------

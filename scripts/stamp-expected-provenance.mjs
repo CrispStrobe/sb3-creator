@@ -19,6 +19,10 @@
  * `node scripts/stamp-expected-provenance.mjs`          rewrite the blocks
  * `node scripts/stamp-expected-provenance.mjs --check`  fail if any is missing
  *                                                       or stale (CI/gate use)
+ * `node scripts/stamp-expected-provenance.mjs <id> …`   only those examples (a
+ *                                                       page edited after a full
+ *                                                       stamp, without another
+ *                                                       hour of solves)
  */
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -39,8 +43,12 @@ const short = (n) => PINS.siblings[n].rev.slice(0, 7);
 const stamp = (checked, mismatched, total) =>
     provenanceStamp(short('bw-board'), short('bw-circuit-ui'), checked, mismatched, total);
 
+const only = new Set(process.argv.slice(2).filter(a => !a.startsWith('--')));
+const wanted = (dir) => only.size === 0 || only.has(dir);
+
 const rows = new Map();
 for (const claim of allClaims()) {
+    if (!wanted(claim.dir)) continue;
     const r = rows.get(claim.dir) || { checked: 0, skipped: 0, mismatched: 0 };
     const v = adjudicate(claim);
     if (v.ok) r.checked++; else if (v.skip) r.skipped++; else r.mismatched++;
@@ -51,6 +59,7 @@ const check = process.argv.includes('--check');
 const problems = [];
 let written = 0;
 for (const dir of exampleDirs()) {
+    if (!wanted(dir)) continue;
     const path = join(EXAMPLES, dir, 'EXPECTED.md');
     if (!existsSync(path)) continue;
     const text = readFileSync(path, 'utf8');

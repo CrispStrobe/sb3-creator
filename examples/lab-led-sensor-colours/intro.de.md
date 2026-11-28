@@ -8,7 +8,7 @@ teaches: [photocurrent, wavelength, led-as-sensor, transimpedance-amplifier]
 Zwei Lampen, eine rote LED und eine Infrarot-LED, leuchten auf zwei Sensoren, die ebenfalls nur LEDs sind: eine rote und eine infrarote. Ein Umschalter legt einen der beiden Sensoren an den Verstärker, und das Messgerät zeigt seinen Fotostrom an, ein Volt pro Mikroampere.
 
 ## Probier das
-1. Klick auf **Sim**. Nur die rote Lampe ist an, der rote Sensor ist gewählt: Das Messgerät zeigt etwa 0,45 V.
+1. Klick auf **Sim**. Nur die rote Lampe ist an, der rote Sensor ist gewählt: Das Messgerät zeigt etwa 0,4 V.
 2. Schalte die IR-Lampe dazu. Es ändert sich nichts, denn der rote Sensor sieht kein Infrarot.
 3. Schalte auf den IR-Sensor um. Er zeigt viel mehr, schon bei der roten Lampe allein etwa 2,5 V.
 4. Probier jetzt die IR-Lampe allein mit beiden Sensoren. Der IR-Sensor sieht sie, der rote zeigt nichts.

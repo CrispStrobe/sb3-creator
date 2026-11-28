@@ -26,7 +26,7 @@
       "kind": "pi_pico",
       "params": {},
       "terminals": [
-        "gp25"
+        "gp16"
       ],
       "x": 64,
       "y": 255
@@ -50,7 +50,7 @@
       "netId": "bb1:n-col-t27",
       "from": {
         "part": "MCU",
-        "terminal": "gp25"
+        "terminal": "gp16"
       },
       "to": {
         "part": "SERVO_servo",

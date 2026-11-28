@@ -16,4 +16,4 @@ Click **Sim**. The range slide switch (slide_switch_5) starts on the left, minut
 
 ## Why it works
 
-The op-amp's − input follows the capacitor, its + input sits at 6 V. While the capacitor is below that, the output is high and the transistor holds the relay in. The time to reach 6 V is 1.13 × R × C, so a hundred times the capacitance gives a hundred times the time.
+The op-amp's − input follows the capacitor, its + input sits at 6 V. While the capacitor is below that, the output is high and the transistor holds the relay in. The time to reach 6 V is about 1.1 × R × C, so a hundred times the capacitance gives a hundred times the time.

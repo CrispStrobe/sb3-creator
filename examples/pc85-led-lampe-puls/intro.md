@@ -9,7 +9,7 @@ A single white LED breathes gently: slowly brighter, slowly dimmer, endlessly. A
 
 ## Try this
 1. Click **Sim** — the LED pulses smoothly.
-2. The breathing rate depends on R (100 kΩ) and C (1 µF).
+2. The breathing rate depends on R (100 kΩ) and C (4.7 µF).
 3. No digital signal, no steps — brightness changes analogically.
 
 ## Go further

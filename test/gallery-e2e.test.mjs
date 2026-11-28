@@ -455,11 +455,15 @@ describe('e2e: device-state examples — relay, motor, 595', { skip: DEVICE_SKIP
         assert.ok(board.parts.length > 0, 'board accepted the shift register circuit');
         const sr = parts.find(p => SHIFT_REGISTER_KINDS.has(p.kind));
         assert.ok(sr, `circuit has a shift register part (kinds: ${parts.map(p => p.kind).join(', ')})`);
-        // This bench saves the ABSTRACT kind, and keeps it: the de-alias only
-        // fires for a saved `74hc595`, so the two spellings in this corpus stay
-        // two spellings and neither is rewritten into the other.
-        assert.equal(sr.kind, 'shift_register',
-            'a bench that saves shift_register must still load as shift_register');
+        // Until 2026-11-27 this bench saved the ABSTRACT kind. The reconciled
+        // workbench lesson seats a real 74hc595 with its power pins wired, like
+        // 08-led-chaser-595, so it must load as that, not collapse to the
+        // power-less built-in. (No bench in the corpus saves `shift_register`
+        // now; that the abstract spelling stays itself is asserted in
+        // bw-circuit-ui's test/kind-alias-engine-model.test.js.)
+        assert.equal(sr.kind, '74hc595',
+            'this bench saves 74hc595 and the pinned engine has a model for it, ' +
+            'so it must not be collapsed to the power-less built-in');
     });
 });
 

@@ -12,7 +12,8 @@
  *
  * One quad op-amp per bench: the engine's LM324 (the same ground-sensing
  * macromodel as its LM358: inputs down to ground, output from about 5 mV up
- * to VCC − 1.5 V, 1 MHz, 0.3 V/µs, no input offset or bias current).
+ * to VCC − 1.5 V, 1 MHz, 0.3 V/µs, no input offset voltage; 45 nA input bias
+ * current out of each input, 5 nA offset current).
  * Comparators, references and gain stages are op-amp sections; unused
  * sections are parked as grounded followers. Integrator capacitors are
  * non-polar (`capacitor`): their voltage changes sign with the ramp.

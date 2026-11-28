@@ -70,6 +70,9 @@ export async function verifyCp5Monitor({board, circuitUi, romPath}) {
     removeListener();
     assert.deepEqual(startupEdges.map(edge => edge.value), [0, 255], 'the program clears the outputs before sampling the high inputs');
     const clearIntervalMs = startupEdges[1].tMs - startupEdges[0].tMs;
+    // The program asks for a 200 ms wait; the clear then takes longer by the
+    // instructions around it. observed 226.06 ms on the identified monitor ROM
+    // (reference/cp1-cp5-observations.json, programInitialization.clearIntervalMs).
     assert.ok(clearIntervalMs >= 200, 'the initial output clear includes the requested 200 ms wait');
     assertOutputByte(circuit, 255);
     assertDisplay(255);

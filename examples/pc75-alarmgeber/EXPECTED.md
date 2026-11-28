@@ -3,6 +3,9 @@
 ## Circuit
 Button in VCC line → 555 astable. R₁ = 1 kΩ, R₂ = 10 kΩ, C = 100 nF. Output → buzzer.
 
+
+The timer’s control pin uses a 10 nF bypass capacitor to ground.
+
 ## Observable behaviour
 - **Button released:** 555 unpowered. No sound. Buzzer silent.
 - **Button pressed:** 555 powered, astable oscillates. f ≈ 686 Hz. Buzzer sounds.

@@ -80,28 +80,14 @@
     },
     {
       "id": "SR_595",
-      "kind": "shift_register",
+      "kind": "74hc595",
       "params": {},
-      "terminals": [
-        "data",
-        "clock",
-        "latch",
-        "oe",
-        "q0",
-        "q1",
-        "q2",
-        "q3",
-        "q4",
-        "q5",
-        "q6",
-        "q7"
-      ],
       "seat": {
         "boardId": "bb2",
         "leadMap": {
-          "data": "e3",
-          "clock": "e4",
-          "latch": "f3"
+          "ser": "e3",
+          "srclk": "e4",
+          "rclk": "f3"
         }
       },
       "x": 64,
@@ -446,7 +432,7 @@
       },
       "to": {
         "part": "SR_595",
-        "terminal": "q6"
+        "terminal": "qg"
       }
     },
     {
@@ -470,7 +456,7 @@
       },
       "to": {
         "part": "SR_595",
-        "terminal": "q7"
+        "terminal": "qh"
       }
     },
     {
@@ -494,7 +480,7 @@
       },
       "to": {
         "part": "SR_595",
-        "terminal": "q0"
+        "terminal": "qa"
       }
     },
     {
@@ -518,7 +504,7 @@
       },
       "to": {
         "part": "SR_595",
-        "terminal": "q1"
+        "terminal": "qb"
       }
     },
     {
@@ -542,7 +528,7 @@
       },
       "to": {
         "part": "SR_595",
-        "terminal": "q2"
+        "terminal": "qc"
       }
     },
     {
@@ -566,7 +552,7 @@
       },
       "to": {
         "part": "SR_595",
-        "terminal": "q3"
+        "terminal": "qd"
       }
     },
     {
@@ -590,7 +576,7 @@
       },
       "to": {
         "part": "SR_595",
-        "terminal": "q4"
+        "terminal": "qe"
       }
     },
     {
@@ -614,7 +600,7 @@
       },
       "to": {
         "part": "SR_595",
-        "terminal": "q5"
+        "terminal": "qf"
       }
     },
     {
@@ -770,7 +756,7 @@
       },
       "to": {
         "part": "SR_595",
-        "terminal": "latch"
+        "terminal": "rclk"
       }
     },
     {
@@ -782,7 +768,7 @@
       },
       "to": {
         "part": "SR_595",
-        "terminal": "data"
+        "terminal": "ser"
       }
     },
     {
@@ -794,7 +780,37 @@
       },
       "to": {
         "part": "SR_595",
-        "terminal": "clock"
+        "terminal": "srclk"
+      }
+    },
+    {
+      "from": {
+        "part": "VCC",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "SR_595",
+        "terminal": "vcc"
+      }
+    },
+    {
+      "from": {
+        "part": "SR_595",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "SR_595",
+        "terminal": "srclr"
+      }
+    },
+    {
+      "from": {
+        "part": "GND",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "SR_595",
+        "terminal": "gnd"
       }
     }
   ],

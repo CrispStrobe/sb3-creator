@@ -1,7 +1,7 @@
 # pc76-alarmschaltung — expected behaviour
 
 ## Circuit
-Two NOR gates cross-coupled (SR latch). Alarm switch → set input (NOR gate 1 in0) with 100 kΩ pull-down. Reset button → reset input (NOR gate 2 in1) with 100 kΩ pull-down. Q output → 100 Ω → buzzer.
+Two NOR gates cross-coupled (SR latch). The alarm switch drives gate 2, so pressing it pulls the complementary output low and sets Q high. The reset button drives gate 1 and forces Q low. Both inputs have 100 kΩ pull-downs. The Q output drives the buzzer through 100 Ω.
 
 ## Observable behaviour
 - **Idle:** both inputs LOW. Latch holds Q = LOW. Buzzer silent.

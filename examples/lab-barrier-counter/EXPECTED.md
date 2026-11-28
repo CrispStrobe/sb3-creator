@@ -1,11 +1,11 @@
 # lab-barrier-counter — expected behaviour
 
 ## Circuit
-5 V supply.
+5 V battery, switched on with its real rise (about 10 µs: the battery's resistance and the leads charging the board's capacitance) rather than as an ideal step, so the receiver transistors come up with the rail and the counter starts at 0.
 
 - **Transmitter:** a 555 astable (1 kΩ, 6.8 kΩ, 100 nF; about 1 kHz) flashes an IR LED through 47 Ω.
 - **Receiver,** 15 cm away (`light_path`, medium air; knob `blocked`, how much of the beam an object covers, 0 to 1): a phototransistor with a 22 kΩ collector load. 10 nF and two diodes pump its flashes into 220 nF (470 kΩ across it), which drives Q1 through 10 kΩ. Q1's collector (10 kΩ) drives Q2 through 10 kΩ; 1 MΩ from Q2's collector back to Q1's base gives a little hysteresis, so each change is one clean edge. Q2's collector is high while flashes arrive and falls when the beam is broken.
-- **Clock gate:** that signal goes through the first changeover contact of a two-pole relay (rest side) to input A of a 74HC93; 100 kΩ holds the input low when the contact opens, and 1 nF keeps it quiet. QA feeds input B; red LEDs (470 Ω) show QA, QB, QC. The counter steps on a falling edge: one count per interruption. (The 74HC93 stands in for a CMOS 7-stage binary counter.)
+- **Clock gate:** that signal goes through the first changeover contact of a two-pole relay (rest side) to input A of a 74HC93; 100 kΩ holds the input low when the contact opens. QA feeds input B; red LEDs (470 Ω) show QA, QB, QC. The counter steps on a falling edge: one count per interruption. (The 74HC93 stands in for a CMOS 7-stage binary counter.)
 - **Decoder:** two diodes from QA and QC to a node pulled up by 4.7 kΩ: high only at the count of 5. A further diode and 1 kΩ (10 kΩ base to emitter) feed Q3, which pulls in the relay (flyback diode). Pole 1 cuts the clock; pole 2 lights a green lamp through 220 Ω.
 - **Reset:** a button pulls both reset inputs high (10 kΩ pull-down otherwise).
 
@@ -25,5 +25,5 @@
 # t = 1 ms: 555 control pin at 2/3 supply; receiver not yet pumped (Q1 off, Q2 on), decoder low.
 net timer_555_3.control V 3.333 +-0.01
 net npn_21.collector V 0.04 +-0.03
-net npn_41.base V 0.16 +-0.05
+net npn_40.base V 0.16 +-0.05
 ```

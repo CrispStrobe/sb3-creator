@@ -165,7 +165,7 @@
   },
   {
    "from": "board",
-   "fromTerminal": "gp25",
+   "fromTerminal": "gp15",
    "to": "r1",
    "toTerminal": "a"
   },
@@ -297,6 +297,13 @@
    "a": "g3",
    "b": "t+3",
    "color": "red"
+  },
+  {
+   "ref": "bbw:bb1:pwm-led",
+   "boardId": "bb1",
+   "a": "b22",
+   "b": "b33",
+   "color": "blue"
   }
  ],
  "generated": "benchFor+authored+seat"

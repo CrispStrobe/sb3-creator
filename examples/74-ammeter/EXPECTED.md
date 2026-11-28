@@ -9,15 +9,12 @@
 
 ## Program
 
-Every 200 ms: read the ADC, convert to shunt millivolts, divide by the
-10 Ω shunt to get milliamps (`ma = mv / 10`), print to the LCD.
+Every 200 ms, the program converts the ADC result to whole shunt millivolts. The display resolution is 0.1 mA, one millivolt across the 10 Ω shunt. The LCD shows milliamps to one decimal place.
 
 ## Observable behaviour
 
 - Rheostat at max resistance (~1010 Ω total): ~5 mA, shunt drop ~50 mV.
-- Rheostat at min (~10 Ω total): ~500 mA (clamped by the model), shunt
-  drop ~5 V — the reading rails; real meters pick a smaller shunt for
-  exactly this reason, which the intro explains (burden voltage).
+- Rheostat at minimum (1 Ω plus the 10 Ω shunt): about 455 mA with about 4.55 V across the shunt. The voltage lost across the shunt is the meter’s burden voltage.
 - Moving the rheostat moves the mA reading the same direction within
   one refresh.
 

@@ -21,7 +21,7 @@
     "VCC",
     "GND",
     "P1.3",
-    "P1.0"
+    "P1.4"
    ],
    "seat": {
     "boardId": "bb1",
@@ -170,7 +170,7 @@
   },
   {
    "from": "board",
-   "fromTerminal": "P1.0",
+   "fromTerminal": "P1.4",
    "to": "r1",
    "toTerminal": "a"
   },
@@ -264,7 +264,7 @@
   {
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
-   "a": "g3",
+   "a": "g7",
    "b": "b33",
    "color": "yellow"
   },

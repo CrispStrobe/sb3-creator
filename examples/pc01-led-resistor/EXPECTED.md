@@ -12,4 +12,5 @@ Seated on a half breadboard.
 ```assert
 # Supply rail: vsource at 5.0V
 net vsource_2.pos V 5.00 +-0.01
+current led_4 mA -13.6 +-1.5
 ```

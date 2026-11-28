@@ -9,9 +9,11 @@
 ## Observable behaviour
 | LAMP | HEATER | SHORT | meter (V = A) | tone |
 |---|---|---|---|---|
-| on | off | off | 0.101 | none |
-| on | on | off | 0.701 | none |
+| on | off | off | 0.097 | none |
+| on | on | off | 0.697 | none |
 | on | on | on | 1.78 (pegged) | about 660 Hz |
+
+Each reading is about 4 mV below 10.1 × the shunt voltage: the LM324's − input bias current (about 42 nA) flows through the 91 kΩ feedback resistor.
 
 ## Measured on the engine
 `test/lab-circuits-r6e.test.mjs` holds the table above; with everything on the comparator output is 7.5 V and the tone measures 663 Hz (±30), read from the loudspeaker's edges.
@@ -27,16 +29,16 @@ The battery is ideal (no internal resistance), so 1.8 A does not sag it. The shu
 ```assert
 # as authored: only the lamp, 0.1 A
 net resistor_9.a V 0.0100 +-0.0005
-net lm324_10.1_out V 0.101 +-0.005
+net lm324_10.1_out V 0.097 +-0.005
 net resistor_14.b V 0.978 +-0.005
 net capacitor_20.a V 0.57 +-0.05
 ```
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@2965782` and `bw-circuit-ui@e3441d2` — the revisions pinned in
+> `bw-board@d21d6d8` and `bw-circuit-ui@d9e0982` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
-> **24 of this page's 28** numeric claims against that engine
+> **26 of this page's 31** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs lab-ammeter-overload` prints them one by one.
 <!-- engine-provenance -->

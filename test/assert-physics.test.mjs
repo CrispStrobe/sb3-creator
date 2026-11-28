@@ -405,17 +405,9 @@ const KNOWN_DEFECTS = new Map([
     ['72-pico-oled-hello::net vcc1.vcc V 5.00 +-0.01',
         'CLAIM wrong: pi_pico rail is 3.3 V; engine reads 3.3000'],
 
-    // --- CLAIM is wrong: assumes a midpoint pot the circuit does not declare.
-    // contrast has params.position = 0.15 across a 5 V rail -> 0.75 V, which is
-    // exactly what the engine reads, and 0.15 is deliberate: an HD44780 contrast
-    // pot belongs near the bottom of its range. The claim assumed position 0.5.
-    ['eater6502-full-build::net contrast.wiper V 2.50 +-0.05',
-        'CLAIM wrong: pot position=0.15 -> 0.75 V; claim assumes a midpoint pot'],
-    // vsrc1 has params.position = 0.6 -> 3.0 V unloaded, 2.83 V once rv1 loads
-    // the wiper. The claim of 2.5 V matches neither, and contradicts the
-    // circuit's own declared position.
-    ['76-multimeter::net vsrc1.wiper V 2.50 +-0.05',
-        'CLAIM wrong: pot position=0.6 -> 2.83 V loaded; claim assumes position 0.5'],
+    // (The two midpoint-pot claims, eater6502-full-build contrast.wiper and
+    // 76-multimeter vsrc1.wiper, were corrected on their pages on 2026-11-27 to
+    // the declared positions, 0.75 V and 2.83 V, and left this list.)
 
     // --- CIRCUIT is wrong, and here the claim is the correct side. -----------
     // The last entry of this kind — pc84-led-herz's shorted supply rail — was

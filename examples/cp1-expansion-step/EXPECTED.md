@@ -11,3 +11,13 @@
 | 3 | 199 | P4 `0xB6` |
 | 4 | 200 | P5 `0x36` across six outputs / an sechs Ausgängen |
 | 5 | 201 | HLT, ACC `A00.182` |
+
+### 1. Verification
+
+Start at `196` and run to HLT.
+- Set P3 to 0xb6 at `196`.
+- Expected PC `201`.
+- Expected accumulator `00.182`.
+- Expected `Captured` = 00.182.
+- P4 latch = 0xb6.
+- P5 latch = 0x36.

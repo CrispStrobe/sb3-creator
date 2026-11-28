@@ -79,7 +79,7 @@
         "anode",
         "cathode"
       ],
-      "x": 652,
+      "x": 680,
       "y": 255
     },
     {
@@ -92,7 +92,7 @@
         "a",
         "b"
       ],
-      "x": 484,
+      "x": 512,
       "y": 255
     },
     {
@@ -105,7 +105,7 @@
         "anode",
         "cathode"
       ],
-      "x": 708,
+      "x": 736,
       "y": 255
     },
     {
@@ -118,7 +118,7 @@
         "a",
         "b"
       ],
-      "x": 568,
+      "x": 596,
       "y": 255
     },
     {
@@ -165,25 +165,13 @@
         "terminal": "gp15"
       },
       "to": {
-        "part": "r2",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "w_flat_2",
-      "netId": "bb1:n-col-t33",
-      "from": {
-        "part": "board",
-        "terminal": "gp25"
-      },
-      "to": {
         "part": "r1",
         "terminal": "a"
       }
     },
     {
-      "id": "w_flat_3",
-      "netId": "bb1:n-col-t37",
+      "id": "w_flat_2",
+      "netId": "bb1:n-col-t39",
       "from": {
         "part": "led1",
         "terminal": "anode"
@@ -194,8 +182,20 @@
       }
     },
     {
+      "id": "w_flat_3",
+      "netId": "bb1:n-col-t41",
+      "from": {
+        "part": "board",
+        "terminal": "gp25"
+      },
+      "to": {
+        "part": "r2",
+        "terminal": "a"
+      }
+    },
+    {
       "id": "w_flat_4",
-      "netId": "bb1:n-col-t43",
+      "netId": "bb1:n-col-t45",
       "from": {
         "part": "led2",
         "terminal": "anode"

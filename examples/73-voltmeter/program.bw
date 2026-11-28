@@ -10,7 +10,8 @@ PIN probe = A0 ANALOG
 STAGE:
   WHEN flag clicked:
     FOREVER:
-      set mv to read probe * 5000 / 1023
+      # Round the ADC result to whole millivolts using integer arithmetic.
+      set mv to floor of ((read probe * 5000 + 511) / 1023)
       oled clear 1
       oled set cursor 0 0 on 1
       oled print "VOLTMETER" on 1

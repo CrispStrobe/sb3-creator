@@ -24,11 +24,13 @@ Battery: EMF = 9 V, r_internal = 1 Ω. Load: 100 Ω. Also 470 Ω + red LED indic
 ```assert
 # Battery with r_internal=1R: V_terminal = 9 - I*1 under load
 net battery_1.pos V 8.89 +-0.20
+current resistor_2 mA -88.97 +-1.0
+current led_4 mA -14.37 +-0.8
 ```
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@2965782` and `bw-circuit-ui@e3441d2` — the revisions pinned in
+> `bw-board@d21d6d8` and `bw-circuit-ui@d9e0982` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **10 of this page's 11** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;

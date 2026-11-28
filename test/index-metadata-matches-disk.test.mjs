@@ -38,6 +38,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import SB3Creator from '../src/utils/sb3Creator.js';
+import {assembleCardiac} from '../src/utils/cardiacProgram.js';
 import { allowsRetargeting, isRetargetableExample } from '../scripts/lib/authored-transform.mjs';
 
 const EXAMPLES = join(import.meta.dirname, '..', 'examples');
@@ -81,7 +82,7 @@ const UNCHECKED_HERE = new Set([
 
 /** Fields this gate DOES hold against the world. */
 const CHECKED_HERE = new Set(['files', 'thumbnail', 'benches', 'authored', 'refusals',
-    'transformRefused', 'tier', 'retarget']);
+    'transformRefused', 'tier', 'retarget', 'target']);
 
 describe('index metadata agrees with the files and the compiler', () => {
     test('device-specific electrical lessons cannot regrow cross-family benches', () => {
@@ -226,6 +227,29 @@ describe('index metadata agrees with the files and the compiler', () => {
         assert.deepEqual(problems.sort(), [],
             'A refusal is a claim about what this example cannot do. Re-measure it or delete it; '
             + 'the eight found in the 2026-08-23 sweep had all become false.');
+    });
+
+    // A circuit target must seat its named part. A standalone CARDIAC target
+    // instead carries source for its own verified assembler and machine entry.
+    test('target names the seated machine or a valid standalone CARDIAC program', () => {
+        const wrong = [];
+        for (const entry of index) {
+            if (entry.target === undefined) continue;
+            const rel = entry.files?.circuit;
+            if (typeof entry.target !== 'string' || !entry.target) { wrong.push(`${entry.id}: target is not a kind`); continue; }
+            if (!rel && entry.target === 'cardiac' && typeof entry.files?.cardiac === 'string') {
+                try {
+                    const assembly = assembleCardiac(readFileSync(join(EXAMPLES, entry.files.cardiac), 'utf8'));
+                    if (!assembly.ok || !assembly.words.length || assembly.entry === null) wrong.push(`${entry.id}: no assembled CARDIAC entry`);
+                } catch { wrong.push(`${entry.id}: CARDIAC source is unavailable`); }
+                continue;
+            }
+            if (!rel || !existsSync(join(EXAMPLES, rel))) { wrong.push(`${entry.id}: target ${entry.target} but no circuit file`); continue; }
+            const parts = JSON.parse(readFileSync(join(EXAMPLES, rel), 'utf8')).parts || [];
+            if (!parts.some(p => p.kind === entry.target))
+                wrong.push(`${entry.id}: target ${entry.target}, but ${rel} seats no part of that kind`);
+        }
+        assert.deepEqual(wrong.sort(), [], 'target disagrees with the circuit');
     });
 
     test('tier is a value something recognises', () => {

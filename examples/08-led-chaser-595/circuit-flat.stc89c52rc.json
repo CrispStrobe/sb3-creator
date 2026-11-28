@@ -333,7 +333,7 @@
       },
       "to": {
         "part": "sr1",
-        "terminal": "q4"
+        "terminal": "qe"
       }
     },
     {
@@ -357,7 +357,7 @@
       },
       "to": {
         "part": "sr1",
-        "terminal": "q5"
+        "terminal": "qf"
       }
     },
     {
@@ -381,7 +381,7 @@
       },
       "to": {
         "part": "sr1",
-        "terminal": "q6"
+        "terminal": "qg"
       }
     },
     {
@@ -405,7 +405,7 @@
       },
       "to": {
         "part": "sr1",
-        "terminal": "q7"
+        "terminal": "qh"
       }
     },
     {
@@ -429,7 +429,7 @@
       },
       "to": {
         "part": "sr1",
-        "terminal": "q0"
+        "terminal": "qa"
       }
     },
     {
@@ -453,7 +453,7 @@
       },
       "to": {
         "part": "sr1",
-        "terminal": "q1"
+        "terminal": "qb"
       }
     },
     {
@@ -477,7 +477,7 @@
       },
       "to": {
         "part": "sr1",
-        "terminal": "q2"
+        "terminal": "qc"
       }
     },
     {
@@ -501,7 +501,7 @@
       },
       "to": {
         "part": "sr1",
-        "terminal": "q3"
+        "terminal": "qd"
       }
     },
     {
@@ -669,7 +669,7 @@
       },
       "to": {
         "part": "sr1",
-        "terminal": "data"
+        "terminal": "ser"
       }
     },
     {
@@ -681,7 +681,7 @@
       },
       "to": {
         "part": "sr1",
-        "terminal": "clock"
+        "terminal": "srclk"
       }
     },
     {
@@ -693,7 +693,27 @@
       },
       "to": {
         "part": "sr1",
-        "terminal": "latch"
+        "terminal": "rclk"
+      }
+    },
+    {
+      "from": {
+        "part": "sr1",
+        "terminal": "vcc"
+      },
+      "to": {
+        "part": "sr1",
+        "terminal": "srclr"
+      }
+    },
+    {
+      "from": {
+        "part": "sr1",
+        "terminal": "gnd"
+      },
+      "to": {
+        "part": "sr1",
+        "terminal": "oe"
       }
     }
   ],

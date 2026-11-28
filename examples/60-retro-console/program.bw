@@ -43,375 +43,82 @@ PIN btn5 = P3.6 INPUT ACTIVE LOW
 PIN buzzer = P5.5 OUTPUT ACTIVE LOW
 
 WHEN flag clicked:
+  # Inactive digit commons and PNP buzzer drive are high.
+  set dig1 to 1
+  set dig2 to 1
+  set dig3 to 1
+  set buzzer to 1
+  # All eight rows use the same pattern during the bar sweep.
+  set bus0 to 1
+  set bus1 to 1
+  set bus2 to 1
+  set bus3 to 1
+  set bus4 to 1
+  set bus5 to 1
+  set bus6 to 1
   FOREVER:
-    # bar sweeps down the 16x8 playfield (upper half, then lower)
+    set bus7 to 1
     REPEAT 2:
-      turn on bus0
-      turn on bus1
-      turn on bus2
-      turn on bus3
-      turn on bus4
-      turn on bus5
-      turn on bus6
-      turn on bus7
-      turn on ucol0
-      wait 0.004 seconds
-      turn off ucol0
-      turn off bus0
-      turn off bus1
-      turn off bus2
-      turn off bus3
-      turn off bus4
-      turn off bus5
-      turn off bus6
-      turn off bus7
-      turn on bus0
-      turn on bus1
-      turn on bus2
-      turn on bus3
-      turn on bus4
-      turn on bus5
-      turn on bus6
-      turn on bus7
-      turn on ucol1
-      wait 0.004 seconds
-      turn off ucol1
-      turn off bus0
-      turn off bus1
-      turn off bus2
-      turn off bus3
-      turn off bus4
-      turn off bus5
-      turn off bus6
-      turn off bus7
-      turn on bus0
-      turn on bus1
-      turn on bus2
-      turn on bus3
-      turn on bus4
-      turn on bus5
-      turn on bus6
-      turn on bus7
-      turn on ucol2
-      wait 0.004 seconds
-      turn off ucol2
-      turn off bus0
-      turn off bus1
-      turn off bus2
-      turn off bus3
-      turn off bus4
-      turn off bus5
-      turn off bus6
-      turn off bus7
-      turn on bus0
-      turn on bus1
-      turn on bus2
-      turn on bus3
-      turn on bus4
-      turn on bus5
-      turn on bus6
-      turn on bus7
-      turn on ucol3
-      wait 0.004 seconds
-      turn off ucol3
-      turn off bus0
-      turn off bus1
-      turn off bus2
-      turn off bus3
-      turn off bus4
-      turn off bus5
-      turn off bus6
-      turn off bus7
-      turn on bus0
-      turn on bus1
-      turn on bus2
-      turn on bus3
-      turn on bus4
-      turn on bus5
-      turn on bus6
-      turn on bus7
-      turn on ucol4
-      wait 0.004 seconds
-      turn off ucol4
-      turn off bus0
-      turn off bus1
-      turn off bus2
-      turn off bus3
-      turn off bus4
-      turn off bus5
-      turn off bus6
-      turn off bus7
-      turn on bus0
-      turn on bus1
-      turn on bus2
-      turn on bus3
-      turn on bus4
-      turn on bus5
-      turn on bus6
-      turn on bus7
-      turn on ucol5
-      wait 0.004 seconds
-      turn off ucol5
-      turn off bus0
-      turn off bus1
-      turn off bus2
-      turn off bus3
-      turn off bus4
-      turn off bus5
-      turn off bus6
-      turn off bus7
-      turn on bus0
-      turn on bus1
-      turn on bus2
-      turn on bus3
-      turn on bus4
-      turn on bus5
-      turn on bus6
-      turn on bus7
-      turn on ucol6
-      wait 0.004 seconds
-      turn off ucol6
-      turn off bus0
-      turn off bus1
-      turn off bus2
-      turn off bus3
-      turn off bus4
-      turn off bus5
-      turn off bus6
-      turn off bus7
-      turn on bus0
-      turn on bus1
-      turn on bus2
-      turn on bus3
-      turn on bus4
-      turn on bus5
-      turn on bus6
-      turn on bus7
-      turn on ucol7
-      wait 0.004 seconds
-      turn off ucol7
-      turn off bus0
-      turn off bus1
-      turn off bus2
-      turn off bus3
-      turn off bus4
-      turn off bus5
-      turn off bus6
-      turn off bus7
-      turn on bus0
-      turn on bus1
-      turn on bus2
-      turn on bus3
-      turn on bus4
-      turn on bus5
-      turn on bus6
-      turn on bus7
-      turn on lcol0
-      wait 0.004 seconds
-      turn off lcol0
-      turn off bus0
-      turn off bus1
-      turn off bus2
-      turn off bus3
-      turn off bus4
-      turn off bus5
-      turn off bus6
-      turn off bus7
-      turn on bus0
-      turn on bus1
-      turn on bus2
-      turn on bus3
-      turn on bus4
-      turn on bus5
-      turn on bus6
-      turn on bus7
-      turn on lcol1
-      wait 0.004 seconds
-      turn off lcol1
-      turn off bus0
-      turn off bus1
-      turn off bus2
-      turn off bus3
-      turn off bus4
-      turn off bus5
-      turn off bus6
-      turn off bus7
-      turn on bus0
-      turn on bus1
-      turn on bus2
-      turn on bus3
-      turn on bus4
-      turn on bus5
-      turn on bus6
-      turn on bus7
-      turn on lcol2
-      wait 0.004 seconds
-      turn off lcol2
-      turn off bus0
-      turn off bus1
-      turn off bus2
-      turn off bus3
-      turn off bus4
-      turn off bus5
-      turn off bus6
-      turn off bus7
-      turn on bus0
-      turn on bus1
-      turn on bus2
-      turn on bus3
-      turn on bus4
-      turn on bus5
-      turn on bus6
-      turn on bus7
-      turn on lcol3
-      wait 0.004 seconds
-      turn off lcol3
-      turn off bus0
-      turn off bus1
-      turn off bus2
-      turn off bus3
-      turn off bus4
-      turn off bus5
-      turn off bus6
-      turn off bus7
-      turn on bus0
-      turn on bus1
-      turn on bus2
-      turn on bus3
-      turn on bus4
-      turn on bus5
-      turn on bus6
-      turn on bus7
-      turn on lcol4
-      wait 0.004 seconds
-      turn off lcol4
-      turn off bus0
-      turn off bus1
-      turn off bus2
-      turn off bus3
-      turn off bus4
-      turn off bus5
-      turn off bus6
-      turn off bus7
-      turn on bus0
-      turn on bus1
-      turn on bus2
-      turn on bus3
-      turn on bus4
-      turn on bus5
-      turn on bus6
-      turn on bus7
-      turn on lcol5
-      wait 0.004 seconds
-      turn off lcol5
-      turn off bus0
-      turn off bus1
-      turn off bus2
-      turn off bus3
-      turn off bus4
-      turn off bus5
-      turn off bus6
-      turn off bus7
-      turn on bus0
-      turn on bus1
-      turn on bus2
-      turn on bus3
-      turn on bus4
-      turn on bus5
-      turn on bus6
-      turn on bus7
-      turn on lcol6
-      wait 0.004 seconds
-      turn off lcol6
-      turn off bus0
-      turn off bus1
-      turn off bus2
-      turn off bus3
-      turn off bus4
-      turn off bus5
-      turn off bus6
-      turn off bus7
-      turn on bus0
-      turn on bus1
-      turn on bus2
-      turn on bus3
-      turn on bus4
-      turn on bus5
-      turn on bus6
-      turn on bus7
-      turn on lcol7
-      wait 0.004 seconds
-      turn off lcol7
-      turn off bus0
-      turn off bus1
-      turn off bus2
-      turn off bus3
-      turn off bus4
-      turn off bus5
-      turn off bus6
-      turn off bus7
-    # walk an 8 across the three score digits (segments = the bus)
-    turn on dig1
-    turn on bus0
-    turn on bus1
-    turn on bus2
-    turn on bus3
-    turn on bus4
-    turn on bus5
-    turn on bus6
+      set ucol0 to 1
+      wait 0.008 seconds
+      set ucol0 to 0
+      set ucol1 to 1
+      wait 0.008 seconds
+      set ucol1 to 0
+      set ucol2 to 1
+      wait 0.008 seconds
+      set ucol2 to 0
+      set ucol3 to 1
+      wait 0.008 seconds
+      set ucol3 to 0
+      set ucol4 to 1
+      wait 0.008 seconds
+      set ucol4 to 0
+      set ucol5 to 1
+      wait 0.008 seconds
+      set ucol5 to 0
+      set ucol6 to 1
+      wait 0.008 seconds
+      set ucol6 to 0
+      set ucol7 to 1
+      wait 0.008 seconds
+      set ucol7 to 0
+      set lcol0 to 1
+      wait 0.008 seconds
+      set lcol0 to 0
+      set lcol1 to 1
+      wait 0.008 seconds
+      set lcol1 to 0
+      set lcol2 to 1
+      wait 0.008 seconds
+      set lcol2 to 0
+      set lcol3 to 1
+      wait 0.008 seconds
+      set lcol3 to 0
+      set lcol4 to 1
+      wait 0.008 seconds
+      set lcol4 to 0
+      set lcol5 to 1
+      wait 0.008 seconds
+      set lcol5 to 0
+      set lcol6 to 1
+      wait 0.008 seconds
+      set lcol6 to 0
+      set lcol7 to 1
+      wait 0.008 seconds
+      set lcol7 to 0
+    # Keep the seven segments high and turn off the decimal point.
+    set bus7 to 0
+    set dig1 to 0
     wait 0.15 seconds
-    turn off bus0
-    turn off bus1
-    turn off bus2
-    turn off bus3
-    turn off bus4
-    turn off bus5
-    turn off bus6
-    turn off dig1
-    turn on dig2
-    turn on bus0
-    turn on bus1
-    turn on bus2
-    turn on bus3
-    turn on bus4
-    turn on bus5
-    turn on bus6
+    set dig1 to 1
+    set dig2 to 0
     wait 0.15 seconds
-    turn off bus0
-    turn off bus1
-    turn off bus2
-    turn off bus3
-    turn off bus4
-    turn off bus5
-    turn off bus6
-    turn off dig2
-    turn on dig3
-    turn on bus0
-    turn on bus1
-    turn on bus2
-    turn on bus3
-    turn on bus4
-    turn on bus5
-    turn on bus6
+    set dig2 to 1
+    set dig3 to 0
     wait 0.15 seconds
-    turn off bus0
-    turn off bus1
-    turn off bus2
-    turn off bus3
-    turn off bus4
-    turn off bus5
-    turn off bus6
-    turn off dig3
-    # any button held: beep
-    IF read btn1 THEN:
-      turn on buzzer
-    IF read btn2 THEN:
-      turn on buzzer
-    IF read btn3 THEN:
-      turn on buzzer
-    IF read btn4 THEN:
-      turn on buzzer
-    IF read btn5 THEN:
-      turn on buzzer
+    set dig3 to 1
+    IF read btn1 OR read btn2 OR read btn3 OR read btn4 OR read btn5 THEN:
+      set buzzer to 0
     wait 0.05 seconds
-    turn off buzzer
+    set buzzer to 1

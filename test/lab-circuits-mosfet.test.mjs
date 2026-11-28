@@ -194,12 +194,16 @@ describe('lab MOSFET benches behave as documented', { skip: SKIP }, () => {
         const x = bench('lab-hygrometer');
         x.run(1);
         const meter = () => x.v('meter', 'a') - x.v('meter', 'b');
-        near(meter(), 0.27, 0.03, 'room air, gain at half (V)');
+        // The meter carries a 26 mV offset: the LM324's − input bias current
+        // (42.5 nA) through the ~600 kΩ feedback path.
+        near(meter(), 0.296, 0.03, 'room air, gain at half (V)');
         const at = (rh) => { x.set('comb', rh); x.run(0.5); return meter(); };
-        near(at(0.55), 0.70, 0.07, '55 %');
-        near(at(0.6), 1.84, 0.15, '60 %');
+        near(at(0.55), 0.73, 0.07, '55 %');
+        near(at(0.6), 1.86, 0.15, '60 %');
         // Conductance x10 per 12 % RH: the reading follows R_f / R_comb.
-        near(at(0.62) / at(0.5), 10, 0.5, 'one decade per 12 % RH');
+        // Measured above the offset (the comb practically open, 0 % RH).
+        const off = at(0);
+        near((at(0.62) - off) / (at(0.5) - off), 10, 0.5, 'one decade per 12 % RH');
         x.set('gain', 0); x.run(0.5);
         near(at(0.6), 3.37, 0.2, 'full gain, 60 %');
         x.set('gain', 1); x.run(0.5);

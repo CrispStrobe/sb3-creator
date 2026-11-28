@@ -12,7 +12,7 @@
 - GUARD open, cable away: quiet. Cable brought close: the trigger swings by tens of volts and the timer fires by itself; the relay pulls in.
 
 ## Measured on the engine
-bw-board 2965782a, `test/lab-circuits-r10b.test.mjs`: guarded hum 8.753–9.243 V; finger 1.713 V; unguarded hum −8.19 … 26.19 V.
+bw-board 2965782a, `test/lab-circuits-r10b.test.mjs`: guarded hum 8.753–9.243 V; finger 1.713 V; unguarded hum −0.45 … 9.47 V (clamped by the 555's input junctions).
 
 ## What this verifies
 1. A finger (470 kΩ) against 2 MΩ of pull-up brings the trigger below 3 V: 9 V × 0.47 / 2.47 = 1.7 V.
@@ -20,7 +20,7 @@ bw-board 2965782a, `test/lab-circuits-r10b.test.mjs`: guarded hum 8.753–9.243 
 3. The 555 monostable holds its output for 1.1 × 100 kΩ × 22 µF ≈ 2.4 s however short the touch.
 
 ## Simulation notes
-The engine's 555 input has no protection diodes, so the unguarded trigger swings beyond the supply instead of being clamped at it; it crosses 3 V either way. The guard capacitor goes to +9 V rather than ground so that at switch-on it holds the trigger high instead of starting the timer; for 50 Hz hum either rail is the same.
+The 555's trigger input is clamped by its input junctions, a diode drop beyond either rail, so the unguarded trigger swings between about −0.45 V and 9.47 V; it crosses 3 V either way. The guard capacitor goes to +9 V rather than ground so that at switch-on it holds the trigger high instead of starting the timer; for 50 Hz hum either rail is the same.
 
 ```assert
 # switch-on: trigger and guard capacitor held high, timer idle, timing capacitor empty
@@ -32,9 +32,9 @@ net timer_555_3.threshold V 0.001 +-0.01
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@2965782` and `bw-circuit-ui@e3441d2` — the revisions pinned in
+> `bw-board@d21d6d8` and `bw-circuit-ui@d9e0982` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
-> **13 of this page's 38** numeric claims against that engine
+> **13 of this page's 40** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs lab-555-touch-timer` prints them one by one.
 <!-- engine-provenance -->

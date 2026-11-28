@@ -143,7 +143,7 @@
       "netId": "bb1:n-col-t15",
       "from": {
         "part": "board",
-        "terminal": "d8"
+        "terminal": "d9"
       },
       "to": {
         "part": "r3",
@@ -179,7 +179,7 @@
       "netId": "bb1:n-col-t3",
       "from": {
         "part": "board",
-        "terminal": "d13"
+        "terminal": "d3"
       },
       "to": {
         "part": "r1",
@@ -191,7 +191,7 @@
       "netId": "bb1:n-col-t9",
       "from": {
         "part": "board",
-        "terminal": "d12"
+        "terminal": "d11"
       },
       "to": {
         "part": "r2",

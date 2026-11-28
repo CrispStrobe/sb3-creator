@@ -9,13 +9,12 @@ right. Each step lights a full column and clears the previous one.
 
 ## Try this
 1. Run the program — a vertical bar sweeps across the matrix.
-2. Change `set pixel row N` lines to light only specific rows for patterns.
-3. Add a second matrix and address it with `on 2` instead of `on 1`.
+2. Change the byte 255 in the column command to light a subset of its eight LEDs.
 
 ## What is going on
-The MAX7219 drives an 8×8 LED matrix over SPI (DIN, CS, CLK). `clear matrix`
-blanks the display, `set pixel col row on 1` lights one LED. The program
-sweeps a column across 8 positions at 200 ms intervals.
+The MAX7219 drives the matrix through DIN, CS and CLK. Each command
+shifts a register address and a data byte into the chip. The program writes
+one column and clears it again after 200 ms.
 
 ## Why it matters
 LED matrices are used for scrolling text, simple graphics, and status

@@ -1,0 +1,762 @@
+{
+  "vcc": 5,
+  "fileOnly": true,
+  "parts": [
+    {
+      "id": "kim1",
+      "kind": "kim-1",
+      "x": 420,
+      "y": 280,
+      "params": {
+        "program": "; Copy the user bits of port B to port A. PB6 is reserved.\n0200: A9 FF 8D 01 17 A9 00 8D 03 17 AD 02 17 29 BF 8D\n0210: 00 17 4C 0A 02\n",
+        "clockHz": 1000
+      },
+      "terminals": [
+        "PA0",
+        "PA1",
+        "PA2",
+        "PA3",
+        "PA4",
+        "PA5",
+        "PA6",
+        "PA7",
+        "PB0",
+        "PB1",
+        "PB2",
+        "PB3",
+        "PB4",
+        "PB5",
+        "PB7",
+        "5v",
+        "gnd"
+      ]
+    },
+    {
+      "id": "input0",
+      "kind": "switch",
+      "declName": "PB0",
+      "x": 740,
+      "y": 165,
+      "flipped": true,
+      "params": {
+        "closed": false
+      },
+      "terminals": [
+        "a",
+        "b"
+      ]
+    },
+    {
+      "id": "bias0",
+      "kind": "resistor",
+      "x": 650,
+      "y": 190,
+      "params": {
+        "ohms": 33000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ]
+    },
+    {
+      "id": "limit0",
+      "kind": "resistor",
+      "x": 190,
+      "y": 165,
+      "flipped": true,
+      "params": {
+        "ohms": 1000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ]
+    },
+    {
+      "id": "lamp0",
+      "kind": "led",
+      "declName": "PA0",
+      "x": 90,
+      "y": 165,
+      "flipped": true,
+      "params": {
+        "color": "red"
+      },
+      "terminals": [
+        "anode",
+        "cathode"
+      ]
+    },
+    {
+      "id": "input1",
+      "kind": "switch",
+      "declName": "PB1",
+      "x": 740,
+      "y": 233,
+      "flipped": true,
+      "params": {
+        "closed": false
+      },
+      "terminals": [
+        "a",
+        "b"
+      ]
+    },
+    {
+      "id": "bias1",
+      "kind": "resistor",
+      "x": 650,
+      "y": 258,
+      "params": {
+        "ohms": 33000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ]
+    },
+    {
+      "id": "limit1",
+      "kind": "resistor",
+      "x": 190,
+      "y": 233,
+      "flipped": true,
+      "params": {
+        "ohms": 1000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ]
+    },
+    {
+      "id": "lamp1",
+      "kind": "led",
+      "declName": "PA1",
+      "x": 90,
+      "y": 233,
+      "flipped": true,
+      "params": {
+        "color": "yellow"
+      },
+      "terminals": [
+        "anode",
+        "cathode"
+      ]
+    },
+    {
+      "id": "input2",
+      "kind": "switch",
+      "declName": "PB2",
+      "x": 740,
+      "y": 301,
+      "flipped": true,
+      "params": {
+        "closed": false
+      },
+      "terminals": [
+        "a",
+        "b"
+      ]
+    },
+    {
+      "id": "bias2",
+      "kind": "resistor",
+      "x": 650,
+      "y": 326,
+      "params": {
+        "ohms": 33000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ]
+    },
+    {
+      "id": "limit2",
+      "kind": "resistor",
+      "x": 190,
+      "y": 301,
+      "flipped": true,
+      "params": {
+        "ohms": 1000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ]
+    },
+    {
+      "id": "lamp2",
+      "kind": "led",
+      "declName": "PA2",
+      "x": 90,
+      "y": 301,
+      "flipped": true,
+      "params": {
+        "color": "green"
+      },
+      "terminals": [
+        "anode",
+        "cathode"
+      ]
+    },
+    {
+      "id": "input3",
+      "kind": "switch",
+      "declName": "PB3",
+      "x": 740,
+      "y": 369,
+      "flipped": true,
+      "params": {
+        "closed": false
+      },
+      "terminals": [
+        "a",
+        "b"
+      ]
+    },
+    {
+      "id": "bias3",
+      "kind": "resistor",
+      "x": 650,
+      "y": 394,
+      "params": {
+        "ohms": 33000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ]
+    },
+    {
+      "id": "limit3",
+      "kind": "resistor",
+      "x": 190,
+      "y": 369,
+      "flipped": true,
+      "params": {
+        "ohms": 1000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ]
+    },
+    {
+      "id": "lamp3",
+      "kind": "led",
+      "declName": "PA3",
+      "x": 90,
+      "y": 369,
+      "flipped": true,
+      "params": {
+        "color": "blue"
+      },
+      "terminals": [
+        "anode",
+        "cathode"
+      ]
+    }
+  ],
+  "wires": [
+    {
+      "id": "kimwire1",
+      "from": {
+        "part": "kim1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "input0",
+        "terminal": "a"
+      },
+      "color": "#ef4444",
+      "waypoints": [
+        {
+          "x": 370,
+          "y": 460
+        },
+        {
+          "x": 780,
+          "y": 460
+        },
+        {
+          "x": 780,
+          "y": 165
+        }
+      ]
+    },
+    {
+      "id": "kimwire2",
+      "from": {
+        "part": "input0",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "kim1",
+        "terminal": "PB0"
+      },
+      "color": "#38bdf8"
+    },
+    {
+      "id": "kimwire3",
+      "from": {
+        "part": "input0",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "bias0",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "kimwire4",
+      "from": {
+        "part": "bias0",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "kim1",
+        "terminal": "gnd"
+      },
+      "color": "#64748b",
+      "waypoints": [
+        {
+          "x": 770,
+          "y": 190
+        },
+        {
+          "x": 770,
+          "y": 450
+        },
+        {
+          "x": 470,
+          "y": 450
+        }
+      ]
+    },
+    {
+      "id": "kimwire5",
+      "from": {
+        "part": "kim1",
+        "terminal": "PA0"
+      },
+      "to": {
+        "part": "limit0",
+        "terminal": "a"
+      },
+      "color": "#f59e0b"
+    },
+    {
+      "id": "kimwire6",
+      "from": {
+        "part": "limit0",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "lamp0",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "kimwire7",
+      "from": {
+        "part": "lamp0",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "kim1",
+        "terminal": "gnd"
+      },
+      "color": "#64748b",
+      "waypoints": [
+        {
+          "x": 65,
+          "y": 165
+        },
+        {
+          "x": 65,
+          "y": 450
+        },
+        {
+          "x": 470,
+          "y": 450
+        }
+      ]
+    },
+    {
+      "id": "kimwire8",
+      "from": {
+        "part": "kim1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "input1",
+        "terminal": "a"
+      },
+      "color": "#ef4444",
+      "waypoints": [
+        {
+          "x": 370,
+          "y": 460
+        },
+        {
+          "x": 780,
+          "y": 460
+        },
+        {
+          "x": 780,
+          "y": 233
+        }
+      ]
+    },
+    {
+      "id": "kimwire9",
+      "from": {
+        "part": "input1",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "kim1",
+        "terminal": "PB1"
+      },
+      "color": "#38bdf8"
+    },
+    {
+      "id": "kimwire10",
+      "from": {
+        "part": "input1",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "bias1",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "kimwire11",
+      "from": {
+        "part": "bias1",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "kim1",
+        "terminal": "gnd"
+      },
+      "color": "#64748b",
+      "waypoints": [
+        {
+          "x": 770,
+          "y": 258
+        },
+        {
+          "x": 770,
+          "y": 450
+        },
+        {
+          "x": 470,
+          "y": 450
+        }
+      ]
+    },
+    {
+      "id": "kimwire12",
+      "from": {
+        "part": "kim1",
+        "terminal": "PA1"
+      },
+      "to": {
+        "part": "limit1",
+        "terminal": "a"
+      },
+      "color": "#f59e0b"
+    },
+    {
+      "id": "kimwire13",
+      "from": {
+        "part": "limit1",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "lamp1",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "kimwire14",
+      "from": {
+        "part": "lamp1",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "kim1",
+        "terminal": "gnd"
+      },
+      "color": "#64748b",
+      "waypoints": [
+        {
+          "x": 65,
+          "y": 233
+        },
+        {
+          "x": 65,
+          "y": 450
+        },
+        {
+          "x": 470,
+          "y": 450
+        }
+      ]
+    },
+    {
+      "id": "kimwire15",
+      "from": {
+        "part": "kim1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "input2",
+        "terminal": "a"
+      },
+      "color": "#ef4444",
+      "waypoints": [
+        {
+          "x": 370,
+          "y": 460
+        },
+        {
+          "x": 780,
+          "y": 460
+        },
+        {
+          "x": 780,
+          "y": 301
+        }
+      ]
+    },
+    {
+      "id": "kimwire16",
+      "from": {
+        "part": "input2",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "kim1",
+        "terminal": "PB2"
+      },
+      "color": "#38bdf8"
+    },
+    {
+      "id": "kimwire17",
+      "from": {
+        "part": "input2",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "bias2",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "kimwire18",
+      "from": {
+        "part": "bias2",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "kim1",
+        "terminal": "gnd"
+      },
+      "color": "#64748b",
+      "waypoints": [
+        {
+          "x": 770,
+          "y": 326
+        },
+        {
+          "x": 770,
+          "y": 450
+        },
+        {
+          "x": 470,
+          "y": 450
+        }
+      ]
+    },
+    {
+      "id": "kimwire19",
+      "from": {
+        "part": "kim1",
+        "terminal": "PA2"
+      },
+      "to": {
+        "part": "limit2",
+        "terminal": "a"
+      },
+      "color": "#f59e0b"
+    },
+    {
+      "id": "kimwire20",
+      "from": {
+        "part": "limit2",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "lamp2",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "kimwire21",
+      "from": {
+        "part": "lamp2",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "kim1",
+        "terminal": "gnd"
+      },
+      "color": "#64748b",
+      "waypoints": [
+        {
+          "x": 65,
+          "y": 301
+        },
+        {
+          "x": 65,
+          "y": 450
+        },
+        {
+          "x": 470,
+          "y": 450
+        }
+      ]
+    },
+    {
+      "id": "kimwire22",
+      "from": {
+        "part": "kim1",
+        "terminal": "5v"
+      },
+      "to": {
+        "part": "input3",
+        "terminal": "a"
+      },
+      "color": "#ef4444",
+      "waypoints": [
+        {
+          "x": 370,
+          "y": 460
+        },
+        {
+          "x": 780,
+          "y": 460
+        },
+        {
+          "x": 780,
+          "y": 369
+        }
+      ]
+    },
+    {
+      "id": "kimwire23",
+      "from": {
+        "part": "input3",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "kim1",
+        "terminal": "PB3"
+      },
+      "color": "#38bdf8"
+    },
+    {
+      "id": "kimwire24",
+      "from": {
+        "part": "input3",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "bias3",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "kimwire25",
+      "from": {
+        "part": "bias3",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "kim1",
+        "terminal": "gnd"
+      },
+      "color": "#64748b",
+      "waypoints": [
+        {
+          "x": 770,
+          "y": 394
+        },
+        {
+          "x": 770,
+          "y": 450
+        },
+        {
+          "x": 470,
+          "y": 450
+        }
+      ]
+    },
+    {
+      "id": "kimwire26",
+      "from": {
+        "part": "kim1",
+        "terminal": "PA3"
+      },
+      "to": {
+        "part": "limit3",
+        "terminal": "a"
+      },
+      "color": "#f59e0b"
+    },
+    {
+      "id": "kimwire27",
+      "from": {
+        "part": "limit3",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "lamp3",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "kimwire28",
+      "from": {
+        "part": "lamp3",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "kim1",
+        "terminal": "gnd"
+      },
+      "color": "#64748b",
+      "waypoints": [
+        {
+          "x": 65,
+          "y": 369
+        },
+        {
+          "x": 65,
+          "y": 450
+        },
+        {
+          "x": 470,
+          "y": 450
+        }
+      ]
+    }
+  ],
+  "holeWires": []
+}

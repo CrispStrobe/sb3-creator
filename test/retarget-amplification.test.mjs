@@ -21,7 +21,7 @@ const index = JSON.parse(readFileSync(join(EXAMPLES, 'index.json'), 'utf8'));
 // Device-only micro:bit and SPIKE Prime examples sit outside the C-retarget
 // family — retargetPseudocode has no 'microbit' or 'spike' target (same
 // exclusion as retarget-gallery, a1b6030; this suite was missed by that fix).
-const generic = index.filter(e => e.kind === 'program' && Array.isArray(e.devices)
+const generic = index.filter(e => e.kind === 'program' && Boolean(e.files?.program) && Array.isArray(e.devices)
     && e.authored !== 'microbit' && e.authored !== 'spike');
 
 // MEASURED 2026-08-23: 40 of 274 index.json entries. Both halves of this filter
@@ -31,7 +31,7 @@ const generic = index.filter(e => e.kind === 'program' && Array.isArray(e.device
 // list is a green run over nothing.
 corpusFloor('retargetable programs in examples/index.json',
     () => generic.length, 35,
-    "The filter is kind === 'program' && Array.isArray(devices), minus the microbit/spike authored families.");
+    "The filter is kind === 'program' && files.program && Array.isArray(devices), minus the microbit/spike authored families.");
 
 /** ADC config per device: bits and reference voltage. */
 const ADC_CFG = {
@@ -202,6 +202,83 @@ describe('amplification: retarget + referee traces', () => {
     }
 });
 
+// ---- Tier 2 fallback: physical level writes ---------------------------------
+//
+// The referee records INTENT: `turn on` is intent 1, and a LEVEL (`set pin to
+// 1`, `set pin high`, a computed value) is converted to intent through the
+// pin's polarity. The retarget gives a digital output its device's LED
+// convention (ACTIVE LOW on stc89c52rc/stc15f2k60s2), so a program that writes
+// electrical LEVELS — a serial protocol, a relay driver transistor, segment
+// bits from a font table — produces DIFFERENT intent on those boards for the
+// SAME waveform at the pin. That is the program being right, not divergent.
+//
+// So when the intent traces differ, the pair is accepted only if every pin
+// that is written ONLY by levels carries the same ELECTRICAL waveform, and
+// every other pin the same intent. Electrical is reconstructed from the
+// referee's own seeding (intent 0 at reset, an event only on change): a pin's
+// opening event at t = 0 that merely brings it to the level the other chip
+// already resets to is the same first write, unrecorded on the other side.
+// MEASURED 2026-11-27 (09-relay-clicker, 20-shift-register-binary,
+// disp-led-matrix, disp-sevenseg, all reconciled from the verified workbench
+// lessons): the only differences are those opening events on stc89c52rc and
+// stc15f2k60s2; 266 of 266 shift-register and 1176 of 1176 LED-matrix
+// protocol edges agree after them.
+function levelWrittenPins (project) {
+    const level = new Set(), logical = new Set();
+    for (const t of project.targets || []) {
+        for (const b of Object.values(t.blocks || {})) {
+            if (!b || typeof b !== 'object') continue;
+            const pin = b.fields?.PIN?.[0];
+            if (pin === undefined) continue;
+            const name = String(pin).toLowerCase();
+            if (b.opcode === 'stc12_writepin') level.add(name);
+            else if (b.opcode === 'stc12_setpin') {
+                const state = b.fields?.STATE?.[0];
+                (state === 'high' || state === 'low' ? level : logical).add(name);
+            } else if (b.opcode === 'stc12_toggle') logical.add(name);
+        }
+    }
+    for (const n of logical) level.delete(n);
+    return level;
+}
+
+function electricallyIdentical (refTrace, refPins, actTrace, actPins, levelPins) {
+    const polarity = (pins) => new Map((pins || []).map(p => [String(p.name).toLowerCase(), !!p.activeLow]));
+    const refAL = polarity(refPins), actAL = polarity(actPins);
+    // Each event as [pin, token]: level-written pins by electrical level,
+    // every other pin by intent.
+    const tokens = (trace, al) => trace.events.map(e => {
+        const k = String(e.pin).toLowerCase();
+        return levelPins.has(k)
+            ? [k, `${e.tMs}:${k}:e${al.get(k) ? 1 - e.level : e.level}`, e]
+            : [k, `${e.tMs}:${k}:i${e.level}`, e];
+    });
+    const a = tokens(refTrace, refAL), b = tokens(actTrace, actAL);
+    // Per pin: may this side's opening event be the first write the other
+    // chip did not record (t = 0, the pins' polarities differ, and it drives
+    // the pin to the level the other chip resets to)?
+    const opening = (list, al, otherAL, k) => {
+        const i = list.findIndex(([p]) => p === k);
+        if (i < 0) return -1;
+        const [, , e] = list[i];
+        if (!levelPins.has(k) || e.tMs !== 0 || !!al.get(k) === !!otherAL.get(k)) return -1;
+        const raw = al.get(k) ? 1 - e.level : e.level;
+        return raw === (otherAL.get(k) ? 1 : 0) ? i : -1;
+    };
+    const perPin = (list, k, skip) => list.filter(([p], i) => p === k && i !== skip).map(([, t]) => t);
+    const same = (x, y) => x.length === y.length && x.every((v, i) => v === y[i]);
+    const dropA = new Set(), dropB = new Set();
+    for (const k of new Set([...a, ...b].map(([p]) => p))) {
+        if (same(perPin(a, k, -1), perPin(b, k, -1))) continue;
+        const ia = opening(a, refAL, actAL, k), ib = opening(b, actAL, refAL, k);
+        if (ia >= 0 && same(perPin(a, k, ia), perPin(b, k, -1))) dropA.add(ia);
+        else if (ib >= 0 && same(perPin(a, k, -1), perPin(b, k, ib))) dropB.add(ib);
+        else return false;
+    }
+    return same(a.filter((_, i) => !dropA.has(i)).map(([, t]) => t),
+        b.filter((_, i) => !dropB.has(i)).map(([, t]) => t));
+}
+
 // ---- Tier 2: cross-device identity -----------------------------------------
 describe('amplification: cross-device trace identity', () => {
     for (const entry of generic) {
@@ -211,6 +288,7 @@ describe('amplification: cross-device trace identity', () => {
         test(`${entry.id}: traces identical across ${entry.devices.length} devices`, () => {
             const src = readFileSync(join(EXAMPLES, entry.files.program), 'utf8');
             const traces = {};
+            const projects = {};
             let skipAll = false;
 
             for (const dev of entry.devices) {
@@ -225,6 +303,7 @@ describe('amplification: cross-device trace identity', () => {
                 });
                 if (trace.unsupported.length) { skipAll = true; break; }
                 traces[dev] = trace;
+                projects[dev] = c.project;
             }
             if (skipAll) return; // skip examples with unsupported opcodes
 
@@ -236,8 +315,15 @@ describe('amplification: cross-device trace identity', () => {
                 // Events: exact match (same pin, level, time)
                 const refEv = ref.events.map(e => `${e.tMs}:${e.pin}:${e.level}`);
                 const actEv = act.events.map(e => `${e.tMs}:${e.pin}:${e.level}`);
-                assert.deepEqual(actEv, refEv,
-                    `${devs[0]} vs ${devs[i]}: event traces differ`);
+                const levels = levelWrittenPins(projects[devs[0]]);
+                const sameIntent = actEv.length === refEv.length && actEv.every((x, j) => x === refEv[j]);
+                if (!sameIntent && levels.size && electricallyIdentical(ref, projects[devs[0]].stc.pins,
+                    act, projects[devs[i]].stc.pins, levels)) {
+                    // the same waveform at every level-written pin; see levelWrittenPins
+                } else {
+                    assert.deepEqual(actEv, refEv,
+                        `${devs[0]} vs ${devs[i]}: event traces differ`);
+                }
 
                 // PWM: exact match
                 const refPwm = ref.pwm.map(p => `${p.tMs}:${p.pin}:${p.percent}`);

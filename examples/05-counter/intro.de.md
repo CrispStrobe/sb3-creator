@@ -9,11 +9,11 @@ Bei jedem Tastendruck auf P3.2 erhöht sich ein Zähler um eins und die LED blin
 
 ## Probier das
 1. Starte das Programm und drücke die Taste einmal — die LED blinkt einmal.
-2. Drücke noch dreimal und beobachte, wie die LED beim letzten Druck viermal blinkt.
-3. Drücke schnell hintereinander und beachte, dass jeder Druck genau einmal gezählt wird — das ist Entprellung.
+2. Warte, bis die LED nicht mehr blinkt, und drücke erneut. Wiederhole das, bis die LED viermal blinkt.
+3. Halte die Taste zwei Sekunden gedrückt. Das zählt nur einmal. Lass sie vor dem nächsten Druck los.
 
 ## Was passiert hier
-Die Taste verbindet P3.2 über einen Pull-Down-Widerstand mit Masse. Beim Drücken liest der Pin LOW. Das Programm erkennt einen HIGH-zu-LOW-Übergang, wartet eine kurze Entprellzeit (ca. 20 ms), bis das mechanische Prellen abgeklungen ist, und erhöht dann den Zähler. Danach blinkt die LED so oft, wie der Zähler angibt. Ohne Entprellzeit könnte ein einzelner Druck als zwei oder drei Drücke registriert werden, weil die Metallkontakte im Taster mehrfach prellen, bevor sie zur Ruhe kommen.
+Ein Pull-up-Widerstand hält P3.2 auf HIGH. Beim Drücken verbindet die Taste den Pin mit Masse. Durch die Deklaration `ACTIVE LOW` liefert `read button` beim Drücken den Wert 1. Nach dem Blinken wartet das Programm eine halbe Sekunde und nimmt erst nach dem Loslassen den nächsten Tastendruck an. So werden weder eine gehaltene Taste noch Prellen während der Wartezeit mehrfach gezählt.
 
 ## Warum das wichtig ist
 Einen Taster auszulesen und Ereignisse zu zählen, ist grundlegend für jedes interaktive Gerät — Aufzüge, Automaten, Fernbedienungen. Entprellung ist ein Problem, dem jeder Ingenieur begegnet, und es früh zu lernen verhindert mysteriöse Doppelzählungen später.

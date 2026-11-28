@@ -79,7 +79,7 @@
   },
   {
    "from": "board",
-   "fromTerminal": "d2",
+   "fromTerminal": "d22",
    "to": "us",
    "toTerminal": "echo"
   },

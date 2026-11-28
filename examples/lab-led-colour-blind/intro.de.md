@@ -10,8 +10,8 @@ Klick auf **Sim**. Die rote Lampe leuchtet, der rote Empfänger ist gewählt. St
 
 ## Was du sehen solltest
 
-- Rote Lampe: Der rote Empfänger liefert etwa 0,45 V, der grüne gar nichts.
-- Grüne Lampe: Der rote Empfänger liefert etwa 0,9 V, der grüne nur 0,16 V.
+- Rote Lampe: Der rote Empfänger liefert etwa 0,4 V, der grüne gar nichts.
+- Grüne Lampe: Der rote Empfänger liefert etwa 0,85 V, der grüne nur 0,12 V.
 
 ## Warum es funktioniert
 

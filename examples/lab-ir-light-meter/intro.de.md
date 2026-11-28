@@ -9,7 +9,7 @@ Eine Infrarot-LED leuchtet auf eine zweite IR-LED, die als Lichtsensor arbeitet.
 
 ## Probier das
 1. Klick auf **Sim**. Das Messgerät zeigt etwa 1,2 V.
-2. Schalte die IR-Lampe aus. Im Dunkeln zeigt es immer noch etwa 0,3 V: Das ist der Offset.
+2. Schalte die IR-Lampe aus. Im Dunkeln zeigt es immer noch etwa 0,1 V: Das ist der Offset.
 3. Dreh das Null-Poti langsam höher, bis der Zeiger gerade auf 0 steht.
 4. Schalte die Lampe wieder ein und verstell den Abstand am Lichtweg: 5 cm, 10 cm, 20 cm. Bei doppeltem Abstand bleibt nur etwa ein Viertel übrig.
 

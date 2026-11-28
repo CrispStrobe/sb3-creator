@@ -121,7 +121,7 @@ describe('machine benches boot the ROM they ship', { skip: gate.skip }, () => {
             `EXPECTED.md documents an 800 ms sweep; measured ${(sweep / 1000).toFixed(1)} ms`);
     });
 
-    test('eater6502-vdp-hello writes HELLO into the TMS9918 name table', async () => {
+    test('eater6502-vdp-hello renders HELLO through the TMS9918', async () => {
         // machines-source-asm's bench. Its program.c was already in the repo and
         // documents every constant; the ROM is that program, hand-assembled with
         // labels rather than counted offsets (four loops — counted offsets are
@@ -154,6 +154,16 @@ describe('machine benches boot the ROM they ship', { skip: gate.skip }, () => {
         let spaces = 0;
         for (let i = 0x3800; i < 0x3800 + 768; i++) if (vdp.vram[i] === 0x20) spaces++;
         assert.equal(spaces, 763, 'the clear loop must cover the whole name table');
+
+        // Name-table bytes alone cannot display text on a TMS9918.
+        const frame = vdp.videoFrame();
+        const pixel = (x, y) => [...frame.rgba.slice((y * frame.width + x) * 4, (y * frame.width + x) * 4 + 4)];
+        assert.deepEqual(pixel(0, 0), [84, 85, 237, 255]);
+        assert.deepEqual(pixel(105, 88), [255, 255, 255, 255], 'left stroke of H');
+        assert.deepEqual(pixel(107, 88), [84, 85, 237, 255], 'space between the H strokes');
+        assert.deepEqual(pixel(107, 91), [255, 255, 255, 255], 'crossbar of H');
+        assert.deepEqual(pixel(140, 88), [255, 255, 255, 255], 'top stroke of O');
+
     });
 
     test('the committed image is exactly what the generator produces', () => {
