@@ -1,0 +1,114 @@
+name: Cowgol conversion and compiler interoperability
+on:
+  push:
+    branches: [main, 'feat/cowgol-integration-*']
+    paths:
+      - 'src/utils/cowgol*.js'
+      - 'src/utils/riscvConsole.js'
+      - 'src/utils/sb3Creator.js'
+      - 'src/utils/crispBasicMode.js'
+      - 'src/embed/**'
+      - 'scripts/bundle-embed.mjs'
+      - 'bin/bw.mjs'
+      - 'test/cowgol*.test.mjs'
+      - 'test/riscv-console*.test.mjs'
+      - 'test/fixtures/cowgol/**'
+      - '.github/workflows/cowgol.yml'
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'src/utils/cowgol*.js'
+      - 'src/utils/riscvConsole.js'
+      - 'src/utils/sb3Creator.js'
+      - 'src/utils/crispBasicMode.js'
+      - 'src/embed/**'
+      - 'scripts/bundle-embed.mjs'
+      - 'bin/bw.mjs'
+      - 'test/cowgol*.test.mjs'
+      - 'test/riscv-console*.test.mjs'
+      - 'test/fixtures/cowgol/**'
+      - '.github/workflows/cowgol.yml'
+permissions:
+  contents: read
+jobs:
+  conversion:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '26'
+          cache: npm
+      # The bare-engine surface check builds the real esbuild bundle.
+      - run: npm ci --ignore-scripts
+      - uses: actions/checkout@v4
+        with:
+          repository: CrispStrobe/cowgol
+          ref: 89b13e71030f929b40f82018a19b5b3386650342
+          path: _cowgol
+      - uses: actions/checkout@v4
+        with:
+          repository: CrispStrobe/stc-compiler
+          ref: 597b52f7464313c9774206e570ee8ee47a667a16
+          path: _stc_compiler
+      - uses: actions/checkout@v4
+        with:
+          repository: CrispStrobe/bw-board
+          ref: d21d6d8b819263eb08231134b7556efa82289a90
+          path: _bw_board
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python3 -m pip install -r _stc_compiler/requirements.txt
+      - run: node --test test/cowgol.test.mjs test/cowgol-compiler.test.mjs test/cowgol-native.test.mjs test/cowgol-native-compiler.test.mjs test/cowgol-surfaces.test.mjs test/riscv-console.test.mjs test/riscv-console-machine.test.mjs test/pico-repl-transport.test.mjs test/pico-repl-chunking.test.mjs test/pico-repl.test.mjs
+        env:
+          COWGOL_ROOT: '${{ github.workspace }}/_cowgol'
+          COWGOL_STC_COMPILER: '${{ github.workspace }}/_stc_compiler'
+          COWGOL_BW_BOARD: '${{ github.workspace }}/_bw_board'
+  native-machines:
+    # Legacy zmac uses pre-C23 function declarations; keep the GCC 13 runner.
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '26'
+          cache: npm
+      - run: npm ci --ignore-scripts --omit=dev
+      - uses: actions/checkout@v4
+        with:
+          repository: CrispStrobe/cowgol
+          ref: 89b13e71030f929b40f82018a19b5b3386650342
+          path: _cowgol
+      - uses: actions/checkout@v4
+        with:
+          repository: CrispStrobe/stc-compiler
+          ref: 597b52f7464313c9774206e570ee8ee47a667a16
+          path: _stc_compiler
+      - uses: actions/checkout@v4
+        with:
+          repository: CrispStrobe/bw-board
+          ref: d21d6d8b819263eb08231134b7556efa82289a90
+          path: _bw_board
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install native compiler build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends build-essential ninja-build lua5.4 bison flex gpp moreutils nasm 64tass libreadline-dev
+          python3 -m pip install --quiet fastapi pydantic
+          npm install --prefix .cowgol-oracles --no-save --ignore-scripts --no-audit --no-fund avr8js@0.21.1
+      - name: Build the pinned native bundle and execution oracles
+        run: python3 _stc_compiler/scripts/build-cowgol-bundle.py --source _cowgol --oracles
+      - name: Execute generated checked programs on CP/M, DOS, Eater, RISC-V, Uno, Nano and ATmega168P
+        run: node --test test/cowgol-native-machine.test.mjs
+        env:
+          REQUIRE_COWGOL_NATIVE_MACHINES: '1'
+          COWGOL_STC_COMPILER: '${{ github.workspace }}/_stc_compiler'
+          COWGOL_BUNDLE: '${{ github.workspace }}/_stc_compiler/vendor/cowgol'
+          COWGOL_CPMEMU: '${{ github.workspace }}/_cowgol/bin/cpmemu'
+          COWGOL_EMU2: '${{ github.workspace }}/_cowgol/bin/emu2'
+          COWGOL_BW_BOARD: '${{ github.workspace }}/_bw_board'
+          COWGOL_AVR_RUNNER: '${{ github.workspace }}/_cowgol/tests/avr-run.mjs'
+          AVR8JS_ROOT: '${{ github.workspace }}/.cowgol-oracles/node_modules/avr8js'

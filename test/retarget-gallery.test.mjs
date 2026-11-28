@@ -27,7 +27,8 @@ const index = JSON.parse(readFileSync(join(EXAMPLES, 'index.json'), 'utf8'));
 // bench that cannot be built. arcade and pybadge-lc additionally declare
 // `virtual: true` — they have no circuit header at all, which is a stronger
 // version of the same fact. Delete them from here when they get board parts.
-const UNBENCHABLE = new Set(['eater6502', 'z80', 'microbit', 'calliopemini',
+// RISCV32 has an executable console backend, but no designer circuit terminals.
+const UNBENCHABLE = new Set(['riscv32', 'eater6502', 'z80', 'microbit', 'calliopemini',
     'arcade', 'pybadge', 'pybadge-lc', 'samd51', 'stm32g030', 'stm32f103']);
 const devices = Object.keys(SB3Creator.RETARGET_POOLS)
     .filter(d => !UNBENCHABLE.has(d));
