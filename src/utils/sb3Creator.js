@@ -1,4 +1,5 @@
 import {validateProcedureParameterConstraints} from './procedureParameterConstraints.js';
+import {generateCowgol} from './cowgol.js';
 import JSZip from 'jszip';
 // Auto-generated hardware-extension registry (scripts/gen-runtime-registry.mjs). Covers all
 // the LEGO/hardware extensions declaratively so the pluggable driver "works for all of them".
@@ -16382,6 +16383,10 @@ class SB3Creator {
         return { ok: true, py, reasons: [], warnings,
             ...(dbg ? { positions: dbgPos, procNames: dbgProcs } : {}),
             ...(trc ? { lineMap } : {}) };
+    }
+
+    generateCowgol(project = this.project, opts = {}) {
+        return generateCowgol(this, project, opts);
     }
 
     generateBASIC(project = this.project, opts = {}) {
