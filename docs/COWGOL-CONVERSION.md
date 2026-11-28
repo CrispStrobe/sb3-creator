@@ -116,12 +116,12 @@ program. The complete old pseudocode is never replayed over edited code.
 
 ## Relation to CrispBASIC
 
-The separate `feature/crispbasic-generator` branch establishes a useful pattern:
+The CrispBASIC generator, now adopted from its feature branch into `main`,
+establishes a useful pattern:
 ordinary host-library calls, explicit supported-pin maps, output-latch toggles,
 simulated milliseconds, and named refusals rather than successful no-op stubs.
 Cowgol follows those principles while keeping its different integer and string
-semantics explicit. This work does not silently merge that other feature
-branch. In particular, CrispBASIC's current portable-library reverse reader
+semantics explicit. In particular, CrispBASIC's current portable-library reverse reader
 refuses those calls, while Cowgol now has a qualified reverse subset.
 
 ## Qualification

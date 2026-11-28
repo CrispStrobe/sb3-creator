@@ -15,14 +15,18 @@ const INTEGER_PROFILE = 'Cowgol arithmetic is signed int32. This conversion requ
 function stringIssue(value) {
     const s = String(value);
     if (/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(s)) return 'Text contains a control character outside the shared newline/tab/return subset';
+    let bytes = 0;
     for (let i = 0; i < s.length; i++) {
         const c = s.charCodeAt(i);
         if (c >= 0xd800 && c <= 0xdbff) {
             const next = s.charCodeAt(++i);
             if (!(next >= 0xdc00 && next <= 0xdfff)) return 'Text contains an unpaired UTF-16 surrogate';
+            bytes += 4;
         } else if (c >= 0xdc00 && c <= 0xdfff) return 'Text contains an unpaired UTF-16 surrogate';
+        else bytes += c < 0x80 ? 1 : c < 0x800 ? 2 : 3;
     }
-    if (new TextEncoder().encode(s).length > 127) return 'Cowgol string literals are limited to 127 UTF-8 bytes';
+    // Embedded QuickJS/boa hosts need only ECMAScript, not browser TextEncoder.
+    if (bytes > 127) return 'Cowgol string literals are limited to 127 UTF-8 bytes';
     return null;
 }
 

@@ -173,7 +173,7 @@ switch (cmd) {
             const c = new SB3Creator();
             result = { pseudocode: c.decompile(project), warnings: [] };
         } else die('read understands .c, .cow, .cowgol, .py, .js, .bas and .sb3');
-        if (result.ok === false) die(`read refused: ${(result.reasons || result.errors || []).join('; ')}`, 1);
+        if (result.ok === false) die(`read refused: ${(result.reasons || result.errors || ['conversion is unsupported']).join('; ')}`, 1);
         for (const w of result.warnings || []) console.error(`warning: ${w}`);
         writeOut(result.pseudocode ?? '', opts.o);
         break;
