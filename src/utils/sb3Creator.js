@@ -17052,7 +17052,7 @@ class SB3Creator {
                 }
                 case 'control_repeat_until': {
                     if (structured) {
-                        emit(`WHILE NOT (${basVal(b.inputs.CONDITION, blocks)})`);
+                        emit(`WHILE NOT (${crisp ? `(${basVal(b.inputs.CONDITION, blocks)})<>0` : basVal(b.inputs.CONDITION, blocks)})`);
                         depth++;
                         basChain(b.inputs.SUBSTACK ? b.inputs.SUBSTACK[1] : null, blocks);
                         depth--;
@@ -17088,7 +17088,7 @@ class SB3Creator {
                         return;
                     }
                     const after = newLabel();
-                    emit(`IF NOT (${basVal(b.inputs.CONDITION, blocks)}) THEN GOTO ${after}`);
+                    emit(`IF NOT (${crisp ? `(${basVal(b.inputs.CONDITION, blocks)})<>0` : basVal(b.inputs.CONDITION, blocks)}) THEN GOTO ${after}`);
                     basChain(b.inputs.SUBSTACK ? b.inputs.SUBSTACK[1] : null, blocks);
                     emitLabel(after);
                     return;
@@ -17107,7 +17107,7 @@ class SB3Creator {
                         return;
                     }
                     const elseL = newLabel(); const after = newLabel();
-                    emit(`IF NOT (${basVal(b.inputs.CONDITION, blocks)}) THEN GOTO ${elseL}`);
+                    emit(`IF NOT (${crisp ? `(${basVal(b.inputs.CONDITION, blocks)})<>0` : basVal(b.inputs.CONDITION, blocks)}) THEN GOTO ${elseL}`);
                     basChain(b.inputs.SUBSTACK ? b.inputs.SUBSTACK[1] : null, blocks);
                     emit(`GOTO ${after}`);
                     emitLabel(elseL);

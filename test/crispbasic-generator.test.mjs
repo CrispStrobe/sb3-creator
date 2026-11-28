@@ -365,3 +365,27 @@ test('concurrent flag scripts and unsupported event hats refuse instead of seria
     declined(result, 'event');
     assert.equal(result.diagnostics.find(d => d.code === 'crispbasic-event').opcode, 'stc12_whenpin');
 });
+
+for (const lineNumbers of [false, true]) {
+    test(`portable control guards normalize truth before BBC NOT (${lineNumbers ? 'numbered' : 'structured'})`, () => {
+        const creator = build(pinSource(`  REPEAT UNTIL read button:
+    toggle led
+    wait 0.001 seconds
+  IF read button THEN:
+    print 11
+  ELSE:
+    print 22
+  IF read button THEN:
+    print 33`));
+        const code = accepted(creator.generateBASIC(undefined, {...options, lineNumbers}));
+        if (lineNumbers) {
+            assert.equal((code.match(/IF NOT \(\(ABS\(\(\(1-FNdigitalRead\(2\)\)\)>\(0\)\)\)<>0\) THEN GOTO/g) || []).length, 2,
+                'both one-arm and two-arm numbered IF branches test numeric zero explicitly');
+        } else {
+            assert.match(code, /WHILE NOT \(\(ABS\(\(\(1-FNdigitalRead\(2\)\)\)>\(0\)\)\)<>0\)/,
+                'repeat-until must terminate when a 0/1 reporter returns 1');
+        }
+        assert.doesNotMatch(code, /(?:WHILE|IF) NOT \(\(1-FNdigitalRead\(2\)\)\)/,
+            'BBC NOT 1 is -2; applying bitwise NOT to the GPIO value never tests false');
+    });
+}
