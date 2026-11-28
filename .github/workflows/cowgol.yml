@@ -5,9 +5,11 @@ on:
   pull_request:
     paths:
       - 'src/utils/cowgol*.js'
+      - 'src/utils/riscvConsole.js'
       - 'src/utils/sb3Creator.js'
       - 'bin/bw.mjs'
       - 'test/cowgol*.test.mjs'
+      - 'test/riscv-console*.test.mjs'
       - 'test/fixtures/cowgol/**'
       - '.github/workflows/cowgol.yml'
 permissions:
@@ -27,6 +29,22 @@ jobs:
           repository: CrispStrobe/cowgol
           ref: 02318cfe4de1f5fa4bbef70446764fa8ea8b7cce
           path: _cowgol
-      - run: node --test test/cowgol.test.mjs test/cowgol-compiler.test.mjs test/pico-repl-transport.test.mjs test/pico-repl-chunking.test.mjs test/pico-repl.test.mjs
+      - uses: actions/checkout@v4
+        with:
+          repository: CrispStrobe/stc-compiler
+          ref: f73c443843bbe6ecd524b428d4edcf4e24703c1a
+          path: _stc_compiler
+      - uses: actions/checkout@v4
+        with:
+          repository: CrispStrobe/bw-board
+          ref: d21d6d8b819263eb08231134b7556efa82289a90
+          path: _bw_board
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python3 -m pip install -r _stc_compiler/requirements.txt
+      - run: node --test test/cowgol.test.mjs test/cowgol-compiler.test.mjs test/riscv-console.test.mjs test/riscv-console-machine.test.mjs test/pico-repl-transport.test.mjs test/pico-repl-chunking.test.mjs test/pico-repl.test.mjs
         env:
           COWGOL_ROOT: '${{ github.workspace }}/_cowgol'
+          COWGOL_STC_COMPILER: '${{ github.workspace }}/_stc_compiler'
+          COWGOL_BW_BOARD: '${{ github.workspace }}/_bw_board'

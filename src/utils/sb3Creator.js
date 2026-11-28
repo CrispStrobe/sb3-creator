@@ -1,5 +1,6 @@
 import {validateProcedureParameterConstraints} from './procedureParameterConstraints.js';
 import {generateCowgol} from './cowgol.js';
+import {generateRiscvC} from './riscvConsole.js';
 import JSZip from 'jszip';
 // Auto-generated hardware-extension registry (scripts/gen-runtime-registry.mjs). Covers all
 // the LEGO/hardware extensions declaratively so the pluggable driver "works for all of them".
@@ -5280,6 +5281,7 @@ class SB3Creator {
                 // unknown devices were refused (task D6) `DEVICE 8086` silently
                 // parsed as the default STC12 — Lite's own export gate wrote it.
                 8086: 'i8086', 8088: 'i8086', i8088: 'i8086',
+                riscv: 'riscv32', 'risc-v': 'riscv32', rv32: 'riscv32',
                 // Adafruit Circuit Playground Express: the names bw-circuit-ui's
                 // seated inference already answers to (B3).
                 circuitplayground: 'cpx', adafruit: 'cpx', circuit_playground_express: 'cpx'
@@ -5304,6 +5306,10 @@ class SB3Creator {
             const value = Number(m[1].replace(/_/g, ''));
             this.stcConfig().clock = /^mhz$/i.test(m[2] || '') ? value * 1000000 : value;
             return true;
+        }
+        if (this.stcConfig().device === 'riscv32' && /^(PIN|PORT|PART|LEDCUBE|MAP|CHIP)\b/i.test(trimmed)) {
+            return this.refuseDeclaration(lineIndex, trimmed,
+                'RISC-V console has no GPIO, ports, peripherals, or circuit memory map');
         }
         // MAP / CHIP: the composable 6502 machine's declared config — the
         // second of its three config sources (preset, DECLARED, wired). A
@@ -16389,6 +16395,11 @@ class SB3Creator {
         return generateCowgol(this, project, opts);
     }
 
+    /** Checked console-only C for the RV32 bench's hosted GCC runtime. */
+    generateRiscvC(project = this.project, opts = {}) {
+        return generateRiscvC(this, project, opts);
+    }
+
     generateBASIC(project = this.project, opts = {}) {
         const profile = opts.profile || 'bbc';
         const bbc = profile === 'bbc';
@@ -17419,6 +17430,17 @@ class SB3Creator {
         const declaredDevice = !!(stc && (stc.deviceDeclared
             || (stc.device && String(stc.device).toLowerCase() !== 'stc12c5a60s2')));
         const want = opts.target || ((hasHardware || declaredDevice) ? 'device' : 'host');
+        if (opts.target !== 'host' && String(opts.device || stc?.device || '').toLowerCase() === 'riscv32') {
+            const result = this.generateRiscvC(project, opts);
+            this._cWarnings = result.ok ? [] : result.reasons;
+            if (!result.ok) {
+                const error = new Error(`RISC-V console C refused: ${result.reasons.join('; ')}`);
+                error.code = 'RISCV_CONSOLE_UNSUPPORTED';
+                error.diagnostics = result.diagnostics;
+                throw error;
+            }
+            return result.c;
+        }
         if (want === 'host') return this.generateHostC(project, opts);
 
         this._cNames = new Map();
@@ -22530,6 +22552,9 @@ SB3Creator.RETARGET_POOLS = (() => {
     const unoDigital = ['D13', 'D12', 'D8', 'D7', 'D4', 'D2', 'D3', 'D5', 'D6', 'D9', 'D10', 'D11', 'A0', 'A1', 'A2', 'A3', 'A4', 'A5'];
     const unoInput = ['D2', 'D4', 'D7', 'D8', 'D3', 'D5', 'D6', 'D9', 'D10', 'D11', 'D12', 'D13', 'A0', 'A1', 'A2', 'A3', 'A4', 'A5'];
     return {
+        // The RV32 bench has a console and no circuit terminals. Empty pools
+        // let a console program be retargeted while refusing hardware roles.
+        riscv32: { digital: [], analog: [], input: [], pwm: [], ledActiveLow: false },
         // P1.3/P1.4 (the PCA/CCP pair) close BOTH the digital and input
         // pools — appended LAST, so they are touched only when 26+ pins of
         // a role are already taken and a PWM-less program needs the full
@@ -22809,7 +22834,7 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
         if (e.code !== 'DIALECT_UNPARSED_LINES') throw e;
         return { ok: false, reasons: [e.message], warnings: e.warnings || [] };
     }
-    const stc = c.project && c.project.stc;
+    const stc = (c.project && c.project.stc) || (core === 'riscv32' ? c.stcConfig() : null);
     if (!stc || !Array.isArray(stc.pins)) {
         return { ok: false, reasons: ['the source has no hardware declarations to retarget'], warnings: [] };
     }
@@ -23100,6 +23125,9 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
 };
 
 SB3Creator.STC_PARTS = {
+    // Software RV32IMAC console, built with riscv32-gcc/picolibc. No GPIO or
+    // timing runtime; generateRiscvC checks the sequential console subset.
+    riscv32: { core: 'riscv32', header: null, portModes: false, aux1T: false, adc: false },
     // core: '8051' -- {port, bit} pins, and generateC() emits for these.
     // ccp: array of {port, bit} for each PCA module (0, 1, …), or null if no PCA.
     //   STC12: CCP0=P1.3, CCP1=P1.4.  STC15: CCP0=P1.1, CCP1=P1.0, CCP2=P3.7.

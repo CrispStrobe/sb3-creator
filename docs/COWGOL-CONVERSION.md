@@ -41,6 +41,15 @@ can use the fork's CP/M and DOS `brickwright.coh` console wrappers. Graphics and
 circuit calls require the corresponding host binding; a generic Cowgol compiler
 backend does not provide those bindings by itself.
 
+`DEVICE RISCV32` now identifies Brickwright's emulated RV32 console and survives
+Cowgol conversion. Accepted console programs have a checked
+Cowgol → pseudocode → C → hosted `riscv32-gcc` route. This backend supports
+integer/text state, sequential control and console output. It rejects canvas,
+GPIO, peripheral and timing operations because the console runtime does not
+implement those devices. See [RISCV-CONSOLE.md](RISCV-CONSOLE.md) for the exact
+API and its runtime overflow checks. This is distinct from compiling the
+original Cowgol source through a native compiler service route.
+
 `bw_digital_toggle` inverts the stored electrical output request. It never
 inverts a fresh input measurement: a loaded or clamped circuit can read a value
 different from the requested output level. Active-low declarations invert
@@ -107,6 +116,7 @@ for every board. The actual host validates its connected terminals.
 | STM32G030 | PA0–PA15, PB0–PB9, PC14–PC15 | Same linear port numbering |
 | STM32F103 | PA0–PA15, PB0–PB15, PC13–PC15 | Same linear port numbering |
 | Known STC12/STC15/STC89 declarations | P0.0–P7.7 dialect coordinates | `8*port + bit`; actual bonded pins remain a host validation responsibility |
+| RISC-V RV32 console | None | Console write/exit only; GPIO and peripheral declarations refuse |
 
 Duplicated aliases, input writes, unmapped/reserved pins, and analog/PWM modes
 refuse. Clock and pin metadata travel through readable `# @bw-*` preamble
