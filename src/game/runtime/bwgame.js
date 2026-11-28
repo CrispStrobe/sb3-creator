@@ -25,6 +25,9 @@ export const FPS = 30;
 
 // A yielded WAIT survives run-without-screen-refresh; a bare yield does not.
 export const WAIT = Symbol('bwgame.wait');
+// scratch-vm Sequencer.WARP_TIME, and the deterministic stand-in for it (loop iterations).
+export const WARP_TIME_MS = 500;
+export const WARP_STEPS = 10000;
 
 class StopThread extends Error { constructor () { super('stop'); } }
 
@@ -649,9 +652,21 @@ export class Game {
         while (this.nowMs() - start < dur) { yield WAIT; if (again) again(); }
     }
     * waitUntil (cond) { while (!bool(cond())) yield WAIT; }
+    // Run without screen refresh. scratch-vm still gives the frame up once a warped
+    // thread has run for WARP_TIME (500 ms), so a long or endless warped loop cannot
+    // freeze the page. Live play measures real time as Scratch does; deterministic
+    // mode stands in a fixed count of loop iterations (shared with bwgame.py), so a
+    // run is reproducible.
     * warp (gen) {
-        let r;
-        while (!(r = gen.next()).done) if (r.value === WAIT) yield WAIT;
+        let r, steps = 0, start = performance.now();
+        while (!(r = gen.next()).done) {
+            if (r.value === WAIT) { yield WAIT; steps = 0; start = performance.now(); continue; }
+            steps++;
+            if (this.deterministic ? steps >= WARP_STEPS
+                : (steps % 64 === 0 && performance.now() - start > WARP_TIME_MS)) {
+                yield WAIT; steps = 0; start = performance.now();
+            }
+        }
         return r.value;
     }
     * waitThreads (threads) {
@@ -678,13 +693,19 @@ export class Game {
             for (const sc of this.scripts) {
                 if (sc.target !== (t.isStage ? '_stage_' : t.name)) continue;
                 if (!match(sc)) continue;
-                const existing = this.threads.find(th => th.target === t && th.script === sc && !th.done);
-                if (existing) {
-                    if (!restart) continue;
-                    existing.gen = sc.fn(t);
-                    started.push(existing);
+                // scratch-vm startHats: a restarting hat replaces ANY thread of this script
+                // still in the list (one that finished this tick included) with a new thread
+                // in the same slot, so a slot already passed runs next tick (broadcast
+                // ping-pong loops run once per frame); otherwise a running thread wins.
+                const at = this.threads.findIndex(th => th.target === t && th.script === sc);
+                if (at >= 0 && restart) {
+                    const th = new Thread(t, sc, sc.fn(t));
+                    this.threads[at].done = true;
+                    this.threads[at] = th;
+                    started.push(th);
                     continue;
                 }
+                if (this.threads.some(th => th.target === t && th.script === sc && !th.done)) continue;
                 const th = new Thread(t, sc, sc.fn(t));
                 this.threads.push(th);
                 started.push(th);

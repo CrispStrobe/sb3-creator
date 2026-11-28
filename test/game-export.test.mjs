@@ -140,6 +140,87 @@ for (const name of ['snake', 'snake_pro', 'breakout', 'invaders', 'pong_ai', 'bo
     });
 }
 
+// Broadcast loops: a script that broadcasts to another which broadcasts back (or a
+// script that re-broadcasts its own message) runs once per frame in scratch-vm, because
+// a restarted thread takes its old slot in the thread list. It must neither hang nor
+// lose the restart.
+test('broadcast ping-pong and self re-broadcast run once per frame, as in scratch-vm', async () => {
+    const c = new SB3Creator();
+    c.parse(`GLOBAL pings
+GLOBAL pongs
+GLOBAL selfs
+
+SPRITE A:
+  SHAPE circle 10
+  WHEN flag clicked:
+    set pings to 0
+    set selfs to 0
+    broadcast ping
+    broadcast again
+  WHEN I receive ping:
+    change pings by 1
+    broadcast pong
+  WHEN I receive again:
+    change selfs by 1
+    broadcast again
+
+SPRITE B:
+  SHAPE circle 10
+  WHEN flag clicked:
+    set pongs to 0
+  WHEN I receive pong:
+    change pongs by 1
+    broadcast ping
+`);
+    const bytes = new Uint8Array(await (await c.generateSB3()).arrayBuffer());
+    const input = await loadSb3(bytes);
+    const trace = { frames: 12, sample: [3, 6, 9, 12], events: [{ frame: 0, type: 'flag' }] };
+    const { game } = await loadJsGame(input, 1);
+    const js = runJs(game, trace);
+    const vm = await runVm(bytes, trace, 1);
+    assert.deepEqual(js, vm);
+    assert.ok(js.at(-1).vars.pings > 3 && js.at(-1).vars.selfs > 3, JSON.stringify(js.at(-1).vars));
+});
+
+// A warped ("run without screen refresh") loop that never ends must not freeze the
+// game: like scratch-vm (Sequencer.WARP_TIME), the runtime gives the frame up and the
+// other scripts keep running. Deterministic mode uses the same iteration budget in
+// both targets, so the traces match exactly.
+test('an endless warped loop yields the frame instead of hanging, identically in JS and Python', { skip: !PYTHON && 'no python' }, async () => {
+    const c = new SB3Creator();
+    c.parse(`GLOBAL spins
+GLOBAL ticks
+
+SPRITE Spinner:
+  SHAPE circle 20
+  DEFINE FAST spin:
+    FOREVER:
+      change spins by 1
+  WHEN flag clicked:
+    set spins to 0
+    spin
+  WHEN flag clicked:
+    set ticks to 0
+    FOREVER:
+      change ticks by 1
+`);
+    const input = await loadSb3(new Uint8Array(await (await c.generateSB3()).arrayBuffer()));
+    const trace = { frames: 6, sample: [2, 4, 6], events: [{ frame: 0, type: 'flag' }] };
+    const { game, dir } = await loadJsGame(input, 1);
+    try {
+        const states = game.runTrace(trace);
+        const ticks = states.map(s => s.vars.ticks), spins = states.map(s => s.vars.spins);
+        assert.ok(ticks[2] > ticks[0] && ticks[0] > 0, `the other script keeps running: ${ticks}`);
+        assert.ok(spins[0] > 0 && spins[2] > spins[1] && spins[1] > spins[0], `the warped loop runs on in budgets: ${spins}`);
+        const r = await exportGame(input, { target: 'pygame', title: 'warp' });
+        for (const f of ['game.py', 'bwgame.py', 'manifest.json']) writeFileSync(path.join(dir, f), r.files[f]);
+        writeFileSync(path.join(dir, 'trace.json'), JSON.stringify(trace));
+        const py = execFileSync(PYTHON, [path.join(dir, 'bwgame.py'), 'trace', dir, path.join(dir, 'trace.json')],
+            { maxBuffer: 64 << 20, env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1' } }).toString().trim();
+        assert.equal(py, JSON.stringify(states));
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
 // The same parity with costume rasters (pixel touching, clicks, tight bounds, touching
 // colour): both targets come from ONE rasterization, so manifest and rasters are identical,
 // and the Python runtime reads the exported .bwr files itself. Needs headless Chromium
