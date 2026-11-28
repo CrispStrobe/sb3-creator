@@ -65,13 +65,18 @@ const GENERATORS = [
  * a file leaves this table when the generator emits its wiring itself.
  * Raising a number is not a way to land a regression.
  */
+//
+// COUNTED 2026-11-27: the gallery reconciliation brought pc83, pc84, pc85 and
+// pc86 back from the verified workbench lessons, rewired there; their
+// wire_fix_* wires fell from 13/17/12/12 to 10/0/0/4. The re-authored wiring
+// carries no wire_fix_ marker, so the guard no longer stands in front of
+// pc84-led-herz and pc85-led-lampe-puls — a generator rewriting them would be
+// refused by nothing. That is recorded here, not papered over.
 const REPAIRED = new Map([
     ['pc81-led-lauflicht', 15],
     ['pc82-mini-roulette', 17],
-    ['pc83-gluecksrad', 13],
-    ['pc84-led-herz', 17],
-    ['pc85-led-lampe-puls', 12],
-    ['pc86-led-sanduhr', 12],
+    ['pc83-gluecksrad', 10],
+    ['pc86-led-sanduhr', 4],
     ['pc88-lichtorgel', 5],
 ]);
 

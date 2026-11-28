@@ -123,7 +123,7 @@
       "id": "capacitor_18",
       "kind": "capacitor",
       "params": {
-        "farads": 0.00001
+        "farads": 1e-05
       },
       "terminals": [
         "a",
@@ -137,7 +137,7 @@
       "id": "resistor_26",
       "kind": "resistor",
       "params": {
-        "ohms": 100000
+        "ohms": 10000
       },
       "terminals": [
         "a",
@@ -151,7 +151,7 @@
       "id": "capacitor_27",
       "kind": "capacitor",
       "params": {
-        "farads": 0.0001
+        "farads": 4.7e-06
       },
       "terminals": [
         "a",
@@ -362,54 +362,6 @@
       }
     },
     {
-      "id": "wire_10",
-      "netId": "net_5",
-      "from": {
-        "part": "vcc_1",
-        "terminal": "vcc"
-      },
-      "to": {
-        "part": "tilt_sensor_9",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "wire_12",
-      "netId": "net_11",
-      "from": {
-        "part": "tilt_sensor_9",
-        "terminal": "b"
-      },
-      "to": {
-        "part": "timer_555_3",
-        "terminal": "reset"
-      }
-    },
-    {
-      "id": "wire_14",
-      "netId": "net_11",
-      "from": {
-        "part": "timer_555_3",
-        "terminal": "reset"
-      },
-      "to": {
-        "part": "resistor_13",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "wire_15",
-      "netId": "net_7",
-      "from": {
-        "part": "resistor_13",
-        "terminal": "b"
-      },
-      "to": {
-        "part": "gnd_2",
-        "terminal": "gnd"
-      }
-    },
-    {
       "id": "wire_19",
       "netId": "net_5",
       "from": {
@@ -467,30 +419,6 @@
       "to": {
         "part": "timer_555_3",
         "terminal": "trigger"
-      }
-    },
-    {
-      "id": "wire_28",
-      "netId": "net_5",
-      "from": {
-        "part": "vcc_1",
-        "terminal": "vcc"
-      },
-      "to": {
-        "part": "resistor_26",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "wire_30",
-      "netId": "net_29",
-      "from": {
-        "part": "resistor_26",
-        "terminal": "b"
-      },
-      "to": {
-        "part": "timer_555_3",
-        "terminal": "control"
       }
     },
     {
@@ -650,18 +578,6 @@
       }
     },
     {
-      "id": "wire_fix_1030",
-      "netId": "net_7",
-      "from": {
-        "part": "decade_counter_4",
-        "terminal": "rst"
-      },
-      "to": {
-        "part": "gnd_2",
-        "terminal": "gnd"
-      }
-    },
-    {
       "id": "wire_fix_1031",
       "netId": "net_7",
       "from": {
@@ -770,20 +686,80 @@
       }
     },
     {
-      "id": "wire_fix_1040",
-      "netId": "net_29",
+      "id": "wire_rest_top",
+      "netId": "net_5",
       "from": {
-        "part": "capacitor_27",
-        "terminal": "a"
+        "part": "vcc_1",
+        "terminal": "vcc"
       },
       "to": {
-        "part": "timer_555_3",
-        "terminal": "control"
+        "part": "resistor_13",
+        "terminal": "a"
       }
     },
     {
-      "id": "wire_fix_1041",
-      "netId": "net_7",
+      "id": "wire_rest_timer",
+      "netId": "net_rest",
+      "from": {
+        "part": "resistor_13",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "timer_555_3",
+        "terminal": "reset"
+      }
+    },
+    {
+      "id": "wire_rest_cap",
+      "netId": "net_rest",
+      "from": {
+        "part": "resistor_13",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "capacitor_27",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_rest_tilt",
+      "netId": "net_rest",
+      "from": {
+        "part": "resistor_13",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "tilt_sensor_9",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_rest_trigger",
+      "netId": "net_tilt_return",
+      "from": {
+        "part": "tilt_sensor_9",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "resistor_26",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_rest_limit",
+      "netId": "net_8",
+      "from": {
+        "part": "resistor_26",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_rest_return",
+      "netId": "net_8",
       "from": {
         "part": "capacitor_27",
         "terminal": "b"
@@ -791,6 +767,18 @@
       "to": {
         "part": "gnd_2",
         "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_wrap_q6",
+      "netId": "net_wrap",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q6"
+      },
+      "to": {
+        "part": "decade_counter_4",
+        "terminal": "rst"
       }
     }
   ],

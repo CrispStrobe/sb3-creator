@@ -124,7 +124,7 @@
   },
   {
    "from": "board",
-   "fromTerminal": "P3.2",
+   "fromTerminal": "P1.1",
    "to": "us",
    "toTerminal": "echo"
   },
@@ -198,7 +198,7 @@
   {
    "ref": "bbw:bb1:gen_3",
    "boardId": "bb1",
-   "a": "d20",
+   "a": "g12",
    "b": "b29",
    "color": "blue"
   },

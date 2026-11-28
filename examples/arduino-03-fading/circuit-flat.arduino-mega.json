@@ -65,7 +65,7 @@
       "netId": "bb1:n-col-t20",
       "from": {
         "part": "board",
-        "terminal": "d13"
+        "terminal": "d9"
       },
       "to": {
         "part": "r1",

@@ -335,49 +335,49 @@
  "wires": [
   {
    "from": "sr1",
-   "fromTerminal": "Q0",
+   "fromTerminal": "qa",
    "to": "r1",
    "toTerminal": "a"
   },
   {
    "from": "sr1",
-   "fromTerminal": "Q1",
+   "fromTerminal": "qb",
    "to": "r2",
    "toTerminal": "a"
   },
   {
    "from": "sr1",
-   "fromTerminal": "Q2",
+   "fromTerminal": "qc",
    "to": "r3",
    "toTerminal": "a"
   },
   {
    "from": "sr1",
-   "fromTerminal": "Q3",
+   "fromTerminal": "qd",
    "to": "r4",
    "toTerminal": "a"
   },
   {
    "from": "sr1",
-   "fromTerminal": "Q4",
+   "fromTerminal": "qe",
    "to": "r5",
    "toTerminal": "a"
   },
   {
    "from": "sr1",
-   "fromTerminal": "Q5",
+   "fromTerminal": "qf",
    "to": "r6",
    "toTerminal": "a"
   },
   {
    "from": "sr1",
-   "fromTerminal": "Q6",
+   "fromTerminal": "qg",
    "to": "r7",
    "toTerminal": "a"
   },
   {
    "from": "sr1",
-   "fromTerminal": "Q7",
+   "fromTerminal": "qh",
    "to": "r8",
    "toTerminal": "a"
   },
@@ -481,19 +481,19 @@
    "from": "uno1",
    "fromTerminal": "d13",
    "to": "sr1",
-   "toTerminal": "data"
+   "toTerminal": "ser"
   },
   {
    "from": "uno1",
    "fromTerminal": "d12",
    "to": "sr1",
-   "toTerminal": "clock"
+   "toTerminal": "srclk"
   },
   {
    "from": "uno1",
    "fromTerminal": "d8",
    "to": "sr1",
-   "toTerminal": "latch"
+   "toTerminal": "rclk"
   },
   {
    "from": "uno1",
@@ -576,6 +576,26 @@
    },
    "color": "black",
    "genPower": true
+  },
+  {
+   "from": {
+    "part": "sr1",
+    "terminal": "vcc"
+   },
+   "to": {
+    "part": "sr1",
+    "terminal": "srclr"
+   }
+  },
+  {
+   "from": {
+    "part": "sr1",
+    "terminal": "gnd"
+   },
+   "to": {
+    "part": "sr1",
+    "terminal": "oe"
+   }
   }
  ],
  "holeWires": [

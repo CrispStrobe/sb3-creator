@@ -10,3 +10,38 @@
 | `0x01` | 092 | `A00.071` |
 | `0x02` | 094 | `A00.143` |
 | `0x03` or / oder `0xFF` | 096 | `A00.239` |
+
+### 1. Verification
+
+Start at `82` and run to HLT.
+- Set P1 to 0x00 at `82`.
+- Expected PC `90`.
+- Expected accumulator `00.017`.
+
+### 2. Verification
+
+Start at `82` and run to HLT.
+- Set P1 to 0x01 at `82`.
+- Expected PC `92`.
+- Expected accumulator `00.071`.
+
+### 3. Verification
+
+Start at `82` and run to HLT.
+- Set P1 to 0x02 at `82`.
+- Expected PC `94`.
+- Expected accumulator `00.143`.
+
+### 4. Verification
+
+Start at `82` and run to HLT.
+- Set P1 to 0x03 at `82`.
+- Expected PC `96`.
+- Expected accumulator `00.239`.
+
+### 5. Verification
+
+Start at `82` and run to HLT.
+- Set P1 to 0xff at `82`.
+- Expected PC `96`.
+- Expected accumulator `00.239`.

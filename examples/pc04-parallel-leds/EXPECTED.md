@@ -10,4 +10,6 @@
 ```assert
 # Supply rail: vsource at 5.0V, two equal LED branches
 net vsource_2.pos V 5.00 +-0.01
+current led_5 mA -3.0 +-0.5
+current led_6 mA -3.0 +-0.5
 ```

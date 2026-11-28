@@ -10,4 +10,5 @@
 ```assert
 # Forward: 5V - 0.7V(diode) - 2.0V(LED) across 220R
 net vsource_2.pos V 5.00 +-0.01
+current led_5 mA -10.5 +-1.5
 ```

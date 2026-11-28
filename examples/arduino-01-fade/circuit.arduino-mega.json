@@ -18,7 +18,7 @@
    "y": -5,
    "rotation": 0,
    "terminals": [
-    "d13",
+    "d9",
     "5v",
     "gnd"
    ]
@@ -89,7 +89,7 @@
   },
   {
    "from": "board",
-   "fromTerminal": "d13",
+   "fromTerminal": "d9",
    "to": "r1",
    "toTerminal": "a"
   },

@@ -26,7 +26,7 @@
       "kind": "arduino_uno",
       "params": {},
       "terminals": [
-        "d13",
+        "d9",
         "5v",
         "gnd2"
       ],
@@ -52,7 +52,7 @@
       "netId": "bb1:n-col-t3",
       "from": {
         "part": "MCU",
-        "terminal": "d13"
+        "terminal": "d9"
       },
       "to": {
         "part": "SERVO_servo",

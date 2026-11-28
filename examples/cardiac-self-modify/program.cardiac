@@ -1,0 +1,19 @@
+; Original Brickwright CARDIAC example: the executed word changes.
+; The source remains a draft; live memory is the execution authority.
+ORG 10
+ENTRY show
+show:  OUT table
+       CLA show
+       ADD one
+       STO show
+       CLA remaining
+       SUB one
+       STO remaining
+       TAC done
+       JMP show
+done:  HRS
+ORG 80
+table: DAT 11, 22, 33
+ORG 90
+one:       DAT 1
+remaining: DAT 2

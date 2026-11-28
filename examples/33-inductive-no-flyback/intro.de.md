@@ -94,12 +94,3 @@ pro Schaltzyklus steht ein einziges Bauteil für zehn Cent.
   Simulator zeigt dir bereitwillig ein harmloses Ergebnis für eine Schaltung,
   die sich auf dem Labortisch zerstören würde — wenn in dem Modell, das du ihm
   gegeben hast, keine Induktivität steckt.
-
-> **Hinweis zum Wert von `l1`.** Wenn du die Zahl bei `henrys` änderst, ändert
-> sich am Verhalten des Solvers derzeit nichts — der Transientenpfad der Engine
-> liest diesen Parameter unter einer anderen Schreibweise, sodass jede Spule
-> mit 1 mH gerechnet wird. Festgehalten ist das in [AUDIT.md](../AUDIT.md).
-> Bis das behoben ist, behandle `l1` als vorhanden-oder-nicht statt als
-> einstellbar, und überleg dir größere Spulen auf dem Papier: Eine
-> Relaiswicklung mit einigen zehn Millihenry speichert deutlich mehr Energie
-> als dieser Motor und verzeiht entsprechend weniger.

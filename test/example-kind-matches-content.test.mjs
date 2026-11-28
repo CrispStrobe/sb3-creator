@@ -36,6 +36,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import SB3Creator from '../src/utils/sb3Creator.js';
+import {assembleCardiac} from '../src/utils/cardiacProgram.js';
 
 const EXAMPLES = join(import.meta.dirname, '..', 'examples');
 const index = JSON.parse(readFileSync(join(EXAMPLES, 'index.json'), 'utf8'));
@@ -54,6 +55,18 @@ function blockCount(dir) {
     return { ok: true, blocks, absent: false };
 }
 
+/** A declared CARDIAC program is classified by its own assembler, not a stub .bw. */
+function programContent(entry) {
+    if (!entry.files?.cardiac) return blockCount(entry.id);
+    if (entry.target !== 'cardiac') return {ok: false, reason: 'CARDIAC source needs target cardiac'};
+    try {
+        const assembly = assembleCardiac(readFileSync(join(EXAMPLES, entry.files.cardiac), 'utf8'));
+        if (!assembly.ok) return {ok: false, reason: `CARDIAC source does not assemble: ${assembly.diagnostics.map(d => d.message).join('; ')}`};
+        return {ok: true, blocks: 0, instructions: assembly.listing.filter(row => row.mnemonic !== 'DAT').length,
+            cardiac: true, entry: assembly.entry, absent: false};
+    } catch (error) { return {ok: false, reason: `CARDIAC source cannot be read: ${error.message}`}; }
+}
+
 /**
  * RATCHET: entries whose kind is knowingly at odds with their content, each
  * with the verdict. May only SHRINK. Empty — 33-inductive-no-flyback was
@@ -62,9 +75,9 @@ function blockCount(dir) {
 const KNOWN_KIND_MISMATCH = new Map([]);
 
 describe('example kind agrees with example content', () => {
-    const counts = new Map(index.map(e => [e.id, blockCount(e.id)]));
+    const counts = new Map(index.map(e => [e.id, programContent(e)]));
 
-    test('every program.bw in the catalog parses', () => {
+    test('every declared program source in the catalog parses', () => {
         const broken = [...counts].filter(([, c]) => !c.ok).map(([id, c]) => `${id}: ${c.reason}`);
         assert.deepEqual(broken, [], 'a program that will not parse cannot be classified');
     });
@@ -90,8 +103,9 @@ describe('example kind agrees with example content', () => {
         for (const entry of index) {
             if (entry.kind !== 'circuit') continue;
             const c = counts.get(entry.id);
-            if (!c.ok || c.blocks === 0 || KNOWN_KIND_MISMATCH.has(entry.id)) continue;
-            wrong.push(`${entry.id}: kind "circuit" but program.bw parses to ${c.blocks} blocks`);
+            const operations = c.cardiac ? c.instructions : c.blocks;
+            if (!c.ok || operations === 0 || KNOWN_KIND_MISMATCH.has(entry.id)) continue;
+            wrong.push(`${entry.id}: kind "circuit" but source contains ${operations} executable operations`);
         }
         assert.deepEqual(wrong.sort(), [],
             'These are enrolled as circuit-only and ship a running program. Either the kind is '
@@ -104,6 +118,10 @@ describe('example kind agrees with example content', () => {
             if (entry.kind === 'circuit') continue;
             const c = counts.get(entry.id);
             if (!c.ok || KNOWN_KIND_MISMATCH.has(entry.id)) continue;
+            if (c.cardiac) {
+                if (!c.instructions || c.entry === null) wrong.push(`${entry.id}: CARDIAC source has no instruction entry`);
+                continue;
+            }
             if (c.absent) wrong.push(`${entry.id}: kind "${entry.kind}" but there is no program.bw`);
             else if (c.blocks === 0)
                 wrong.push(`${entry.id}: kind "${entry.kind}" but program.bw parses to 0 blocks — it reads as a circuit-only placeholder`);

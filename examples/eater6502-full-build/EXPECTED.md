@@ -7,8 +7,8 @@ program does not pretend that the removed, unwired bar graph exists.
 ```assert
 # Supply rail: VCC = 5.0V
 net vcc1.vcc V 5.00 +-0.01
-# Pot at 50%: wiper = 5.0 × 0.5 = 2.500V
-net contrast.wiper V 2.50 +-0.05
+# Contrast is preset to 15%: 5.0 × 0.15 = 0.75 V.
+net contrast.wiper V 0.75 +-0.05
 ```
 
 ## Peripheral wiring

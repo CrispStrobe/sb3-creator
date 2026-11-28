@@ -6,7 +6,7 @@ PIN opto = D2 OUTPUT
 SPRITE Cat:
   WHEN flag clicked:
     forever:
-      turn on opto
+      set opto to 1
       wait 0.5 seconds
-      turn off opto
+      set opto to 0
       wait 0.5 seconds

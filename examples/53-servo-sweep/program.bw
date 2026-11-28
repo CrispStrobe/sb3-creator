@@ -1,6 +1,6 @@
 DEVICE STC12C5A60S2
 CLOCK 11059200
-PIN servo = P1.1 OUTPUT
+PIN servo = P1.3 OUTPUT
 PART arm = SERVO 1
 
 # Servo sweep: move from 0° to 180° in 10° steps, then back.

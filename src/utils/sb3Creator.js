@@ -6896,7 +6896,8 @@ class SB3Creator {
         if ((match = matchTopLevel(line, /^print\s+(.+)$/i))) {
             const { id, block } = cmd('stc12_print');
             block[id].inputs.VALUE = val(match[1]);
-            block[id].fields.MODE = ['number', null];
+            // A reporter can yield text or a number when evaluated in the VM.
+            block[id].fields.MODE = ['auto', null];
             return ret(block);
         }
         // ---- micro:bit+ display group (docs/microbitplus/DUAL-LOWERING-ORACLE.md D1–D5).
@@ -17234,6 +17235,11 @@ class SB3Creator {
         // The ATtinys' print/ask: a software UART on SOFT_SERIAL_PINS.
         this._cSoftSerial = (this._cTiny85 || this._cTiny88)
             ? SB3Creator.SOFT_SERIAL_PINS[String(device || '').toLowerCase()] || null : null;
+        if (part?.core === 'atmega32u4') {
+            const reason = 'Use an Arduboy sketch or a compiled .hex to run on Arduboy.';
+            this.cWarn(reason);
+            return `/* ${reason} */\n`;
+        }
         if (part && part.core && part.core !== '8051' && part.core !== 'arduino'
             && part.core !== 'rp2040' && part.core !== 'w65c02' && part.core !== 'z80'
             && part.core !== 'i8086') {
@@ -22651,6 +22657,13 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
     // is the LED pin on the AVR boards, poison for an open-drain line.
     // Reserve the pair up front so no other pin is allocated onto it.
     const pinLnames = new Set(stc.pins.map((p) => String(p.name).toLowerCase()));
+    // An explicit servo channel and its conventional signal declaration
+    // stay on the same hardware output as the firmware driver. Older
+    // programs with a plain GPIO named servo keep their ordinary mapping.
+    const servoOne = used.servo && stc.pins.some(p => p.name.toLowerCase() === 'servo' && p.direction === 'output')
+        && stc.parts?.some(p => p.type === 'servo' && p.channel === 1);
+    const servoPin = servoOne && ({8051: 'P1.3', avr: device === 'arduino-mega' ? 'D11' : 'D9', arm: 'GP16'})[core];
+    if (servoPin) taken.add(servoPin);
     const hasI2cPart = (stc.parts || []).some((pt) => PIN_ROLE_PARTS[pt.type] && PIN_ROLE_PARTS[pt.type].bus === 'i2c');
     const i2cConv = (pinLnames.has('sda') && pinLnames.has('scl')) || hasI2cPart
         ? SB3Creator.I2C_PINS[device] : null;
@@ -22682,7 +22695,9 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
             newPins.push({ ...pin, where: i2cConv[lname], activeLow: false, port: undefined, bit: undefined });
             continue;
         }
-        if (pin.direction === 'analog') {
+        if (servoPin && lname === 'servo' && pin.direction === 'output') {
+            where = servoPin;
+        } else if (pin.direction === 'analog') {
             where = take(pools.analog);
             if (!where) reasons.push(`more analog pins than ${device}'s convention offers (${pools.analog.length})`);
         } else if (pin.direction === 'input') {
@@ -22903,6 +22918,9 @@ SB3Creator.STC_PARTS = {
     // it does not name, so selecting one of these can never silently produce
     // firmware for a different ARM part. `arcade: true` marks the console
     // faceplate the runtime draws.
+    // Arduboy sketches own the console hardware API. The DEVICE declaration
+    // still identifies the project when its Scratch blocks are saved or loaded.
+    arduboy: { core: 'atmega32u4', adc: false },
     arcade: { core: 'samd51', header: null, portModes: false, aux1T: false, adc: false, arcade: true },
     pybadge: { core: 'samd51', header: null, portModes: false, aux1T: false, adc: true, arcade: true,
         display: 'st7735', displayWidth: 160, displayHeight: 128, neopixels: 5, accelerometer: 'lis3dh' },
@@ -22987,7 +23005,7 @@ SB3Creator.defaultClock = (device) => {
     const part = SB3Creator.STC_PARTS[String(device || '').toLowerCase()];
     if (!part) return 11059200;
     if (part.tiny85 || part.tiny88) return 8000000;
-    if (part.core === 'arduino') return 16000000;
+    if (part.core === 'arduino' || part.core === 'atmega32u4') return 16000000;
     if (part.stm32f0) return 48000000;
     if (part.stm32g0) return 64000000;
     if (part.stm32f1) return 72000000;

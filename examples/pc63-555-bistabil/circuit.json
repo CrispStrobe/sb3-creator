@@ -121,6 +121,15 @@
       "x": 300,
       "y": 400,
       "rotation": 0
+    },
+    {
+      "id": "cv_bypass",
+      "kind": "capacitor",
+      "params": {
+        "farads": 1e-08
+      },
+      "x": 395,
+      "y": 295
     }
   ],
   "wires": [
@@ -270,14 +279,14 @@
     },
     {
       "id": "wire_26",
-      "netId": "net_13",
+      "netId": "net_cv",
       "from": {
         "part": "timer_555_3",
         "terminal": "control"
       },
       "to": {
-        "part": "gnd_2",
-        "terminal": "gnd"
+        "part": "cv_bypass",
+        "terminal": "a"
       }
     },
     {
@@ -310,6 +319,18 @@
       "from": {
         "part": "led_9",
         "terminal": "cathode"
+      },
+      "to": {
+        "part": "gnd_2",
+        "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_cv_gnd",
+      "netId": "net_13",
+      "from": {
+        "part": "cv_bypass",
+        "terminal": "b"
       },
       "to": {
         "part": "gnd_2",

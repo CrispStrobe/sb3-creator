@@ -83,14 +83,14 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           repository: CrispStrobe/bw-board
-          ref: de8083c5a894a49c9fa4c6f0fb6f8866e2d758c0
+          ref: d21d6d8b819263eb08231134b7556efa82289a90
           path: siblings/bw-board
 
       - name: Check out bw-circuit-ui (pinned)
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           repository: CrispStrobe/bw-circuit-ui
-          ref: ee2b4127a88f1b308f8d749cae4d7c1db1deae9e
+          ref: d9e0982aa186bb1d75406367e7e57803c03fd8ad
           path: siblings/bw-circuit-ui
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
@@ -119,6 +119,17 @@ jobs:
         # exactly there. Bare imports still resolve (node walks up).
         run: npm install --no-save github:CrispStrobe/avr8js#feea84c43e36e578841b5fce640202823b69b7f7 rp2040js@1.3.3
         working-directory: siblings/bw-board
+
+      # Dedicated decimal programs bypass the generic C/MCU compiler. Execute
+      # every original example and its machine/UI parameter ownership checks
+      # on the pinned suppliers before the longer whole-corpus suite.
+      - name: CARDIAC contracts execute on the pinned suppliers
+        run: |
+          node scripts/verify-cardiac-examples.mjs --board siblings/bw-board
+          node --test --test-name-pattern='CARDIAC|the engine loads' test/circuit-params-are-read.test.mjs
+        env:
+          BW_BOARD: ${{ github.workspace }}/siblings/bw-board
+          BW_CIRCUIT_UI: ${{ github.workspace }}/siblings/bw-circuit-ui
 
       # arm-none-eabi-gcc is a stock apt package, so the Pico chain gate becomes
       # CI-runnable. The emu8051 chain deliberately does NOT: it needs an

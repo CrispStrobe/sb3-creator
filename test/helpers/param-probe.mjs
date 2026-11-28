@@ -10,6 +10,10 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
+import assert from 'node:assert/strict';
+import React from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { build } from 'esbuild';
 import { PARAM_INPUTS, applyParam, paramKey } from './bench-inputs.mjs';
 
 export const ROOT = join(import.meta.dirname, '..', '..');
@@ -122,14 +126,83 @@ function gpioPins (circuit, getDevice) {
 }
 
 /**
- * @param {{Circuit: any, getDevice?: Function, extractors?: Record<string, Function>}} engine
+ * The CARDIAC keys, observed by their OWNING observation rather than by the
+ * generic solve. CARDIAC opens paused: a passive 20 ms solve cannot expose its
+ * program or rate, and its Board device state carries BigInt scheduling fields
+ * the generic probe only digests. `cardiac.inputSource` is a UI-owned
+ * preference — the engine never reads it, the compact panel does — so it is
+ * observed by rendering the pinned bw-circuit-ui CardiacPanel.
+ */
+export const CARDIAC_PARAMS = new Set(['cardiac.program', 'cardiac.instructionHz', 'cardiac.inputSource']);
+
+/**
+ * The pinned compact CARDIAC panel, bundled for a static render. CSS is
+ * irrelevant to static markup; React is shared with this renderer, not copied
+ * into a second hooks runtime.
+ */
+export async function loadCardiacPanel (cuiRoot) {
+    const bundled = await build({
+        entryPoints: [join(cuiRoot, 'src/components/CardiacPanel.jsx')],
+        bundle: true, write: false, platform: 'node', format: 'esm',
+        loader: { '.css': 'empty' },
+        plugins: [{ name: 'shared-react', setup (builder) {
+            builder.onResolve({ filter: /^react$/ }, () => ({
+                path: import.meta.resolve('react'), external: true,
+            }));
+        } }],
+    });
+    const { CardiacPanel } = await import('data:text/javascript;base64,' +
+        Buffer.from(bundled.outputFiles[0].text).toString('base64'));
+    return CardiacPanel;
+}
+
+/**
+ * One CARDIAC key's owning observation, as one comparable string: the public
+ * decimal machine fields after explicit execution (program, rate), or the
+ * rendered panel (input preference). Nothing internal is serialised.
+ */
+function observeCardiac ({ Circuit, CardiacPanel }, data, id) {
+    const circuit = Circuit.fromJSON(JSON.parse(JSON.stringify(data)));
+    assert.equal(circuit.netlistError, null, 'the CARDIAC probe must load a valid bench');
+    const part = circuit.parts.find(p => p.kind === 'cardiac');
+    assert.ok(part, 'a CARDIAC probe needs its authored part');
+    const board = circuit.board;
+    if (id === 'cardiac.inputSource') {
+        assert.equal(typeof CardiacPanel, 'function', 'cardiac.inputSource needs the pinned CardiacPanel');
+        const markup = renderToStaticMarkup(React.createElement(CardiacPanel, { part, board }));
+        assert.equal(board.getDeviceState(part.id).steps, 0, 'rendering a preference does not execute a card');
+        return markup;
+    }
+    const command = (verb, value) => assert.equal(board.setDeviceControl(part.id, verb, value), true,
+        `CARDIAC accepted ${verb}`);
+    if (id === 'cardiac.instructionHz') {
+        // Nonblocking ADD/JMP loop: no input wait or HRS can conceal rate.
+        // Keep the authored instructionHz; replace only this probe's code.
+        command('loadProgram', { entry: 1, words: [
+            { address: 1, value: 281 }, { address: 2, value: 801 }, { address: 81, value: 1 },
+        ] });
+    } else command('enqueueInput', [200, 800]);
+    command('run');
+    board.advanceTo(1000000000n);
+    const state = board.getDeviceState(part.id);
+    assert.equal(state.error, null);
+    assert.ok(state.steps > 0, 'the program probe must actually retire instructions');
+    if (id === 'cardiac.instructionHz') {
+        assert.equal(state.waiting, false); assert.equal(state.halted, false);
+    }
+    return JSON.stringify({ pc: state.pc, acc: state.acc, steps: state.steps,
+        memory: state.memory, output: state.output, waiting: state.waiting, halted: state.halted });
+}
+
+/**
+ * @param {{Circuit: any, getDevice?: Function, extractors?: Record<string, Function>, CardiacPanel?: Function}} engine
  *   `extractors` are the engine's machine extractors (extractCp1Machine and
  *   its kin). Their verdict is what the debugger acts on when it attaches
  *   firmware, so it is part of what a bench observably does: a CP1 connector
  *   declaring a crystal other than 6 MHz is refused there, and its expansion
  *   flag decides whether ports 3-5 and the upper RAM exist at all.
  */
-export function makeObserver ({ Circuit, getDevice, extractors = {} }) {
+export function makeObserver ({ Circuit, getDevice, extractors = {}, CardiacPanel = null }) {
     const machines = Object.entries(extractors).filter(([, f]) => typeof f === 'function').map(([name, f]) => {
         let blank;
         try { blank = JSON.stringify(f({ parts: [], wires: [], nets: [] })); } catch (e) { blank = `threw: ${String(e.message).slice(0, 200)}`; }
@@ -142,8 +215,16 @@ export function makeObserver ({ Circuit, getDevice, extractors = {} }) {
      * instead of running the rest: a key that moves almost always moves the
      * first frame, and an RF bench costs a minute of CPU per 40 simulated ms
      * (lab-rf-remote, MEASURED 2026-11-26 at bw-board f48ea7ce).
+     *
+     * `paramId` names the (kind, key) being probed. A CARDIAC key is observed
+     * by its owning observation (observeCardiac) instead of the generic solve,
+     * as one frame.
      */
-    return function observe (data, base = null) {
+    return function observe (data, base = null, paramId = null) {
+        if (CARDIAC_PARAMS.has(paramId)) {
+            const s = observeCardiac({ Circuit, CardiacPanel }, data, paramId);
+            return base !== null ? base[0] !== s : [s];
+        }
         const d = JSON.parse(JSON.stringify(data));
         const hidden = new Set(d.parts.filter(p => VISUAL_ONLY.has(p.kind)).map(p => p.id));
         d.parts = d.parts.filter(p => !VISUAL_ONLY.has(p.kind));
@@ -331,6 +412,10 @@ export const PERTURB_BY_KEY = new Map([
     // other end of the knob's own range is the perturbation that means
     // something: the comb brought close.
     ['light_path.combCm', (v) => (Number(v) > 5 ? 1 : 20)],
+    // Adding an unknown object property does not change an accepted CARDIAC
+    // image. ENTRY is a supported field and changes the executed starting word.
+    ['cardiac.program', (image) => ({ ...image, entry: (image.entry + 1) % 100 })],
+    ['cardiac.inputSource', (source) => (source === 'circuit' ? 'manual' : 'circuit')],
 ]);
 
 // The AUTHORED bench first: a retargeted or flat twin often has no firmware
@@ -385,7 +470,8 @@ export function probeOrder (sites) {
  * @param {Map<string, object[]>} sites declaredParams().sites
  * @param {(data: object, base?: string[]) => (string[]|boolean)} observe
  * @param {Map<string, string>} knownInert
- * @param {Map<string, any>} [baseCache] path -> base frames (or null), shared across calls
+ * @param {Map<string, any>} [baseCache] path -> base frames (or null), shared across calls;
+ *   a CARDIAC key's base is its own observation, cached as `path|kind.key`
  */
 export function probeKeys (ids, sites, observe, knownInert, baseCache = new Map()) {
     const inert = [], unprobeable = [], healed = [], cost = new Map();
@@ -399,10 +485,11 @@ export function probeKeys (ids, sites, observe, knownInert, baseCache = new Map(
         for (const site of candidates) {
             const path = join(EXAMPLES, site.dir, site.file);
             const raw = JSON.parse(readFileSync(path, 'utf8'));
-            let before = baseCache.get(path);
+            const cacheKey = CARDIAC_PARAMS.has(id) ? `${path}|${id}` : path;
+            let before = baseCache.get(cacheKey);
             if (before === undefined) {
-                try { before = observe(raw); } catch { before = null; }
-                baseCache.set(path, before);
+                try { before = observe(raw, null, id); } catch { before = null; }
+                baseCache.set(cacheKey, before);
             }
             if (before === null) continue;
             const mutated = JSON.parse(JSON.stringify(raw));
@@ -412,7 +499,7 @@ export function probeKeys (ids, sites, observe, knownInert, baseCache = new Map(
             part.params[key] = (PERTURB_BY_KEY.get(id) || perturb)(part.params[key]);
             // Throwing IS a response: the engine read the value.
             let differs;
-            try { differs = observe(mutated, before); } catch { moved = true; break; }
+            try { differs = observe(mutated, before, id); } catch { moved = true; break; }
             if (differs) { moved = true; break; }
         }
         const c = process.cpuUsage(t0);

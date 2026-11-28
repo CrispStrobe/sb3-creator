@@ -9,3 +9,15 @@
 | 076 | `00.053` |
 | 077 | `00.138` |
 | 078 | `00.199` |
+
+### 1. Verification
+
+Start at `35` and run to HLT.
+- Set P1 to 0x35 at `Sample`.
+- Set P1 to 0x8a at `Sample`.
+- Set P1 to 0xc7 at `Sample`.
+- Expected PC `47`.
+- Expected accumulator `00.199`.
+- Expected `076` = 00.053.
+- Expected `077` = 00.138.
+- Expected `078` = 00.199.

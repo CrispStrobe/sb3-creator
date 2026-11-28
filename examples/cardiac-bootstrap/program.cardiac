@@ -1,0 +1,5 @@
+; Original Brickwright exercise: construct an add-seven program from input.
+; Only the fixed bootstrap word is present initially. Use the supplied strip.
+ENTRY 00
+ORG 00
+001

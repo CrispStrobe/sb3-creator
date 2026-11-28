@@ -147,14 +147,14 @@
     },
     {
       "id": "wire_14",
-      "netId": "net_13",
+      "netId": "net_19",
       "from": {
         "part": "switch_5",
         "terminal": "b"
       },
       "to": {
-        "part": "gate_nor_3",
-        "terminal": "in0"
+        "part": "gate_nor_4",
+        "terminal": "in1"
       }
     },
     {
@@ -195,14 +195,14 @@
     },
     {
       "id": "wire_20",
-      "netId": "net_19",
+      "netId": "net_13",
       "from": {
         "part": "button_6",
         "terminal": "b"
       },
       "to": {
-        "part": "gate_nor_4",
-        "terminal": "in1"
+        "part": "gate_nor_3",
+        "terminal": "in0"
       }
     },
     {
@@ -264,8 +264,7 @@
         "part": "resistor_9",
         "terminal": "a"
       }
-    }
-    ,
+    },
     {
       "id": "wire_29",
       "netId": "net_28",

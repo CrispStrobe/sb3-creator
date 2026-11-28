@@ -26,7 +26,7 @@
       "kind": "stc15_mcu",
       "params": {},
       "terminals": [
-        "p1.0"
+        "P1.3"
       ],
       "x": 64,
       "y": 311
@@ -50,7 +50,7 @@
       "netId": "bb1:n-col-t11",
       "from": {
         "part": "MCU",
-        "terminal": "p1.0"
+        "terminal": "P1.3"
       },
       "to": {
         "part": "SERVO_servo",

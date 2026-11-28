@@ -86,30 +86,16 @@
   },
   {
    "id": "SR_595",
-   "kind": "shift_register",
+   "kind": "74hc595",
    "params": {},
-   "terminals": [
-    "data",
-    "clock",
-    "latch",
-    "oe",
-    "q0",
-    "q1",
-    "q2",
-    "q3",
-    "q4",
-    "q5",
-    "q6",
-    "q7"
-   ],
    "x": 316,
    "y": 311,
    "seat": {
     "boardId": "bb1",
     "leadMap": {
-     "data": "e21",
-     "clock": "e22",
-     "latch": "f21"
+     "ser": "e21",
+     "srclk": "e22",
+     "rclk": "f21"
     }
    }
   },
@@ -447,23 +433,23 @@
    "from": "attiny881",
    "fromTerminal": "pb0",
    "to": "SR_595",
-   "toTerminal": "data"
+   "toTerminal": "ser"
   },
   {
    "from": "attiny881",
    "fromTerminal": "pb1",
    "to": "SR_595",
-   "toTerminal": "clock"
+   "toTerminal": "srclk"
   },
   {
    "from": "attiny881",
    "fromTerminal": "pb2",
    "to": "SR_595",
-   "toTerminal": "latch"
+   "toTerminal": "rclk"
   },
   {
    "from": "SR_595",
-   "fromTerminal": "q0",
+   "fromTerminal": "qa",
    "to": "R_595_q0",
    "toTerminal": "a"
   },
@@ -475,7 +461,7 @@
   },
   {
    "from": "SR_595",
-   "fromTerminal": "q1",
+   "fromTerminal": "qb",
    "to": "R_595_q1",
    "toTerminal": "a"
   },
@@ -487,7 +473,7 @@
   },
   {
    "from": "SR_595",
-   "fromTerminal": "q2",
+   "fromTerminal": "qc",
    "to": "R_595_q2",
    "toTerminal": "a"
   },
@@ -499,7 +485,7 @@
   },
   {
    "from": "SR_595",
-   "fromTerminal": "q3",
+   "fromTerminal": "qd",
    "to": "R_595_q3",
    "toTerminal": "a"
   },
@@ -511,7 +497,7 @@
   },
   {
    "from": "SR_595",
-   "fromTerminal": "q4",
+   "fromTerminal": "qe",
    "to": "R_595_q4",
    "toTerminal": "a"
   },
@@ -523,7 +509,7 @@
   },
   {
    "from": "SR_595",
-   "fromTerminal": "q5",
+   "fromTerminal": "qf",
    "to": "R_595_q5",
    "toTerminal": "a"
   },
@@ -535,7 +521,7 @@
   },
   {
    "from": "SR_595",
-   "fromTerminal": "q6",
+   "fromTerminal": "qg",
    "to": "R_595_q6",
    "toTerminal": "a"
   },
@@ -547,7 +533,7 @@
   },
   {
    "from": "SR_595",
-   "fromTerminal": "q7",
+   "fromTerminal": "qh",
    "to": "R_595_q7",
    "toTerminal": "a"
   },
@@ -640,6 +626,36 @@
    },
    "color": "black",
    "genPower": true
+  },
+  {
+   "from": {
+    "part": "VCC",
+    "terminal": "vcc"
+   },
+   "to": {
+    "part": "SR_595",
+    "terminal": "vcc"
+   }
+  },
+  {
+   "from": {
+    "part": "SR_595",
+    "terminal": "vcc"
+   },
+   "to": {
+    "part": "SR_595",
+    "terminal": "srclr"
+   }
+  },
+  {
+   "from": {
+    "part": "GND",
+    "terminal": "gnd"
+   },
+   "to": {
+    "part": "SR_595",
+    "terminal": "gnd"
+   }
   }
  ],
  "holeWires": [

@@ -8,6 +8,8 @@ PIN seg_e = P1.4 OUTPUT
 PIN seg_f = P1.5 OUTPUT
 PIN seg_g = P1.6 OUTPUT
 
+TABLE font = 63, 6, 91, 79, 102, 109, 125, 7, 127, 111
+
 GLOBAL digit
 
 STAGE:
@@ -15,7 +17,14 @@ STAGE:
   WHEN flag clicked:
     set digit to 0
     FOREVER:
-      show digit digit on 1
+      set segments to font[digit]
+      set seg_a to segments bitand 1
+      set seg_b to (segments shiftright 1) bitand 1
+      set seg_c to (segments shiftright 2) bitand 1
+      set seg_d to (segments shiftright 3) bitand 1
+      set seg_e to (segments shiftright 4) bitand 1
+      set seg_f to (segments shiftright 5) bitand 1
+      set seg_g to (segments shiftright 6) bitand 1
       change digit by 1
       IF digit > 9 THEN:
         set digit to 0

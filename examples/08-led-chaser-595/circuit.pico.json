@@ -382,49 +382,49 @@
  "wires": [
   {
    "from": "sr1",
-   "fromTerminal": "Q0",
+   "fromTerminal": "qa",
    "to": "r1",
    "toTerminal": "a"
   },
   {
    "from": "sr1",
-   "fromTerminal": "Q1",
+   "fromTerminal": "qb",
    "to": "r2",
    "toTerminal": "a"
   },
   {
    "from": "sr1",
-   "fromTerminal": "Q2",
+   "fromTerminal": "qc",
    "to": "r3",
    "toTerminal": "a"
   },
   {
    "from": "sr1",
-   "fromTerminal": "Q3",
+   "fromTerminal": "qd",
    "to": "r4",
    "toTerminal": "a"
   },
   {
    "from": "sr1",
-   "fromTerminal": "Q4",
+   "fromTerminal": "qe",
    "to": "r5",
    "toTerminal": "a"
   },
   {
    "from": "sr1",
-   "fromTerminal": "Q5",
+   "fromTerminal": "qf",
    "to": "r6",
    "toTerminal": "a"
   },
   {
    "from": "sr1",
-   "fromTerminal": "Q6",
+   "fromTerminal": "qg",
    "to": "r7",
    "toTerminal": "a"
   },
   {
    "from": "sr1",
-   "fromTerminal": "Q7",
+   "fromTerminal": "qh",
    "to": "r8",
    "toTerminal": "a"
   },
@@ -528,19 +528,19 @@
    "from": "pico1",
    "fromTerminal": "gp25",
    "to": "sr1",
-   "toTerminal": "data"
+   "toTerminal": "ser"
   },
   {
    "from": "pico1",
    "fromTerminal": "gp15",
    "to": "sr1",
-   "toTerminal": "clock"
+   "toTerminal": "srclk"
   },
   {
    "from": "pico1",
    "fromTerminal": "gp14",
    "to": "sr1",
-   "toTerminal": "latch"
+   "toTerminal": "rclk"
   },
   {
    "from": "pico1",
@@ -605,12 +605,6 @@
   {
    "from": "pico1",
    "fromTerminal": "vsys",
-   "to": "sr1",
-   "toTerminal": "vcc"
-  },
-  {
-   "from": "pico1",
-   "fromTerminal": "vsys",
    "to": "vcc1",
    "toTerminal": "vcc"
   },
@@ -643,6 +637,26 @@
    },
    "color": "black",
    "genPower": true
+  },
+  {
+   "from": {
+    "part": "sr1",
+    "terminal": "vcc"
+   },
+   "to": {
+    "part": "sr1",
+    "terminal": "srclr"
+   }
+  },
+  {
+   "from": {
+    "part": "sr1",
+    "terminal": "gnd"
+   },
+   "to": {
+    "part": "sr1",
+    "terminal": "oe"
+   }
   }
  ],
  "holeWires": [
@@ -719,7 +733,7 @@
   {
    "ref": "bbw:bb1:gen_10",
    "boardId": "bb1",
-   "a": "g4",
+   "a": "g7",
    "b": "a27",
    "color": "blue"
   },

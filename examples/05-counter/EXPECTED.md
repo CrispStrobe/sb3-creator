@@ -10,8 +10,10 @@
 
 ## Program
 
-Waits for button press, increments counter (0–9, wraps), blinks LED
-`count` times, then waits 500 ms before accepting the next press.
+Starts with the LED off. Waits for a button press, increments the counter
+(0–9, wraps), and blinks the LED `count` times. After blinking it waits
+500 ms and requires a release before accepting another press. Holding the
+button counts once.
 
 ## Observable behaviour
 
@@ -28,6 +30,7 @@ Waits for button press, increments counter (0–9, wraps), blinks LED
 2. Counter variable with wrap-around
 3. `REPEAT count:` with a variable count
 4. Sequential blink pattern
+5. One count per press even when the button is held
 
 ```assert
 # Button pull-up at VCC, MCU supply

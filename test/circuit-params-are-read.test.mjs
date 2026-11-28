@@ -52,7 +52,8 @@ import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { requireSiblings, siblingGuardTest } from './helpers/siblings.mjs';
 import { readParamKeys } from './helpers/param-source-reads.mjs';
-import { declaredParams } from './helpers/param-probe.mjs';
+import { injectEngine } from '../scripts/lib/engine-surface.mjs';
+import { declaredParams, makeObserver, loadCardiacPanel, PERTURB_BY_KEY, EXAMPLES } from './helpers/param-probe.mjs';
 import { KNOWN_INERT } from './helpers/param-known-inert.mjs';
 import { defineTier2, SHARDS } from './helpers/param-tier2.mjs';
 
@@ -169,6 +170,44 @@ describe('circuit params, tier 2: the ratchet and the shards', { skip: SKIP }, (
             if (!existsSync(f) || !readFileSync(f, 'utf8').includes(`defineTier2(${s - 1})`)) missing.push(f);
         }
         assert.deepEqual(missing, [], 'a tier-2 shard file is missing: its pairs are probed by nobody');
+    });
+});
+
+// The CARDIAC keys are probed by their owning observation (param-probe.mjs,
+// observeCardiac), not by the generic solve. That observation is only worth
+// the sweep's trust if it tells the three keys apart on the authored bench.
+describe('circuit params, tier 2: the CARDIAC observations', { skip: SKIP }, () => {
+    test('CARDIAC program, instruction rate and input preference have distinct owning observations', async () => {
+        const eng = await injectEngine({ board: gate.paths['bw-board'], cui: gate.paths['bw-circuit-ui'] });
+        const observe = makeObserver({
+            Circuit: eng.Circuit,
+            CardiacPanel: await loadCardiacPanel(gate.paths['bw-circuit-ui']),
+        });
+        const see = (data, id) => JSON.parse(observe(data, null, id)[0]);
+        const raw = JSON.parse(readFileSync(join(EXAMPLES, 'cardiac-night-light/circuit.json'), 'utf8'));
+
+        const programBefore = see(raw, 'cardiac.program');
+        const changedProgram = structuredClone(raw);
+        const changedPart = changedProgram.parts.find(p => p.kind === 'cardiac');
+        changedPart.params.program = PERTURB_BY_KEY.get('cardiac.program')(changedPart.params.program);
+        const programAfter = see(changedProgram, 'cardiac.program');
+        assert.deepEqual(programBefore.output, [1, 0], 'authored night-light executes its supplied cards');
+        assert.notDeepEqual(programAfter.output, programBefore.output, 'a valid entry edit changes executed behavior');
+
+        const rates = [20, 75].map(instructionHz => {
+            const data = structuredClone(raw);
+            data.parts.find(p => p.kind === 'cardiac').params.instructionHz = instructionHz;
+            return see(data, 'cardiac.instructionHz');
+        });
+        assert.deepEqual(rates.map(state => state.steps), [20, 75], 'one Board second retires the requested rates');
+        assert.deepEqual(rates.map(state => state.acc), [10, 38], 'actual ADD results corroborate the retired instructions');
+
+        const manual = structuredClone(raw);
+        manual.parts.find(p => p.kind === 'cardiac').params.inputSource = 'manual';
+        const circuitMarkup = observe(raw, null, 'cardiac.inputSource')[0];
+        const manualMarkup = observe(manual, null, 'cardiac.inputSource')[0];
+        assert.match(circuitMarkup, /data-cardiac-sample/); assert.doesNotMatch(circuitMarkup, /data-cardiac-enqueue/);
+        assert.match(manualMarkup, /data-cardiac-enqueue/); assert.doesNotMatch(manualMarkup, /data-cardiac-sample/);
     });
 });
 

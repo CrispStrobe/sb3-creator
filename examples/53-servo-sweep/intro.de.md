@@ -5,7 +5,7 @@ prereqs: [01-blink]
 teaches: [servo, pwm-control, angular-position]
 ---
 ## Was du siehst
-Ein Servomotor, der zwischen 0 und 180 Grad hin- und herfaehrt. Der MCU erzeugt ein PWM-Signal, das dem Servo sagt, wohin er zeigen soll — ein 1-ms-Puls bedeutet 0 Grad, 1,5 ms bedeutet 90 Grad und 2 ms bedeutet 180 Grad. Der Servo wiederholt diese Bewegung fortlaufend. Dieses Beispiel funktioniert auf allen unterstützten Mikrocontrollern — wähle ein anderes Gerät in der Werkzeugleiste, um die angepasste Schaltung zu sehen.
+Ein Servomotor, der zwischen 0 und 180 Grad hin- und herfaehrt. Der MCU erzeugt ein PWM-Signal, das dem Servo sagt, wohin er zeigen soll — bei diesem Servomodell bedeuten 0,5 ms einen Winkel von 0 Grad, 1,5 ms einen Winkel von 90 Grad und 2,5 ms einen Winkel von 180 Grad. Der Servo wiederholt diese Bewegung fortlaufend. Dieses Beispiel funktioniert auf den für diese Lektion angebotenen Mikrocontrollern — wähle ein anderes Gerät in der Werkzeugleiste, um die angepasste Schaltung zu sehen.
 
 ## Probier das
 1. Starte die Simulation und beobachte, wie der Servoarm von einem Endpunkt zum anderen faehrt.
@@ -13,7 +13,7 @@ Ein Servomotor, der zwischen 0 und 180 Grad hin- und herfaehrt. Der MCU erzeugt 
 3. Aendere die Geschwindigkeit, indem du die Verzoegerung zwischen den Winkelschritten anpasst.
 
 ## Was passiert hier
-Ein Hobby-Servo erwartet ein 50-Hz-PWM-Signal (20 ms Periode). Die Pulsbreite innerhalb jeder Periode codiert den Zielwinkel: 1 ms fuer 0 Grad, 2 ms fuer 180 Grad, mit linearer Interpolation dazwischen. Der Servo enthaelt einen Motor, ein Getriebe und ein Rueckmeldepotentiometer. Er vergleicht die Position des Potis mit der angeforderten Position und treibt den Motor, bis beide uebereinstimmen. Diese geschlossene Regelung findet komplett im Servo statt — der MCU muss nur den Puls senden.
+Ein Hobby-Servo erwartet ein 50-Hz-PWM-Signal (20 ms Periode). Die Pulsbreite innerhalb jeder Periode codiert den Zielwinkel: 0,5 ms für 0 Grad, 2,5 ms für 180 Grad, mit linearer Interpolation dazwischen. Der Servo enthaelt einen Motor, ein Getriebe und ein Rueckmeldepotentiometer. Er vergleicht die Position des Potis mit der angeforderten Position und treibt den Motor, bis beide uebereinstimmen. Diese geschlossene Regelung findet komplett im Servo statt — der MCU muss nur den Puls senden.
 
 ## Warum das wichtig ist
 Servos werden in Robotik, RC-Fahrzeugen, Kameragimbals und automatisierten Schloessern eingesetzt. Sie sind der einfachste Weg, praezise Winkelsteuerung von einem Mikrocontroller zu bekommen — ein Pin, ein Kabel, und der Servo erledigt den Rest.

@@ -64,21 +64,24 @@ export const ENROLMENT = [
     {   gate: 'cp1-program',
         why: 'CP1 teaching source and circuit reachability',
         p: (f) => f.entry.target === 'kosmos-cp1' && Boolean(f.entry.files?.cp1) },
+    {   gate: 'cardiac-program',
+        why: 'CARDIAC source assembly, input strips and matching circuit image',
+        p: (f) => f.entry.target === 'cardiac' },
     {   gate: 'retarget-gallery',
-        // `e.kind === 'program' && Array.isArray(e.devices) && e.authored !== 'microbit' && e.authored !== 'spike'`
+        // `e.kind === 'program' && e.files?.program && Array.isArray(e.devices)` plus authored-family filtering.
         why: 'devices must equal the retarget dry-run — the gate the kind flip pulled in',
-        p: (f) => f.entry.kind === 'program' && Array.isArray(f.entry.devices)
+        p: (f) => f.entry.kind === 'program' && Boolean(f.entry.files?.program) && Array.isArray(f.entry.devices)
             && f.entry.authored !== 'microbit' && f.entry.authored !== 'spike' },
     {   gate: 'retarget-amplification',
         // same filter as retarget-gallery (a1b6030)
         why: 'per-device retarget amplification',
-        p: (f) => f.entry.kind === 'program' && Array.isArray(f.entry.devices)
+        p: (f) => f.entry.kind === 'program' && Boolean(f.entry.files?.program) && Array.isArray(f.entry.devices)
             && f.entry.authored !== 'microbit' && f.entry.authored !== 'spike' },
     {   gate: 'gen-device-benches',
-        // scripts/gen-device-benches.mjs: `if (!e.devices || e.devices.length < 2) continue;`
-        // and `if (!(e.kind === 'program' || e.kind === 'full')) continue;`
+        // isRetargetableExample requires generic source, devices.length >= 2,
+        // and kind program/full before a cross-device bench can be generated.
         why: 'NOT a test — the generator whose skip reads as a successful no-op',
-        p: (f) => (f.entry.kind === 'program' || f.entry.kind === 'full')
+        p: (f) => Boolean(f.entry.files?.program) && (f.entry.kind === 'program' || f.entry.kind === 'full')
             && (f.entry.devices || []).length >= 2 },
     {   gate: 'example-corpus-contract',
         // `if (Array.isArray(entry.devices) && entry.files?.circuit)`

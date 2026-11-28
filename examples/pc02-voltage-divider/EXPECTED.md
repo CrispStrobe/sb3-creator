@@ -10,4 +10,6 @@
 ```assert
 # Supply rail: 9V battery source
 net vsource_2.pos V 9.00 +-0.01
+net resistor_3.b V 4.50 +-0.05
+current resistor_3 mA -0.45 +-0.03
 ```

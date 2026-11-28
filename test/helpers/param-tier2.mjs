@@ -21,7 +21,7 @@ import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { requireSiblings, siblingGuardTest } from './siblings.mjs';
 import { injectEngine } from '../../scripts/lib/engine-surface.mjs';
-import { declaredParams, makeObserver, probeKeys, rank } from './param-probe.mjs';
+import { declaredParams, makeObserver, probeKeys, rank, loadCardiacPanel } from './param-probe.mjs';
 import { KNOWN_INERT } from './param-known-inert.mjs';
 
 export const SHARDS = 4;
@@ -55,9 +55,18 @@ export function defineTier2 (shard) {
 
     describe(`circuit params, tier 2 (shard ${shard + 1}/${SHARDS}): the key moves a real bench`, { skip: SKIP }, () => {
         let observe = null;
+        const { sites } = declaredParams();
+        const ids = shardIds(sites, shard);
+        const exempt = ids.filter(id => KNOWN_INERT.has(id)).length;
+
         test('the engine loads', async () => {
             const eng = await injectEngine({ board: gate.paths['bw-board'], cui: gate.paths['bw-circuit-ui'] });
+            // cardiac.inputSource is owned by the compact panel, not the engine:
+            // only the shard that probes it renders the pinned CardiacPanel.
+            const CardiacPanel = ids.includes('cardiac.inputSource')
+                ? await loadCardiacPanel(gate.paths['bw-circuit-ui']) : null;
             observe = makeObserver({
+                CardiacPanel,
                 Circuit: eng.Circuit,
                 getDevice: eng.board.getDevice,
                 extractors: {
@@ -68,10 +77,6 @@ export function defineTier2 (shard) {
             });
             assert.ok(eng.Circuit, 'bw-circuit-ui Circuit loaded');
         });
-
-        const { sites } = declaredParams();
-        const ids = shardIds(sites, shard);
-        const exempt = ids.filter(id => KNOWN_INERT.has(id)).length;
 
         test(`every declared (kind, key) in this shard changes something in some bench (${ids.length} pairs, ${exempt} exempt in KNOWN_INERT)`, () => {
             assert.ok(observe, 'engine did not load');

@@ -13,8 +13,9 @@ DEVICE STC89C52RC:
   WHEN started:
     show number 0 on display
     FOREVER:
-      IF a key is pressed THEN:
-        show number keys on display
+      set pressed to keys
+      IF pressed >= 0 AND NOT (pressed = 12) THEN:
+        show number pressed on display
       wait 30 ms
 
   WHEN key 12 pressed:
