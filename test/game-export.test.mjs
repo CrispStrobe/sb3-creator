@@ -21,6 +21,7 @@ import SB3Creator from '../src/utils/sb3Creator.js';
 import examples from '../src/utils/examples.js';
 import { buildGameModel, classify, svgContentBounds } from '../src/game/model.js';
 import { emitGame } from '../src/game/emit.js';
+import { WARP_STEPS } from '../src/game/runtime/bwgame.js';
 import { exportGame, loadSb3 } from '../src/game/export.js';
 import { rasterizeWithChromium } from '../src/game/raster-chromium.js';
 import { decodeRaster } from '../src/game/raster.js';
@@ -189,7 +190,8 @@ SPRITE B:
     const js = runJs(game, trace);
     const vm = await runVm(bytes, trace, 1);
     assert.deepEqual(js, vm);
-    assert.ok(js.at(-1).vars.pings > 3 && js.at(-1).vars.selfs > 3, JSON.stringify(js.at(-1).vars));
+    // Measured 2026-11-28 (and equal to scratch-vm above): each loop advances exactly once per frame.
+    assert.deepEqual(js.map(s => s.vars), [3, 6, 9, 12].map(n => ({ pings: n, pongs: n, selfs: n })));
 });
 
 // A warped ("run without screen refresh") loop that never ends must not freeze the
@@ -219,9 +221,10 @@ SPRITE Spinner:
     const { game, dir } = await loadJsGame(input, 1);
     try {
         const states = game.runTrace(trace);
-        const ticks = states.map(s => s.vars.ticks), spins = states.map(s => s.vars.spins);
-        assert.ok(ticks[2] > ticks[0] && ticks[0] > 0, `the other script keeps running: ${ticks}`);
-        assert.ok(spins[0] > 0 && spins[2] > spins[1] && spins[1] > spins[0], `the warped loop runs on in budgets: ${spins}`);
+        // Measured 2026-11-28: one WARP_STEPS budget of the warped loop per frame, and the
+        // other script's one iteration per frame, at samples 2, 4, 6.
+        assert.deepEqual(states.map(s => s.vars.ticks), [2, 4, 6], 'the other script keeps running');
+        assert.deepEqual(states.map(s => s.vars.spins), [2, 4, 6].map(f => f * WARP_STEPS), 'the warped loop runs on, one budget per frame');
         const r = await exportGame(input, { target: 'pygame', title: 'warp' });
         for (const f of ['game.py', 'bwgame.py', 'manifest.json']) writeFileSync(path.join(dir, f), r.files[f]);
         writeFileSync(path.join(dir, 'trace.json'), JSON.stringify(trace));
