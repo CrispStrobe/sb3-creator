@@ -228,3 +228,35 @@ test('CLI preserves exact I80386 DOS source and lists the qualified Nano target'
     const help = cli('help');
     assert.match(help.stdout + help.stderr, /--target[^\n]*arduino-nano/);
 });
+
+test('embedded and CLI ATmega168P exports retain the smaller bare-chip contract', t => {
+    const host = bareEngine();
+    const source = 'DEVICE ATMEGA168P\nPIN led = D13 OUTPUT\nWHEN flag clicked:\n  turn on led\n  wait 0.001 seconds\n  turn off led\n';
+    const result = host.bwTranspileCowgol(source, undefined, {target: 'atmega168p'});
+    assert.equal(result.target, 'atmega168p');
+    assert.equal(result.cowgol, creator(source).generateCowgol(undefined, {target: 'atmega168p'}).cowgol);
+    assert.match(result.cowgol, /DEVICE ATMEGA168P/);
+    const profile = host.bwCowgolTargets().find(item => item.target === 'atmega168p');
+    assert.equal(profile.mcu, 'atmega168p');
+    assert.deepEqual(JSON.parse(JSON.stringify(profile.memory)),
+        {flashLimit: 16384, ramBytes: 1024, heapBytes: 128, stackReserve: 512});
+    for (const target of ['atmega328p', 'arduino-nano']) {
+        assert.throws(() => host.bwTranspileCowgol(source, undefined, {target}), /cannot run DEVICE/);
+    }
+    const work = fs.mkdtempSync(path.join(root, '.cowgol-atmega168p-cli-'));
+    t.after(() => fs.rmSync(work, {recursive: true, force: true}));
+    const input = path.join(work, 'chip.bw'), output = path.join(work, 'chip.cow');
+    fs.writeFileSync(input, source);
+    const cli = target => spawnSync(process.execPath, [path.join(root, 'bin/bw.mjs'),
+        'transpile', input, '--to', 'cowgol', '--target', target, '-o', output], {cwd: root, encoding: 'utf8'});
+    const built = cli('atmega168p');
+    assert.equal(built.status, 0, built.stderr);
+    const generated = fs.readFileSync(output, 'utf8');
+    assert.equal(generated, result.cowgol);
+    for (const target of ['atmega328p', 'arduino-nano']) {
+        const refused = cli(target);
+        assert.notEqual(refused.status, 0);
+        assert.match(refused.stderr, /cannot run DEVICE atmega168p/);
+        assert.equal(fs.readFileSync(output, 'utf8'), generated);
+    }
+});

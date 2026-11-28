@@ -6,7 +6,7 @@ import {cowgolTargets} from '../src/utils/cowgol.js';
 
 const build = source => { const creator = new SB3Creator(); creator.parse(source); return creator; };
 const generate = (source, target) => build(source).generateCowgol(undefined, {target});
-const targets = ['z80-cpm', 'i8080-cpm', 'dos', 'riscv32', 'eater6502', 'atmega328p', 'arduino-nano'];
+const targets = ['z80-cpm', 'i8080-cpm', 'dos', 'riscv32', 'eater6502', 'atmega328p', 'arduino-nano', 'atmega168p'];
 
 test('native profiles qualify declaration-free console Blocks for every actual compiler target', () => {
     for (const target of targets) {
@@ -22,14 +22,14 @@ test('native profiles qualify declaration-free console Blocks for every actual c
 
 test('native targets reject incompatible device declarations without executable output', () => {
     for (const [target, device] of [['z80-cpm', 'i8086'], ['i8080-cpm', 'eater6502'],
-        ['dos', 'z80'], ['riscv32', 'arduino-uno'], ['eater6502', 'atmega328p'], ['atmega328p', 'arduino-nano'], ['arduino-nano', 'arduino-uno'], ['arduino-nano', 'atmega168p']]) {
+        ['dos', 'z80'], ['riscv32', 'arduino-uno'], ['eater6502', 'atmega328p'], ['atmega328p', 'arduino-nano'], ['arduino-nano', 'arduino-uno'], ['arduino-nano', 'atmega168p'], ['atmega168p', 'arduino-uno'], ['atmega168p', 'arduino-nano']]) {
         const result = generate(`DEVICE ${device}\nWHEN flag clicked:\n  say 1\n`, target);
         assert.equal(result.ok, false, target);
         assert.equal(result.cowgol, undefined);
         assert.match(result.reasons.join('; '), /cannot run DEVICE/);
     }
     for (const [target, device] of [['z80-cpm', 'z80'], ['i8080-cpm', 'z80'], ['dos', '8086'],
-        ['riscv32', 'rv32'], ['eater6502', 'eater6502'], ['atmega328p', 'atmega328p'], ['atmega328p', 'uno'], ['arduino-nano', 'nano'], ['arduino-nano', 'arduino-nano']]) {
+        ['riscv32', 'rv32'], ['eater6502', 'eater6502'], ['atmega328p', 'atmega328p'], ['atmega328p', 'uno'], ['arduino-nano', 'nano'], ['arduino-nano', 'arduino-nano'], ['atmega168p', 'atmega168p']]) {
         const result = generate(`DEVICE ${device}\nWHEN flag clicked:\n  say 1\n`, target);
         assert.equal(result.ok, true, result.reasons.join('; '));
     }
@@ -115,7 +115,7 @@ test('native literal waits use the qualified AVR board runtimes only', () => {
     assert.equal(result.ok, true, result.reasons.join('; '));
     assert.match(result.cowgol, /bw_delay\(25\)/);
     assert.match(result.cowgol, /bw_delay\(0\)/);
-    for (const target of targets.filter(target => !['atmega328p', 'arduino-nano'].includes(target))) {
+    for (const target of targets.filter(target => !['atmega328p', 'arduino-nano', 'atmega168p'].includes(target))) {
         const refused = generate('WHEN flag clicked:\n  wait 0.01 seconds\n', target);
         assert.equal(refused.ok, false);
         assert.equal(refused.cowgol, undefined);
@@ -158,7 +158,16 @@ test('native target metadata describes generator contracts without sharing mutab
     assert.equal(uno.memory.flashLimit, 32256);
     assert.equal(nano.capabilities.delay, true);
     assert.equal(nano.capabilities.pullups, true);
-    assert.ok(metadata.filter(item => item !== uno && item !== nano).every(item => !item.capabilities.delay));
+    const chip = metadata.find(item => item.target === 'atmega168p');
+    assert.deepEqual(chip.devices, ['atmega168p']);
+    assert.equal(chip.mcu, 'atmega168p');
+    assert.equal(chip.clock, 16000000);
+    assert.deepEqual(chip.memory, {flashLimit: 16384, ramBytes: 1024, heapBytes: 128, stackReserve: 512});
+    assert.equal(chip.capabilities.delay, true);
+    assert.equal(chip.capabilities.pullups, true);
+    chip.memory.heapBytes = 512;
+    assert.equal(cowgolTargets().find(item => item.target === 'atmega168p').memory.heapBytes, 128);
+    assert.ok(metadata.filter(item => ![uno, nano, chip].includes(item)).every(item => !item.capabilities.delay));
     nano.memory.flashLimit = 32768;
     assert.equal(cowgolTargets().find(item => item.target === 'arduino-nano').memory.flashLimit, 30720);
     uno.devices.push('arduino-nano'); uno.capabilities.canvas = true;
@@ -260,4 +269,24 @@ test('native emitters preserve the portable CrispBASIC runtime requirement after
     }
     assert.throws(() => creator.generateRiscvC(), error => error.code === 'crispbasic-runtime-required');
     assert.equal(JSON.stringify(creator.project), before);
+});
+
+test('bare ATmega168P preserves its own device, clock, GPIO and timing contract', () => {
+    const source = 'DEVICE ATMEGA168P\nCLOCK 16000000\nPIN led = D13 OUTPUT ACTIVE LOW\nPIN button = A5 INPUT ACTIVE LOW\nWHEN flag clicked:\n  turn on led\n  wait 0.007 seconds\n  toggle led\n  say read button\n';
+    const result = generate(source, 'atmega168p');
+    assert.equal(result.ok, true, result.reasons.join('; '));
+    assert.match(result.cowgol, /DEVICE ATMEGA168P/);
+    assert.match(result.cowgol, /bw_pin_mode\(19, 2\)/);
+    assert.match(result.cowgol, /bw_delay\(7\)/);
+    assert.match(result.cowgol, /bw_digital_write\(13, 0\)/);
+    for (const pin of ['D0', 'D1']) {
+        const refused = generate('DEVICE ATMEGA168P\nPIN serial = ' + pin + ' OUTPUT\nWHEN flag clicked:\n  say 1\n', 'atmega168p');
+        assert.equal(refused.ok, false);
+        assert.equal(refused.cowgol, undefined);
+        assert.match(refused.reasons.join('; '), /ATMEGA168P.*reserves D0\/D1/);
+    }
+    assert.equal(generate(source.replace('16000000', '8000000'), 'atmega168p').ok, false);
+    for (const target of ['atmega328p', 'arduino-nano']) {
+        assert.equal(generate(source, target).ok, false, 'the smaller bare chip is not an Uno or Nano alias');
+    }
 });

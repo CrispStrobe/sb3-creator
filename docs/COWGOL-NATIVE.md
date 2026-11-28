@@ -27,6 +27,7 @@ The producer CLI exposes the same checked profiles explicitly:
 node bin/bw.mjs transpile example.bw --to cowgol --target dos -o example.cow
 node bin/bw.mjs transpile blink.bw --to cowgol --target atmega328p -o blink.cow
 node bin/bw.mjs transpile nano.bw --to cowgol --target arduino-nano -o nano.cow
+node bin/bw.mjs transpile chip.bw --to cowgol --target atmega168p -o chip.cow
 ```
 
 Omitting `--target` preserves the reversible host export. `--target` selects a
@@ -78,6 +79,7 @@ limits, not measurements of a particular program's memory use.
 | `eater6502` | `EATER6502`, 1 MHz | Console plus VIA digital PA0–PA7 and PB0–PB7 |
 | `atmega328p` | `ATMEGA328P` or `ARDUINO-UNO`, 16 MHz | Serial console, digital D2–D13 and A0–A5, literal millisecond waits |
 | `arduino-nano` | `ARDUINO-NANO` or `NANO`, 16 MHz | Classic ATmega328P Nano: same digital/serial/wait subset, with a separate 30720-byte flash limit |
+| `atmega168p` | `ATMEGA168P`, 16 MHz | Bare chip: same digital/serial/wait subset, 16384-byte flash and 1024-byte SRAM |
 
 `DEVICE I80386` preserves the selected execution CPU in the project and in
 Cowgol declaration metadata. The compiler output remains the existing 16-bit
@@ -116,6 +118,18 @@ operations have no native Cowgol binding and refuse, including unused analog
 declarations. This profile does not cover ATmega168 Nano, Nano Every, Nano 33,
 Nano ESP32 or other boards bearing the Nano name. Runtime serial is 9600 baud;
 the separate bootloader upload speed is not changed by this source generator.
+
+The bare `atmega168p` target uses its own 16 KiB flash and 1 KiB SRAM
+contract at 16 MHz. It reserves no flash for a bootloader, 128 bytes for the
+Cowgol heap and at least 512 bytes for the native stack. Static initialized
+data and BSS must end at or below `0x300`; SRAM ends at `0x500`. USART0 is
+9600 baud and owns D0/D1; digital GPIO remains D2–D13 and A0–A5. This exact
+chip profile does not describe an ATmega168 Nano or a bootloader-equipped
+board. Selecting Uno or Nano for an authored `DEVICE ATMEGA168P` refuses.
+
+Portable CrispBASIC projects retain their explicit runtime requirement.
+Cowgol and RISC-V generation refuse those projects instead of converting
+their runtime-specific source through the ordinary Blocks contract.
 
 AVR literal waits call the native blocking `bw_delay` binding. Durations must
 be nonnegative literals within signed int32 milliseconds; as with ordinary

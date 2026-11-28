@@ -28,7 +28,11 @@ const NATIVE_TARGETS = Object.freeze({
     // A6/A7 are analog-input only and have no native digital binding.
     'arduino-nano': {devices: ['arduino-nano'], label: 'Arduino Nano (classic ATmega328P)', digital: true,
         mcu: 'atmega328p', clock: 16000000, pullups: true, delay: true,
-        memory: {flashLimit: 30720, ramBytes: 2048, heapBytes: 512, stackReserve: 512}}
+        memory: {flashLimit: 30720, ramBytes: 2048, heapBytes: 512, stackReserve: 512}},
+    // Bare ATmega168P: 16 KiB flash with no bootloader and only 1 KiB SRAM.
+    atmega168p: {devices: ['atmega168p'], label: 'ATmega168P (bare chip)', digital: true,
+        mcu: 'atmega168p', clock: 16000000, pullups: true, delay: true,
+        memory: {flashLimit: 16384, ramBytes: 1024, heapBytes: 128, stackReserve: 512}}
 });
 
 /** The checked native generator contracts, not installed compiler discovery.
@@ -204,8 +208,8 @@ export function generateCowgol(creator, project = creator.project, opts = {}) {
         if (native?.digital && pin.direction === 'input' && pin.activeLow && !native.pullups) {
             fail(`Native ${native.label} Cowgol has no input pull-up binding for active-low pin ${pin.name}`);
         }
-        if (native?.mcu === 'atmega328p' && id !== null && (id < 2 || id > 19)) {
-            fail(`Native ATmega328P Cowgol reserves D0/D1 for USART0; ${where} is not available as GPIO`);
+        if (['atmega328p', 'atmega168p'].includes(native?.mcu) && id !== null && (id < 2 || id > 19)) {
+            fail(`Native ${native.mcu.toUpperCase()} Cowgol reserves D0/D1 for USART0; ${where} is not available as GPIO`);
         }
         if (stc.device === 'z80' && ((/^OUT/i.test(where) && pin.direction !== 'output') || (/^IN/i.test(where) && pin.direction !== 'input'))) fail(`Z80 ${where} has a fixed electrical direction`);
         if (/^BUTTON_[AB]$/i.test(where) && pin.direction !== 'input') fail(`Button ${where} is input-only`);
