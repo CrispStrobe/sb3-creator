@@ -29,6 +29,7 @@ import path from 'path';
 import { execFileSync, execSync } from 'child_process';
 import { fileURLToPath } from 'node:url';
 import SB3Creator from '../src/utils/sb3Creator.js';
+import {isCrispBasicPseudocode, crispBasicModeError} from '../src/utils/crispBasicMode.js';
 
 const args = process.argv.slice(2);
 const cmd = args[0];
@@ -57,6 +58,7 @@ const parseBw = (code) => {
 };
 const maybeRetarget = (code, device) => {
     if (!device) return code;
+    if (isCrispBasicPseudocode(code)) die(crispBasicModeError('retargeting').message, 1);
     // `spikeprime` is the extension/device name users see; the dialect header
     // predates it and is spelled `DEVICE SPIKE`. This target has domain verbs,
     // not a pin-retarget pool, so selecting it either confirms that header or
@@ -105,10 +107,16 @@ switch (cmd) {
 
     case 'transpile': {
         const file = positional[0] ?? die('transpile needs a file');
-        const to = opts.to ?? die('transpile needs --to c|micropython|python|javascript|sb3');
+        const to = opts.to ?? die('transpile needs --to c|micropython|python|javascript|sb3|crispbasic');
         const code = maybeRetarget(readInput(file), opts.device);
+        if (isCrispBasicPseudocode(code) && to !== 'crispbasic') die(crispBasicModeError(to).message, 1);
         const c = parseBw(code);
-        if (to === 'c') {
+        if (to === 'crispbasic') {
+            const result = c.generateBASIC(undefined, {profile: 'bbc', mode: 'crispbasic', lineNumbers: Boolean(opts.numbered)});
+            if (!result.ok) die(`CrispBASIC generation refused: ${result.reasons.join('; ')}`, 1);
+            for (const warning of result.warnings || []) console.error(`warning: ${warning}`);
+            writeOut(result.basic, opts.o);
+        } else if (to === 'c') {
             // debug:true = the proven form `bw compile` and the browser use;
             // it forces the cooperative scheduler so `@bw` round-trip markers
             // are present and the STM32 path takes its TIM3 timebase. Without
@@ -154,7 +162,7 @@ switch (cmd) {
             result = js2bw(src);
         } else if (/\.(bas|basic)$/i.test(file)) {
             const { default: bas2bw } = await import('../src/utils/basicToPseudocode.js');
-            result = bas2bw(src);
+            result = bas2bw(src, opts.crispbasic ? {mode: 'crispbasic'} : {});
         } else if (/\.sb3$/i.test(file)) {
             const { readFileSync } = await import('fs');
             const JSZip = (await import('jszip')).default;
@@ -174,6 +182,7 @@ switch (cmd) {
     case 'compile': {
         const file = positional[0] ?? die('compile needs a file');
         const code = maybeRetarget(readInput(file), opts.device);
+        if (isCrispBasicPseudocode(code)) die(crispBasicModeError('native compilation').message, 1);
         const c = parseBw(code);
         // debug:true is the proven-correct emission (every chain test and the
         // lite app use it): WITHOUT it an STM32 build leaks pico's BW_TIMER
@@ -325,6 +334,7 @@ switch (cmd) {
 
     case 'flash': {
         const file = positional[0] ?? die('flash needs a file (.bw, .py, .hex/.ihx or .bin)');
+        if (!/\.(?:hex|ihx|bin|rom)$/i.test(file) && isCrispBasicPseudocode(readInput(file))) die(crispBasicModeError('physical flashing').message, 1);
         // Which family are we flashing? A pre-built artifact carries its
         // own format; a .bw/.py carries a DEVICE (or --device).
         const artifactExt = (file.match(/\.(hex|ihx|bin)$/i) || [,''])[1].toLowerCase();

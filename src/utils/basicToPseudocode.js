@@ -1,3 +1,5 @@
+import {CRISPBASIC_PSEUDOCODE_MARKER, hasCrispBasicPinMap, crispBasicLogicalPin} from './crispBasicMode.js';
+
 /**
  * basicToPseudocode — BBC BASIC (numbered or structured) → the dialect.
  *
@@ -47,14 +49,14 @@ const UNMAPPED = new Set(['PLOT', 'COLOUR', 'COLOR', 'CLS',
     'PRINTTAB']);
 
 const CRISPBASIC_CALLS = new Set([
-    'procpinmode', 'procdigitalwrite', 'fndigitalread', 'procdelay', 'fnmillis'
+    'procpinmode', 'procdigitalwrite', 'procdigitaltoggle', 'fndigitalread', 'procdelay', 'fnmillis'
 ]);
 // Exact conventional pin/time API names only: these are not implemented by
-// the five-operation library either. Do not reserve all PROC/FN names, or
+// the portable library either. Do not reserve all PROC/FN names, or
 // prefixes such as PROCdigitalWriteLog belonging to ordinary user routines.
 const CRISPBASIC_UNSUPPORTED_CALLS = new Set([
     'procanalogwrite', 'fnanalogread', 'procpwm', 'proctone', 'procnotone',
-    'proctoggle', 'procdigitaltoggle', 'procdelaymicroseconds', 'fnmicros',
+    'proctoggle', 'procdelaymicroseconds', 'fnmicros',
     'procattachinterrupt', 'procdetachinterrupt'
 ]);
 // BBC keywords can abut the next expression (PRINTFNdigitalRead, THENPROC...).
@@ -72,7 +74,12 @@ const COMPACT_BBC_KEYWORDS = ('AND ABS ACS ADVAL ASC ASN ATN COLOUR COLOR CALL C
     + 'UNTIL USR VDU VAL WHILE WHEN WIDTH').split(' ').sort((a, b) => b.length - a.length);
 
 export default function basicToPseudocode(source, opts = {}) {
-    void opts;
+    const portableMode = opts.mode === 'crispbasic';
+    if (opts.mode !== undefined && opts.mode !== 'legacy' && !portableMode) {
+        const message = `Unknown BASIC reverse mode ${String(opts.mode)}; use legacy or crispbasic.`;
+        return {ok: false, pseudocode: '', reasons: [message], warnings: [],
+            diagnostics: [{code: 'crispbasic-read-mode', severity: 'error', line: 1, message}], stats: {lines: 0, mapped: 0}};
+    }
     const warnings = [];
     const diagnostics = [];
     const diagnosed = new Set();
@@ -127,7 +134,7 @@ export default function basicToPseudocode(source, opts = {}) {
                 const key = token.toLowerCase();
                 const portable = CRISPBASIC_CALLS.has(key);
                 const dynamic = key === 'eval';
-                if ((portable || dynamic || CRISPBASIC_UNSUPPORTED_CALLS.has(key)) &&
+                if (((portable && !portableMode) || dynamic || CRISPBASIC_UNSUPPORTED_CALLS.has(key)) &&
                     !diagnosed.has(`${sourceLine}:${key}`)) {
                     diagnosed.add(`${sourceLine}:${key}`);
                     const location = `Line ${sourceLine}${lineNo === null ? '' : ` (BASIC ${lineNo})`}`;
@@ -137,7 +144,7 @@ export default function basicToPseudocode(source, opts = {}) {
                             ? `${location}: To blocks cannot preserve ${token}'s CrispBASIC pin/time semantics; `
                               + 'portable-library calls and definitions are not supported by this converter. Keep this program as BASIC.'
                             : `${location}: To blocks does not support ${token}; it is also outside CrispBASIC's `
-                              + 'five-operation portable library. Conversion refused; resolve this operation in the BASIC source.';
+                              + 'portable library. Conversion refused; resolve this operation in the BASIC source.';
                     diagnostics.push({code: dynamic ? 'basic-to-blocks-dynamic-source' : 'crispbasic-to-blocks-unsupported', severity: 'error',
                         line: sourceLine, basicLine: lineNo, operation: token, message});
                 }
@@ -154,6 +161,17 @@ export default function basicToPseudocode(source, opts = {}) {
     stats.lines = stmts.length;   // statements, colon-split — same unit as `mapped`
     if (diagnostics.length) {
         return {ok: false, pseudocode: '', reasons: diagnostics.map(d => d.message), warnings, diagnostics, stats};
+    }
+
+    if (portableMode) {
+        const physical = [...new Map(stmts.map(statement => [statement.sourceLine, statement])).values()];
+        const numbered = physical.filter(statement => statement.lineNo !== null);
+        if (numbered.length && (numbered.length !== physical.length || numbered.some((statement, index) =>
+            statement.lineNo <= 0 || index && statement.lineNo <= numbered[index - 1].lineNo))) {
+            const message = 'Portable reverse conversion requires wholly unnumbered source or strictly increasing, unique BASIC line numbers.';
+            return {ok: false, mode: 'crispbasic', pseudocode: '', reasons: [message], warnings,
+                diagnostics: [{code: 'crispbasic-read-line-order', severity: 'error', line: 1, message}], stats};
+        }
     }
 
     // ---- destructure: numbered GOTO shapes → structured statements ------
@@ -189,8 +207,8 @@ export default function basicToPseudocode(source, opts = {}) {
                     const j = stmts.findIndex((s2, kk) => kk > k && new RegExp(`^GOTO\\s+${stmts[k].lineNo}$`, 'i').test(s2.text));
                     if (j > k && idxOf(after) === j + 1
                         && countTargets(targets, stmts[k].lineNo) === 1 && countTargets(targets, after) === 1) {
-                        stmts[k] = { text: `WHILE NOT (${m[1]})`, lineNo: stmts[k].lineNo };
-                        stmts[j] = { text: 'ENDWHILE', lineNo: stmts[j].lineNo };
+                        stmts[k] = { ...stmts[k], text: portableMode ? `WHILE NOT ((${m[1]})<>0)` : `WHILE NOT (${m[1]})` };
+                        stmts[j] = { ...stmts[j], text: 'ENDWHILE' };
                         changed = true;
                         break;
                     }
@@ -202,11 +220,11 @@ export default function basicToPseudocode(source, opts = {}) {
                         const ge = stmts[e - 1].text.match(/^GOTO\s+(\d+)$/i);
                         if (ge && idxOf(Number(ge[1])) > e && countTargets(targets, Number(ge[1])) === 1) {
                             const a = idxOf(Number(ge[1]));
-                            stmts[k] = { text: `IF ${m[1]} THEN`, lineNo: stmts[k].lineNo };
-                            stmts[e - 1] = { text: 'ELSE', lineNo: stmts[e - 1].lineNo };
+                            stmts[k] = { ...stmts[k], text: `IF ${m[1]} THEN` };
+                            stmts[e - 1] = { ...stmts[e - 1], text: 'ELSE' };
                             stmts.splice(a, 0, { text: 'ENDIF', lineNo: null });
                         } else {
-                            stmts[k] = { text: `IF ${m[1]} THEN`, lineNo: stmts[k].lineNo };
+                            stmts[k] = { ...stmts[k], text: `IF ${m[1]} THEN` };
                             stmts.splice(e, 0, { text: 'ENDIF', lineNo: null });
                         }
                         changed = true;
@@ -217,7 +235,7 @@ export default function basicToPseudocode(source, opts = {}) {
                 if ((m = t.match(/^GOTO\s+(\d+)$/i)) && stmts[k].lineNo !== null && Number(m[1]) < stmts[k].lineNo) {
                     const top = idxOf(Number(m[1]));
                     if (top >= 0 && top < k && countTargets(targets, Number(m[1])) === 1) {
-                        stmts[k] = { text: 'UNTIL FALSE', lineNo: stmts[k].lineNo };
+                        stmts[k] = { ...stmts[k], text: 'UNTIL FALSE' };
                         stmts.splice(top, 0, { text: 'REPEAT', lineNo: null });
                         changed = true;
                         break;
@@ -226,6 +244,8 @@ export default function basicToPseudocode(source, opts = {}) {
             }
         }
     }
+
+    if (portableMode) return readPortableBasic(stmts, stats);
 
     // ---- @bw header (our own emissions) ---------------------------------
     let device = null;
@@ -650,4 +670,396 @@ export default function basicToPseudocode(source, opts = {}) {
     for (const w of exprWarn) warnings.push(w);
     return { ok: true, pseudocode: head.join('\n') + '\n' + out.join('\n') + '\n',
         reasons: [], warnings, diagnostics, stats };
+}
+
+/** Strict source-to-source bridge. The resulting dialect must be compiled
+ * with mode:'crispbasic' and run in a fresh portable host, not executed as an
+ * ordinary Scratch project. In particular, solved reads and output latches
+ * are different operations, and the clock advances only on explicit delays. */
+function readPortableBasic(stmts, stats) {
+    const diagnostics = [], variables = new Set(), pinIds = new Map(), pinNames = new Set();
+    const procedures = new Map(), parameterOwners = new Map();
+    const reservedNames = new Set(stmts.flatMap(statement => [...statement.text.matchAll(/\b[a-z_][a-z0-9_]*\b/g)].map(match => `cb_${match[0]}`)));
+    const reserveName = candidate => {
+        while (reservedNames.has(candidate)) candidate += '_';
+        reservedNames.add(candidate);
+        return candidate;
+    };
+    const capabilities = Object.freeze({pseudocode: true, blocks: false, requiredRuntime: 'crispbasic',
+        simulationABI: 2, freshRun: true, clock: 'explicit-integer-milliseconds'});
+    let current = stmts[0], device = null, activeProcedure = null;
+    const fail = (code, message, statement = current) => {
+        const line = statement?.sourceLine ?? 1, basicLine = statement?.lineNo ?? null;
+        const diagnostic = {code: `crispbasic-read-${code}`, severity: 'error', line, basicLine,
+            message: `Line ${line}${basicLine === null ? '' : ` (BASIC ${basicLine})`}: ${message}`};
+        diagnostics.push(diagnostic);
+        throw diagnostic;
+    };
+    const integer = text => /^\d+$/.test(text) && Number.isSafeInteger(Number(text)) ? Number(text) : null;
+    const logical = where => crispBasicLogicalPin(device, where);
+    const lookup = (text, write = false) => {
+        const id = integer(text), pin = pinIds.get(id);
+        if (!pin || id === null) fail('pin', `Unknown or computed logical pin ${text}; declare a matching REM @bw pin.`);
+        if (write && pin.direction !== 'output') fail('pin-mode', `Cannot write input pin ${pin.name}.`);
+        return pin;
+    };
+    const node = (text, kind = 'number', value) => ({text, kind, value});
+    const literal = value => node(String(value), value === 0 || value === 1 ? 'bit' : value === -1 ? 'bbc-bool' : 'number', value);
+    const truth = n => n.condition ?? `(${n.text} != 0)`;
+    const predicate = (condition, kind = 'bbc-bool') => ({text: null, condition, kind});
+    const requireNumber = n => {
+        if (n.text === null) fail('boolean-value', 'A comparison embedded in arithmetic needs an explicit numeric assignment before conversion.');
+        return n.text;
+    };
+    const scalar = (name, write = false) => {
+        // The portable generator emits lowercase, unsuffixed numeric names.
+        // BBC %-integer coercion, $-strings and case-distinct aliases need a
+        // separate type contract; never erase these suffixes in this mode.
+        if (!/^[a-z_][a-z0-9_]*$/.test(name) || /^bw_/.test(name)) {
+            fail('variable', `Variable ${name} is outside the portable lowercase numeric scalar subset.`);
+        }
+        if (activeProcedure?.parameters.has(name)) {
+            if (write) fail('procedure-scope', `Parameter ${name} is read-only in portable pseudocode; a mutable BASIC local cannot become a global variable.`);
+            return activeProcedure.parameters.get(name);
+        }
+        // BBC procedure parameters have dynamic scope. A free reference to a
+        // parameter owned by another routine can see the caller's local value,
+        // whereas a Scratch argument is lexical. Never guess at that boundary.
+        if (parameterOwners.has(name)) fail('procedure-scope', `Variable ${name} is also a procedure parameter; cross-procedure or global access needs an explicit scope contract.`);
+        const mapped = `cb_${name}`;
+        variables.add(mapped);
+        return mapped;
+    };
+    const expression = source => {
+        const tokens = [];
+        const input = String(source).trim();
+        let p = 0;
+        while (p < input.length) {
+            if (/\s/.test(input[p])) { p++; continue; }
+            const match = input.slice(p).match(/^(?:\d+(?:\.\d*)?|\.\d+)(?:[Ee][+-]?\d+)?|^[A-Za-z_][A-Za-z0-9_]*[%$]?|^(?:<>|<=|>=|[()+\-*/=<>!,])/);
+            if (!match) fail('expression', `Unsupported expression near ${input.slice(p)}.`);
+            tokens.push(match[0]); p += match[0].length;
+        }
+        let at = 0;
+        const take = expected => {
+            if (tokens[at] !== expected) fail('expression', `Expected ${expected} in ${input}.`);
+            at++;
+        };
+        const prec = {OR: 1, AND: 2, '=': 3, '<>': 3, '<': 3, '>': 3, '<=': 3, '>=': 3, '+': 4, '-': 4, '*': 5, '/': 5, MOD: 5};
+        const isBBCBool = n => n.kind === 'bbc-bool' || n.value === 0;
+        const parse = (minimum = 0) => {
+            const token = tokens[at++];
+            let left;
+            if (token === '(') { left = parse(); take(')'); }
+            else if (token === '+' || token === '-') {
+                const value = parse(6);
+                left = value.value !== undefined ? literal(token === '-' ? -value.value : value.value) :
+                    value.condition !== undefined ? predicate(value.condition, token === '+' ? value.kind : value.kind === 'bit' ? 'bbc-bool' : 'bit') :
+                    node(`(${token}${value.text})`);
+            } else if (token === 'NOT') {
+                const value = parse(3);
+                if (!isBBCBool(value)) fail('bitwise', 'BBC NOT requires a proven -1/0 Boolean operand; numeric bitwise NOT has no portable Boolean mapping.');
+                left = predicate(`not (${truth(value)})`);
+            } else if (token === 'TRUE') left = literal(-1);
+            else if (token === 'FALSE') left = literal(0);
+            else if (token !== undefined && /^(?:\d|\.)/.test(token)) {
+                const value = Number(token);
+                if (!Number.isFinite(value) || Math.abs(value) > Number.MAX_SAFE_INTEGER) fail('number', `Numeric literal ${token} is outside the portable finite safe range.`);
+                left = literal(value);
+            } else if (token === 'FNdigitalRead') {
+                take('('); const pin = lookup(tokens[at++]); take(')');
+                const read = `(read ${pin.name})`;
+                left = node(pin.activeLow ? `(1 - ${read})` : read, 'bit');
+            } else if (token === 'FNmillis') {
+                // timer is seconds; rounding recovers the host's exact integer
+                // milliseconds after the floating division/multiplication.
+                left = node('(round (timer * 1000))');
+            } else if (token === 'PI') left = node('pi');
+            else if (token === 'SQR' || token === 'LN') {
+                take('('); const value = parse(); take(')');
+                left = node(`(${token === 'SQR' ? 'sqrt' : 'ln'} of (${requireNumber(value)}))`);
+            } else if (['SIN', 'COS', 'TAN'].includes(token)) {
+                // Scratch's trigonometric reporters use degrees. Recover the
+                // exact generated RAD wrapper; a general radians conversion
+                // would insert extra floating-point operations and rounding.
+                take('('); take('RAD'); take('('); const value = parse(); take(')'); take(')');
+                left = node(`(${token.toLowerCase()} of (${requireNumber(value)}))`);
+            } else if (token === 'DEG') {
+                take('('); const inverse = tokens[at++];
+                if (!['ASN', 'ACS', 'ATN'].includes(inverse)) fail('expression', 'DEG requires a generated ASN, ACS or ATN wrapper in portable reverse mode.');
+                take('('); const value = parse(); take(')'); take(')');
+                left = node(`(${({ASN: 'asin', ACS: 'acos', ATN: 'atan'})[inverse]} of (${requireNumber(value)}))`);
+            } else if (token === 'ABS' || token === 'INT') {
+                take('('); const value = parse(); take(')');
+                left = value.condition !== undefined ? predicate(value.condition, token === 'ABS' ? 'bit' : value.kind) :
+                    node(`(${token === 'ABS' ? 'abs' : 'floor'} of (${value.text}))`,
+                        token === 'ABS' && isBBCBool(value) ? 'bit' : value.kind === 'bit' ? 'bit' : 'number');
+            } else if (token && /^[a-z_][a-z0-9_]*$/.test(token)) left = node(scalar(token));
+            else fail('expression', `Unsupported token ${token ?? '(end)'} in ${input}.`);
+            while (at < tokens.length && prec[tokens[at]] !== undefined && prec[tokens[at]] >= minimum) {
+                const op = tokens[at++], right = parse(prec[op] + 1);
+                if (['=', '<>', '<', '>', '<=', '>='].includes(op)) {
+                    if (left.condition !== undefined && right.value === 0) {
+                        const positive = left.kind === 'bit';
+                        const same = op === '<>' || op === (positive ? '>' : '<');
+                        const inverse = op === '=' || op === (positive ? '<=' : '>=');
+                        if (!same && !inverse) fail('constant-predicate', 'This comparison has a constant result but its operand must still be evaluated; use an explicit numeric assignment first.');
+                        left = same ? predicate(left.condition) : predicate(`not (${left.condition})`);
+                    } else {
+                        left = predicate(`(${requireNumber(left)} ${op === '<>' ? '!=' : op} ${requireNumber(right)})`);
+                    }
+                } else if (op === 'AND' || op === 'OR') {
+                    if (!isBBCBool(left) || !isBBCBool(right)) fail('bitwise', `BBC ${op} requires proven -1/0 Boolean operands.`);
+                    left = predicate(`(${truth(left)}) ${op.toLowerCase()} (${truth(right)})`);
+                } else {
+                    const bit = op === '-' && left.value === 1 && right.kind === 'bit';
+                    // Keep a negative literal on the right grouped. Otherwise
+                    // the pseudocode subtraction scanner can split `a mod -3`
+                    // before recognizing the word-form modulo operator.
+                    const rhs = requireNumber(right);
+                    left = node(`(${requireNumber(left)} ${op === 'MOD' ? 'mod' : op} ${right.value < 0 ? `(${rhs})` : rhs})`, bit ? 'bit' : 'number');
+                }
+            }
+            return left;
+        };
+        const result = parse();
+        if (at !== tokens.length) fail('expression', `Unexpected token ${tokens[at]} in ${input}.`);
+        return result;
+    };
+    try {
+        // Discover signatures before walking bodies so forward calls, nested
+        // calls and recursion can be represented by ordinary custom blocks.
+        // Exact generated pen helpers are handled separately below.
+        for (const s of stmts) {
+            current = s;
+            if (!/^DEF PROC/.test(s.text) || s.text === 'DEF PROCpen_colour(c%)') continue;
+            const match = /^DEF PROC([a-z_][a-z0-9_]*)(?:\(([^()]*)\))?$/.exec(s.text);
+            if (!match) fail('procedure', 'Procedures require lowercase names and unsuffixed numeric parameters.');
+            const name = match[1];
+            if (CRISPBASIC_CALLS.has(`proc${name}`.toLowerCase()) || CRISPBASIC_UNSUPPORTED_CALLS.has(`proc${name}`.toLowerCase()) || /^pen_colour$|^bw_/.test(name)) {
+                fail('procedure', `PROC${name} shadows a reserved portable helper.`);
+            }
+            if (procedures.has(name)) fail('procedure', `Duplicate definition of PROC${name}.`);
+            const params = match[2] === undefined || match[2].trim() === '' ? [] : match[2].split(',').map(value => value.trim());
+            if (params.some(param => !/^[a-z_][a-z0-9_]*$/.test(param) || /^bw_/.test(param)) || new Set(params).size !== params.length) {
+                fail('procedure', `PROC${name} parameters must be distinct lowercase numeric scalars; strings, arrays, BYREF and type suffixes are not qualified.`);
+            }
+            const parameters = new Map(params.map(param => [param, reserveName(`cb_arg_${name}_${param}`)]));
+            procedures.set(name, {name: reserveName(`cb_proc_${name}`), parameters, statement: s, body: null});
+            for (const param of params) {
+                if (!parameterOwners.has(param)) parameterOwners.set(param, new Set());
+                parameterOwners.get(param).add(name);
+            }
+        }
+        // Metadata provides names, never executable authority. Every declaration
+        // must match exactly one static mode call before executable statements.
+        const declarations = [];
+        for (const s of stmts) {
+            current = s;
+            let m;
+            if ((m = /^REM @bw device ([a-z0-9-]+)$/i.exec(s.text))) {
+                if (device !== null) fail('device', 'Multiple device headers are ambiguous.');
+                device = m[1].toLowerCase();
+            } else if (/^REM @bw device/i.test(s.text)) fail('device', 'Malformed portable device header.');
+            if ((m = /^REM @bw pin ([a-z_][a-z0-9_]*) ([A-Z0-9.]+) (input|output)( active-low)?$/i.exec(s.text))) {
+                declarations.push({name: m[1], where: m[2].toUpperCase(), direction: m[3].toLowerCase(), activeLow: !!m[4], statement: s});
+            } else if (/^REM @bw pin/i.test(s.text)) fail('pin', 'Malformed portable pin header.');
+        }
+        if (device && !hasCrispBasicPinMap(device)) fail('device', `DEVICE ${device} has no qualified reverse pin map.`);
+        for (const declaration of declarations) {
+            current = declaration.statement;
+            const id = logical(declaration.where), key = declaration.name.toLowerCase();
+            if (id === null || pinIds.has(id) || pinNames.has(key)) fail('pin', `Invalid or duplicate pin declaration ${declaration.name} (${declaration.where}).`);
+            pinIds.set(id, {...declaration, id}); pinNames.add(key);
+        }
+        const configured = new Set(), out = [];
+        let cursor = 0, bodyStarted = false, canvasInitialized = false, topEnded = false;
+        const renderPosition = 'IF bw_pen% THEN DRAW bw_x%*4+640,bw_y%*4+512 ELSE MOVE bw_x%*4+640,bw_y%*4+512';
+        const canvasInteger = (text, offset) => {
+            const value = Number(text);
+            if (!/^-?\d+$/.test(text) || !Number.isSafeInteger(value) || value * 4 + offset < -32768 || value * 4 + offset > 32767) {
+                fail('canvas', 'Generated canvas coordinates require integer positions representable by the signed 16-bit VDU path.');
+            }
+            return value;
+        };
+        const emit = (text, depth) => out.push(`${'  '.repeat(depth)}${text}`);
+        let temporary = 0;
+        const numberText = (value, depth) => {
+            if (value.text !== null) return value.text;
+            let name;
+            do { name = `cb_truth_${temporary++}`; }
+            while (variables.has(name) || stmts.some(statement => new RegExp(`\\b${name.slice(3)}\\b`).test(statement.text)));
+            variables.add(name);
+            emit(`IF ${truth(value)} THEN:`, depth);
+            emit(`set ${name} to ${value.kind === 'bit' ? 1 : -1}`, depth + 1);
+            emit('ELSE:', depth);
+            emit(`set ${name} to 0`, depth + 1);
+            return name;
+        };
+        const begin = () => {
+            if (configured.size !== pinIds.size) fail('pin-mode', 'Every declared pin requires exactly one matching PROCpinMode before the program body.');
+            bodyStarted = true;
+        };
+        const walk = (depth, closers = []) => {
+            while (cursor < stmts.length) {
+                const s = stmts[cursor]; current = s;
+                const t = s.text;
+                if (closers.some(close => close.test(t))) return;
+                let m;
+                if (/^REM/.test(t) || /^REM\b/i.test(t)) {
+                    if (!/^REM (?:@bw |generated by)/i.test(t)) emit(`# BASIC: ${t.replace(/^REM\s*/i, '')}`, depth);
+                    cursor++; continue;
+                }
+                if ((m = /^PROCpinMode\((\d+),"(input|input-pullup|output)"\)$/.exec(t))) {
+                    const pin = lookup(m[1]);
+                    const expected = pin.direction === 'output' ? 'output' : pin.activeLow ? 'input-pullup' : 'input';
+                    if (bodyStarted || configured.has(pin.id) || [...pinIds.keys()][configured.size] !== pin.id || m[2] !== expected) fail('pin-mode', 'Dynamic, repeated or mismatched pin modes cannot become static PIN declarations.');
+                    configured.add(pin.id); cursor++; continue;
+                }
+                begin();
+                if ((m = /^PROCdigitalWrite\((\d+),(.+)\)$/.exec(t))) {
+                    const pin = lookup(m[1], true), value = expression(m[2]);
+                    if (value.kind !== 'bit') fail('digital-value', 'Digital writes require a proven 0/1 value; arbitrary nonzero BASIC values must retain their runtime error.');
+                    if (value.condition !== undefined) {
+                        emit(`IF ${truth(value)} THEN:`, depth); emit(`set ${pin.name} high`, depth + 1);
+                        emit('ELSE:', depth); emit(`set ${pin.name} low`, depth + 1);
+                    } else emit(value.value === 0 || value.value === 1 ? `set ${pin.name} ${value.value ? 'high' : 'low'}` : `set ${pin.name} to ${value.text}`, depth);
+                } else if ((m = /^PROCdigitalToggle\((\d+)\)$/.exec(t))) {
+                    emit(`toggle ${lookup(m[1], true).name}`, depth);
+                } else if ((m = /^PROCdelay\((\d+)\)$/.exec(t))) {
+                    const milliseconds = integer(m[1]);
+                    if (milliseconds === null || milliseconds > 2147483647) fail('delay', 'Delay must be a literal integer from 0 through 2147483647 milliseconds.');
+                    emit(`wait ${milliseconds / 1000} seconds`, depth);
+                } else if (/^PROCdelay\b/.test(t)) fail('delay', 'Computed delays require the generated seconds range guard and integer-millisecond rounding, or an explicit integer millisecond duration.');
+                else if ((m = /^IF ([a-z_][a-z0-9_]*)<0 OR \1>2147483\.647 THEN ERROR 204,"CrispBASIC wait seconds outside 0\.\.2147483\.647"$/.exec(t)) &&
+                    stmts[cursor + 1]?.text === `PROCdelay(INT(${m[1]}*1000+0.5))`) {
+                    // Preserve the already-evaluated seconds scalar. The
+                    // generator recreates exactly this guard and rounding;
+                    // arbitrary computed PROCdelay calls remain refused.
+                    emit(`wait (${scalar(m[1])}) seconds`, depth); cursor++;
+                }
+                else if ((m = /^PRINT\s+"((?:[^"]|"")*)"$/.exec(t))) emit(`print ${JSON.stringify(m[1].replace(/""/g, '"'))}`, depth);
+                else if ((m = /^PRINT\s+(.+)$/.exec(t))) emit(`print ${numberText(expression(m[1]), depth)}`, depth);
+                else if ((m = /^([a-z_][a-z0-9_]*)\s*=\s*(.+)$/.exec(t))) emit(`set ${scalar(m[1], true)} to ${numberText(expression(m[2]), depth)}`, depth);
+                else if ((m = /^FOR ([a-z_][a-z0-9_]*)=1 TO (\d+)$/.exec(t))) {
+                    const count = integer(m[2]);
+                    if (count === null || count < 1 || count > 1000000) fail('for', 'FOR conversion supports literal iteration counts from 1 through 1000000.');
+                    const name = m[1];
+                    const mentions = stmts.filter(statement => new RegExp(`\\b${name}\\b`).test(statement.text));
+                    if (mentions.length !== 2) fail('for', `FOR counter ${name} is observed or reused; its post-loop value cannot be dropped.`);
+                    emit(`REPEAT ${count}:`, depth); cursor++;
+                    walk(depth + 1, [/^NEXT\b/]);
+                    if (stmts[cursor]?.text !== `NEXT ${name}`) fail('structure', `Expected NEXT ${name}.`);
+                } else if ((m = /^IF (.+) THEN$/.exec(t))) {
+                    emit(`IF ${truth(expression(m[1]))} THEN:`, depth); cursor++;
+                    walk(depth + 1, [/^ELSE$/, /^ENDIF$/]);
+                    if (stmts[cursor]?.text === 'ELSE') {
+                        emit('ELSE:', depth); cursor++; walk(depth + 1, [/^ENDIF$/]);
+                    }
+                    if (stmts[cursor]?.text !== 'ENDIF') fail('structure', 'Expected ENDIF.');
+                } else if ((m = /^WHILE (.+)$/.exec(t))) {
+                    emit(`REPEAT UNTIL not (${truth(expression(m[1]))}):`, depth); cursor++;
+                    walk(depth + 1, [/^ENDWHILE$/]);
+                    if (stmts[cursor]?.text !== 'ENDWHILE') fail('structure', 'Expected ENDWHILE.');
+                } else if (t === 'REPEAT') {
+                    emit('FOREVER:', depth); cursor++; walk(depth + 1, [/^UNTIL\b/]);
+                    if (stmts[cursor]?.text !== 'UNTIL FALSE') fail('structure', 'Only REPEAT ... UNTIL FALSE has a qualified portable mapping.');
+                } else if (t === 'END') {
+                    // Preserve early termination too: END is not a harmless
+                    // separator which permits following statements to execute.
+                    emit('stop all', depth);
+                    if (depth === 1) topEnded = true;
+                } else if (t === 'bw_x%=0' && stmts[cursor + 1]?.text === 'bw_y%=0' &&
+                    stmts[cursor + 2]?.text === 'bw_dir%=90' && stmts[cursor + 3]?.text === 'bw_pen%=FALSE') {
+                    if (canvasInitialized || depth !== 1 || out.some(line => !line.trimStart().startsWith('#'))) {
+                        fail('canvas', 'Canvas initialization must appear once before executable statements.');
+                    }
+                    canvasInitialized = true; cursor += 3;
+                } else if (/^bw_pen%=(TRUE|FALSE)$/.test(t)) emit(t.endsWith('TRUE') ? 'pen down' : 'pen up', depth);
+                else if ((m = /^bw_x%=(-?\d+)$/.exec(t)) && /^bw_y%=-?\d+$/.test(stmts[cursor + 1]?.text || '') &&
+                    stmts[cursor + 2]?.text === renderPosition) {
+                    if (!canvasInitialized) fail('canvas', 'Generated coordinate writes require the complete initial canvas state.');
+                    const y = stmts[cursor + 1].text.slice('bw_y%='.length);
+                    emit(`go to x: ${canvasInteger(m[1], 640)} y: ${canvasInteger(y, 512)}`, depth);
+                    cursor += 2;
+                } else if ((m = /^bw_([xy])%=(-?\d+)$/.exec(t)) && stmts[cursor + 1]?.text === renderPosition) {
+                    if (!canvasInitialized) fail('canvas', 'Generated coordinate writes require the complete initial canvas state.');
+                    emit(`set ${m[1]} to ${canvasInteger(m[2], m[1] === 'x' ? 640 : 512)}`, depth); cursor++;
+                } else if ((m = /^PROCpen_colour\(([0-7])\)$/.exec(t))) {
+                    const definition = stmts.findIndex(statement => statement.text === 'DEF PROCpen_colour(c%)');
+                    if (definition < 0 || stmts.filter(statement => /^DEF PROCpen_colour/.test(statement.text)).length !== 1 || stmts[definition + 1]?.text !== 'GCOL 0,(c% MOD 8)+1' || stmts[definition + 2]?.text !== 'ENDPROC' ||
+                        !stmts.slice(0, definition).some(statement => statement.text === 'END')) fail('canvas', 'The exact generated pen-colour helper is required.');
+                    emit(`set pen color to ${m[1]}`, depth);
+                } else if (t === 'DEF PROCpen_colour(c%)' && stmts[cursor + 1]?.text === 'GCOL 0,(c% MOD 8)+1' && stmts[cursor + 2]?.text === 'ENDPROC') {
+                    if (depth !== 1 || activeProcedure || !topEnded) fail('canvas', 'Pen helper definitions must follow top-level END.');
+                    cursor += 2;
+                } else if ((m = /^DEF PROC([a-z_][a-z0-9_]*)(?:\([^()]*\))?$/.exec(t))) {
+                    if (depth !== 1 || activeProcedure || !topEnded) fail('procedure', 'Procedure definitions must follow top-level END and cannot be nested.');
+                    const procedure = procedures.get(m[1]);
+                    if (!procedure || procedure.statement !== s) fail('procedure', 'Unrecognized or duplicate procedure definition.');
+                    const start = out.length;
+                    activeProcedure = procedure; cursor++;
+                    walk(1, [/^ENDPROC$/]);
+                    if (stmts[cursor]?.text !== 'ENDPROC') fail('procedure', `Missing ENDPROC for ${m[1]}.`);
+                    procedure.body = out.splice(start);
+                    activeProcedure = null;
+                } else if ((m = /^PROC([a-z_][a-z0-9_]*)(?:\((.*)\))?$/.exec(t))) {
+                    const procedure = procedures.get(m[1]);
+                    if (!procedure) fail('procedure', `PROC${m[1]} has no qualified definition.`);
+                    const args = [];
+                    let nesting = 0, start = 0;
+                    const text = m[2] ?? '';
+                    for (let at = 0; at <= text.length; at++) {
+                        if (text[at] === '(') nesting++;
+                        else if (text[at] === ')') nesting--;
+                        if (nesting < 0) fail('procedure', `Unbalanced arguments for PROC${m[1]}.`);
+                        if (at === text.length || text[at] === ',' && nesting === 0) {
+                            if (text.length) args.push(text.slice(start, at).trim());
+                            start = at + 1;
+                        }
+                    }
+                    if (nesting || args.some(arg => !arg) || args.length !== procedure.parameters.size) fail('procedure', `PROC${m[1]} expects ${procedure.parameters.size} numeric argument(s).`);
+                    // Every argument is sampled left-to-right before the call.
+                    // This also keeps a Boolean materialization from moving
+                    // ahead of an earlier electrical read in another argument.
+                    const snapshots = args.map(arg => {
+                        const value = numberText(expression(arg), depth);
+                        let name;
+                        do { name = `cb_call_${temporary++}`; }
+                        while (variables.has(name) || stmts.some(statement => new RegExp(`\\b${name.slice(3)}\\b`).test(statement.text)));
+                        variables.add(name); emit(`set ${name} to ${value}`, depth);
+                        return `(${name})`;
+                    });
+                    emit(`${procedure.name}${snapshots.length ? ` ${snapshots.join(' ')}` : ''}`, depth);
+                } else if (t === 'CLG') emit('clear', depth);
+                else if ((m = /^(MOVE|DRAW) (-?\d+),(-?\d+)$/.exec(t))) {
+                    const x = Number(m[2]), y = Number(m[3]);
+                    if (!Number.isSafeInteger(x) || !Number.isSafeInteger(y) || x < -32768 || x > 32767 || y < -32768 || y > 32767 ||
+                        (x - 640) % 4 || (y - 512) % 4) fail('canvas', 'Canvas coordinates must be signed 16-bit values on the generator\'s four-unit grid.');
+                    emit(m[1] === 'DRAW' ? 'pen down' : 'pen up', depth);
+                    emit(`go to x: ${(x - 640) / 4} y: ${(y - 512) / 4}`, depth);
+                } else if ((m = /^GCOL 0,([1-8])$/.exec(t))) emit(`set pen color to ${Number(m[1]) - 1}`, depth);
+                else fail('statement', `Unsupported portable statement "${t}"; conversion produces no partial pseudocode.`);
+                stats.mapped++;
+                cursor++;
+            }
+        };
+        walk(1);
+        if (configured.size !== pinIds.size) fail('pin-mode', 'Missing portable pin-mode prelude.');
+        const header = [CRISPBASIC_PSEUDOCODE_MARKER, '# Requires CrispBASIC mode and a fresh portable simulation host; not generic Blocks execution.'];
+        if (device) header.push(`DEVICE ${device.toUpperCase()}`);
+        for (const pin of pinIds.values()) header.push(`PIN ${pin.name} = ${pin.where} ${pin.direction.toUpperCase()}${pin.activeLow ? ' ACTIVE LOW' : ''}`);
+        for (const name of variables) header.push(`GLOBAL ${name}`);
+        for (const procedure of procedures.values()) {
+            if (procedure.body === null) fail('procedure', `Procedure ${procedure.name} was not completely converted.`);
+            header.push('', `DEFINE ${procedure.name}${[...procedure.parameters.values()].map(param => ` (${param})`).join('')}:`, ...procedure.body);
+        }
+        header.push('', 'WHEN flag clicked:');
+        return {ok: true, mode: 'crispbasic', pseudocode: `${header.join('\n')}\n${out.join('\n')}\n`,
+            reasons: [], warnings: ['Portable source round trip requires CrispBASIC execution; To blocks is not qualified.'], diagnostics, stats, capabilities};
+    } catch (error) {
+        if (!diagnostics.includes(error)) throw error;
+        return {ok: false, mode: 'crispbasic', pseudocode: '', reasons: diagnostics.map(d => d.message),
+            warnings: [], diagnostics, stats, capabilities};
+    }
 }
