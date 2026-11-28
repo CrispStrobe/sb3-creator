@@ -47,14 +47,14 @@ const UNMAPPED = new Set(['PLOT', 'COLOUR', 'COLOR', 'CLS',
     'PRINTTAB']);
 
 const CRISPBASIC_CALLS = new Set([
-    'procpinmode', 'procdigitalwrite', 'fndigitalread', 'procdelay', 'fnmillis'
+    'procpinmode', 'procdigitalwrite', 'procdigitaltoggle', 'fndigitalread', 'procdelay', 'fnmillis'
 ]);
 // Exact conventional pin/time API names only: these are not implemented by
-// the five-operation library either. Do not reserve all PROC/FN names, or
+// the portable library either. Do not reserve all PROC/FN names, or
 // prefixes such as PROCdigitalWriteLog belonging to ordinary user routines.
 const CRISPBASIC_UNSUPPORTED_CALLS = new Set([
     'procanalogwrite', 'fnanalogread', 'procpwm', 'proctone', 'procnotone',
-    'proctoggle', 'procdigitaltoggle', 'procdelaymicroseconds', 'fnmicros',
+    'proctoggle', 'procdelaymicroseconds', 'fnmicros',
     'procattachinterrupt', 'procdetachinterrupt'
 ]);
 // BBC keywords can abut the next expression (PRINTFNdigitalRead, THENPROC...).
@@ -137,7 +137,7 @@ export default function basicToPseudocode(source, opts = {}) {
                             ? `${location}: To blocks cannot preserve ${token}'s CrispBASIC pin/time semantics; `
                               + 'portable-library calls and definitions are not supported by this converter. Keep this program as BASIC.'
                             : `${location}: To blocks does not support ${token}; it is also outside CrispBASIC\'s `
-                              + 'five-operation portable library. Conversion refused; resolve this operation in the BASIC source.';
+                              + 'portable library. Conversion refused; resolve this operation in the BASIC source.';
                     diagnostics.push({code: dynamic ? 'basic-to-blocks-dynamic-source' : 'crispbasic-to-blocks-unsupported', severity: 'error',
                         line: sourceLine, basicLine: lineNo, operation: token, message});
                 }

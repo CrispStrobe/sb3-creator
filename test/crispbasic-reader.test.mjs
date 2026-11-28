@@ -27,6 +27,7 @@ describe('CrispBASIC portable-library To blocks boundary', () => {
     for (const source of [
         'PROCpinMode(13, "output")',
         'PROCdigitalWrite(13, 1)',
+        'PROCdigitalToggle(13)',
         'PROCdelay(25)',
         'PRINT FNdigitalRead(13)',
         'elapsed = FNmillis',
@@ -47,6 +48,15 @@ describe('CrispBASIC portable-library To blocks boundary', () => {
         assert.match(result.reasons[0], /Line 4 \(BASIC 65000\)/);
     });
 
+    test('toggle is a supported portable operation with a refused reverse meaning', () => {
+        const result = refused('\n  100 PRINT 7\n\n  65000 PROCdigitalToggle(13)\n  65010 END');
+        assert.deepEqual(result.diagnostics.map(d => [d.line, d.basicLine, d.operation]), [
+            [4, 65000, 'PROCdigitalToggle']
+        ]);
+        assert.match(result.reasons[0], /cannot preserve PROCdigitalToggle's CrispBASIC pin\/time semantics/);
+        assert.doesNotMatch(result.reasons[0], /outside CrispBASIC/);
+    });
+
     test('deduplicates one call name on one line without hiding later source locations', () => {
         const result = refused('PRINT FNmillis + FNmillis\nPRINT FNmillis');
         assert.deepEqual(result.diagnostics.map(d => [d.line, d.basicLine, d.operation]), [
@@ -57,6 +67,7 @@ describe('CrispBASIC portable-library To blocks boundary', () => {
     test('refuses overriding definitions rather than assuming the bridge meaning', () => {
         for (const source of [
             'DEF PROCdigitalWrite(pin, value)\nPRINT value\nENDPROC',
+            'DEF PROCdigitalToggle(pin)\nPRINT pin\nENDPROC',
             'DEF FNdigitalRead(pin)=0',
             'DEF FNmillis=42',
             'DEF PROCother\nPROCdelay(1)\nENDPROC'
@@ -67,12 +78,12 @@ describe('CrispBASIC portable-library To blocks boundary', () => {
         for (const source of [
             'PROCanalogWrite(13, 127)', 'PRINT FNanalogRead(0)',
             'PROCtone(13, 440)', 'PROCnoTone(13)', 'PROCpwm(13, 50)',
-            'PROCtoggle(13)', 'PROCdigitalToggle(13)',
+            'PROCtoggle(13)',
             'PROCdelayMicroseconds(100)', 'PRINT FNmicros',
             'PROCattachInterrupt(2, 1)', 'PROCdetachInterrupt(2)'
         ]) {
             const result = refused(source);
-            assert.match(result.reasons[0], /outside CrispBASIC's five-operation portable library/);
+            assert.match(result.reasons[0], /outside CrispBASIC's portable library/);
         }
     });
 
@@ -91,13 +102,16 @@ describe('CrispBASIC portable-library To blocks boundary', () => {
             'PRINTFNdigitalRead(1)',
             'IF TRUE THENPROCdigitalWrite(1,1)',
             'IF1THENPROCdigitalWrite(1,1)',
+            'IF1THENPROCdigitalToggle(13)',
             'IFTRUE THENPROCdelay(1)',
             'REPEATUNTILFNmillis>1',
             'PRINTABSFNmillis',
             'DEFFNdigitalRead(pin)=0',
             'DEFPROCdigitalWrite(pin,value)\nENDPROC',
+            'DEFPROCdigitalToggle(pin)\nENDPROC',
             'PRO.digitalWrite(1,1)',
             'PROC.digitalWrite(1,1)',
+            'PRO.digitalToggle(13)',
             'PRINT FN.digitalRead(1)',
             'PRINTFN.millis'
         ]) refused(source);
@@ -152,7 +166,8 @@ describe('comments, strings and legacy BASIC remain distinct from portable calls
             'PRINT "FNdigitalRead(13):PROCdelay(25)"',
             'message$="FNmillis"',
             'message$="quote ""PROCpinMode"": PROCanalogWrite(0, 1)"',
-            'PRINT "PROCdigitalWrite":REM FNmillis'
+            'PRINT "PROCdigitalWrite":REM FNmillis',
+            'PRINT "PROCdigitalToggle(13)":REM PROCdigitalToggle(13)'
         ]) {
             const result = basicToPseudocode(source);
             assert.equal(result.ok, true, source);
@@ -164,6 +179,7 @@ describe('comments, strings and legacy BASIC remain distinct from portable calls
     test('does not reserve name prefixes belonging to ordinary routines', () => {
         const result = basicToPseudocode([
             'PROCdigitalWriteLog(3)',
+            'PROCdigitalToggleLog(3)',
             'PROCtoggleLed',
             'PROCanalogWriteReport',
             'PRINT FNmillisCounter',
@@ -218,6 +234,13 @@ test('bw read refuses portable BASIC before writing or replacing output', () => 
         assert.equal(stdout.status, 1, stdout.stderr);
         assert.equal(stdout.stdout, '');
         assert.match(stdout.stderr, /FNdigitalRead/);
+
+        writeFileSync(source, '\n100 PROCdigitalToggle(13)\n110 END\n');
+        const toggle = spawnSync(process.execPath, [bin, 'read', source, '-o', output], {encoding: 'utf8'});
+        assert.equal(toggle.status, 1, toggle.stderr);
+        assert.equal(toggle.stdout, '');
+        assert.match(toggle.stderr, /Line 2 \(BASIC 100\): To blocks cannot preserve PROCdigitalToggle/);
+        assert.equal(readFileSync(output, 'utf8'), 'previous project\n');
 
         writeFileSync(source, 'REM PROCdelay(1):PRINT FNmillis\nPRINT 7\nEND\n');
         const legacy = spawnSync(process.execPath, [bin, 'read', source, '-o', output], {encoding: 'utf8'});

@@ -40,6 +40,7 @@ The mode emits ordinary library calls, not new BASIC keywords or MCU registers:
 | Turn on/off | `PROCdigitalWrite` with logical ACTIVE LOW applied |
 | Set high/low | Explicit electrical `1`/`0`, regardless of ACTIVE LOW |
 | Computed digital write | Nonzero numeric value becomes `1`, zero becomes `0`; expression evaluated once |
+| Toggle | `PROCdigitalToggle(id)` inverts the host's stored electrical output request |
 | Read | `FNdigitalRead(id)`, inverted for a logical ACTIVE LOW declaration |
 
 BBC comparison results are `-1` or `0`. The digital-write conversion explicitly
@@ -67,10 +68,19 @@ listed terminal exists on every board package. There is no physical connection.
 Unsupported devices, unmapped pins, aliases, non-digital modes, input writes,
 PORT declarations and peripheral PART declarations refuse with named diagnostics.
 
-Toggle is intentionally unsupported. `FNdigitalRead` observes the solved
-electrical net, which may differ from the programmed output latch under a load
-or clamp. Inverting that read would not implement output-latch toggle. Use
-explicit writes or a state variable owned by the program.
+Toggle requires a declared digital OUTPUT. It emits one `PROCdigitalToggle(id)`
+call to the host's atomic latch operation. The latch starts at electrical `0`
+for each fresh run, successful digital writes replace it, and pin-mode changes
+retain it. Toggle inverts that stored `0`/`1` without reading the solved net or
+advancing simulated time. ACTIVE LOW changes the logical interpretation of the
+result, not the toggle operation. `FNdigitalRead` continues to observe the solved
+electrical net, which may differ from the output request under a load or clamp.
+
+The generated `crispbasic-v2` banner identifies the output-latch library contract
+(simulation ABI 2). Hosts without a toggle operation must refuse the call;
+they must never emulate it by inverting `FNdigitalRead`. Both numbered and
+structured calls retain the toggle block's source mapping. The default and
+explicit legacy modes keep their existing VIA operations and hardware comments.
 
 ## Time conversion
 
@@ -99,8 +109,9 @@ turn into successful comment stubs in the explicit mode. Legacy generation
 retains its existing behavior. This boundary does not claim complete Scratch
 language, graphics or concurrency equivalence.
 
-`basicToPseudocode` deliberately refuses live portable pin/time calls, their
-definitions and named adjacent unsupported operations. Its return value is
+`basicToPseudocode` deliberately refuses live portable pin/time calls (including
+`PROCdigitalToggle`), their definitions and named adjacent unsupported operations.
+Its return value is
 `{ok:false,pseudocode:'',reasons,warnings,diagnostics,stats}`. A diagnostic names
 the operation, physical source line and numbered BASIC line if present. All
 callers must honor that result before parsing, saving or replacing a project.
@@ -117,6 +128,7 @@ quoted mentions of it remain data.
 ## Qualification
 
 `test/crispbasic-generator.test.mjs` exercises pin and value conversion,
+latch-toggle generation and source maps for both polarities and source forms,
 milliseconds, timer reset, block diagnostics, refusal and unchanged legacy
 output. `test/crispbasic-reader.test.mjs` exercises the reverse boundary and CLI
 preservation; existing BASIC sweep, line-map and trace suites remain required.
