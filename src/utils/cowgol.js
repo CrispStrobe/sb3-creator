@@ -619,7 +619,6 @@ class Reader {
         head.push(...this.locals.map(l => `  ${l}`));
         head.push(...this.definitions.map(l => `  ${l}`));
         head.push('  WHEN flag clicked:', ...this.main.map(l => `    ${l}`));
-        if (!this.main.length) head.push('    PASS:');
         return head.join('\n') + '\n';
     }
 }

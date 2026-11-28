@@ -93,6 +93,14 @@ test('unsupported source refuses without partial executable pseudocode', () => {
     }
 });
 
+test('an empty or comment-only Cowgol program produces a valid empty script', () => {
+    for (const source of ['', '# comment only', 'include "cowgol.coh";']) {
+        const result = read(source);
+        assert.equal(result.ok, true, result.reasons.join('; '));
+        assert.deepEqual(build(result.pseudocode).checkIntegrity(), []);
+    }
+});
+
 test('generation refuses unsupported float math and concurrent scripts', () => {
     for (const source of ['WHEN flag clicked:\n  move 0.5 steps\n',
         'WHEN flag clicked:\n  say (3 / 2)\n',
