@@ -31,6 +31,13 @@
  * warned per line. A GOTO that is not a recognized loop shape is warned
  * and kept as a comment.
  *
+ * CrispBASIC's portable pin/time library is a deliberately refused boundary:
+ * its simulated clock, electrical reads and output latches have no qualified
+ * block equivalent in this reader. Live calls or definitions return ok:false
+ * and no pseudocode, before unknown FNs can become 0 or PROCs become custom
+ * blocks. Callers must check ok before replacing a project. REM and quoted
+ * text remain ordinary comments/data, not evidence of a library call.
+ *
  * @module
  */
 
@@ -39,15 +46,43 @@ const UNMAPPED = new Set(['PLOT', 'COLOUR', 'COLOR', 'CLS',
     'WHEN', 'OTHERWISE', 'ENDCASE', 'ON', 'OSCLI', 'CALL', 'CHAIN', 'LOCAL', 'CLEAR',
     'PRINTTAB']);
 
+const CRISPBASIC_CALLS = new Set([
+    'procpinmode', 'procdigitalwrite', 'fndigitalread', 'procdelay', 'fnmillis'
+]);
+// Exact conventional pin/time API names only: these are not implemented by
+// the five-operation library either. Do not reserve all PROC/FN names, or
+// prefixes such as PROCdigitalWriteLog belonging to ordinary user routines.
+const CRISPBASIC_UNSUPPORTED_CALLS = new Set([
+    'procanalogwrite', 'fnanalogread', 'procpwm', 'proctone', 'procnotone',
+    'proctoggle', 'procdigitaltoggle', 'procdelaymicroseconds', 'fnmicros',
+    'procattachinterrupt', 'procdetachinterrupt'
+]);
+// BBC keywords can abut the next expression (PRINTFNdigitalRead, THENPROC...).
+// These keyword spellings do not require a following name delimiter in the
+// pinned BBCSDL lexer. Consume them before a name, but never search INSIDE a
+// variable or a PROC/FN name. Uppercase compact keywords match the runtime;
+// ordinary lowercase identifiers such as readFNmillis remain whole names.
+// See BBCSDL@6c302988ee2a08c5f9a65fa3eb8e76bcacc6079f src/bbmain.c, keywds/lexan.
+const COMPACT_BBC_KEYWORDS = ('AND ABS ACS ADVAL ASC ASN ATN COLOUR COLOR CALL CASE CHAIN CHR$ '
+    + 'COS CIRCLE DEG DEF DIV DIM DRAW ENVELOPE ELSE EVAL ERROR EOR EXP ELLIPSE FOR FILL '
+    + 'GOTO GET$ GET GOSUB GCOL INPUT IF INKEY$ INKEY INT INSTR( INSTALL LINE LOCAL LEFT$( '
+    + 'LEN LET LOG LN MID$( MODE MOD MOVE MOUSE NEXT NOT ORIGIN OR OPENIN OPENOUT OPENUP '
+    + 'OSCLI OTHERWISE PRINT PRIVATE PLOT POINT( RAD READ REPEAT RESTORE RIGHT$( RECTANGLE '
+    + 'STEP SGN SIN SQR SPC STR$ STRING$( SOUND SUM SWAP SYS TAN TAB( THEN TINT TO TRACE '
+    + 'UNTIL USR VDU VAL WHILE WHEN WIDTH').split(' ').sort((a, b) => b.length - a.length);
+
 export default function basicToPseudocode(source, opts = {}) {
     void opts;
     const warnings = [];
+    const diagnostics = [];
+    const diagnosed = new Set();
     const stats = { lines: 0, mapped: 0 };
     const mapped = () => stats.mapped++;
 
     // ---- split into logical statements ---------------------------------
-    const stmts = [];   // { text, lineNo }
-    for (const raw of String(source || '').split(/\r?\n/)) {
+    const stmts = [];   // { text, lineNo, sourceLine }
+    for (const [physicalIndex, raw] of String(source || '').split(/\r?\n/).entries()) {
+        const sourceLine = physicalIndex + 1;
         const t = raw.trim();
         if (!t) continue;
         const m = t.match(/^(\d+)\s*(.*)$/);
@@ -58,15 +93,68 @@ export default function basicToPseudocode(source, opts = {}) {
         let cur = '';
         let inStr = false;
         const parts = [];
-        for (const ch of rest) {
-            if (ch === '"') inStr = !inStr;
+        for (let at = 0; at < rest.length; at++) {
+            const ch = rest[at];
+            if (ch === '"') {
+                cur += ch;
+                // A doubled quote is a literal quote inside BASIC text.
+                if (inStr && rest[at + 1] === '"') { cur += rest[++at]; continue; }
+                inStr = !inStr;
+                continue;
+            }
+            if (!inStr && /[A-Za-z_]/.test(ch)) {
+                const tail = rest.slice(at);
+                let token = tail.match(/^[A-Za-z_]\w*[%$]?/)[0];
+                // REM consumes the rest of the physical line, including its
+                // colons. Splitting it again used to promote hardware comments
+                // such as REM write pin:PROCdelay(25) into executable commands.
+                // REMfoo is valid BBC too; remfoo is an ordinary lowercase name.
+                if (tail.startsWith('REM') || token.toUpperCase() === 'REM') { cur += tail; break; }
+                let consumed = token.length;
+                // BBC's dot abbreviations PRO./PROC. and FN. tokenize as the
+                // same PROC/FN keywords. The name itself remains unabridged.
+                const abbreviated = tail.match(/^(PRO(?:C)?\.|FN\.)([A-Za-z_]\w*[%$]?)/i);
+                const abbreviatedEval = tail.match(/^EV(?:A(?:L)?)?\./);
+                if (abbreviated) {
+                    token = `${/^FN/i.test(abbreviated[1]) ? 'FN' : 'PROC'}${abbreviated[2]}`;
+                    consumed = abbreviated[0].length;
+                } else if (abbreviatedEval) {
+                    token = 'EVAL'; consumed = abbreviatedEval[0].length;
+                } else {
+                    const keyword = COMPACT_BBC_KEYWORDS.find(word => tail.startsWith(word));
+                    if (keyword) { token = keyword; consumed = keyword.length; }
+                }
+                const key = token.toLowerCase();
+                const portable = CRISPBASIC_CALLS.has(key);
+                const dynamic = key === 'eval';
+                if ((portable || dynamic || CRISPBASIC_UNSUPPORTED_CALLS.has(key)) &&
+                    !diagnosed.has(`${sourceLine}:${key}`)) {
+                    diagnosed.add(`${sourceLine}:${key}`);
+                    const location = `Line ${sourceLine}${lineNo === null ? '' : ` (BASIC ${lineNo})`}`;
+                    const message = dynamic
+                        ? `${location}: To blocks cannot preserve EVAL's computed BASIC source or verify the portable calls it may execute. Keep this program as BASIC.`
+                        : portable
+                            ? `${location}: To blocks cannot preserve ${token}'s CrispBASIC pin/time semantics; `
+                              + 'portable-library calls and definitions are not supported by this converter. Keep this program as BASIC.'
+                            : `${location}: To blocks does not support ${token}; it is also outside CrispBASIC\'s `
+                              + 'five-operation portable library. Conversion refused; resolve this operation in the BASIC source.';
+                    diagnostics.push({code: dynamic ? 'basic-to-blocks-dynamic-source' : 'crispbasic-to-blocks-unsupported', severity: 'error',
+                        line: sourceLine, basicLine: lineNo, operation: token, message});
+                }
+                cur += tail.slice(0, consumed);
+                at += consumed - 1;
+                continue;
+            }
             if (ch === ':' && !inStr) { parts.push(cur); cur = ''; continue; }
             cur += ch;
         }
         parts.push(cur);
-        for (const p of parts) if (p.trim()) stmts.push({ text: p.trim(), lineNo });
+        for (const p of parts) if (p.trim()) stmts.push({ text: p.trim(), lineNo, sourceLine });
     }
     stats.lines = stmts.length;   // statements, colon-split — same unit as `mapped`
+    if (diagnostics.length) {
+        return {ok: false, pseudocode: '', reasons: diagnostics.map(d => d.message), warnings, diagnostics, stats};
+    }
 
     // ---- destructure: numbered GOTO shapes → structured statements ------
     // Recovers the exact shapes generateBASIC's numbered mode emits (and
@@ -282,7 +370,7 @@ export default function basicToPseudocode(source, opts = {}) {
     const dispatch = (s) => {
         const t = s.text;
         let m;
-        if (/^REM\b/i.test(t)) {
+        if (/^REM/.test(t) || /^REM\b/i.test(t)) {
             if (!/^REM @bw /i.test(t) && !/^REM generated by/i.test(t)) comment(t.replace(/^REM\s*/i, ''));
             mapped(); return;
         }
@@ -551,5 +639,6 @@ export default function basicToPseudocode(source, opts = {}) {
     }
     head.push('WHEN flag clicked:');
     for (const w of exprWarn) warnings.push(w);
-    return { pseudocode: head.join('\n') + '\n' + out.join('\n') + '\n', warnings, stats };
+    return { ok: true, pseudocode: head.join('\n') + '\n' + out.join('\n') + '\n',
+        reasons: [], warnings, diagnostics, stats };
 }

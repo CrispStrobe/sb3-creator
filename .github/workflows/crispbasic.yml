@@ -1,0 +1,36 @@
+name: CrispBASIC generator boundary
+on:
+  push:
+    branches: ['feature/crispbasic-generator']
+    paths:
+      - 'src/utils/**'
+      - 'bin/bw.mjs'
+      - 'test/crispbasic-*.test.mjs'
+      - 'test/basic-*.test.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/crispbasic.yml'
+  pull_request:
+    paths:
+      - 'src/utils/basicToPseudocode.js'
+      - 'src/utils/sb3Creator.js'
+      - 'test/crispbasic-*.test.mjs'
+      - '.github/workflows/crispbasic.yml'
+permissions:
+  contents: read
+concurrency:
+  group: crispbasic-generator-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  generator:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --ignore-scripts --omit=dev --no-audit --no-fund
+      - name: Qualify explicit generation, reverse refusal, CLI preservation and legacy BASIC
+        run: node --test test/crispbasic-*.test.mjs test/basic-sweep.test.mjs test/basic-linemap.test.mjs test/basic-trace.test.mjs
