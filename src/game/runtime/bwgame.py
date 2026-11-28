@@ -1287,13 +1287,16 @@ class Sprite(Target):
         self.pen = {'down': False, 'size': 1, 'hue': 66.66, 'saturation': 100, 'brightness': 100, 'transparency': 0}
 
     # --- geometry
-    def bounds(self):
+    def bounds(self, whole=False):
+        """whole=False: what the costume draws (manifest bounds; Scratch's silhouette bounds,
+        used for touching, edges and bounce). whole=True: the full costume rectangle, which
+        scratch-render uses to fence a sprite onto the stage (getFastBounds)."""
         c = self.costume
         if not c:
             return Bounds(self.x, self.x, self.y, self.y)
         s = self.size / 100
         # the costume's drawn content (manifest bounds), else its whole canvas
-        bl, bt, br, bb = c.get('bounds') or [0, 0, c['width'], c['height']]
+        bl, bt, br, bb = (not whole and c.get('bounds')) or [0, 0, c['width'], c['height']]
         deg = 0
         flip = False
         if self.rotation_style == 'all around':
@@ -1321,8 +1324,9 @@ class Sprite(Target):
         return Bounds(left, right, top, bottom)
 
     def _fenced(self, nx, ny):
-        # scratch-render getFencedPositionOfDrawable: keep a sliver (<=15px) on stage.
-        b = self.bounds()
+        # scratch-render getFencedPositionOfDrawable: keep a sliver (<=15px) on stage,
+        # measured on the full costume rectangle.
+        b = self.bounds(True)
         dx = nx - self.x
         dy = ny - self.y
         FW = 15
@@ -1413,7 +1417,7 @@ class Sprite(Target):
         ddy = self.y - p[1]
         return math.sqrt((ddx * ddx) + (ddy * ddy))
 
-    def glide_to(self, secs, x, y):
+    def glide_to(self, secs, x, y, again=None):
         # scratch-vm motion_glidesecstoxy: the first tick only starts the timer.
         dur = 1000 * num(secs)
         sx, sy = self.x, self.y
@@ -1424,6 +1428,8 @@ class Sprite(Target):
             return
         yield WAIT
         while True:
+            if again:
+                again()
             elapsed = self.game.now_ms() - t0
             if elapsed >= dur:
                 self.go_to(ex, ey)
@@ -1546,8 +1552,10 @@ class Sprite(Target):
         c = self.costume
         return self.game.raster(c['raster']) if (c and c.get('raster')) else None
 
-    def _raster_px(self, sx, sy, r):
-        """Map a stage point to the costume raster's pixel index; None when off the raster."""
+    def _texel(self, sx, sy, r):
+        """scratch-render's sampling, so pixel tests agree with real Scratch: the costume quad
+        maps a stage point to texture coordinates (u, v) in [0, 1], and the silhouette reads
+        texel floor(u * (width - 1)), floor(v * (height - 1)). None when off the costume."""
         c = self.costume
         s = self.size / 100
         deg = 0
@@ -1565,44 +1573,79 @@ class Sprite(Target):
         py = _jsdiv((-dx * sin) + (dy * cos), s)
         if flip:
             px = -px
-        u = _jsfloor((px + c['cx']) * r['scale'])
-        v = _jsfloor((c['cy'] - py) * r['scale'])
-        if not (u >= 0 and v >= 0 and u < r['width'] and v < r['height']):
+        u = _jsdiv(px + c['cx'], c['width'])
+        v = _jsdiv(c['cy'] - py, c['height'])
+        # NaN (JS reads undefined texels there) also misses
+        if not (u >= 0 and v >= 0 and u <= 1 and v <= 1):
             return None
-        return int(v) * r['width'] + int(u)
+        return (u * (r['width'] - 1), v * (r['height'] - 1))
 
-    def pixel_at(self, sx, sy):
-        """RGBA at a stage point (after ghost), or None where this sprite draws nothing."""
+    def _nearest(self):
+        """Bitmaps always sample the nearest texel; SVGs only at multiples of 90 degrees and
+        ~100% size, otherwise any of the four texels a linear sample would read."""
+        c = self.costume
+        if c.get('format') != 'svg':
+            return True
+        d = self.direction if self.rotation_style == 'all around' else 90
+        return _jsfmod(d, 90) == 0 and self.size > 99 and self.size < 101
+
+    @staticmethod
+    def _alpha(r, x, y):
+        if x < 0 or y < 0 or x >= r['width'] or y >= r['height']:
+            return 0
+        return r['rgba'][(y * r['width'] + x) * 4 + 3]
+
+    def hits(self, sx, sy):
+        """Does this sprite's silhouette cover the stage point (scratch-render isTouching)?"""
         if not (_is_num(sx) and _is_num(sy)):
-            return None  # mouse position not set yet
+            return False
         r = self._raster()
         if not r:
             b = self.bounds()
-            return (0, 0, 0, 255) if (sx >= b.left and sx <= b.right and sy >= b.bottom and sy <= b.top) else None
-        i = self._raster_px(sx, sy, r)
-        if i is None:
+            return sx >= b.left and sx <= b.right and sy >= b.bottom and sy <= b.top
+        t = self._texel(sx, sy, r)
+        if t is None:
+            return False
+        x = int(_jsfloor(t[0]))
+        y = int(_jsfloor(t[1]))
+        A = self._alpha
+        if self._nearest():
+            return A(r, x, y) > 0
+        return A(r, x, y) > 0 or A(r, x + 1, y) > 0 or A(r, x, y + 1) > 0 or A(r, x + 1, y + 1) > 0
+
+    def pixel_at(self, sx, sy):
+        """RGBA (after ghost) of the nearest texel at a stage point, or None where nothing is drawn."""
+        r = self._raster()
+        if not r:
+            return (0, 0, 0, 255) if self.hits(sx, sy) else None
+        if not (_is_num(sx) and _is_num(sy)):
             return None
+        t = self._texel(sx, sy, r)
+        if t is None:
+            return None
+        i = (int(_jsfloor(t[1])) * r['width'] + int(_jsfloor(t[0]))) * 4
         px = r['rgba']
-        a = px[i * 4 + 3]
-        if a == 0:
+        a = px[i + 3]
+        if not a:
             return None
         ghost = _jsmax(0, _jsmin(100, _truthy_num(self.effects.get('ghost', 0))))
-        return (px[i * 4], px[i * 4 + 1], px[i * 4 + 2], int(_jsround(a * (1 - (ghost / 100)))))
+        return (px[i], px[i + 1], px[i + 2], int(_jsround(a * (1 - (ghost / 100)))))
 
     def _each_point(self, b, fn):
-        """Stage pixel centres inside a box, clipped to the stage, as Scratch's CPU checks do."""
-        x0 = _jsmax(_jsfloor(b.left), -STAGE_W / 2)
-        x1 = _jsmin(_jsceil(b.right), STAGE_W / 2)
-        y0 = _jsmax(_jsfloor(b.bottom), -STAGE_H / 2)
-        y1 = _jsmin(_jsceil(b.top), STAGE_H / 2)
-        y = y1 - 1
-        while y >= y0:
-            x = x0
-            while x < x1:
-                if fn(x + 0.5, y + 0.5):
+        """scratch-render's CPU checks: integer stage points of the box clamped to the stage
+        and snapped outward, x outer, y inner, both inclusive."""
+        x0 = _jsfloor(_jsmax(b.left, -STAGE_W / 2))
+        x1 = _jsceil(_jsmin(b.right, STAGE_W / 2))
+        y0 = _jsfloor(_jsmax(b.bottom, -STAGE_H / 2))
+        y1 = _jsceil(_jsmin(b.top, STAGE_H / 2))
+        x = x0
+        while x <= x1:
+            y = y0
+            while y <= y1:
+                if fn(x, y):
                     return True
-                x += 1
-            y -= 1
+                y += 1
+            x += 1
         return False
 
     # --- sensing
@@ -1618,7 +1661,7 @@ class Sprite(Target):
                 return False
             if not pixels:
                 return m.x >= b.left and m.x <= b.right and m.y >= b.bottom and m.y <= b.top
-            return self.pixel_at(m.x, m.y) is not None
+            return self.hits(_jsfloor(m.x), _jsceil(m.y))
         if w == '_edge_':
             return b.left < -STAGE_W / 2 or b.right > STAGE_W / 2 or b.top > STAGE_H / 2 or b.bottom < -STAGE_H / 2
         for o in self.game.sprites_named(w):
@@ -1631,7 +1674,7 @@ class Sprite(Target):
                 return True
             box = Bounds(_jsmax(b.left, ob.left), _jsmin(b.right, ob.right), _jsmin(b.top, ob.top),
                          _jsmax(b.bottom, ob.bottom))
-            if self._each_point(box, lambda x, y: self.pixel_at(x, y) is not None and o.pixel_at(x, y) is not None):
+            if self._each_point(box, lambda x, y: self.hits(x, y) and o.hits(x, y)):
                 return True
         return False
 
@@ -1639,7 +1682,7 @@ class Sprite(Target):
         if not self.visible or not self._raster():
             return False
         want = color_to_rgb(color)
-        return self._each_point(self.bounds(), lambda x, y: self.pixel_at(x, y) is not None and
+        return self._each_point(self.bounds(), lambda x, y: self.hits(x, y) and
                                 color_matches(self.game.composite_at(x, y, self), want))
 
     def color_touching_color(self, mine, other):
@@ -1870,12 +1913,18 @@ class Game:
 
     # scratch-vm control_wait: start a timer, yield once, then yield until
     # elapsed >= duration (compared in milliseconds, float error included).
-    def wait(self, secs):
+    # again: re-evaluates the block's inputs each frame it runs again (scratch-vm does,
+    # which is observable when an input draws pick random).
+    def wait(self, secs, again=None):
         start = self.now_ms()
         dur = _jsmax(0, 1000 * num(secs))
         yield WAIT
+        if again:
+            again()
         while self.now_ms() - start < dur:
             yield WAIT
+            if again:
+                again()
 
     def wait_until(self, cond):
         while not bool_(cond()):
@@ -1985,21 +2034,39 @@ class Game:
         self.mouse.x = num(x)
         self.mouse.y = num(y)
 
+    def _pick(self):
+        """scratch-vm Mouse.postData: the topmost sprite whose silhouette covers the integer
+        stage point under the pointer (else the stage) is clicked."""
+        px = _jsfloor(num(self.mouse.x))
+        py = _jsceil(num(self.mouse.y))
+        for s in list(reversed(self.layers)):
+            if s.alive and s.visible and s.hits(px, py):
+                return s
+        return self.stage
+
+    def _click(self, t):
+        self._start(lambda sc: sc.hat == 'clicked', True, t)
+
+    # draggable sprites fire their click hats on mouse up, others on mouse down
     def mouse_down(self, x=_MISSING, y=_MISSING):
         if x is not _MISSING:
             self.mouse_move(x, UNDEFINED if y is _MISSING else y)
+        if self.mouse.down:
+            return
         self.mouse.down = True
-        # topmost visible sprite under the pointer receives the click
-        for s in list(reversed(self.layers)):
-            if not s.alive or not s.visible:
-                continue
-            if s.pixel_at(self.mouse.x, self.mouse.y) is not None:
-                self._start(lambda sc: sc.hat == 'clicked', True, s)
-                return
-        self._start(lambda sc: sc.hat == 'clicked' and sc.target == '_stage_', True, self.stage)
+        t = self._pick()
+        if not getattr(t, 'draggable', False):
+            self._click(t)
 
-    def mouse_up(self):
+    def mouse_up(self, x=_MISSING, y=_MISSING):
+        if x is not _MISSING:
+            self.mouse_move(x, UNDEFINED if y is _MISSING else y)
+        if not self.mouse.down:
+            return
         self.mouse.down = False
+        t = self._pick()
+        if getattr(t, 'draggable', False):
+            self._click(t)
 
     # --- clones and layers
     def _clone(self, src):
@@ -2987,7 +3054,7 @@ def run_window(manifest_path, setup, *, scale=1, seed=None, title=None, determin
                 elif ev.type == pygame.MOUSEBUTTONDOWN and ev.button == 1:
                     game.mouse_down(ev.pos[0] / scale - STAGE_W / 2, STAGE_H / 2 - ev.pos[1] / scale)
                 elif ev.type == pygame.MOUSEBUTTONUP and ev.button == 1:
-                    game.mouse_up()
+                    game.mouse_up(ev.pos[0] / scale - STAGE_W / 2, STAGE_H / 2 - ev.pos[1] / scale)
             game.step()
             f += 1
             renderer.draw(screen, game)
