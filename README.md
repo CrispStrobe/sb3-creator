@@ -22,6 +22,15 @@ test inputs, not moving-HEAD dependencies and not necessarily Lite's shipping
 pins. See [`docs/UPSTREAM-WIP.md`](docs/UPSTREAM-WIP.md) for the complete
 ownership and adoption procedure.
 
+## CrispBASIC portable simulation
+
+The explicit CrispBASIC lane converts pseudocode to BBC source with a portable
+GPIO/time library, and a qualified subset back to marked canonical pseudocode.
+It includes circuit GPIO maps, atomic latch toggles, explicit simulated delays,
+and a bounded integer pen-canvas subset. Source requiring this runtime retains a
+durable marker and refuses generic Blocks or other-runtime export. See
+[the complete contract and CLI commands](docs/CRISPBASIC-GENERATION.md).
+
 ## What it converts
 
 ```

@@ -50,7 +50,7 @@ test('legacy VIA and non-VIA hardware behavior remain unchanged', () => {
     const result = uno.generateBASIC(undefined, {lineNumbers: false});
     assert.equal(result.ok, true);
     assert.match(result.basic, /^REM turn on led\nREM toggle led$/m);
-    assert.doesNotMatch(result.basic, /PROCdigitalWrite|FNdigitalRead/);
+    assert.doesNotMatch(result.basic, /PROCdigitalWrite|PROCdigitalToggle|FNdigitalRead/);
     assert.match(result.warnings.join('\n'), /REM stubs/);
 });
 
@@ -89,6 +89,68 @@ test('active-high input is released input; numeric levels become exact 0/1 expre
     assert.match(code, /^PROCdigitalWrite\(13,ABS\(\(0\)<>0\)\)$/m);
     assert.match(code, /^PROCdigitalWrite\(13,ABS\(\(0\.25\)<>0\)\)$/m);
     assert.match(code, /^PRINT FNdigitalRead\(2\)$/m);
+});
+
+for (const activeLow of [false, true]) {
+    for (const lineNumbers of [false, true]) {
+        test(`${activeLow ? 'active-low' : 'active-high'} toggle uses the host latch in ${lineNumbers ? 'numbered' : 'structured'} source`, () => {
+            const creator = build(`DEVICE ARDUINO-UNO
+PIN led = D13 OUTPUT${activeLow ? ' ACTIVE LOW' : ''}
+WHEN flag clicked:
+  toggle led
+  turn on led
+  toggle led
+  set led high
+  REPEAT 2:
+    toggle led
+  set led to -7
+  toggle led
+`);
+            const result = creator.generateBASIC(undefined, {...options, lineNumbers});
+            const code = accepted(result);
+            const lines = code.trim().split('\n').map((line, index) => {
+                if (lineNumbers) assert.match(line, /^\d+ /);
+                return {number: lineNumbers ? Number(line.match(/^\d+/)[0]) : index + 1,
+                    text: (lineNumbers ? line.replace(/^\d+ /, '') : line).trim()};
+            });
+            assert.deepEqual(lines.filter(line => /^PROCdigital(?:Write|Toggle)/.test(line.text)).map(line => line.text), [
+                'PROCdigitalToggle(13)',
+                `PROCdigitalWrite(13,${activeLow ? 0 : 1})`,
+                'PROCdigitalToggle(13)',
+                'PROCdigitalWrite(13,1)',
+                'PROCdigitalToggle(13)',
+                'PROCdigitalWrite(13,ABS((-7)<>0))',
+                'PROCdigitalToggle(13)'
+            ]);
+            assert.doesNotMatch(code, /FNdigitalRead|\bFNmillis\b|\bPROCdelay\b|\?&|\bPOKE\b/);
+            const toggleIds = creator.project.targets.flatMap(target => Object.entries(target.blocks)
+                .filter(([, block]) => block.opcode === 'stc12_toggle').map(([id]) => id));
+            const mapped = lines.filter(line => line.text === 'PROCdigitalToggle(13)')
+                .map(line => result.lineMap[line.number]);
+            assert.deepEqual(mapped.sort(), toggleIds.sort(), 'each toggle call maps once to its own block, including inside a loop');
+            const modeLine = lines.find(line => line.text === 'PROCpinMode(13,"output")');
+            assert.equal(result.lineMap[modeLine.number], undefined, 'declaration scaffolding is not a toggle block');
+        });
+    }
+}
+
+test('toggle rejects invalid pins and names its owning block when the statement is invalid', () => {
+    for (const [name, code] of [['button', 'pin-not-output'], ['missing', 'undeclared-pin']]) {
+        const creator = build(pinSource('  turn on led\n  toggle led'));
+        const {id, block} = blockOf(creator, 'stc12_toggle');
+        block.fields.PIN[0] = name;
+        const result = creator.generateBASIC(undefined, options);
+        declined(result, code);
+        const diagnostic = result.diagnostics.find(d => d.code === `crispbasic-${code}`);
+        assert.equal(diagnostic.blockId, id);
+        assert.equal(diagnostic.opcode, 'stc12_toggle');
+        assert.equal(diagnostic.pin, name);
+    }
+    const creator = build(pinSource('  toggle led'));
+    creator.project.stc.pins[0].where = 'D99';
+    const result = creator.generateBASIC(undefined, options);
+    declined(result, 'pin-map');
+    assert.equal(result.diagnostics.find(d => d.code === 'crispbasic-pin-map').pin, 'led');
 });
 
 test('a native Scratch Boolean connected to a digital write is grouped and normalized', () => {
@@ -131,7 +193,7 @@ test('Boolean reporters retain 0/1 values and precedence inside arithmetic', () 
 });
 
 test('the VM-persisted hardware metadata is read without relying on decompile side effects', () => {
-    const creator = build(pinSource('  turn on led\n  wait 0.025 seconds'));
+    const creator = build(pinSource('  turn on led\n  wait 0.025 seconds\n  toggle led'));
     SB3Creator.writeStcComment(creator.project);
     const saved = JSON.parse(JSON.stringify(creator.project));
     delete saved.stc;
@@ -139,6 +201,7 @@ test('the VM-persisted hardware metadata is read without relying on decompile si
     const code = accepted(creator.generateBASIC(saved, options));
     assert.match(code, /^PROCpinMode\(13,"output"\)$/m);
     assert.match(code, /^PROCdigitalWrite\(13,0\)$/m);
+    assert.match(code, /^PROCdigitalToggle\(13\)$/m);
     assert.equal(JSON.stringify(saved), original, 'generation does not mutate the saved project');
     saved.boards = [{name: 'one', targets: [], stc: creator.project.stc}, {name: 'two', targets: [], stc: creator.project.stc}];
     declined(creator.generateBASIC(saved, options), 'multiple-boards');
@@ -250,16 +313,13 @@ test('numbered source keeps digital and delay ownership while scaffolding has no
     }
 });
 
-test('toggle refuses sensing the net as an output latch; polling requires explicit time advancement', () => {
-    const result = generate(pinSource('  toggle led'));
-    declined(result, 'toggle');
-    assert.match(result.reasons.join('\n'), /solved electrical net, not the output latch/);
+test('polling requires explicit time advancement', () => {
     declined(generate(pinSource('  wait until read button')), 'wait-until');
     accepted(generate(pinSource('  REPEAT UNTIL read button:\n    wait 0.01 seconds')));
 });
 
 test('unsupported device, pin location, mode, aliases and write direction are clear refusals', () => {
-    declined(generate('DEVICE MICROBIT\nPIN led = P0 OUTPUT\nWHEN flag clicked:\n  turn on led'), 'device');
+    declined(generate('DEVICE Z80\nPIN led = OUT0 OUTPUT\nWHEN flag clicked:\n  turn on led'), 'device');
     for (const [device, where] of [['PICO', 'GP23'], ['PICO', 'GP24']]) {
         declined(generate(`DEVICE ${device}\nPIN led = ${where} OUTPUT\nWHEN flag clicked:\n  turn on led`), 'pin-map');
     }
@@ -305,3 +365,27 @@ test('concurrent flag scripts and unsupported event hats refuse instead of seria
     declined(result, 'event');
     assert.equal(result.diagnostics.find(d => d.code === 'crispbasic-event').opcode, 'stc12_whenpin');
 });
+
+for (const lineNumbers of [false, true]) {
+    test(`portable control guards normalize truth before BBC NOT (${lineNumbers ? 'numbered' : 'structured'})`, () => {
+        const creator = build(pinSource(`  REPEAT UNTIL read button:
+    toggle led
+    wait 0.001 seconds
+  IF read button THEN:
+    print 11
+  ELSE:
+    print 22
+  IF read button THEN:
+    print 33`));
+        const code = accepted(creator.generateBASIC(undefined, {...options, lineNumbers}));
+        if (lineNumbers) {
+            assert.equal((code.match(/IF NOT \(\(ABS\(\(\(1-FNdigitalRead\(2\)\)\)>\(0\)\)\)<>0\) THEN GOTO/g) || []).length, 2,
+                'both one-arm and two-arm numbered IF branches test numeric zero explicitly');
+        } else {
+            assert.match(code, /WHILE NOT \(\(ABS\(\(\(1-FNdigitalRead\(2\)\)\)>\(0\)\)\)<>0\)/,
+                'repeat-until must terminate when a 0/1 reporter returns 1');
+        }
+        assert.doesNotMatch(code, /(?:WHILE|IF) NOT \(\(1-FNdigitalRead\(2\)\)\)/,
+            'BBC NOT 1 is -2; applying bitwise NOT to the GPIO value never tests false');
+    });
+}
