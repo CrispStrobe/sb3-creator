@@ -257,6 +257,28 @@ test('lightweight marker guard covers unknown versions without matching ordinary
     }
 });
 
+for (const [name, whitespace] of [['BOM', '\ufeff'], ['nonbreaking space', '\u00a0'], ['vertical tab', '\v'], ['form feed', '\f']]) {
+    test(`portable markers retain their runtime requirement with ${name} comment whitespace`, async () => {
+        const {isCrispBasicPseudocode, validateCrispBasicPseudocode} = await import('../src/utils/crispBasicMode.js');
+        for (const line of [`${whitespace}# @crispbasic-portable 1`, `#${whitespace}@crispbasic-portable 1`]) {
+            const source = `${line}\r\nWHEN flag clicked:\r\n  print 1\r\n`;
+            assert.equal(isCrispBasicPseudocode(source), true);
+            assert.equal(validateCrispBasicPseudocode(source), true);
+            const creator = new SB3Creator(); creator.parse(source);
+            assert.deepEqual(creator.project.crispbasicSource, {schemaVersion: 1, requiredRuntime: 'crispbasic'});
+            assert.throws(() => creator.generatePython(), error => error.code === 'crispbasic-runtime-required');
+            await assert.rejects(() => creator.generateSB3(), error => error.code === 'crispbasic-runtime-required');
+            const decompiled = creator.decompile(creator.project);
+            assert.equal((decompiled.match(/@crispbasic-portable/g) || []).length, 1, 'metadata consumption shares marker admission');
+            const reparsed = new SB3Creator(); reparsed.parse(decompiled);
+            assert.equal(reparsed.generateBASIC(undefined, portable).ok, true);
+            for (const invalid of [line.replace(/1$/, '2'), line.replace(/ 1$/, ''), `${line}\n# @crispbasic-portable 1`]) {
+                assert.throws(() => creator.parse(`${invalid}\nWHEN flag clicked:\n  print 1`), error => error.code === 'crispbasic-source-version');
+            }
+        }
+    });
+}
+
 test('CLI converts portable source only through an explicit mode and preserves output on refusal', () => {
     const directory = mkdtempSync(join(tmpdir(), 'crispbasic-roundtrip-'));
     try {

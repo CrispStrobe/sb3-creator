@@ -2,7 +2,14 @@
  * Keep this module dependency-free: editors must check before loading a parser,
  * mutating blocks, or choosing another execution backend. */
 export const CRISPBASIC_PSEUDOCODE_MARKER = '# @crispbasic-portable 1';
-const directives = source => [...String(source || '').matchAll(/^[ \t]*#[ \t]*@crispbasic-portable\b([^\r\n]*)$/gm)];
+// Match the parser's full-line comment whitespace, including UTF-8 BOM and
+// Unicode spaces. A saved marker must not become an ordinary comment merely
+// because a text editor adds a BOM or changes its leading whitespace.
+const directivePattern = () => /^[^\S\r\n]*#[^\S\r\n]*@crispbasic-portable\b([^\r\n]*)$/gm;
+const directives = source => [...String(source || '').matchAll(directivePattern())];
+
+/** Consume a validated directive as metadata, using the same admission rule. */
+export const stripCrispBasicPseudocodeMarker = source => String(source || '').replace(directivePattern(), '');
 
 /** Any version counts as marked; an unknown version must never escape the guard. */
 export function isCrispBasicPseudocode(source) {

@@ -1,4 +1,4 @@
-import {CRISPBASIC_PSEUDOCODE_MARKER, validateCrispBasicPseudocode, validateCrispBasicProject, crispBasicModeError, hasCrispBasicPinMap, crispBasicLogicalPin} from './crispBasicMode.js';
+import {CRISPBASIC_PSEUDOCODE_MARKER, validateCrispBasicPseudocode, stripCrispBasicPseudocodeMarker, validateCrispBasicProject, crispBasicModeError, hasCrispBasicPinMap, crispBasicLogicalPin} from './crispBasicMode.js';
 import {validateProcedureParameterConstraints} from './procedureParameterConstraints.js';
 import JSZip from 'jszip';
 // Auto-generated hardware-extension registry (scripts/gen-runtime-registry.mjs). Covers all
@@ -8583,7 +8583,7 @@ class SB3Creator {
             // This directive is project metadata, not a block comment. Keeping
             // it in the comment stream would make decompile emit it twice and
             // cause a correctly preserved source to fail duplicate validation.
-            pseudocode = pseudocode.replace(/^[ \t]*#[ \t]*@crispbasic-portable\b[^\r\n]*$/gm, '');
+            pseudocode = stripCrispBasicPseudocodeMarker(pseudocode);
         }
         if (!pseudocode.trim()) {
             throw new ParseError("Pseudocode is empty");
