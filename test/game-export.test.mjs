@@ -79,7 +79,8 @@ test('export refuses unsupported blocks and names them', async () => {
     assert.deepEqual(r.reasons, ['Apple: sensing_touchingcolor']);
     const forced = await exportGame({ project, files: input.files }, { target: 'web', allowUnsupported: true });
     assert.equal(forced.ok, true);
-    assert.match(forced.files['game.js'], /UNSUPPORTED|unsupported sensing_touchingcolor/);
+    // Forced output keeps the block as a runtime call; without costume rasters it reads false.
+    assert.match(forced.files['game.js'], /touchingColor\("#ff0000"\)/);
 });
 
 // ------------------------------------------------------------------ scratch-vm differential
@@ -176,7 +177,7 @@ test('web export: editable modules, a self-contained play.html, manifest and rep
         for (const c of t.costumes) assert.ok(r.files[c.file], `asset ${c.file} packaged`);
     }
     const play = r.files['play.html'];
-    assert.doesNotMatch(play, /\bimport\s*\{|export default|src="http|fetch\(/, 'play.html needs no modules, network or server');
+    assert.doesNotMatch(play, /\bimport\s*\{|export default|src="http|fetch\(\s*['"`]https?:/, 'play.html needs no modules, network or server');
     assert.match(play, /data:image\/svg\+xml;base64,/);
     const report = JSON.parse(r.files['export-report.json']);
     assert.equal(report.contract, 'bwgame-export-v1');

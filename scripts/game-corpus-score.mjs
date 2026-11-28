@@ -18,13 +18,16 @@
 import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { loadSb3, exportGame } from '../src/game/export.js';
-import { loadJsGame, runVm, runJs } from '../test/helpers/game-differential.mjs';
+import { loadJsGame, loadExportedJsGame, runVm, runJs } from '../test/helpers/game-differential.mjs';
+import { rasterizeWithChromium } from '../src/game/raster.js';
 
 const args = process.argv.slice(2);
 const opt = (name, dflt) => { const i = args.indexOf(name); if (i < 0) return dflt; const v = args[i + 1]; args.splice(i, 2); return v; };
 const FRAMES = Number(opt('--frames', 300));
 const OUT = opt('--json', null);
 const RENDER = args.includes('--render'); if (RENDER) args.splice(args.indexOf('--render'), 1);
+// --raster: export with costume rasters (pixel geometry, touching colour) via headless Chromium.
+const RASTER = args.includes('--raster'); if (RASTER) args.splice(args.indexOf('--raster'), 1);
 const oracle = RENDER ? await import('../test/helpers/render-oracle.mjs') : null;
 const files = args.flatMap(d => statSync(d).isDirectory()
     ? readdirSync(d).filter(f => f.endsWith('.sb3')).sort().map(f => path.join(d, f)) : [d]);
@@ -44,14 +47,14 @@ for (const file of files) {
     try {
         const bytes = readFileSync(file);
         const input = await loadSb3(bytes);
-        const r = await exportGame(input, { target: 'web', title: row.file });
+        const r = await exportGame(input, { target: 'web', title: row.file, rasterize: RASTER ? rasterizeWithChromium : undefined });
         row.approximate = Object.keys(r.report.approximate);
         if (!r.ok) {
             row.export = 'refused';
             row.unsupported = [...new Set(r.report.unsupported.map(u => u.opcode))];
         } else {
             row.export = 'ok';
-            const { game } = await loadJsGame(input, 5);
+            const { game } = RASTER ? await loadExportedJsGame(input, 5, { rasterize: rasterizeWithChromium }) : await loadJsGame(input, 5);
             let js;
             try { js = runJs(game, trace); row.run = 'ok'; } catch (e) { row.run = 'crash'; row.error = String(e.message).slice(0, 160); }
             if (js) {
@@ -80,5 +83,5 @@ const summary = {
     refusalOpcodes: Object.entries(rows.flatMap(r => r.unsupported || []).reduce((m, o) => ({ ...m, [o]: (m[o] || 0) + 1 }), {})).sort((a, b) => b[1] - a[1])
 };
 log(JSON.stringify(summary, null, 1));
-if (OUT) writeFileSync(OUT, JSON.stringify({ trace: { frames: FRAMES }, reference: RENDER ? 'scratch-vm + scratch-render' : 'headless scratch-vm', summary, rows }, null, 1));
+if (OUT) writeFileSync(OUT, JSON.stringify({ trace: { frames: FRAMES }, reference: RENDER ? 'scratch-vm + scratch-render' : 'headless scratch-vm', costumes: RASTER ? 'rasterized pixels' : 'boxes', summary, rows }, null, 1));
 if (oracle) await oracle.closeOracle();

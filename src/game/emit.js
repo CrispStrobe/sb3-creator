@@ -182,6 +182,8 @@ class Emitter {
         case 'looks_backdropnumbername': return f('NUMBER_NAME') === 'name' ? S(`stage.${m('backdropName')}()`) : N(`stage.${m('backdropNumber')}()`);
         case 'sound_volume': return N('self.volume');
         case 'sensing_touchingobject': return B(`self.${m('touching')}(${A('TOUCHINGOBJECTMENU')})`);
+        case 'sensing_touchingcolor': return B(`self.${m('touchingColor')}(${A('COLOR')})`);
+        case 'sensing_coloristouchingcolor': return B(`self.${m('colorTouchingColor')}(${A('COLOR')}, ${A('COLOR2')})`);
         case 'sensing_distanceto': return N(`self.${m('distanceTo')}(${A('DISTANCETOMENU')})`);
         case 'sensing_keypressed': return B(`game.${m('keyPressed')}(${A('KEY_OPTION')})`);
         case 'sensing_mousedown': return B('game.mouse.down');

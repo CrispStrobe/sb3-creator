@@ -81,8 +81,15 @@ control_create_clone_of_menu sensing_touchingobjectmenu sensing_distancetomenu s
 sensing_of_object_menu pen_menu_colorParam
 `.trim().split(/\s+/));
 
-export function classify (opcode) {
+// Opcodes that need costume pixels: admitted only when the export rasterizes costumes.
+const PIXEL_OPS = {
+    sensing_touchingcolor: 'Pixel colours come from rasterized costumes and the backdrop; the pen layer is included only where the host can sample it.',
+    sensing_coloristouchingcolor: 'Pixel colours come from rasterized costumes and the backdrop; the pen layer is included only where the host can sample it.'
+};
+
+export function classify (opcode, { pixels = false } = {}) {
     if (EXACT.has(opcode)) return { level: 'exact' };
+    if (pixels && PIXEL_OPS[opcode]) return { level: 'approximate', note: PIXEL_OPS[opcode] };
     if (Object.prototype.hasOwnProperty.call(APPROX, opcode)) return { level: 'approximate', note: APPROX[opcode] };
     if (MENU_OPS.has(opcode)) return { level: 'exact' };
     return { level: 'unsupported' };
@@ -205,9 +212,10 @@ function literalOf (prim) {
 }
 
 export class GameModelBuilder {
-    constructor (project, files = {}) {
+    constructor (project, files = {}, { pixels = false } = {}) {
         this.project = project;
         this.files = files;
+        this.pixels = pixels;
         this.report = { model: MODEL_VERSION, exact: {}, approximate: {}, unsupported: [], ignored: [], notes: [] };
     }
 
@@ -305,7 +313,7 @@ export class GameModelBuilder {
     }
 
     _count (opcode, target, blockId) {
-        const c = classify(opcode);
+        const c = classify(opcode, { pixels: this.pixels });
         if (c.level === 'exact') this.report.exact[opcode] = (this.report.exact[opcode] || 0) + 1;
         else if (c.level === 'approximate') {
             const e = this.report.approximate[opcode] || (this.report.approximate[opcode] = { count: 0, note: c.note });
@@ -439,6 +447,6 @@ export class GameModelBuilder {
     }
 }
 
-export function buildGameModel (project, files) {
-    return new GameModelBuilder(project, files).build();
+export function buildGameModel (project, files, opts) {
+    return new GameModelBuilder(project, files, opts).build();
 }
