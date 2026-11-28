@@ -47,6 +47,25 @@ class CanvasPen {
         this.ctx.stroke();
     }
     stamp (s) { this.ops++; drawSprite(this.ctx, s, this.images); }
+    // Pen pixel at a stage point for touching-colour, or null where nothing is drawn.
+    // One snapshot per change keeps colour checks cheap.
+    sample (x, y) {
+        if (this._snapOps !== this.ops) { this._snap = this.ctx.getImageData(0, 0, STAGE_W, STAGE_H).data; this._snapOps = this.ops; }
+        const u = Math.floor(x + (STAGE_W / 2)), v = Math.floor((STAGE_H / 2) - y);
+        if (u < 0 || v < 0 || u >= STAGE_W || v >= STAGE_H) return null;
+        const i = ((v * STAGE_W) + u) * 4, d = this._snap;
+        return d[i + 3] ? [d[i], d[i + 1], d[i + 2], d[i + 3]] : null;
+    }
+}
+
+// Costume rasters (src/game/raster.js, format BWR1): header + zlib RGBA.
+async function loadRaster (url) {
+    const bytes = new Uint8Array(await (await fetch(url)).arrayBuffer());
+    const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    const width = dv.getUint16(4, true), height = dv.getUint16(6, true), scale = dv.getFloat32(8, true);
+    const stream = new Blob([bytes.subarray(12)]).stream().pipeThrough(new DecompressionStream('deflate'));
+    const rgba = new Uint8Array(await new Response(stream).arrayBuffer());
+    return { width, height, scale, rgba };
 }
 
 class HtmlAudio {
@@ -174,8 +193,13 @@ export async function start ({ canvas, manifest, setup, base = './', seed, contr
     const images = new Map();
     const all = [manifest.stage, ...manifest.sprites].flatMap(t => t.costumes);
     await Promise.all(all.map(async c => { images.set(c.file, await loadImage(base + c.file)); }));
+    const rasters = {};
+    await Promise.all(all.filter(c => c.raster).map(async c => {
+        try { rasters[c.raster] = await loadRaster(base + c.raster); } catch (e) { console.warn('[bwgame] raster', c.raster, e); }
+    }));
     const pen = new CanvasPen(images);
     const game = new Game(manifest, {
+        rasters,
         deterministic: false, realtime: true, pen, audio: new HtmlAudio(base),
         seed: seed ?? ((Math.random() * 4294967296) >>> 0),
         onError: (e) => console.error('[bwgame]', e)

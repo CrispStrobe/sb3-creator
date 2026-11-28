@@ -13,15 +13,16 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, existsSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, existsSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import SB3Creator from '../src/utils/sb3Creator.js';
 import examples from '../src/utils/examples.js';
 import { buildGameModel, classify, svgContentBounds } from '../src/game/model.js';
 import { emitGame } from '../src/game/emit.js';
 import { exportGame, loadSb3 } from '../src/game/export.js';
+import { rasterizeWithChromium, decodeRaster } from '../src/game/raster.js';
 import { loadJsGame, runVm, runJs } from './helpers/game-differential.mjs';
 import { render as renderSources } from '../scripts/gen-game-runtime-sources.mjs';
 import pythonToPseudocode from '../src/utils/pythonToPseudocode.js';
@@ -79,7 +80,8 @@ test('export refuses unsupported blocks and names them', async () => {
     assert.deepEqual(r.reasons, ['Apple: sensing_touchingcolor']);
     const forced = await exportGame({ project, files: input.files }, { target: 'web', allowUnsupported: true });
     assert.equal(forced.ok, true);
-    assert.match(forced.files['game.js'], /UNSUPPORTED|unsupported sensing_touchingcolor/);
+    // Forced output keeps the block as a runtime call; without costume rasters it reads false.
+    assert.match(forced.files['game.js'], /touchingColor\("#ff0000"\)/);
 });
 
 // ------------------------------------------------------------------ scratch-vm differential
@@ -138,6 +140,50 @@ for (const name of ['snake', 'snake_pro', 'breakout', 'invaders', 'pong_ai', 'bo
     });
 }
 
+// The same parity with costume rasters (pixel touching, clicks, tight bounds, touching
+// colour): both targets come from ONE rasterization, so manifest and rasters are identical,
+// and the Python runtime reads the exported .bwr files itself. Needs headless Chromium
+// (PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH or playwright's own); skipped without one.
+const CHROMIUM = PYTHON ? (await rasterizeWithChromium([])) !== null : false;
+for (const name of ['snake', 'breakout', 'invaders', 'pong_ai', 'bomberman', 'connect4', 'game', 'minesweeper', 'tictactoe_ai', 'tetris']) {
+    test(`parity: ${name} with costume rasters runs identically in JavaScript and Python`, { skip: (!PYTHON && 'no python') || (!CHROMIUM && 'no Chromium for rasters') }, async () => {
+        const { input } = await build(name);
+        const trace = JSON.parse(readFileSync(path.join(TRACES, `${name}.json`), 'utf8'));
+        let once = null;
+        const rasterize = async jobs => once || (once = await rasterizeWithChromium(jobs));
+        const web = await exportGame(input, { target: 'web', title: name, rasterize });
+        const pyx = await exportGame(input, { target: 'pygame', title: name, rasterize });
+        assert.equal(pyx.files['manifest.json'], web.files['manifest.json']);
+        const rasterPaths = Object.keys(pyx.files).filter(p => p.startsWith('assets/raster/'));
+        assert.ok(rasterPaths.length > 0, 'the pygame export carries the costume rasters');
+        const dir = mkdtempSync(path.join(tmpdir(), 'bwgame-r-'));
+        try {
+            for (const f of ['bwgame.js', 'game.js']) writeFileSync(path.join(dir, f), web.files[f]);
+            for (const f of ['game.py', 'bwgame.py', 'manifest.json', ...rasterPaths]) {
+                mkdirSync(path.dirname(path.join(dir, f)), { recursive: true });
+                writeFileSync(path.join(dir, f), pyx.files[f]);
+            }
+            const manifest = JSON.parse(web.files['manifest.json']);
+            const rasters = {};
+            for (const p of rasterPaths) rasters[p] = await decodeRaster(web.files[p]);
+            const { Game: G } = await import(pathToFileURL(path.join(dir, 'bwgame.js')).href);
+            const { default: setup } = await import(pathToFileURL(path.join(dir, 'game.js')).href);
+            const game = new G(manifest, { seed: trace.seed ?? 1, rasters });
+            setup(game);
+            const js = JSON.stringify(game.runTrace(trace));
+            writeFileSync(path.join(dir, 'trace.json'), JSON.stringify(trace));
+            const py = execFileSync(PYTHON, [path.join(dir, 'bwgame.py'), 'trace', dir, path.join(dir, 'trace.json')],
+                { maxBuffer: 64 << 20, env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1' } }).toString().trim();
+            if (py !== js) {
+                const a = JSON.parse(js), b = JSON.parse(py);
+                const i = a.findIndex((x, k) => JSON.stringify(x) !== JSON.stringify(b[k]));
+                assert.deepEqual(b[i], a[i], `${name}: first difference at sample ${i}`);
+            }
+            assert.equal(py, js);
+        } finally { rmSync(dir, { recursive: true, force: true }); }
+    });
+}
+
 // ------------------------------------------------------------------ languages -> the same game
 
 // The workshop's language chain: a program written (or generated) as Python or
@@ -176,7 +222,7 @@ test('web export: editable modules, a self-contained play.html, manifest and rep
         for (const c of t.costumes) assert.ok(r.files[c.file], `asset ${c.file} packaged`);
     }
     const play = r.files['play.html'];
-    assert.doesNotMatch(play, /\bimport\s*\{|export default|src="http|fetch\(/, 'play.html needs no modules, network or server');
+    assert.doesNotMatch(play, /\bimport\s*\{|export default|src="http|fetch\(\s*['"`]https?:/, 'play.html needs no modules, network or server');
     assert.match(play, /data:image\/svg\+xml;base64,/);
     const report = JSON.parse(r.files['export-report.json']);
     assert.equal(report.contract, 'bwgame-export-v1');
