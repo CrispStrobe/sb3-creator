@@ -41,7 +41,7 @@ net analog_meter_16.b V 4.502 +-0.02
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@d21d6d8` and `bw-circuit-ui@d9e0982` — the revisions pinned in
+> `bw-board@818e026` and `bw-circuit-ui@659431c` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **15 of this page's 29** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;
