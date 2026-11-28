@@ -77,6 +77,19 @@ window.ORACLE = {
             if (isInt(args.FROM) && isInt(args.TO)) return low + Math.floor(rng() * ((high + 1) - low));
             return (rng() * (high - low)) + low;
         };
+        // Random positions/directions/backdrops draw from Math.random inside these
+        // primitives; route only those draws through the shared stream (Math.random is
+        // also used for clone and block ids, which must not consume it).
+        for (const op of ['motion_goto', 'motion_glideto', 'motion_pointtowards', 'looks_switchbackdropto',
+            'looks_switchbackdroptoandwait']) {
+            const orig = vm.runtime._primitives[op];
+            if (!orig) continue;
+            vm.runtime._primitives[op] = function (args, util) {
+                const saved = Math.random;
+                Math.random = rng;
+                try { return orig.call(this, args, util); } finally { Math.random = saved; }
+            };
+        }
         vm.runtime.currentStepTime = 1000 / 30;
         vm.runtime.sequencer.timer = { start () { this.n = 0; }, timeElapsed () { return this.n++ === 0 ? 0 : Infinity; } };
 
