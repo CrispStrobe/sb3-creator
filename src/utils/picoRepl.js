@@ -45,7 +45,7 @@ const CTRL_D = '\x04';
  * @param {*} port — an open WebSerial SerialPort
  * @returns {Transport & {close: () => Promise<void>}}
  */
-export function webSerialTransport(port) {
+export function webSerialTransport(port, {throwOnEof = false} = {}) {
   const writer = port.writable.getWriter();
   const reader = port.readable.getReader();
   const enc = new TextEncoder();
@@ -54,7 +54,8 @@ export function webSerialTransport(port) {
     async write(text) { await writer.write(enc.encode(text)); },
     async read() {
       const { value, done } = await reader.read();
-      return done ? '' : dec.decode(value);
+      if (done && throwOnEof) throw new Error('The serial adapter disconnected.');
+      return done ? '' : dec.decode(value, {stream: true});
     },
     async close() {
       writer.releaseLock();
