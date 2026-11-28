@@ -50,6 +50,22 @@ All existing statement and expression restrictions also apply within a
 procedure. In particular, pin setup remains a static main-program prelude,
 and unqualified hardware APIs remain refused.
 
+## Numeric calculations
+
+The reverse dialect now admits `PI`, `SQR`, `LN`, and BBC `MOD` alongside the
+existing arithmetic, `ABS`, `INT` and qualified Boolean expressions. Trigonometry
+uses the exact forms generated from degree-based pseudocode: `SIN(RAD(x))`,
+`COS(RAD(x))`, `TAN(RAD(x))`, `DEG(ASN(x))`, `DEG(ACS(x))` and `DEG(ATN(x))`.
+Each argument remains a single evaluation. General radian expressions remain
+refused because inserting a conversion through degrees would add floating-point
+operations and change rounding.
+
+`MOD` retains BBC integer remainder semantics, including negative operands;
+the portable source marker is required because generic Blocks modulo semantics
+are different. Math domain errors remain BASIC errors. The BASIC generator's
+`ceiling` lowering is `-INT(-x)`, which is correct for positive and negative
+fractions and evaluates an electrical input only once.
+
 ## Verification
 
 The focused source and CLI boundary suite is:

@@ -3531,6 +3531,10 @@ class SB3Creator {
                 if (op === '+' || op === '-') {
                     const prev = this.prevMeaningful(s, i);
                     if (prev === null || '+-*/(,'.includes(prev)) continue; // unary sign, not a binary op
+                    // Numeric reporter phrases and the word-form modulo also
+                    // introduce an operand. Do not invent a variable named
+                    // "ceiling of" by splitting `ceiling of -1.2` at its sign.
+                    if (/(?:\b(?:abs|floor|ceiling|sqrt|sin|cos|tan|asin|acos|atan|ln|log)\s+of|\bround|\bmod)\s*$/i.test(s.slice(0, i))) continue;
                 }
                 if (op === '<' && s[i + 1] === '=') continue;
                 if (op === '>' && s[i + 1] === '=') continue;
@@ -16582,7 +16586,10 @@ class SB3Creator {
             switch (String(op).toLowerCase()) {
                 case 'abs': return `ABS(${arg})`;
                 case 'floor': return `INT(${arg})`;
-                case 'ceiling': return `(INT(${arg})+(${arg}<>INT(${arg})))`;
+                // INT is floor and BBC TRUE is -1. Negating a single floor
+                // evaluation gives ceiling for positive/negative fractions
+                // without duplicating a sensed argument or adding -1.
+                case 'ceiling': return `(-INT(-(${arg})))`;
                 case 'sqrt': return `SQR(${arg})`;
                 case 'sin': return `SIN(RAD(${arg}))`;
                 case 'cos': return `COS(RAD(${arg}))`;

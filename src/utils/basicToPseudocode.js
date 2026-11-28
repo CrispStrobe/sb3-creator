@@ -736,7 +736,7 @@ function readPortableBasic(stmts, stats) {
             if (tokens[at] !== expected) fail('expression', `Expected ${expected} in ${input}.`);
             at++;
         };
-        const prec = {OR: 1, AND: 2, '=': 3, '<>': 3, '<': 3, '>': 3, '<=': 3, '>=': 3, '+': 4, '-': 4, '*': 5, '/': 5};
+        const prec = {OR: 1, AND: 2, '=': 3, '<>': 3, '<': 3, '>': 3, '<=': 3, '>=': 3, '+': 4, '-': 4, '*': 5, '/': 5, MOD: 5};
         const isBBCBool = n => n.kind === 'bbc-bool' || n.value === 0;
         const parse = (minimum = 0) => {
             const token = tokens[at++];
@@ -765,6 +765,21 @@ function readPortableBasic(stmts, stats) {
                 // timer is seconds; rounding recovers the host's exact integer
                 // milliseconds after the floating division/multiplication.
                 left = node('(round (timer * 1000))');
+            } else if (token === 'PI') left = node('pi');
+            else if (token === 'SQR' || token === 'LN') {
+                take('('); const value = parse(); take(')');
+                left = node(`(${token === 'SQR' ? 'sqrt' : 'ln'} of (${requireNumber(value)}))`);
+            } else if (['SIN', 'COS', 'TAN'].includes(token)) {
+                // Scratch's trigonometric reporters use degrees. Recover the
+                // exact generated RAD wrapper; a general radians conversion
+                // would insert extra floating-point operations and rounding.
+                take('('); take('RAD'); take('('); const value = parse(); take(')'); take(')');
+                left = node(`(${token.toLowerCase()} of (${requireNumber(value)}))`);
+            } else if (token === 'DEG') {
+                take('('); const inverse = tokens[at++];
+                if (!['ASN', 'ACS', 'ATN'].includes(inverse)) fail('expression', 'DEG requires a generated ASN, ACS or ATN wrapper in portable reverse mode.');
+                take('('); const value = parse(); take(')'); take(')');
+                left = node(`(${({ASN: 'asin', ACS: 'acos', ATN: 'atan'})[inverse]} of (${requireNumber(value)}))`);
             } else if (token === 'ABS' || token === 'INT') {
                 take('('); const value = parse(); take(')');
                 left = value.condition !== undefined ? predicate(value.condition, token === 'ABS' ? 'bit' : value.kind) :
@@ -789,7 +804,11 @@ function readPortableBasic(stmts, stats) {
                     left = predicate(`(${truth(left)}) ${op.toLowerCase()} (${truth(right)})`);
                 } else {
                     const bit = op === '-' && left.value === 1 && right.kind === 'bit';
-                    left = node(`(${requireNumber(left)} ${op} ${requireNumber(right)})`, bit ? 'bit' : 'number');
+                    // Keep a negative literal on the right grouped. Otherwise
+                    // the pseudocode subtraction scanner can split `a mod -3`
+                    // before recognizing the word-form modulo operator.
+                    const rhs = requireNumber(right);
+                    left = node(`(${requireNumber(left)} ${op === 'MOD' ? 'mod' : op} ${right.value < 0 ? `(${rhs})` : rhs})`, bit ? 'bit' : 'number');
                 }
             }
             return left;
