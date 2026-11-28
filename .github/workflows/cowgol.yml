@@ -49,7 +49,8 @@ jobs:
           COWGOL_STC_COMPILER: '${{ github.workspace }}/_stc_compiler'
           COWGOL_BW_BOARD: '${{ github.workspace }}/_bw_board'
   native-machines:
-    runs-on: ubuntu-latest
+    # Legacy zmac uses pre-C23 function declarations; keep the GCC 13 runner.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
