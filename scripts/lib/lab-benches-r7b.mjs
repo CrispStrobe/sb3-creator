@@ -283,29 +283,33 @@ export const BENCHES = {
     },
     // Meissner oscillator on a ferrite rod: the tank (main winding and the
     // tuning capacitor at 0.30) in the collector, top at 9 V; the coupling
-    // winding between the base and a 4.7 nF reservoir that the bias pot (a
-    // 1 MOhm rheostat from 9 V, plus 10 kOhm) charges. Two slide switches
-    // connect the coupling winding the right way round or reversed (flip
-    // both). Emitter 1 kOhm with 1 nF across; a third slide switch ("big
-    // bypass", authored off) adds 1 uF across it. A crystal set on a second
-    // rod half a metre away listens.
+    // winding (a fifth of the main winding's turns) between the base and a
+    // 4.7 nF reservoir that the bias pot (a 1 MOhm rheostat from 9 V, plus
+    // 10 kOhm) charges. Two slide switches connect the coupling winding the
+    // right way round or reversed (flip both). Emitter 1 kOhm with 1 nF
+    // across; a third slide switch ("big bypass", authored off) adds 1 uF
+    // across it. A crystal set on a second rod 0.22 m away listens.
     //
-    // Squegging needs a self-bias network slow next to the oscillation's
-    // build-up (2Q/w ~ 33 us here). In a transistor oscillator that is the
-    // emitter's: the rectified emitter current charges the emitter capacitor
-    // and turns the stage down. With 1 nF it relaxes in 1 us and the
-    // oscillator runs steadily; with 1 uF (1 ms) it stops, recovers, starts
-    // again. (The base reservoir carries only the base current, 1/beta of
-    // that.) Re-designed 2026-11-26: the earlier "low bias squegs" came from
-    // the band's swing collapsing at the collector clamp, an engine artefact
-    // fixed in bw-board #760.
+    // Re-designed 2026-11-28 from a full-carrier ngspice reference
+    // (scripts/ngspice-meissner-squegg.py, test/measurements/
+    // rf-meissner-squegg-ngspice-2026-11-28.json). With the earlier 2 % coupling
+    // winding the stage never squegs at the carrier: the collector bottoming
+    // out holds its swing (bw-board PR #783). With a fifth of the turns the
+    // base is driven hard. With the big bypass the stage's gain at RF is no
+    // longer held down by the 1 kOhm emitter resistor, so each burst
+    // overshoots, and its rectified base current pulls the 4.7 nF reservoir
+    // about 2 V below cut-off. The stage then waits ~1 ms for the 0.7 MOhm
+    // feed to recharge it: squegging at ~1.06 kHz. With only 1 nF the
+    // emitter degeneration keeps the overshoot small and it runs steadily.
+    // 0.22 m (link 0.094) gives the receiver a detector swing above 0.5 V;
+    // 0.2 m loads the transmitter enough to squeg the small-bypass control too.
     'lab-meissner-squegg': {
         vcc: 9, supply: SUP,
         parts: { bat: BAT9, gnd: ['gnd', {}],
-            lt: ['ferrite_coil', { rodHeightM: 0, couplingRatio: 0.02 }], tct: TUNE(0.3), q: NPN,
+            lt: ['ferrite_coil', { rodHeightM: 0, couplingRatio: 0.2 }], tct: TUNE(0.3), q: NPN,
             rv: POT(1000000, 0.3), rb: R(10000), cb: C(4.7e-9), re: R(1000), ce: C(1e-9),
             sa: ['slide_switch', { position: 0 }], sb: ['slide_switch', { position: 0 }],
-            lr: ['ferrite_coil', { rodHeightM: 0, linkTo: 'ferrite_coil_4', distanceM: 0.5 }], tcr: TUNE(0.309),
+            lr: ['ferrite_coil', { rodHeightM: 0, linkTo: 'ferrite_coil_4', distanceM: 0.22 }], tcr: TUNE(0.309),
             d: GE, cd: C(2.2e-9), rd: R(47000), ep: ['earphone', { type: 'crystal' }],
             sbig: ['slide_switch', { position: 1 }, 'big bypass'], cbig: C(1e-6) },
         nets: [

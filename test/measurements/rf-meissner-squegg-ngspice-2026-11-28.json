@@ -1,0 +1,272 @@
+{
+ "generator": "scripts/ngspice-meissner-squegg.py --record",
+ "circuit": {
+  "couplingRatio": 0.2,
+  "distanceM": 0.22,
+  "tct": 0.3,
+  "tcr": 0.309,
+  "potOhms": 1000000.0,
+  "potPos": 0.3,
+  "rb": 10000.0,
+  "cb": 4.7e-09,
+  "re": 1000.0,
+  "ce": 1e-09,
+  "cbig": 1e-06,
+  "cd": 2.2e-09,
+  "rd": 47000.0
+ },
+ "authored": {
+  "couplingRatio": 0.02,
+  "distanceM": 0.5,
+  "tct": 0.3,
+  "tcr": 0.309,
+  "potOhms": 1000000.0,
+  "potPos": 0.3,
+  "rb": 10000.0,
+  "cb": 4.7e-09,
+  "re": 1000.0,
+  "ce": 1e-09,
+  "cbig": 1e-06,
+  "cd": 2.2e-09,
+  "rd": 47000.0
+ },
+ "why": "The authored circuit (couplingRatio 0.02) does not squeg at the full carrier: the collector bottoming out holds its swing (bw-board PR #783). Ten times the coupling-winding turns over-drive the base, each burst over-charges the bias capacitor past cut-off, and the stage squegs at ~1.06 kHz; the receiver 0.22 m away (link 0.094) hears it with a detector swing above 0.5 V. Swept 2026-11-28: coupling 0.1/0.15/0.2, distance 0.5/0.3/0.25/0.23/0.22/0.21/0.2 m, receiver tuning 0.3/0.305, detector 47k/220k/470k and 2.2n/1n/0.47n. 0.2 m makes the small-bypass control squeg too; 0.25 m and beyond leave the detector swing below 0.5 V.",
+ "ngspice": [
+  "** ngspice-47 : Circuit level simulation program"
+ ],
+ "windowsSec": {
+  "sq": [
+   0.006,
+   0.009
+  ],
+  "steady": [
+   0.022,
+   0.025
+  ],
+  "rev": [
+   0.005,
+   0.008
+  ]
+ },
+ "results": [
+  {
+   "case": "sq",
+   "tmax": "5n",
+   "tstep": "10n",
+   "rfSampledMinV": 4.062325013268147e-08,
+   "rfSampledMaxV": 12.05093724165334,
+   "envelopeMinV": 4.062325010492709e-08,
+   "envelopeMaxV": 12.859752133059715,
+   "detectorMinV": 0.1321562193846154,
+   "detectorMaxV": 0.6895956024427481,
+   "detectorSpanV": 0.5574393830581327,
+   "bursts": 3,
+   "burstHz": 1057.6973927759268,
+   "burstPeriodSpread": 0.00044423290496416846,
+   "emitterV": [
+    0.011914738656153851,
+    0.029959571496923076
+   ],
+   "biasNodeV": [
+    -2.1332715406153846,
+    0.6040038220381679
+   ],
+   "seconds": 8.9
+  },
+  {
+   "case": "sq",
+   "tmax": "2n",
+   "tstep": "10n",
+   "rfSampledMinV": 2.8084728407159287e-08,
+   "rfSampledMaxV": 11.818323173598149,
+   "envelopeMinV": 2.5389531766588114e-08,
+   "envelopeMaxV": 12.915257010426846,
+   "detectorMinV": 0.13189162342748093,
+   "detectorMaxV": 0.6884780222824426,
+   "detectorSpanV": 0.5565863988549616,
+   "bursts": 3,
+   "burstHz": 1057.6973927759268,
+   "burstPeriodSpread": 0.00044423290496416846,
+   "emitterV": [
+    0.011912754937692307,
+    0.029915138084615385
+   ],
+   "biasNodeV": [
+    -2.131940563,
+    0.6027456557153846
+   ],
+   "seconds": 18.9
+  },
+  {
+   "case": "sq",
+   "tmax": "2n",
+   "tstep": "10n",
+   "method": "trap",
+   "rfSampledMinV": 4.0623250528181396e-08,
+   "rfSampledMaxV": 8.306084195363804,
+   "envelopeMinV": 3.554534429281989e-08,
+   "envelopeMaxV": 12.456494746910733,
+   "detectorMinV": 0.13174225626923072,
+   "detectorMaxV": 0.6886758307538462,
+   "detectorSpanV": 0.5569335744846154,
+   "bursts": 3,
+   "burstHz": 1056.9707219110026,
+   "burstPeriodSpread": 0.0017968502272499513,
+   "emitterV": [
+    0.01192153578923077,
+    0.029814816803076925
+   ],
+   "biasNodeV": [
+    -2.1331299097692296,
+    0.6049656131153844
+   ],
+   "seconds": 18.6
+  },
+  {
+   "case": "steady",
+   "tmax": "5n",
+   "tstep": "10n",
+   "rfSampledMinV": 8.541355145200997,
+   "rfSampledMaxV": 8.543155079310441,
+   "envelopeMinV": 8.541082424103378,
+   "envelopeMaxV": 8.543376838485806,
+   "detectorMinV": 6.464936975461539,
+   "detectorMaxV": 6.468603860615383,
+   "detectorSpanV": 0.0036668851538443903,
+   "bursts": 0,
+   "burstHz": 0,
+   "burstPeriodSpread": null,
+   "emitterV": [
+    0.1779478745846154,
+    0.19086133348461531
+   ],
+   "biasNodeV": [
+    -0.7372566485615385,
+    -0.7365733102538459
+   ],
+   "seconds": 42.7
+  },
+  {
+   "case": "steady",
+   "tmax": "2n",
+   "tstep": "10n",
+   "rfSampledMinV": 8.540572281629965,
+   "rfSampledMaxV": 8.54230855141112,
+   "envelopeMinV": 8.540475888508189,
+   "envelopeMaxV": 8.54237396367193,
+   "detectorMinV": 6.46617328576923,
+   "detectorMaxV": 6.469829185923078,
+   "detectorSpanV": 0.0036559001538476465,
+   "bursts": 0,
+   "burstHz": 0,
+   "burstPeriodSpread": null,
+   "emitterV": [
+    0.17801123601538463,
+    0.1909266045000001
+   ],
+   "biasNodeV": [
+    -0.7371290983769232,
+    -0.7364601716769233
+   ],
+   "seconds": 64.0
+  },
+  {
+   "case": "steady",
+   "tmax": "2n",
+   "tstep": "10n",
+   "method": "trap",
+   "rfSampledMinV": 8.542215968726792,
+   "rfSampledMaxV": 8.544032821607534,
+   "envelopeMinV": 8.541960497183105,
+   "envelopeMaxV": 8.54419805780329,
+   "detectorMinV": 6.457261628230771,
+   "detectorMaxV": 6.461077446461537,
+   "detectorSpanV": 0.0038158182307652666,
+   "bursts": 0,
+   "burstHz": 0,
+   "burstPeriodSpread": null,
+   "emitterV": [
+    0.17784362548461535,
+    0.19071791163846155
+   ],
+   "biasNodeV": [
+    -0.7380181696307696,
+    -0.7372711980615384
+   ],
+   "seconds": 77.1
+  },
+  {
+   "case": "rev",
+   "tmax": "5n",
+   "tstep": "10n",
+   "rfSampledMinV": 0.00032668288285468336,
+   "rfSampledMaxV": 0.00032732535518333327,
+   "envelopeMinV": 0.0003266566339848711,
+   "envelopeMaxV": 0.00032735738505369115,
+   "detectorMinV": 1.1925499959230764e-08,
+   "detectorMaxV": 2.8649264095419828e-06,
+   "detectorSpanV": 2.853000909582752e-06,
+   "bursts": 0,
+   "burstHz": 0,
+   "burstPeriodSpread": null,
+   "emitterV": [
+    1.0477276725954197,
+    1.0478748586259536
+   ],
+   "biasNodeV": [
+    1.6828196340458017,
+    1.682887224503818
+   ],
+   "seconds": 82.4
+  },
+  {
+   "case": "rev",
+   "tmax": "2n",
+   "tstep": "10n",
+   "rfSampledMinV": 0.00032670081177027955,
+   "rfSampledMaxV": 0.0003273286362916139,
+   "envelopeMinV": 0.0003266566339857731,
+   "envelopeMaxV": 0.00032735738505369115,
+   "detectorMinV": 1.1925020396153846e-08,
+   "detectorMaxV": 2.863830059694659e-06,
+   "detectorSpanV": 2.851905039298505e-06,
+   "bursts": 0,
+   "burstHz": 0,
+   "burstPeriodSpread": null,
+   "emitterV": [
+    1.0477224833587784,
+    1.0478752728244278
+   ],
+   "biasNodeV": [
+    1.6828155771755722,
+    1.6828871103816803
+   ],
+   "seconds": 87.6
+  },
+  {
+   "case": "rev",
+   "tmax": "2n",
+   "tstep": "10n",
+   "method": "trap",
+   "rfSampledMinV": 0.0003294913165826431,
+   "rfSampledMaxV": 0.00033359360083497935,
+   "envelopeMinV": 0.0003294342487274828,
+   "envelopeMaxV": 0.0003336235214202609,
+   "detectorMinV": 1.1991063254615389e-08,
+   "detectorMaxV": 2.9448478092366414e-06,
+   "detectorSpanV": 2.932856745982026e-06,
+   "bursts": 0,
+   "burstHz": 0,
+   "burstPeriodSpread": null,
+   "emitterV": [
+    1.047923297230769,
+    1.048012707846153
+   ],
+   "biasNodeV": [
+    1.6829303096946564,
+    1.6829460464615384
+   ],
+   "seconds": 59.6
+  }
+ ]
+}
