@@ -192,13 +192,11 @@ describe('lab benches (set r7b) behave as documented', { skip: SKIP }, () => {
         assert.equal(rev.tone.on, false, 'reversed winding: silence');
     });
 
-    // KNOWN ENGINE FAILURE on bw-board d21d6d8b (todo), not a loosened claim:
-    // there the band runs away before the swing settles ("RF band at
-    // 0.7585 MHz refused: its swing ran away", 4.16e5 V at 0.405 ms). On
-    // b47e7e09 this test passes as it stands (8.590 V, flat).
-    test('lab-meissner-squegg: with the small bypass the transmitter runs steadily', {
-        todo: 'engine: on bw-board d21d6d8b the strongly fed-back stage runs away (passes on b47e7e09); reference in test/measurements/rf-meissner-squegg-ngspice-2026-11-28.json',
-    }, () => {
+    // Was todo while the pin was bw-board d21d6d8b: there the band runs away
+    // before the swing settles ("RF band at 0.7585 MHz refused: its swing ran
+    // away", 4.16e5 V at 0.405 ms). The pin is now b47e7e09, where it passes
+    // unchanged (8.590 V, flat), so it is an ordinary test again.
+    test('lab-meissner-squegg: with the small bypass the transmitter runs steadily', () => {
         const steady = meissner(false, false, 22);
         // REFERENCE 2026-11-28: 8.5406-8.5440 V over 22-25 ms across the three
         // runs. MEASURED 2026-11-28 on bw-board b47e7e09: 8.590 V. The ±0.1 V
