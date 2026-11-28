@@ -12,6 +12,63 @@ const q = value => JSON.stringify(String(value));
 const isInt32 = value => Number.isInteger(Number(value)) && Number(value) >= -2147483648 && Number(value) <= 2147483647;
 const diagnostic = (message, detail = {}) => ({severity: 'error', code: 'cowgol-unsupported', message, ...detail});
 const INTEGER_PROFILE = 'Cowgol arithmetic is signed int32. This conversion requires intermediate arithmetic values to remain in -2147483648..2147483647; wrapping arithmetic is not a pseudocode equivalence.';
+const NATIVE_TARGETS = Object.freeze({
+    'z80-cpm': {devices: ['z80'], label: 'CP/M Z80'},
+    'i8080-cpm': {devices: ['z80'], label: 'CP/M 8080'},
+    dos: {devices: ['i8086'], label: 'DOS'},
+    riscv32: {devices: ['riscv32'], label: 'RISC-V'},
+    eater6502: {devices: ['eater6502'], label: 'Eater 6502', digital: true, clock: 1000000},
+    atmega328p: {devices: ['atmega328p', 'arduino-uno'], label: 'ATmega328P / Uno', digital: true, clock: 16000000, pullups: true}
+});
+
+// Guard BEFORE performing signed arithmetic. These helpers use only int32,
+// including multiplication's bounds checks: the 8-bit targets have no int64.
+// Every divisor is positive or negative by its enclosing branch, and the
+// minimum/-1 division that would itself overflow is never evaluated.
+// Cast bounds explicitly: a bare -2147483648 can select an unsigned division
+// before the surrounding expression supplies its signed type.
+function nativeArithmetic(helpers) {
+    if (!helpers.size) return [];
+    const out = ['sub bw_checked_overflow() is',
+        '    bw_print_text("Cowgol Blocks: signed int32 overflow");',
+        '    ExitWithError();', 'end sub;', ''];
+    const guards = {
+        add: [
+            'if b > 0 then',
+            '    if a > (2147483647 as int32) - b then bw_checked_overflow(); end if;',
+            'elseif b < 0 then',
+            '    if a < (-2147483648 as int32) - b then bw_checked_overflow(); end if;',
+            'end if;', 'result := a + b;'
+        ],
+        sub: [
+            'if b > 0 then',
+            '    if a < (-2147483648 as int32) + b then bw_checked_overflow(); end if;',
+            'elseif b < 0 then',
+            '    if a > (2147483647 as int32) + b then bw_checked_overflow(); end if;',
+            'end if;', 'result := a - b;'
+        ],
+        mul: [
+            'if a > 0 then',
+            '    if b > 0 then',
+            '        if a > (2147483647 as int32) / b then bw_checked_overflow(); end if;',
+            '    elseif b < 0 then',
+            '        if b < (-2147483648 as int32) / a then bw_checked_overflow(); end if;',
+            '    end if;',
+            'elseif a < 0 then',
+            '    if b > 0 then',
+            '        if a < (-2147483648 as int32) / b then bw_checked_overflow(); end if;',
+            '    elseif b < 0 then',
+            '        if a < (2147483647 as int32) / b then bw_checked_overflow(); end if;',
+            '    end if;',
+            'end if;', 'result := a * b;'
+        ]
+    };
+    for (const name of ['add', 'sub', 'mul']) if (helpers.has(name)) {
+        out.push(`sub bw_checked_${name}(a: int32, b: int32): (result: int32) is`,
+            ...guards[name].map(line => `    ${line}`), 'end sub;', '');
+    }
+    return out;
+}
 function stringIssue(value) {
     const s = String(value);
     if (/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(s)) return 'Text contains a control character outside the shared newline/tab/return subset';
@@ -65,7 +122,10 @@ export function cowgolPinId(device, where) {
 
 /** Generate from the existing project graph rather than reparsing display text. */
 export function generateCowgol(creator, project = creator.project, opts = {}) {
-    const diagnostics = [], warnings = [INTEGER_PROFILE];
+    const native = opts.target !== undefined && Object.hasOwn(NATIVE_TARGETS, opts.target) ? NATIVE_TARGETS[opts.target] : null;
+    const profile = native ? 'native-int32' : 'host-int32';
+    const diagnostics = [], warnings = [native ?
+        'Native Cowgol Blocks arithmetic is checked signed int32; an out-of-range intermediate prints an error and stops.' : INTEGER_PROFILE];
     const fail = (message, block = null) => diagnostics.push(diagnostic(message, {
         opcode: block?.opcode || null, blockId: blockIds.get(block) || null
     }));
@@ -85,21 +145,44 @@ export function generateCowgol(creator, project = creator.project, opts = {}) {
     if (scripts.length !== 1) fail(`Cowgol requires exactly one flag script; found ${scripts.length}`);
     if (procs.length) fail('Custom procedures are not yet emitted by this Cowgol generator');
     const active = scripts[0]?.target || targets.find(t => !t.isStage) || targets[0] || {};
-    if (opts.profile !== undefined && opts.profile !== 'host-int32') fail(`Unknown Cowgol profile ${opts.profile}`);
+    if (opts.target !== undefined && !native) fail(`Unknown native Cowgol target ${opts.target}`);
+    if (opts.profile !== undefined && opts.profile !== profile) fail(`Unknown Cowgol profile ${opts.profile} for ${opts.target || 'host'}`);
     if (targets.some(t => !t.isStage && t !== active)) fail('Additional sprite assets/targets need the full Scratch runtime');
     if (targets.some(t => (t.costumes || []).length > 1 || (t.sounds || []).length > 1)) fail('Additional costumes, backdrops and sounds are outside the Cowgol host subset');
     const stc = project.stc || creator.constructor.readStc?.(project) || {};
     if ((creator.constructor.readBoards?.(project) || []).length > 1) fail('Cowgol host conversion accepts one declared board');
     if (Object.keys(stc.ports || {}).length || Object.keys(stc.parts || {}).length) fail('PORT and PART peripherals need a dedicated Cowgol host binding');
+    if (native) {
+        if (stc.device && !native.devices.includes(String(stc.device).toLowerCase())) {
+            fail(`Native ${native.label} Cowgol cannot run DEVICE ${stc.device}; select ${native.devices.join(' or ')}`);
+        }
+        if (stc.machine || stc.ledcube || (stc.tables || []).length) {
+            fail(`Native ${native.label} Cowgol has no custom memory map, peripheral, or lookup-table binding`);
+        }
+        if (native.clock && stc.clock !== undefined && Number(stc.clock) !== native.clock) {
+            fail(`Native ${native.label} Cowgol requires CLOCK ${native.clock}`);
+        }
+        if (!native.digital && (stc.pins || []).length) {
+            fail(`Native ${native.label} Cowgol supports console output, not digital GPIO`);
+        }
+    }
     const pins = new Map();
     const ids = new Set();
     for (const pin of stc.pins || []) {
         const where = pin.where || `P${pin.port}.${pin.bit}`;
-        const id = cowgolPinId(stc.device, where);
+        // PB7 is available only in the native Eater runtime, which owns the
+        // VIA timer. The ordinary conversion/C/BASIC profile still reserves it.
+        const id = native && opts.target === 'eater6502' && /^PB7$/i.test(where) ? 15 : cowgolPinId(stc.device, where);
         if (id === null) fail(`No Cowgol host pin map for ${stc.device || '(no device)'} ${where}`);
         if (ids.has(id)) fail(`Aliased pin ${where} needs an explicit shared-pin contract`);
         ids.add(id);
         if (!['input', 'output'].includes(pin.direction)) fail(`Pin ${pin.name} mode ${pin.direction} is not a digital mode`);
+        if (native?.digital && pin.direction === 'input' && pin.activeLow && !native.pullups) {
+            fail(`Native ${native.label} Cowgol has no input pull-up binding for active-low pin ${pin.name}`);
+        }
+        if (opts.target === 'atmega328p' && id !== null && (id < 2 || id > 19)) {
+            fail(`Native ATmega328P Cowgol reserves D0/D1 for USART0; ${where} is not available as GPIO`);
+        }
         if (stc.device === 'z80' && ((/^OUT/i.test(where) && pin.direction !== 'output') || (/^IN/i.test(where) && pin.direction !== 'input'))) fail(`Z80 ${where} has a fixed electrical direction`);
         if (/^BUTTON_[AB]$/i.test(where) && pin.direction !== 'input') fail(`Button ${where} is input-only`);
         pins.set(pin.name, {...pin, where, id});
@@ -118,6 +201,13 @@ export function generateCowgol(creator, project = creator.project, opts = {}) {
         names.set(name, v);
     }
     const blocks = active.blocks || {};
+    const helpers = new Set();
+    const arithmetic = (op, a, b) => {
+        if (!native) return `(${a} ${op} ${b})`;
+        const name = {'+': 'add', '-': 'sub', '*': 'mul'}[op];
+        helpers.add(name);
+        return `bw_checked_${name}(${a}, ${b})`;
+    };
     const variable = field => variables.get(field?.[1]) || names.get(field?.[0]);
     // Infer literal-string variables before emission; mixed types still refuse.
     for (const b of Object.values(blocks)) if (b.opcode === 'data_setvariableto') {
@@ -145,7 +235,14 @@ export function generateCowgol(creator, project = creator.project, opts = {}) {
         if (!b) { fail('Missing expression', owner); return {code: '0', type: 'number'}; }
         const n = key => numeric(b.inputs?.[key], b);
         const operators = {operator_add: '+', operator_subtract: '-', operator_multiply: '*', bitops_and: '&', bitops_or: '|', bitops_xor: '^'};
-        if (operators[b.opcode]) return {code: `(${n('NUM1')} ${operators[b.opcode]} ${n('NUM2')})`, type: 'number'};
+        if (operators[b.opcode]) {
+            const op = operators[b.opcode], a = n('NUM1'), rhs = n('NUM2');
+            return {code: ['+', '-', '*'].includes(op) ? arithmetic(op, a, rhs) : `(${a} ${op} ${rhs})`, type: 'number'};
+        }
+        if (native && ['motion_xposition', 'motion_yposition', 'motion_direction'].includes(b.opcode)) {
+            fail(`Native ${native.label} Cowgol has no canvas reporter ${b.opcode}`, b);
+            return {code: '0', type: 'number'};
+        }
         if (b.opcode === 'motion_xposition') return {code: 'bw_x()', type: 'number'};
         if (b.opcode === 'motion_yposition') return {code: 'bw_y()', type: 'number'};
         if (b.opcode === 'motion_direction') return {code: 'bw_direction()', type: 'number'};
@@ -172,8 +269,9 @@ export function generateCowgol(creator, project = creator.project, opts = {}) {
         if (b.opcode === 'operator_not') return `(not ${condition(b.inputs.OPERAND, b)})`;
         return `${numeric(input, owner)} != 0`;
     };
-    const out = ['# Generated by Brickwright: Cowgol integer/host subset v1',
-        '# Arithmetic is signed int32; values must remain in range.', 'include "cowgol.coh";', 'include "brickwright.coh";'];
+    const out = [native ? `# Generated by Brickwright: checked native Cowgol for ${opts.target}` : '# Generated by Brickwright: Cowgol integer/host subset v1',
+        native ? '# Arithmetic is checked signed int32; overflow prints an error and stops.' : '# Arithmetic is signed int32; values must remain in range.',
+        'include "cowgol.coh";', 'include "brickwright.coh";'];
     const declaration = text => out.push(`# @bw-declaration ${q(text)}`);
     if (stc.device) declaration(`DEVICE ${String(stc.device).toUpperCase()}`);
     if (stc.clock) declaration(`CLOCK ${stc.clock}`);
@@ -187,9 +285,36 @@ export function generateCowgol(creator, project = creator.project, opts = {}) {
         out.push(`var ${v.id}: ${v.type === 'string' ? '[uint8]' : 'int32'} := ${initial};`);
     }
     for (const p of pins.values()) out.push(`bw_pin_mode(${p.id ?? 0}, ${p.direction === 'output' ? 1 : p.activeLow ? 2 : 0});`);
-    let loopSeq = 0, mapped = 0, currentBlockId = null;
+    let loopSeq = 0, conditionSeq = 0, mapped = 0, currentBlockId = null;
     const lineMap = {};
     const emit = (depth, line) => { if (currentBlockId) lineMap[out.length + 1] = currentBlockId; out.push('    '.repeat(depth) + line); };
+    // Cowgol evaluates calls used in an and/or expression before branching.
+    // Checked arithmetic and digital reads must remain lazy, so place each
+    // right-hand operand inside its own control-flow branch instead.
+    const nativeCondition = (input, owner, depth) => {
+        const flag = `bw_condition${conditionSeq++}`;
+        emit(depth, `var ${flag}: int32 := 0;`);
+        const assign = (part, at) => {
+            const b = blocks[part?.[1]];
+            if (b?.opcode === 'operator_and' || b?.opcode === 'operator_or') {
+                assign(b.inputs.OPERAND1, at);
+                emit(at, `if ${flag} ${b.opcode === 'operator_and' ? '!=' : '=='} 0 then`);
+                assign(b.inputs.OPERAND2, at + 1);
+                emit(at, 'end if;');
+            } else if (b?.opcode === 'operator_not') {
+                assign(b.inputs.OPERAND, at);
+                emit(at, `${flag} := 1 - ${flag};`);
+            } else {
+                emit(at, `if ${condition(part, b || owner)} then`);
+                emit(at + 1, `${flag} := 1;`);
+                emit(at, 'else');
+                emit(at + 1, `${flag} := 0;`);
+                emit(at, 'end if;');
+            }
+        };
+        assign(input, depth);
+        return `${flag} != 0`;
+    };
     const chain = (first, depth) => {
         let id = first;
         const visited = new Set();
@@ -200,12 +325,18 @@ export function generateCowgol(creator, project = creator.project, opts = {}) {
             currentBlockId = id;
             const call = (name, args = []) => emit(depth, `${name}(${args.join(', ')});`);
             const sub = key => { chain(b.inputs?.[key]?.[1], depth + 1); currentBlockId = id; };
+            if (native && (b.opcode.startsWith('pen_') || b.opcode.startsWith('motion_'))) {
+                fail(`Native ${native.label} Cowgol has no canvas binding for ${b.opcode}`, b);
+                id = b.next; continue;
+            }
             switch (b.opcode) {
             case 'data_setvariableto': case 'data_changevariableby': {
                 const v = variable(b.fields.VARIABLE), rhs = value(b.inputs.VALUE, b);
                 if (!v) { fail(`Undeclared variable ${f('VARIABLE')}`, b); break; }
                 if (rhs.type !== v.type || (b.opcode === 'data_changevariableby' && rhs.type !== 'number')) fail(`Mixed numeric/text variable ${v.name}`, b);
-                emit(depth, `${v.id} := ${b.opcode === 'data_changevariableby' ? `${v.id} + ` : ''}${rhs.code};`);
+                const expr = b.opcode === 'data_changevariableby' ?
+                    (native ? arithmetic('+', v.id, rhs.code) : `${v.id} + ${rhs.code}`) : rhs.code;
+                emit(depth, `${v.id} := ${expr};`);
                 break;
             }
             case 'looks_say': case 'stc12_print': {
@@ -213,7 +344,7 @@ export function generateCowgol(creator, project = creator.project, opts = {}) {
                 call(v.type === 'string' ? 'bw_print_text' : 'bw_print_number', [v.code]); break;
             }
             case 'control_if': case 'control_if_else':
-                emit(depth, `if ${condition(b.inputs.CONDITION, b)} then`); sub('SUBSTACK');
+                emit(depth, `if ${native ? nativeCondition(b.inputs.CONDITION, b, depth) : condition(b.inputs.CONDITION, b)} then`); sub('SUBSTACK');
                 if (b.opcode === 'control_if_else') { emit(depth, 'else'); sub('SUBSTACK2'); }
                 emit(depth, 'end if;'); break;
             case 'control_repeat': {
@@ -223,9 +354,18 @@ export function generateCowgol(creator, project = creator.project, opts = {}) {
                 emit(depth + 1, `${count} := ${count} - 1;`); emit(depth, 'end loop;'); break;
             }
             case 'control_repeat_until':
-                emit(depth, `while not (${condition(b.inputs.CONDITION, b)}) loop`); sub('SUBSTACK'); emit(depth, 'end loop;'); break;
+                if (native) {
+                    emit(depth, 'loop');
+                    const test = nativeCondition(b.inputs.CONDITION, b, depth + 1);
+                    emit(depth + 1, `if ${test} then break; end if;`);
+                    sub('SUBSTACK'); emit(depth, 'end loop;');
+                } else {
+                    emit(depth, `while not (${condition(b.inputs.CONDITION, b)}) loop`); sub('SUBSTACK'); emit(depth, 'end loop;');
+                }
+                break;
             case 'control_forever': emit(depth, 'loop'); sub('SUBSTACK'); emit(depth, 'end loop;'); break;
             case 'control_wait': {
+                if (native) { fail(`Native ${native.label} Cowgol has no qualified timer; wait is unsupported`, b); break; }
                 const raw = b.inputs.DURATION?.[1];
                 if (!Array.isArray(raw) || !Number.isFinite(Number(raw[1])) || Number(raw[1]) < 0 || Number(raw[1]) > 2147483.647) fail('Wait requires a nonnegative literal duration within int32 milliseconds', b);
                 else call('bw_delay', [String(Math.round(Number(raw[1]) * 1000))]);
@@ -270,10 +410,19 @@ export function generateCowgol(creator, project = creator.project, opts = {}) {
         }
     };
     chain(scripts[0]?.b.next, 0);
+    if (native) {
+        const definitions = nativeArithmetic(helpers);
+        out.splice(4, 0, ...definitions);
+        for (const line of Object.keys(lineMap).sort((a, b) => Number(b) - Number(a))) {
+            const id = lineMap[line]; delete lineMap[line];
+            lineMap[Number(line) + definitions.length] = id;
+        }
+    }
     const preview = out.join('\n') + '\n';
     const ok = diagnostics.length === 0;
     return {ok, ...(ok ? {cowgol: preview} : {}), preview, warnings,
-        reasons: diagnostics.map(d => d.message), diagnostics, lineMap, stats: {mapped, unsupported: diagnostics.length}, profile: opts.profile || 'host-int32'};
+        reasons: diagnostics.map(d => d.message), diagnostics, lineMap, stats: {mapped, unsupported: diagnostics.length},
+        profile, ...(native ? {target: opts.target} : {})};
 }
 
 // A lexer is necessary here: semicolons, # and operator-looking text inside

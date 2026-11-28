@@ -27,7 +27,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: CrispStrobe/cowgol
-          ref: 02318cfe4de1f5fa4bbef70446764fa8ea8b7cce
+          ref: 8e807002bc6d1d457995f2759da262c230d807e1
           path: _cowgol
       - uses: actions/checkout@v4
         with:
@@ -43,8 +43,51 @@ jobs:
         with:
           python-version: '3.12'
       - run: python3 -m pip install -r _stc_compiler/requirements.txt
-      - run: node --test test/cowgol.test.mjs test/cowgol-compiler.test.mjs test/riscv-console.test.mjs test/riscv-console-machine.test.mjs test/pico-repl-transport.test.mjs test/pico-repl-chunking.test.mjs test/pico-repl.test.mjs
+      - run: node --test test/cowgol.test.mjs test/cowgol-compiler.test.mjs test/cowgol-native.test.mjs test/cowgol-native-compiler.test.mjs test/riscv-console.test.mjs test/riscv-console-machine.test.mjs test/pico-repl-transport.test.mjs test/pico-repl-chunking.test.mjs test/pico-repl.test.mjs
         env:
           COWGOL_ROOT: '${{ github.workspace }}/_cowgol'
           COWGOL_STC_COMPILER: '${{ github.workspace }}/_stc_compiler'
+          COWGOL_BW_BOARD: '${{ github.workspace }}/_bw_board'
+  native-machines:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '26'
+          cache: npm
+      - run: npm ci --ignore-scripts --omit=dev
+      - uses: actions/checkout@v4
+        with:
+          repository: CrispStrobe/cowgol
+          ref: 8e807002bc6d1d457995f2759da262c230d807e1
+          path: _cowgol
+      - uses: actions/checkout@v4
+        with:
+          repository: CrispStrobe/stc-compiler
+          ref: 8623a290a50e63d20c93b1ab950220854f5b3a60
+          path: _stc_compiler
+      - uses: actions/checkout@v4
+        with:
+          repository: CrispStrobe/bw-board
+          ref: d21d6d8b819263eb08231134b7556efa82289a90
+          path: _bw_board
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install native compiler build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends build-essential ninja-build lua5.4 bison flex gpp moreutils nasm 64tass libreadline-dev
+          python3 -m pip install --quiet fastapi pydantic
+      - name: Build the pinned native bundle and execution oracles
+        run: python3 _stc_compiler/scripts/build-cowgol-bundle.py --source _cowgol --oracles
+      - name: Execute generated checked programs on CP/M, DOS, Eater and RISC-V
+        run: node --test test/cowgol-native-machine.test.mjs
+        env:
+          REQUIRE_COWGOL_NATIVE_MACHINES: '1'
+          COWGOL_STC_COMPILER: '${{ github.workspace }}/_stc_compiler'
+          COWGOL_BUNDLE: '${{ github.workspace }}/_stc_compiler/vendor/cowgol'
+          COWGOL_CPMEMU: '${{ github.workspace }}/_cowgol/bin/cpmemu'
+          COWGOL_EMU2: '${{ github.workspace }}/_cowgol/bin/emu2'
           COWGOL_BW_BOARD: '${{ github.workspace }}/_bw_board'

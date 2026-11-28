@@ -19,6 +19,13 @@ names the first or all unsupported operations. Callers must check `ok` before
 running or replacing a program. The CLI exits unsuccessfully and preserves an
 existing output file when conversion refuses.
 
+Passing `{target: 'z80-cpm'}`, `i8080-cpm`, `dos`, `riscv32`, `eater6502`, or
+`atmega328p` selects a separate checked native execution profile. It restricts
+the generated calls to that runtime, checks arithmetic before it can overflow,
+and lowers lazy conditions to explicit branches. See
+[COWGOL-NATIVE.md](COWGOL-NATIVE.md) for the exact device, GPIO and runtime
+contract. The ordinary reversible export remains the default.
+
 ## Executable conversion subset
 
 | Area | Supported conversion |
@@ -149,7 +156,7 @@ COWGOL_ROOT=/path/to/cowgol node --test test/cowgol-compiler.test.mjs
 ```
 
 The Cowgol workflow pins fork commit
-`02318cfe4de1f5fa4bbef70446764fa8ea8b7cce`; no test depends on a moving compiler
+`8e807002bc6d1d457995f2759da262c230d807e1`; no test depends on a moving compiler
 branch. Native tests explicitly skip when `COWGOL_ROOT` is absent locally; CI
 sets it and runs both. This proves the executable conversion/host contract,
 not a physical hardware run.
