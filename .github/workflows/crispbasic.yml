@@ -4,6 +4,7 @@ on:
     branches: ['feature/crispbasic-generator']
     paths:
       - 'src/utils/**'
+      - 'examples/**'
       - 'bin/bw.mjs'
       - 'test/crispbasic-*.test.mjs'
       - 'test/basic-*.test.mjs'

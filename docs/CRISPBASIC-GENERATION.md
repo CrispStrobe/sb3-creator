@@ -5,6 +5,12 @@ their exact producer commit through its existing transformed-source sync.
 This feature incubates on `feature/crispbasic-generator`, based deliberately on
 Brickwright's existing `1c29f69fd22c86ecb0051938eedb246921cb3b88` pin. It does
 not adopt unrelated newer gallery, runtime or dependency work.
+It also retains the already-adopted `busch-microtronic-wired-io` gallery entry:
+Brickwright carried that entry beyond its recorded old pin. Its three source
+files match the published upstream versions introduced by
+`312fa6b0feb72fd18fef8a6b865f708642acad9f` byte for byte; the entry itself is
+retained from Brickwright's existing catalogue. This baseline reconciliation
+does not add or alter a consumer example.
 
 ```js
 const result = creator.generateBASIC(project, {
