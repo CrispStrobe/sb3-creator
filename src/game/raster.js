@@ -9,7 +9,8 @@
 // DecompressionStream('deflate'), Node's zlib, Python's zlib.
 //
 // Rasterizing needs a real browser (SVG rendering): in the app the exporter calls
-// rasterizeInPage directly; the CLI runs the same function in headless Chromium.
+// rasterizeInPage directly; the CLI runs the same function in headless Chromium
+// (raster-chromium.js, Node only).
 
 export const RASTER_MAGIC = 'BWR1';
 
@@ -106,19 +107,5 @@ export function rasterJobs (manifest, files) {
     return jobs;
 }
 
-// The CLI's rasterizer: the same rasterizeInPage, in headless Chromium (the shared
-// browser from PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH when set). Returns null when no
-// browser is available, so the export falls back to box geometry.
-export async function rasterizeWithChromium (jobs) {
-    let chromium;
-    try { ({ chromium } = await import('playwright')); } catch { return null; }
-    let browser;
-    try {
-        browser = await chromium.launch({ executablePath: globalThis.process?.env?.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined });
-    } catch { return null; }
-    try {
-        const page = await browser.newPage();
-        await page.setContent('<!doctype html><title>raster</title>');
-        return await page.evaluate(`(${rasterizeInPage.toString()})(${JSON.stringify(jobs)})`);
-    } finally { await browser.close(); }
-}
+// The CLI's headless-Chromium rasterizer is in raster-chromium.js: this module is
+// vendored into browser builds, which must not see a Playwright import.

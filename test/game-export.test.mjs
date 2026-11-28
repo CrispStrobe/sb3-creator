@@ -21,8 +21,10 @@ import SB3Creator from '../src/utils/sb3Creator.js';
 import examples from '../src/utils/examples.js';
 import { buildGameModel, classify, svgContentBounds } from '../src/game/model.js';
 import { emitGame } from '../src/game/emit.js';
+import { WARP_STEPS } from '../src/game/runtime/bwgame.js';
 import { exportGame, loadSb3 } from '../src/game/export.js';
-import { rasterizeWithChromium, decodeRaster } from '../src/game/raster.js';
+import { rasterizeWithChromium } from '../src/game/raster-chromium.js';
+import { decodeRaster } from '../src/game/raster.js';
 import { loadJsGame, runVm, runJs } from './helpers/game-differential.mjs';
 import { render as renderSources } from '../scripts/gen-game-runtime-sources.mjs';
 import pythonToPseudocode from '../src/utils/pythonToPseudocode.js';
@@ -48,6 +50,15 @@ function keyTrace (keys, frames = 300) {
 test('runtime sources embedded for the browser exporter are current', () => {
     const file = path.join(ROOT, 'src', 'game', 'runtime', 'sources.generated.js');
     assert.equal(readFileSync(file, 'utf8'), renderSources(), 'run: node scripts/gen-game-runtime-sources.mjs');
+});
+
+test('browser-vendored game modules never import Node-only tooling (Playwright)', () => {
+    // Brickwright bundles raster.js into the app with webpack; a Playwright import there
+    // breaks the browser build. The CLI rasterizer lives in raster-chromium.js.
+    for (const f of ['raster.js', 'export.js', 'model.js', 'emit.js']) {
+        const src = readFileSync(path.join(ROOT, 'src', 'game', f), 'utf8');
+        assert.doesNotMatch(src, /['"]playwright['"]/, f);
+    }
 });
 
 test('capability classes: exact, approximate and unsupported opcodes', () => {
@@ -139,6 +150,89 @@ for (const name of ['snake', 'snake_pro', 'breakout', 'invaders', 'pong_ai', 'bo
         } finally { rmSync(dir, { recursive: true, force: true }); }
     });
 }
+
+// Broadcast loops: a script that broadcasts to another which broadcasts back (or a
+// script that re-broadcasts its own message) runs once per frame in scratch-vm, because
+// a restarted thread takes its old slot in the thread list. It must neither hang nor
+// lose the restart.
+test('broadcast ping-pong and self re-broadcast run once per frame, as in scratch-vm', async () => {
+    const c = new SB3Creator();
+    c.parse(`GLOBAL pings
+GLOBAL pongs
+GLOBAL selfs
+
+SPRITE A:
+  SHAPE circle 10
+  WHEN flag clicked:
+    set pings to 0
+    set selfs to 0
+    broadcast ping
+    broadcast again
+  WHEN I receive ping:
+    change pings by 1
+    broadcast pong
+  WHEN I receive again:
+    change selfs by 1
+    broadcast again
+
+SPRITE B:
+  SHAPE circle 10
+  WHEN flag clicked:
+    set pongs to 0
+  WHEN I receive pong:
+    change pongs by 1
+    broadcast ping
+`);
+    const bytes = new Uint8Array(await (await c.generateSB3()).arrayBuffer());
+    const input = await loadSb3(bytes);
+    const trace = { frames: 12, sample: [3, 6, 9, 12], events: [{ frame: 0, type: 'flag' }] };
+    const { game } = await loadJsGame(input, 1);
+    const js = runJs(game, trace);
+    const vm = await runVm(bytes, trace, 1);
+    assert.deepEqual(js, vm);
+    // Measured 2026-11-28 (and equal to scratch-vm above): each loop advances exactly once per frame.
+    assert.deepEqual(js.map(s => s.vars), [3, 6, 9, 12].map(n => ({ pings: n, pongs: n, selfs: n })));
+});
+
+// A warped ("run without screen refresh") loop that never ends must not freeze the
+// game: like scratch-vm (Sequencer.WARP_TIME), the runtime gives the frame up and the
+// other scripts keep running. Deterministic mode uses the same iteration budget in
+// both targets, so the traces match exactly.
+test('an endless warped loop yields the frame instead of hanging, identically in JS and Python', { skip: !PYTHON && 'no python' }, async () => {
+    const c = new SB3Creator();
+    c.parse(`GLOBAL spins
+GLOBAL ticks
+
+SPRITE Spinner:
+  SHAPE circle 20
+  DEFINE FAST spin:
+    FOREVER:
+      change spins by 1
+  WHEN flag clicked:
+    set spins to 0
+    spin
+  WHEN flag clicked:
+    set ticks to 0
+    FOREVER:
+      change ticks by 1
+`);
+    const input = await loadSb3(new Uint8Array(await (await c.generateSB3()).arrayBuffer()));
+    const trace = { frames: 6, sample: [2, 4, 6], events: [{ frame: 0, type: 'flag' }] };
+    const { game, dir } = await loadJsGame(input, 1);
+    try {
+        const states = game.runTrace(trace);
+        // Measured 2026-11-28: one WARP_STEPS budget of the warped loop per frame, and the
+        // other script's one iteration per frame, at samples 2, 4, 6.
+        assert.deepEqual(states.map(s => s.vars.ticks), [2, 4, 6], 'the other script keeps running');
+        assert.deepEqual(states.map(s => s.vars.spins), [2, 4, 6].map(f => f * WARP_STEPS), 'the warped loop runs on, one budget per frame');
+        const r = await exportGame(input, { target: 'pygame', title: 'warp' });
+        for (const f of ['game.py', 'bwgame.py', 'manifest.json']) writeFileSync(path.join(dir, f), r.files[f]);
+        writeFileSync(path.join(dir, 'trace.json'), JSON.stringify(trace));
+        const py = execFileSync(PYTHON, [path.join(dir, 'bwgame.py'), 'trace', dir, path.join(dir, 'trace.json')],
+            { maxBuffer: 64 << 20, env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1' } }).toString().trim();
+        assert.equal(py, JSON.stringify(states));
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+});
 
 // The same parity with costume rasters (pixel touching, clicks, tight bounds, touching
 // colour): both targets come from ONE rasterization, so manifest and rasters are identical,
