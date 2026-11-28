@@ -353,13 +353,14 @@ class Sprite extends Target {
         if (!p) return 10000;
         return Math.sqrt(((this.x - p[0]) ** 2) + ((this.y - p[1]) ** 2));
     }
-    * glideTo (secs, x, y) {
+    * glideTo (secs, x, y, again = null) {
         // scratch-vm motion_glidesecstoxy: the first tick only starts the timer.
         const dur = 1000 * num(secs), sx = this.x, sy = this.y, ex = num(x), ey = num(y);
         const t0 = this.game.nowMs();
         if (dur <= 0) { this.goTo(ex, ey); return; }
         yield WAIT;
         for (;;) {
+            if (again) again();
             const elapsed = this.game.nowMs() - t0;
             if (elapsed >= dur) { this.goTo(ex, ey); return; }
             const f = elapsed / dur;
@@ -420,8 +421,10 @@ class Sprite extends Target {
     // --- pixels (costume rasters; see src/game/raster.js)
     // The costume raster for the current costume, or null (box geometry is used then).
     _raster () { const c = this.costume; return c && c.raster ? this.game.raster(c.raster) : null; }
-    // Map a stage point to the costume raster's pixel indices; null when off the raster.
-    _rasterPx (sx, sy, r) {
+    // scratch-render's sampling, so pixel tests agree with real Scratch:
+    // the costume quad maps a stage point to texture coordinates (u, v) in [0, 1], and
+    // the silhouette reads texel floor(u * (width - 1)), floor(v * (height - 1)).
+    _texel (sx, sy, r) {
         const c = this.costume;
         const s = this.size / 100;
         let deg = 0, flip = false;
@@ -432,30 +435,51 @@ class Sprite extends Target {
         let px = ((dx * cos) + (dy * sin)) / s;
         const py = ((-dx * sin) + (dy * cos)) / s;
         if (flip) px = -px;
-        const u = Math.floor((px + c.cx) * r.scale), v = Math.floor((c.cy - py) * r.scale);
-        // NaN-safe (an unset mouse position maps to NaN): only in-range indices pass.
-        return (u >= 0 && v >= 0 && u < r.width && v < r.height) ? (v * r.width) + u : null;
+        const u = (px + c.cx) / c.width, v = (c.cy - py) / c.height;
+        if (u < 0 || v < 0 || u > 1 || v > 1) return null;
+        return [u * (r.width - 1), v * (r.height - 1)];
     }
-    // RGBA at a stage point (after ghost), or null where this sprite draws nothing.
-    pixelAt (sx, sy) {
+    // Bitmaps always sample the nearest texel; SVGs only at multiples of 90 degrees and
+    // ~100% size, otherwise any of the four texels a linear sample would read.
+    _nearest () {
+        const c = this.costume;
+        if (c.format !== 'svg') return true;
+        const dir = this.rotationStyle === 'all around' ? this.direction : 90;
+        return dir % 90 === 0 && this.size > 99 && this.size < 101;
+    }
+    _alpha (r, x, y) { return (x < 0 || y < 0 || x >= r.width || y >= r.height) ? 0 : r.rgba[(((y * r.width) + x) * 4) + 3]; }
+    // Does this sprite's silhouette cover the stage point (scratch-render isTouching)?
+    hits (sx, sy) {
         const r = this._raster();
         if (!r) {
             const b = this.bounds();
-            return (sx >= b.left && sx <= b.right && sy >= b.bottom && sy <= b.top) ? [0, 0, 0, 255] : null;
+            return sx >= b.left && sx <= b.right && sy >= b.bottom && sy <= b.top;
         }
-        const i = this._rasterPx(sx, sy, r);
-        if (i === null) return null;
-        const a = r.rgba[(i * 4) + 3];
-        if (a === 0) return null;
-        const ghost = Math.max(0, Math.min(100, this.effects.ghost || 0));
-        return [r.rgba[i * 4], r.rgba[(i * 4) + 1], r.rgba[(i * 4) + 2], Math.round(a * (1 - (ghost / 100)))];
+        const t = this._texel(sx, sy, r);
+        if (!t) return false;
+        const x = Math.floor(t[0]), y = Math.floor(t[1]);
+        if (this._nearest()) return this._alpha(r, x, y) > 0;
+        return this._alpha(r, x, y) > 0 || this._alpha(r, x + 1, y) > 0 || this._alpha(r, x, y + 1) > 0 || this._alpha(r, x + 1, y + 1) > 0;
     }
-    // Stage pixel centres inside a box, clipped to the stage, as Scratch's CPU checks do.
+    // RGBA (after ghost) of the nearest texel at a stage point, or null where nothing is drawn.
+    pixelAt (sx, sy) {
+        const r = this._raster();
+        if (!r) return this.hits(sx, sy) ? [0, 0, 0, 255] : null;
+        const t = this._texel(sx, sy, r);
+        if (!t) return null;
+        const i = ((Math.floor(t[1]) * r.width) + Math.floor(t[0])) * 4;
+        const a = r.rgba[i + 3];
+        if (!a) return null;
+        const ghost = Math.max(0, Math.min(100, this.effects.ghost || 0));
+        return [r.rgba[i], r.rgba[i + 1], r.rgba[i + 2], Math.round(a * (1 - (ghost / 100)))];
+    }
+    // scratch-render's CPU checks: integer stage points of the box clamped to the stage
+    // and snapped outward, x outer, y inner, both inclusive.
     _eachPoint (b, fn) {
-        const x0 = Math.max(Math.floor(b.left), -STAGE_W / 2), x1 = Math.min(Math.ceil(b.right), STAGE_W / 2);
-        const y0 = Math.max(Math.floor(b.bottom), -STAGE_H / 2), y1 = Math.min(Math.ceil(b.top), STAGE_H / 2);
-        for (let y = y1 - 1; y >= y0; y--) {
-            for (let x = x0; x < x1; x++) if (fn(x + 0.5, y + 0.5)) return true;
+        const x0 = Math.floor(Math.max(b.left, -STAGE_W / 2)), x1 = Math.ceil(Math.min(b.right, STAGE_W / 2));
+        const y0 = Math.floor(Math.max(b.bottom, -STAGE_H / 2)), y1 = Math.ceil(Math.min(b.top, STAGE_H / 2));
+        for (let x = x0; x <= x1; x++) {
+            for (let y = y0; y <= y1; y++) if (fn(x, y)) return true;
         }
         return false;
     }
@@ -469,7 +493,7 @@ class Sprite extends Target {
             const m = this.game.mouse;
             if (m.x === undefined) return false;
             if (!pixels) return m.x >= b.left && m.x <= b.right && m.y >= b.bottom && m.y <= b.top;
-            return this.pixelAt(m.x, m.y) !== null;
+            return this.hits(Math.floor(m.x), Math.ceil(m.y));
         }
         if (w === '_edge_') return b.left < -STAGE_W / 2 || b.right > STAGE_W / 2 || b.top > STAGE_H / 2 || b.bottom < -STAGE_H / 2;
         for (const o of this.game.spritesNamed(w)) {
@@ -478,7 +502,7 @@ class Sprite extends Target {
             if (!(b.left < ob.right && b.right > ob.left && b.bottom < ob.top && b.top > ob.bottom)) continue;
             if (!pixels || !o._raster()) return true;
             const box = { left: Math.max(b.left, ob.left), right: Math.min(b.right, ob.right), bottom: Math.max(b.bottom, ob.bottom), top: Math.min(b.top, ob.top) };
-            if (this._eachPoint(box, (x, y) => this.pixelAt(x, y) !== null && o.pixelAt(x, y) !== null)) return true;
+            if (this._eachPoint(box, (x, y) => this.hits(x, y) && o.hits(x, y))) return true;
         }
         return false;
     }
@@ -487,7 +511,7 @@ class Sprite extends Target {
         if (!this.visible || !this._raster()) return false;
         const want = colorToRgb(color);
         return this._eachPoint(this.bounds(), (x, y) =>
-            this.pixelAt(x, y) !== null && colorMatches(this.game.compositeAt(x, y, this), want));
+            this.hits(x, y) && colorMatches(this.game.compositeAt(x, y, this), want));
     }
     colorTouchingColor (mine, other) {
         if (!this.visible || !this._raster()) return false;
@@ -616,10 +640,13 @@ export class Game {
     resetTimer () { this.timerStartMs = this.nowMs(); }
     // scratch-vm control_wait: start a timer, yield once, then yield until
     // elapsed >= duration (compared in milliseconds, float error included).
-    * wait (secs) {
+    // again: re-evaluates the block's inputs each frame it runs again (scratch-vm does,
+    // which is observable when an input draws pick random).
+    * wait (secs, again = null) {
         const start = this.nowMs(), dur = Math.max(0, 1000 * num(secs));
         yield WAIT;
-        while (this.nowMs() - start < dur) yield WAIT;
+        if (again) again();
+        while (this.nowMs() - start < dur) { yield WAIT; if (again) again(); }
     }
     * waitUntil (cond) { while (!bool(cond())) yield WAIT; }
     * warp (gen) {
@@ -691,20 +718,31 @@ export class Game {
         return this.keys.has(k);
     }
     mouseMove (x, y) { this.mouse.x = num(x); this.mouse.y = num(y); }
+    // scratch-vm Mouse.postData: the topmost sprite whose silhouette covers the integer
+    // stage point under the pointer (else the stage) is clicked; draggable sprites fire
+    // their click hats on mouse up, others on mouse down.
+    _pick () {
+        const px = Math.floor(num(this.mouse.x)), py = Math.ceil(num(this.mouse.y));
+        for (const s of [...this.layers].reverse()) {
+            if (s.alive && s.visible && s.hits(px, py)) return s;
+        }
+        return this.stage;
+    }
+    _click (t) { this._start(sc => sc.hat === 'clicked', true, t); }
     mouseDown (x, y) {
         if (x !== undefined) this.mouseMove(x, y);
+        if (this.mouse.down) return;
         this.mouse.down = true;
-        // topmost visible sprite under the pointer receives the click
-        for (const s of [...this.layers].reverse()) {
-            if (!s.alive || !s.visible) continue;
-            if (s.pixelAt(this.mouse.x, this.mouse.y) !== null) {
-                this._start(sc => sc.hat === 'clicked', true, s);
-                return;
-            }
-        }
-        this._start(sc => sc.hat === 'clicked' && sc.target === '_stage_', true, this.stage);
+        const t = this._pick();
+        if (!t.draggable) this._click(t);
     }
-    mouseUp () { this.mouse.down = false; }
+    mouseUp (x, y) {
+        if (x !== undefined) this.mouseMove(x, y);
+        if (!this.mouse.down) return;
+        this.mouse.down = false;
+        const t = this._pick();
+        if (t.draggable) this._click(t);
+    }
     // --- clones and layers
     _clone (src) {
         if (this.cloneCount >= 300) return null;
