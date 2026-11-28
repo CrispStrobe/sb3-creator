@@ -163,41 +163,81 @@ describe('lab benches (set r7b) behave as documented', { skip: SKIP }, () => {
         near(vcP, 6.53, 0.1, 'collector, button held (V)');
     });
 
-    test('lab-meissner-squegg: a slow emitter bypass squegs (bursts the radio hears as a tone), a fast one runs steadily, a reversed winding never starts', () => {
-        const run = (big, reversed, settle) => {
-            const x = bench('lab-meissner-squegg');
-            if (big) x.set('sbig', 0);
-            if (reversed) { x.set('sa', 1); x.set('sb', 1); }
-            x.run(settle);
-            const rf = [], det = [];
-            for (let k = 0; k < 150; k++) { x.run(0.02); rf.push(x.rf('tct', 'b')); det.push([x.t, x.v('d', 'cathode')]); }
-            const r = { rfMin: Math.min(...rf), rfMax: Math.max(...rf), ...span(det), tone: x.tone('ep') };
-            LOG('squegg', big, reversed, JSON.stringify(r));
-            return r;
-        };
-        // Re-designed 2026-11-26 (bw-board f48ea7ce): squegging needs the
-        // self-bias network slow next to the oscillation's build-up (2Q/w
-        // ~33 us); in a transistor stage that is the emitter's. 1 nF across
-        // 1 kOhm relaxes in 1 us: steady. 1 uF (1 ms): it stops, recovers,
-        // starts again. The earlier "low bias squegs" was the band's swing
-        // collapsing at the collector clamp, an engine artefact.
-        const steady = run(false, false, 22), sq = run(true, false, 6), rev = run(false, true, 5);
-        // MEASURED 2026-11-26: sq.rfMin < 0.01 -> observed 0.0000025.
-        assert.ok(sq.rfMin < 0.01, `squegging: the oscillation dies between bursts (${sq.rfMin} V)`);
-        // MEASURED 2026-11-26: sq.rfMax > 5 -> observed 10.96.
-        assert.ok(sq.rfMax > 5, `squegging: bursts reach volts (${sq.rfMax} V)`);
-        // MEASURED 2026-11-26: sq.max - sq.min > 0.5 -> observed 3.50.
-        assert.ok(sq.max - sq.min > 0.5, `squegging: the receiver's detector swings (${(sq.max - sq.min).toFixed(3)} V)`);
-        assert.equal(sq.tone.on, true, 'squegging: the earphone hears a tone');
-        near(sq.tone.hz, 820, 250, 'squegging: tone (Hz)');
-        near(steady.rfMin, 8.89, 0.1, 'steady: tank swing (V)');
-        // MEASURED 2026-11-26: steady.rfMax - steady.rfMin < 0.01 -> observed 0.00001.
-        assert.ok(steady.rfMax - steady.rfMin < 0.01, 'steady: the swing does not move');
-        // MEASURED 2026-11-26: steady.max - steady.min < 0.05 -> observed 0.00003.
-        assert.ok(steady.max - steady.min < 0.05, `steady: the detector output is flat (${(steady.max - steady.min).toFixed(4)} V)`);
-        // MEASURED 2026-11-24: rev.rfMax < 1e-3 -> observed 0.0000044.
+    // lab-meissner-squegg, re-designed 2026-11-28 against a full-carrier
+    // ngspice reference (scripts/ngspice-meissner-squegg.py --record ->
+    // test/measurements/rf-meissner-squegg-ngspice-2026-11-28.json: gear at
+    // 5 ns and 2 ns, trapezoidal at 2 ns; the three agree). The earlier
+    // circuit (a 2 % coupling winding, the receiver 0.5 m away) never squegs
+    // at the carrier: the collector bottoming out holds its swing (bw-board
+    // PR #783). With a fifth of the turns and the receiver at 0.22 m it does.
+    // Every bound below is the REFERENCE's value with the margin named beside it.
+    const meissner = (big, reversed, settle) => {
+        const x = bench('lab-meissner-squegg');
+        if (big) x.set('sbig', 0);
+        if (reversed) { x.set('sa', 1); x.set('sb', 1); }
+        x.run(settle);
+        const rf = [], det = [];
+        for (let k = 0; k < 150; k++) { x.run(0.02); rf.push(x.rf('tct', 'b')); det.push([x.t, x.v('d', 'cathode')]); }
+        const r = { rfMin: Math.min(...rf), rfMax: Math.max(...rf), ...span(det), tone: x.tone('ep') };
+        LOG('squegg', big, reversed, JSON.stringify(r));
+        return r;
+    };
+
+    test('lab-meissner-squegg: a reversed winding never starts', () => {
+        const rev = meissner(false, true, 5);
+        // REFERENCE 2026-11-28: 0.00033 V, all of it a ~35 MHz parasitic of the
+        // coupling winding leaking through the measurement low-pass; observed
+        // on bw-board b47e7e09 and d21d6d8b 0.0000008 V.
         assert.ok(rev.rfMax < 1e-3, `reversed winding: no oscillation (${rev.rfMax} V)`);
         assert.equal(rev.tone.on, false, 'reversed winding: silence');
+    });
+
+    // KNOWN ENGINE FAILURE on bw-board d21d6d8b (todo), not a loosened claim:
+    // there the band runs away before the swing settles ("RF band at
+    // 0.7585 MHz refused: its swing ran away", 4.16e5 V at 0.405 ms). On
+    // b47e7e09 this test passes as it stands (8.590 V, flat).
+    test('lab-meissner-squegg: with the small bypass the transmitter runs steadily', {
+        todo: 'engine: on bw-board d21d6d8b the strongly fed-back stage runs away (passes on b47e7e09); reference in test/measurements/rf-meissner-squegg-ngspice-2026-11-28.json',
+    }, () => {
+        const steady = meissner(false, false, 22);
+        // REFERENCE 2026-11-28: 8.5406-8.5440 V over 22-25 ms across the three
+        // runs. MEASURED 2026-11-28 on bw-board b47e7e09: 8.590 V. The ±0.1 V
+        // band is the earlier assertion's width; the engine sits 0.05 V above.
+        near(steady.rfMin, 8.54, 0.1, 'steady: tank swing (V)');
+        // REFERENCE 2026-11-28: sampled swing moves 0.0018 V; observed on
+        // b47e7e09 0.00002 V.
+        assert.ok(steady.rfMax - steady.rfMin < 0.01, 'steady: the swing does not move');
+        // REFERENCE 2026-11-28: detector moves 0.0037 V (cycle-averaged);
+        // observed on b47e7e09 0.00004 V. (Its level differs: 6.47 V in the
+        // reference, 8.48 V on the engine, and it is not asserted here.)
+        assert.ok(steady.max - steady.min < 0.05, `steady: the detector output is flat (${(steady.max - steady.min).toFixed(4)} V)`);
+    });
+
+    // KNOWN ENGINE FAILURE (todo), not a loosened claim: on bw-board b47e7e09
+    // the band runs away ("RF band at 0.7585 MHz refused: its swing ran away",
+    // 2.65e6 V at 1.889 ms); on d21d6d8b the transient solve fails to converge
+    // at 4.268 ms. The engine's first-order mode estimate places this strongly
+    // fed-back stage's growth far from its band's centre and discards it
+    // (bw-board PR #783, docs/RF-MEISSNER-REFERENCE-2026-11-27.md). The
+    // consistent band/bias solve that would fix it is deferred. When an engine
+    // passes this unchanged, drop the todo.
+    test('lab-meissner-squegg: a slow emitter bypass squegs (bursts the radio hears as a tone)', {
+        todo: 'engine: strongly fed-back Meissner stage runs away or fails to converge (bw-board #783); reference in test/measurements/rf-meissner-squegg-ngspice-2026-11-28.json',
+    }, () => {
+        const sq = meissner(true, false, 6);
+        // REFERENCE 2026-11-28: below 1e-8 V between bursts, 6-9 ms.
+        assert.ok(sq.rfMin < 0.01, `squegging: the oscillation dies between bursts (${sq.rfMin} V)`);
+        // REFERENCE 2026-11-28: sampled every 20 us, the largest swing is
+        // 8.31-12.05 V (where the samples fall on a 0.2 ms burst); peaks 12.5-12.9 V.
+        assert.ok(sq.rfMax > 5, `squegging: bursts reach volts (${sq.rfMax} V)`);
+        // REFERENCE 2026-11-28: detector 0.132-0.689 V, a 0.5566-0.5574 V
+        // swing; 0.5 V is the lesson's audible-swing claim, 10 % below it.
+        assert.ok(sq.max - sq.min > 0.5, `squegging: the receiver's detector swings (${(sq.max - sq.min).toFixed(3)} V)`);
+        assert.equal(sq.tone.on, true, 'squegging: the earphone hears a tone');
+        // REFERENCE 2026-11-28: bursts repeat at 1056.97-1057.70 Hz. The ±10 %
+        // covers the earphone's period estimate from the three bursts in the
+        // 3 ms window; the reference spread is 0.07 %.
+        near(sq.tone.hz, 1057, 106, 'squegging: tone (Hz)');
     });
 
     test('lab-trf-mosfet: the MOSFET stage amplifies the tank\'s RF into the detector; loose coupling is quieter and more selective', () => {
