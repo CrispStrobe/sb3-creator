@@ -93,6 +93,15 @@ export const PY = {
 
 const IND = '    ';
 
+// scratch-vm re-evaluates a block's inputs every time the block runs again (each loop
+// pass of repeat, each frame of wait/glide) and keeps the first value. Only inputs with
+// a side effect make that observable: pick random draws from the random stream.
+function impure (node) {
+    if (!node || typeof node !== 'object') return false;
+    if (node.op === 'operator_random') return true;
+    return Object.values(node.args || {}).some(impure);
+}
+
 const PROMISE_OPS = new Set(['looks_sayforsecs', 'looks_thinkforsecs', 'sensing_askandwait', 'sound_playuntildone']);
 
 // Mark the statements that can be the last one run in a loop iteration and are
@@ -182,6 +191,8 @@ class Emitter {
         case 'looks_backdropnumbername': return f('NUMBER_NAME') === 'name' ? S(`stage.${m('backdropName')}()`) : N(`stage.${m('backdropNumber')}()`);
         case 'sound_volume': return N('self.volume');
         case 'sensing_touchingobject': return B(`self.${m('touching')}(${A('TOUCHINGOBJECTMENU')})`);
+        case 'sensing_touchingcolor': return B(`self.${m('touchingColor')}(${A('COLOR')})`);
+        case 'sensing_coloristouchingcolor': return B(`self.${m('colorTouchingColor')}(${A('COLOR')}, ${A('COLOR2')})`);
         case 'sensing_distanceto': return N(`self.${m('distanceTo')}(${A('DISTANCETOMENU')})`);
         case 'sensing_keypressed': return B(`game.${m('keyPressed')}(${A('KEY_OPTION')})`);
         case 'sensing_mousedown': return B('game.mouse.down');
@@ -224,7 +235,7 @@ class Emitter {
         const f = k => n.fields[k];
         const S = s => out.push(p + L.stmt(s));
         const YF = e => out.push(p + L.yieldFrom(e));
-        const block = (open, body, isLoop) => {
+        const block = (open, body, isLoop, tail = null) => {
             out.push(p + open);
             // scratch-vm: when a promise block (say/think for secs, ask, play until
             // done) is the last statement run in an iteration, its resolution jumps
@@ -234,6 +245,7 @@ class Emitter {
             this.stack(body || [], d + 1, out);
             if (pe) out.push(IND.repeat(d + 1) + (L.name === 'js' ? `if (!${pe}) yield;` : `if not ${pe}:`), ...(L.name === 'js' ? [] : [IND.repeat(d + 2) + 'yield']));
             else if (isLoop) out.push(IND.repeat(d + 1) + L.yield);
+            if (tail) out.push(IND.repeat(d + 1) + L.stmt(tail));
             if (L.close) out.push(p + L.close);
         };
         switch (n.op) {
@@ -243,7 +255,10 @@ class Emitter {
         case 'motion_turnleft': return S(`self.${m('turnLeft')}(${A('DEGREES')})`);
         case 'motion_gotoxy': return S(`self.${m('goTo')}(${A('X')}, ${A('Y')})`);
         case 'motion_goto': return S(`self.${m('goToTarget')}(${A('TO')})`);
-        case 'motion_glidesecstoxy': return YF(`self.${m('glideTo')}(${A('SECS')}, ${A('X')}, ${A('Y')})`);
+        case 'motion_glidesecstoxy': {
+            const again = ['SECS', 'X', 'Y'].some(k => impure(n.args[k])) ? `, ${L.lambda(`[${A('SECS')}, ${A('X')}, ${A('Y')}]`)}` : '';
+            return YF(`self.${m('glideTo')}(${A('SECS')}, ${A('X')}, ${A('Y')}${again})`);
+        }
         case 'motion_glideto': return YF(`self.${m('glideToTarget')}(${A('SECS')}, ${A('TO')})`);
         case 'motion_changexby': return S(`self.${m('changeX')}(${A('DX')})`);
         case 'motion_setx': return S(`self.${m('setX')}(${A('X')})`);
@@ -284,8 +299,10 @@ class Emitter {
         case 'event_broadcast': return S(`game.broadcast(${A('BROADCAST_INPUT')})`);
         case 'event_broadcastandwait': return YF(`game.${m('broadcastAndWait')}(${A('BROADCAST_INPUT')})`);
         // control
-        case 'control_wait': return YF(`game.wait(${A('DURATION')})`);
-        case 'control_repeat': return block(L.repeatOpen(`i${++this.loop}`, A('TIMES')), n.sub, true);
+        case 'control_wait': return YF(impure(n.args.DURATION) ? `game.wait(${A('DURATION')}, ${L.lambda(A('DURATION'))})` : `game.wait(${A('DURATION')})`);
+        case 'control_repeat':
+            // with pick random in the count, Scratch draws again on every pass (value unused)
+            return block(L.repeatOpen(`i${++this.loop}`, A('TIMES')), n.sub, true, impure(n.args.TIMES) ? A('TIMES') : null);
         case 'control_forever': return block(L.foreverOpen, n.sub, true);
         case 'control_if': return block(L.ifOpen(this.cond(this.e(n.args.CONDITION))), n.sub, false);
         case 'control_if_else': {

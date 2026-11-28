@@ -165,6 +165,7 @@ switch (cmd) {
             const c = new SB3Creator();
             result = { pseudocode: c.decompile(project), warnings: [] };
         } else die('read understands .c, .py, .js, .bas and .sb3');
+        if (result.ok === false) die(`read refused: ${(result.reasons || ['conversion is unsupported']).join('; ')}`, 1);
         for (const w of result.warnings || []) console.error(`warning: ${w}`);
         writeOut(result.pseudocode ?? '', opts.o);
         break;
@@ -521,7 +522,15 @@ switch (cmd) {
             input = await loadCreator(parseBw(code));
         }
         const title = opts.title || path.basename(file).replace(/\.[^.]+$/, '');
-        const r = await exportGame(input, { target: to, title, allowUnsupported: !!opts['allow-unsupported'] });
+        // Costume pixels (touching colour, pixel collisions) need a browser to rasterize SVGs;
+        // the shared headless Chromium is used when available, else box geometry.
+        const { rasterizeWithChromium } = await import('../src/game/raster.js');
+        const rasterize = opts['no-raster'] ? undefined : async (jobs) => {
+            const r = await rasterizeWithChromium(jobs);
+            if (!r) console.error('note: no headless Chromium for costume rasters; using box geometry');
+            return r;
+        };
+        const r = await exportGame(input, { target: to, title, allowUnsupported: !!opts['allow-unsupported'], rasterize });
         if (!r.ok) die(`export refused, unsupported blocks:\n  ${r.reasons.join('\n  ')}`, 1);
         for (const [op, e] of Object.entries(r.report.approximate)) console.error(`approximate: ${op} (${e.count}x) — ${e.note}`);
         const out = opts.o || `${r.name}-${to}`;
@@ -549,6 +558,6 @@ switch (cmd) {
         console.error('  bw compile <file.bw> [--device D] [-o out]');
         console.error('  bw flash <file.bw|file.py> [--port /dev/cu.usbmodemX]');
         console.error('  bw bake-uf2 <file.bw|file.py> --firmware <micropython.uf2> [-o out.uf2]');
-        console.error('  bw export-game <file.bw|.py|.js|.sb3> --to web|pygame [-o dir|out.zip]');
+        console.error('  bw export-game <file.bw|.py|.js|.sb3> --to web|pygame [--no-raster] [-o dir|out.zip]');
         process.exit(cmd ? 2 : 0);
 }

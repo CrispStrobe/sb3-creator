@@ -160,3 +160,21 @@ export function runJs (game, trace) {
 }
 
 export { Game };
+
+// Export through the real exporter (optionally with costume rasters) and load the
+// emitted game.js + bwgame.js + rasters, exactly as a player would.
+export async function loadExportedJsGame (input, seed = 1, { rasterize } = {}) {
+    const { exportGame } = await import('../../src/game/export.js');
+    const { decodeRaster } = await import('../../src/game/raster.js');
+    const r = await exportGame(input, { target: 'web', title: 'differential', rasterize, allowUnsupported: true });
+    const dir = mkdtempSync(path.join(tmpdir(), 'bwgame-x-'));
+    for (const f of ['bwgame.js', 'game.js', 'manifest.json']) writeFileSync(path.join(dir, f), r.files[f]);
+    const manifest = JSON.parse(r.files['manifest.json']);
+    const rasters = {};
+    for (const [p, bytes] of Object.entries(r.files)) if (p.startsWith('assets/raster/')) rasters[p] = await decodeRaster(bytes);
+    const { Game: G } = await import(pathToFileURL(path.join(dir, 'bwgame.js')).href);
+    const { default: setup } = await import(pathToFileURL(path.join(dir, 'game.js')).href);
+    const game = new G(manifest, { seed, rasters });
+    setup(game);
+    return { game, manifest, report: r.report, dir };
+}

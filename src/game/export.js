@@ -13,6 +13,7 @@ import JSZip from 'jszip';
 import { buildGameModel, MODEL_VERSION } from './model.js';
 import { emitGame } from './emit.js';
 import { RUNTIME_SOURCES } from './runtime/sources.generated.js';
+import { rasterJobs, encodeRaster } from './raster.js';
 
 export const EXPORT_CONTRACT = 'bwgame-export-v1';
 
@@ -129,7 +130,7 @@ function standalonePage (title, gameJs, manifest, files) {
         return `data:${MIME[ext] || 'application/octet-stream'};base64,${base64(toBytes(bytes))}`;
     };
     for (const t of [inlined.stage, ...inlined.sprites]) {
-        for (const c of t.costumes) c.file = dataUrl(c.file);
+        for (const c of t.costumes) { c.file = dataUrl(c.file); if (c.raster) c.raster = dataUrl(c.raster); }
         for (const s of t.sounds) s.file = dataUrl(s.file);
     }
     const code = [
@@ -188,11 +189,26 @@ pygame is LGPL-licensed — keep its notice when you redistribute.
 `;
 }
 
+function manifestCostume (manifest, key) {
+    for (const t of [manifest.stage, ...manifest.sprites]) for (const c of t.costumes) if (c.file === `assets/${key}`) return c;
+    return null;
+}
+
 export async function exportGame (input, opts = {}) {
     const target = opts.target === 'pygame' || opts.target === 'py' ? 'pygame' : 'web';
     const { project, files } = input;
     const title = opts.title || (project.meta && project.meta.title) || 'Brickwright game';
-    const { manifest, code, report } = buildGameModel(project, files);
+    // Costume rasters (opts.rasterize: jobs -> results, see raster.js) give both runtimes
+    // Scratch's pixel geometry and admit touching-colour. Without them: box geometry.
+    let pixels = typeof opts.rasterize === 'function';
+    let built = buildGameModel(project, files, { pixels });
+    let rastered = null;
+    if (pixels) {
+        const jobs = rasterJobs(built.manifest, files);
+        rastered = jobs.length ? await opts.rasterize(jobs) : [];
+        if (!rastered) { pixels = false; built = buildGameModel(project, files, { pixels: false }); }
+    }
+    const { manifest, code, report } = built;
     manifest.title = title;
     if (report.unsupported.length && !opts.allowUnsupported) {
         const reasons = report.unsupported.map(u => `${u.target}: ${u.opcode}${u.detail ? ` (${u.detail})` : ''}`);
@@ -200,6 +216,38 @@ export async function exportGame (input, opts = {}) {
     }
     const model = { manifest, code };
     const out = {};
+    const rasterFiles = {};
+    if (rastered) {
+        const byKey = new Map(rastered.filter(r => !r.error).map(r => [r.key, r]));
+        const failed = rastered.filter(r => r.error);
+        if (failed.length) report.notes.push(`${failed.length} costume(s) could not be rasterized; they use box geometry: ${failed.map(f => f.key).join(', ')}`);
+        const encoded = new Map();
+        for (const [key, r] of byKey) {
+            const rgba = Uint8Array.from(atob(r.b64), ch => ch.charCodeAt(0));
+            const job = { width: r.width, height: r.height };
+            const scale = r.scale ?? (r.width / Math.max(1e-9, (manifestCostume(manifest, key) || {}).width || r.width));
+            let minX = Infinity, minY = Infinity, maxX = -1, maxY = -1;
+            for (let y = 0; y < job.height; y++) {
+                for (let x = 0; x < job.width; x++) {
+                    if (rgba[(((y * job.width) + x) * 4) + 3] === 0) continue;
+                    if (x < minX) minX = x; if (x > maxX) maxX = x; if (y < minY) minY = y; if (y > maxY) maxY = y;
+                }
+            }
+            const path = `raster/${key}.bwr`;
+            rasterFiles[path] = await encodeRaster({ width: r.width, height: r.height, scale, rgba });
+            encoded.set(key, { path, scale, bounds: maxX < 0 ? null : [minX / scale, minY / scale, (maxX + 1) / scale, (maxY + 1) / scale] });
+        }
+        for (const t of [manifest.stage, ...manifest.sprites]) {
+            for (const c of t.costumes) {
+                const e = encoded.get(c.file.replace(/^assets\//, ''));
+                if (!e) continue;
+                c.raster = `assets/${e.path}`;
+                if (e.bounds) c.bounds = e.bounds;
+            }
+        }
+        for (const [path, bytes] of Object.entries(rasterFiles)) out[`assets/${path}`] = bytes;
+        report.notes.push(`Costume pixels: ${encoded.size} costume(s) rasterized for pixel-accurate touching, fencing and colour sensing.`);
+    }
     const usedAssets = new Set([manifest.stage, ...manifest.sprites].flatMap(t => [...t.costumes, ...t.sounds].map(a => a.file.replace(/^assets\//, ''))));
     for (const name of usedAssets) if (files[name]) out[`assets/${name}`] = toBytes(files[name]);
     out['manifest.json'] = `${JSON.stringify(manifest, null, 2)}\n`;
@@ -210,7 +258,7 @@ export async function exportGame (input, opts = {}) {
         out['bwgame.js'] = RUNTIME_SOURCES['bwgame.js'];
         out['bwgame-web.js'] = RUNTIME_SOURCES['bwgame-web.js'];
         out['index.html'] = moduleIndex(title);
-        out['play.html'] = standalonePage(title, gameJs, manifest, files);
+        out['play.html'] = standalonePage(title, gameJs, manifest, { ...files, ...rasterFiles });
     } else {
         out['game.py'] = emitGame(model, 'py', meta);
         out['bwgame.py'] = RUNTIME_SOURCES['bwgame.py'];
