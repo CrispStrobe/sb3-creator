@@ -524,7 +524,7 @@ switch (cmd) {
         const title = opts.title || path.basename(file).replace(/\.[^.]+$/, '');
         // Costume pixels (touching colour, pixel collisions) need a browser to rasterize SVGs;
         // the shared headless Chromium is used when available, else box geometry.
-        const { rasterizeWithChromium } = await import('../src/game/raster.js');
+        const { rasterizeWithChromium } = await import('../src/game/raster-chromium.js');
         const rasterize = opts['no-raster'] ? undefined : async (jobs) => {
             const r = await rasterizeWithChromium(jobs);
             if (!r) console.error('note: no headless Chromium for costume rasters; using box geometry');

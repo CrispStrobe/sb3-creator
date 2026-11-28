@@ -22,7 +22,8 @@ import examples from '../src/utils/examples.js';
 import { buildGameModel, classify, svgContentBounds } from '../src/game/model.js';
 import { emitGame } from '../src/game/emit.js';
 import { exportGame, loadSb3 } from '../src/game/export.js';
-import { rasterizeWithChromium, decodeRaster } from '../src/game/raster.js';
+import { rasterizeWithChromium } from '../src/game/raster-chromium.js';
+import { decodeRaster } from '../src/game/raster.js';
 import { loadJsGame, runVm, runJs } from './helpers/game-differential.mjs';
 import { render as renderSources } from '../scripts/gen-game-runtime-sources.mjs';
 import pythonToPseudocode from '../src/utils/pythonToPseudocode.js';
@@ -48,6 +49,15 @@ function keyTrace (keys, frames = 300) {
 test('runtime sources embedded for the browser exporter are current', () => {
     const file = path.join(ROOT, 'src', 'game', 'runtime', 'sources.generated.js');
     assert.equal(readFileSync(file, 'utf8'), renderSources(), 'run: node scripts/gen-game-runtime-sources.mjs');
+});
+
+test('browser-vendored game modules never import Node-only tooling (Playwright)', () => {
+    // Brickwright bundles raster.js into the app with webpack; a Playwright import there
+    // breaks the browser build. The CLI rasterizer lives in raster-chromium.js.
+    for (const f of ['raster.js', 'export.js', 'model.js', 'emit.js']) {
+        const src = readFileSync(path.join(ROOT, 'src', 'game', f), 'utf8');
+        assert.doesNotMatch(src, /['"]playwright['"]/, f);
+    }
 });
 
 test('capability classes: exact, approximate and unsupported opcodes', () => {
