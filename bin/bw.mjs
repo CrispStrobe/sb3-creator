@@ -596,7 +596,7 @@ switch (cmd) {
         console.error('  bw devices [file.bw]');
         console.error('  bw retarget <file.bw> <device> [-o out.bw]');
         console.error('  bw transpile <file.bw> --to c|cowgol|micropython|python|javascript|sb3 [--device D] [-o out]');
-        console.error('               --to cowgol [--target z80-cpm|i8080-cpm|dos|riscv32|eater6502|atmega328p]');
+        console.error('               --to cowgol [--target z80-cpm|i8080-cpm|dos|riscv32|eater6502|atmega328p|arduino-nano]');
         console.error('               Cowgol also accepts an authored .sb3 project (without --device).');
         console.error('  bw read <file.c|file.py> [-o out.bw]');
         console.error('  bw compile <file.bw> [--device D] [-o out]');

@@ -41,6 +41,57 @@ test('native targets reject incompatible device declarations without executable 
     }
 });
 
+test('exact I80386 declarations preserve DOS execution identity without inventing a 32-bit backend', () => {
+    const creator = build('DEVICE I80386\nGLOBAL n = 20\nWHEN flag clicked:\n  change n by 22\n  say n\n');
+    assert.deepEqual(creator.warnings, []);
+    assert.equal(creator.project.stc.device, 'i80386');
+    const before = JSON.stringify(creator.project);
+    const result = creator.generateCowgol(undefined, {target: 'dos'});
+    assert.equal(result.ok, true, result.reasons.join('; '));
+    assert.equal(result.target, 'dos');
+    assert.equal(result.profile, 'native-int32');
+    assert.match(result.cowgol, /DEVICE I80386/);
+    assert.match(result.cowgol, /bw_checked_add/);
+    assert.equal(JSON.stringify(creator.project), before);
+    const restored = read(creator.generateCowgol().cowgol);
+    assert.equal(restored.ok, true, restored.reasons.join('; '));
+    assert.equal(build(restored.pseudocode).project.stc.device, 'i80386');
+    const contract = cowgolTargets().find(item => item.target === 'dos');
+    assert.deepEqual(contract.devices, ['i8086', 'i80386']);
+    assert.deepEqual(contract.capabilities, {console: true, digital: false, pullups: false, delay: false, canvas: false});
+    for (const target of targets.filter(target => target !== 'dos')) {
+        const refused = creator.generateCowgol(undefined, {target});
+        assert.equal(refused.ok, false, target);
+        assert.equal(refused.cowgol, undefined);
+        assert.match(refused.reasons.join('; '), /cannot run DEVICE i80386/);
+    }
+    assert.throws(() => creator.generateC(), error => error.code === 'DOS_CONSOLE_C_UNSUPPORTED');
+    assert.equal(JSON.stringify(creator.project), before);
+    for (const device of ['80386', 'i386', 'i80186', 'i80286']) {
+        assert.throws(() => build(`DEVICE ${device}\nWHEN flag clicked:\n  say 1\n`), /Unknown DEVICE/);
+    }
+});
+
+test('I80386 DOS declarations reject circuit and timing semantics at their owning boundaries', () => {
+    for (const declaration of ['PIN led = P1.0 OUTPUT', 'PORT bus = P1',
+        'PART display = LCD1602', 'MAP RAM $0000-$7FFF', 'CHIP via = VIA6522 AT $6000', 'LEDCUBE 4']) {
+        assert.throws(() => build(`DEVICE I80386\n${declaration}\nWHEN flag clicked:\n  say 1\n`),
+            /I80386 DOS console has no GPIO/, declaration);
+    }
+    const waiting = generate('DEVICE I80386\nWHEN flag clicked:\n  wait 0.001 seconds\n', 'dos');
+    assert.equal(waiting.ok, false);
+    assert.equal(waiting.cowgol, undefined);
+    assert.match(waiting.reasons.join('; '), /no qualified timer/);
+    // Imported project metadata bypasses the text parser; the generator still
+    // refuses every peripheral even when the script never accesses it.
+    const creator = build('DEVICE I80386\nWHEN flag clicked:\n  say 1\n');
+    creator.project.stc.pins = [{name: 'led', where: 'P1.0', direction: 'output'}];
+    const imported = creator.generateCowgol(undefined, {target: 'dos'});
+    assert.equal(imported.ok, false);
+    assert.equal(imported.cowgol, undefined);
+    assert.match(imported.reasons.join('; '), /console output, not digital GPIO/);
+});
+
 test('native profiles reject canvas and unsupported language semantics before compilation', () => {
     for (const target of targets) for (const statement of [
         'clear', 'move 10 steps', 'say x position',

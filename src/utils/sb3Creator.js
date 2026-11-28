@@ -5307,6 +5307,10 @@ class SB3Creator {
             this.stcConfig().clock = /^mhz$/i.test(m[2] || '') ? value * 1000000 : value;
             return true;
         }
+        if (this.stcConfig().device === 'i80386' && /^(PIN|PORT|PART|LEDCUBE|MAP|CHIP)\b/i.test(trimmed)) {
+            return this.refuseDeclaration(lineIndex, trimmed,
+                'I80386 DOS console has no GPIO, ports, peripherals, or circuit memory map');
+        }
         if (this.stcConfig().device === 'riscv32' && /^(PIN|PORT|PART|LEDCUBE|MAP|CHIP)\b/i.test(trimmed)) {
             return this.refuseDeclaration(lineIndex, trimmed,
                 'RISC-V console has no GPIO, ports, peripherals, or circuit memory map');
@@ -17430,6 +17434,13 @@ class SB3Creator {
         const declaredDevice = !!(stc && (stc.deviceDeclared
             || (stc.device && String(stc.device).toLowerCase() !== 'stc12c5a60s2')));
         const want = opts.target || ((hasHardware || declaredDevice) ? 'device' : 'host');
+        if (want !== 'host' && String(opts.device || stc?.device || '').toLowerCase() === 'i80386') {
+            const reason = 'I80386 DOS console requires generateCowgol(project, {target: "dos"}); no device C backend is qualified.';
+            this._cWarnings = [reason];
+            const error = new Error(reason);
+            error.code = 'DOS_CONSOLE_C_UNSUPPORTED';
+            throw error;
+        }
         if (opts.target !== 'host' && String(opts.device || stc?.device || '').toLowerCase() === 'riscv32') {
             const result = this.generateRiscvC(project, opts);
             this._cWarnings = result.ok ? [] : result.reasons;
@@ -23125,6 +23136,9 @@ SB3Creator.retargetPseudocode = function retargetPseudocode(src, device) {
 };
 
 SB3Creator.STC_PARTS = {
+    // Exact execution selection for the checked Cowgol DOS console. It has
+    // no native 386 code generator, GPIO, scheduler or protected-mode ABI.
+    i80386: { core: 'dos-console', header: null, portModes: false, aux1T: false, adc: false },
     // Software RV32IMAC console, built with riscv32-gcc/picolibc. No GPIO or
     // timing runtime; generateRiscvC checks the sequential console subset.
     riscv32: { core: 'riscv32', header: null, portModes: false, aux1T: false, adc: false },

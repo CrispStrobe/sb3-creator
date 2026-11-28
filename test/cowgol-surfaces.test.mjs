@@ -203,3 +203,28 @@ test('producer CLI keeps Nano identity and refuses Uno substitution and analog-o
         assert.equal(fs.readFileSync(output, 'utf8'), generated);
     }
 });
+
+test('CLI preserves exact I80386 DOS source and lists the qualified Nano target', t => {
+    const work = fs.mkdtempSync(path.join(root, '.cowgol-i80386-cli-'));
+    t.after(() => fs.rmSync(work, {recursive: true, force: true}));
+    const input = path.join(work, 'console.bw'), output = path.join(work, 'console.cow');
+    const cli = (...args) => spawnSync(process.execPath, [path.join(root, 'bin/bw.mjs'), ...args],
+        {cwd: root, encoding: 'utf8'});
+    fs.writeFileSync(input, 'DEVICE I80386\nGLOBAL n = 20\nWHEN flag clicked:\n  change n by 22\n  say n\n');
+    const result = cli('transpile', input, '--to', 'cowgol', '--target', 'dos', '-o', output);
+    assert.equal(result.status, 0, result.stderr);
+    const generated = fs.readFileSync(output, 'utf8');
+    assert.match(generated, /DEVICE I80386/);
+    assert.match(generated, /bw_checked_add/);
+    const conflict = cli('transpile', input, '--to', 'cowgol', '--target', 'z80-cpm', '-o', output);
+    assert.notEqual(conflict.status, 0);
+    assert.match(conflict.stderr, /cannot run DEVICE i80386/);
+    assert.equal(fs.readFileSync(output, 'utf8'), generated);
+    fs.writeFileSync(input, 'DEVICE I80386\nPIN led = P1.0 OUTPUT\nWHEN flag clicked:\n  say 1\n');
+    const hardware = cli('transpile', input, '--to', 'cowgol', '--target', 'dos', '-o', output);
+    assert.notEqual(hardware.status, 0);
+    assert.match(hardware.stderr, /I80386 DOS console has no GPIO/);
+    assert.equal(fs.readFileSync(output, 'utf8'), generated);
+    const help = cli('help');
+    assert.match(help.stdout + help.stderr, /--target[^\n]*arduino-nano/);
+});

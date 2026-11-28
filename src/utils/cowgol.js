@@ -15,7 +15,9 @@ const INTEGER_PROFILE = 'Cowgol arithmetic is signed int32. This conversion requ
 const NATIVE_TARGETS = Object.freeze({
     'z80-cpm': {devices: ['z80'], label: 'CP/M Z80'},
     'i8080-cpm': {devices: ['z80'], label: 'CP/M 8080'},
-    dos: {devices: ['i8086'], label: 'DOS'},
+    // I80386 selects a real-mode DOS execution CPU, not a 32-bit compiler
+    // backend or the 8086 board's attached 8255 peripherals.
+    dos: {devices: ['i8086', 'i80386'], label: 'DOS'},
     riscv32: {devices: ['riscv32'], label: 'RISC-V'},
     eater6502: {devices: ['eater6502'], label: 'Eater 6502', digital: true, clock: 1000000},
     atmega328p: {devices: ['atmega328p', 'arduino-uno'], label: 'ATmega328P / Uno', digital: true,

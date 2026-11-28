@@ -73,11 +73,20 @@ limits, not measurements of a particular program's memory use.
 | --- | --- | --- |
 | `z80-cpm` | `Z80` | Text/number console, sequential integer/text state and control |
 | `i8080-cpm` | `Z80` | Same console subset, compiled for the 8080-compatible CP/M target |
-| `dos` | `I8086` and its ordinary parser aliases | Same console subset, DOS MZ executable |
+| `dos` | `I8086` and its ordinary parser aliases; exact `I80386` | Same console subset, 16-bit DOS MZ executable on the selected real-mode execution CPU |
 | `riscv32` | `RISCV32` and its ordinary parser aliases | Same console subset, RV32 ELF |
 | `eater6502` | `EATER6502`, 1 MHz | Console plus VIA digital PA0–PA7 and PB0–PB7 |
 | `atmega328p` | `ATMEGA328P` or `ARDUINO-UNO`, 16 MHz | Serial console, digital D2–D13 and A0–A5, literal millisecond waits |
 | `arduino-nano` | `ARDUINO-NANO` or `NANO`, 16 MHz | Classic ATmega328P Nano: same digital/serial/wait subset, with a separate 30720-byte flash limit |
+
+`DEVICE I80386` preserves the selected execution CPU in the project and in
+Cowgol declaration metadata. The compiler output remains the existing 16-bit
+DOS MZ format. This declaration adds no 32-bit code generation, protected-mode
+ABI, GPIO, timing, or board peripherals. Hardware declarations refuse during
+parsing, checked waits refuse during Cowgol generation, and ordinary device C
+generation refuses with a message directing the caller to the Cowgol route.
+`I80186` and `I80286` are not new parser aliases: Brickwright can select those
+execution CPUs for checked `I8086` source independently of the compiler target.
 
 A declaration-free console program can use any target. An explicit incompatible
 device refuses; the caller must obtain an intentional retargeted project before
