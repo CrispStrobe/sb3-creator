@@ -99,7 +99,10 @@ function nativeArithmetic(helpers) {
 }
 function stringIssue(value) {
     const s = String(value);
-    if (/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(s)) return 'Text contains a control character outside the shared newline/tab/return subset';
+    for (const ch of s) {
+        const c = ch.charCodeAt(0);
+        if (c < 0x20 && c !== 0x09 && c !== 0x0a && c !== 0x0d) return 'Text contains a control character outside the shared newline/tab/return subset';
+    }
     let bytes = 0;
     for (let i = 0; i < s.length; i++) {
         const c = s.charCodeAt(i);
@@ -495,7 +498,7 @@ function lex(source) {
         }
         const name = /^[A-Za-z_][A-Za-z_0-9]*/.exec(rest);
         if (name) { tokens.push({kind: 'name', text: name[0], line}); i += name[0].length; continue; }
-        const op = /^(?::=|==|!=|<=|>=|<<|>>|[()+\-*/%&|^~<>,;:\[\]])/.exec(rest);
+        const op = /^(?::=|==|!=|<=|>=|<<|>>|[()+\-*/%&|^~<>,;:[\]])/.exec(rest);
         if (!op) throw new Error(`Line ${line}: unsupported token ${q(ch)}`);
         tokens.push({kind: 'op', text: op[0], line}); i += op[0].length;
     }
@@ -578,7 +581,13 @@ class Reader {
     }
     args() {
         this.take('('); const args = [];
-        if (!this.peek(')')) { do { args.push(this.expr()); if (!this.peek(',')) break; this.take(','); } while (true); }
+        if (!this.peek(')')) {
+            for (;;) {
+                args.push(this.expr());
+                if (!this.peek(',')) break;
+                this.take(',');
+            }
+        }
         this.take(')'); return args;
     }
     count(name, args, count) { if (args.length !== count) this.error(`${name} expects ${count} arguments`); }
@@ -708,12 +717,15 @@ class Reader {
             const mainWasStarted = this.runtimeStarted;
             for (const v of this.vars.values()) delete v.constant;
             this.take(); const name = this.name(); this.take('('); const params = [];
-            if (!this.peek(')')) do {
-                const id = this.name(); this.take(':'); const type = this.type();
-                if (this.vars.has(id)) this.error(`Parameter shadowing ${id} is not supported`);
-                this.vars.set(id, {name: id, type, parameter: true}); params.push({id, type});
-                if (!this.peek(',')) break; this.take(',');
-            } while (true);
+            if (!this.peek(')')) {
+                for (;;) {
+                    const id = this.name(); this.take(':'); const type = this.type();
+                    if (this.vars.has(id)) this.error(`Parameter shadowing ${id} is not supported`);
+                    this.vars.set(id, {name: id, type, parameter: true}); params.push({id, type});
+                    if (!this.peek(',')) break;
+                    this.take(',');
+                }
+            }
             this.take(')'); this.take('is'); this.procs.set(name, params);
             this.inProc = name;
             this.definitions.push(`DEFINE ${name}${params.map(p => ` (${p.id})`).join('')}:`);
