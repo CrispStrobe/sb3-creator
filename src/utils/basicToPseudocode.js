@@ -669,9 +669,16 @@ export default function basicToPseudocode(source, opts = {}) {
  * are different operations, and the clock advances only on explicit delays. */
 function readPortableBasic(stmts, stats) {
     const diagnostics = [], variables = new Set(), pinIds = new Map(), pinNames = new Set();
+    const procedures = new Map(), parameterOwners = new Map();
+    const reservedNames = new Set(stmts.flatMap(statement => [...statement.text.matchAll(/\b[a-z_][a-z0-9_]*\b/g)].map(match => `cb_${match[0]}`)));
+    const reserveName = candidate => {
+        while (reservedNames.has(candidate)) candidate += '_';
+        reservedNames.add(candidate);
+        return candidate;
+    };
     const capabilities = Object.freeze({pseudocode: true, blocks: false, requiredRuntime: 'crispbasic',
         simulationABI: 2, freshRun: true, clock: 'explicit-integer-milliseconds'});
-    let current = stmts[0], device = null;
+    let current = stmts[0], device = null, activeProcedure = null;
     const fail = (code, message, statement = current) => {
         const line = statement?.sourceLine ?? 1, basicLine = statement?.lineNo ?? null;
         const diagnostic = {code: `crispbasic-read-${code}`, severity: 'error', line, basicLine,
@@ -695,13 +702,21 @@ function readPortableBasic(stmts, stats) {
         if (n.text === null) fail('boolean-value', 'A comparison embedded in arithmetic needs an explicit numeric assignment before conversion.');
         return n.text;
     };
-    const scalar = name => {
+    const scalar = (name, write = false) => {
         // The portable generator emits lowercase, unsuffixed numeric names.
         // BBC %-integer coercion, $-strings and case-distinct aliases need a
         // separate type contract; never erase these suffixes in this mode.
         if (!/^[a-z_][a-z0-9_]*$/.test(name) || /^bw_/.test(name)) {
             fail('variable', `Variable ${name} is outside the portable lowercase numeric scalar subset.`);
         }
+        if (activeProcedure?.parameters.has(name)) {
+            if (write) fail('procedure-scope', `Parameter ${name} is read-only in portable pseudocode; a mutable BASIC local cannot become a global variable.`);
+            return activeProcedure.parameters.get(name);
+        }
+        // BBC procedure parameters have dynamic scope. A free reference to a
+        // parameter owned by another routine can see the caller's local value,
+        // whereas a Scratch argument is lexical. Never guess at that boundary.
+        if (parameterOwners.has(name)) fail('procedure-scope', `Variable ${name} is also a procedure parameter; cross-procedure or global access needs an explicit scope contract.`);
         const mapped = `cb_${name}`;
         variables.add(mapped);
         return mapped;
@@ -784,6 +799,30 @@ function readPortableBasic(stmts, stats) {
         return result;
     };
     try {
+        // Discover signatures before walking bodies so forward calls, nested
+        // calls and recursion can be represented by ordinary custom blocks.
+        // Exact generated pen helpers are handled separately below.
+        for (const s of stmts) {
+            current = s;
+            if (!/^DEF PROC/.test(s.text) || s.text === 'DEF PROCpen_colour(c%)') continue;
+            const match = /^DEF PROC([a-z_][a-z0-9_]*)(?:\(([^()]*)\))?$/.exec(s.text);
+            if (!match) fail('procedure', 'Procedures require lowercase names and unsuffixed numeric parameters.');
+            const name = match[1];
+            if (CRISPBASIC_CALLS.has(`proc${name}`.toLowerCase()) || CRISPBASIC_UNSUPPORTED_CALLS.has(`proc${name}`.toLowerCase()) || /^pen_colour$|^bw_/.test(name)) {
+                fail('procedure', `PROC${name} shadows a reserved portable helper.`);
+            }
+            if (procedures.has(name)) fail('procedure', `Duplicate definition of PROC${name}.`);
+            const params = match[2] === undefined || match[2].trim() === '' ? [] : match[2].split(',').map(value => value.trim());
+            if (params.some(param => !/^[a-z_][a-z0-9_]*$/.test(param) || /^bw_/.test(param)) || new Set(params).size !== params.length) {
+                fail('procedure', `PROC${name} parameters must be distinct lowercase numeric scalars; strings, arrays, BYREF and type suffixes are not qualified.`);
+            }
+            const parameters = new Map(params.map(param => [param, reserveName(`cb_arg_${name}_${param}`)]));
+            procedures.set(name, {name: reserveName(`cb_proc_${name}`), parameters, statement: s, body: null});
+            for (const param of params) {
+                if (!parameterOwners.has(param)) parameterOwners.set(param, new Set());
+                parameterOwners.get(param).add(name);
+            }
+        }
         // Metadata provides names, never executable authority. Every declaration
         // must match exactly one static mode call before executable statements.
         const declarations = [];
@@ -863,10 +902,17 @@ function readPortableBasic(stmts, stats) {
                     const milliseconds = integer(m[1]);
                     if (milliseconds === null || milliseconds > 2147483647) fail('delay', 'Delay must be a literal integer from 0 through 2147483647 milliseconds.');
                     emit(`wait ${milliseconds / 1000} seconds`, depth);
-                } else if (/^PROCdelay\b/.test(t)) fail('delay', 'Computed delays require an integer/range proof; use an explicit integer millisecond duration.');
+                } else if (/^PROCdelay\b/.test(t)) fail('delay', 'Computed delays require the generated seconds range guard and integer-millisecond rounding, or an explicit integer millisecond duration.');
+                else if ((m = /^IF ([a-z_][a-z0-9_]*)<0 OR \1>2147483\.647 THEN ERROR 204,"CrispBASIC wait seconds outside 0\.\.2147483\.647"$/.exec(t)) &&
+                    stmts[cursor + 1]?.text === `PROCdelay(INT(${m[1]}*1000+0.5))`) {
+                    // Preserve the already-evaluated seconds scalar. The
+                    // generator recreates exactly this guard and rounding;
+                    // arbitrary computed PROCdelay calls remain refused.
+                    emit(`wait (${scalar(m[1])}) seconds`, depth); cursor++;
+                }
                 else if ((m = /^PRINT\s+"((?:[^"]|"")*)"$/.exec(t))) emit(`print ${JSON.stringify(m[1].replace(/""/g, '"'))}`, depth);
                 else if ((m = /^PRINT\s+(.+)$/.exec(t))) emit(`print ${numberText(expression(m[1]), depth)}`, depth);
-                else if ((m = /^([a-z_][a-z0-9_]*)\s*=\s*(.+)$/.exec(t))) emit(`set ${scalar(m[1])} to ${numberText(expression(m[2]), depth)}`, depth);
+                else if ((m = /^([a-z_][a-z0-9_]*)\s*=\s*(.+)$/.exec(t))) emit(`set ${scalar(m[1], true)} to ${numberText(expression(m[2]), depth)}`, depth);
                 else if ((m = /^FOR ([a-z_][a-z0-9_]*)=1 TO (\d+)$/.exec(t))) {
                     const count = integer(m[2]);
                     if (count === null || count < 1 || count > 1000000) fail('for', 'FOR conversion supports literal iteration counts from 1 through 1000000.');
@@ -917,8 +963,46 @@ function readPortableBasic(stmts, stats) {
                         !stmts.slice(0, definition).some(statement => statement.text === 'END')) fail('canvas', 'The exact generated pen-colour helper is required.');
                     emit(`set pen color to ${m[1]}`, depth);
                 } else if (t === 'DEF PROCpen_colour(c%)' && stmts[cursor + 1]?.text === 'GCOL 0,(c% MOD 8)+1' && stmts[cursor + 2]?.text === 'ENDPROC') {
-                    if (depth !== 1 || !topEnded) fail('canvas', 'Pen helper definitions must follow top-level END.');
+                    if (depth !== 1 || activeProcedure || !topEnded) fail('canvas', 'Pen helper definitions must follow top-level END.');
                     cursor += 2;
+                } else if ((m = /^DEF PROC([a-z_][a-z0-9_]*)(?:\([^()]*\))?$/.exec(t))) {
+                    if (depth !== 1 || activeProcedure || !topEnded) fail('procedure', 'Procedure definitions must follow top-level END and cannot be nested.');
+                    const procedure = procedures.get(m[1]);
+                    if (!procedure || procedure.statement !== s) fail('procedure', 'Unrecognized or duplicate procedure definition.');
+                    const start = out.length;
+                    activeProcedure = procedure; cursor++;
+                    walk(1, [/^ENDPROC$/]);
+                    if (stmts[cursor]?.text !== 'ENDPROC') fail('procedure', `Missing ENDPROC for ${m[1]}.`);
+                    procedure.body = out.splice(start);
+                    activeProcedure = null;
+                } else if ((m = /^PROC([a-z_][a-z0-9_]*)(?:\((.*)\))?$/.exec(t))) {
+                    const procedure = procedures.get(m[1]);
+                    if (!procedure) fail('procedure', `PROC${m[1]} has no qualified definition.`);
+                    const args = [];
+                    let nesting = 0, start = 0;
+                    const text = m[2] ?? '';
+                    for (let at = 0; at <= text.length; at++) {
+                        if (text[at] === '(') nesting++;
+                        else if (text[at] === ')') nesting--;
+                        if (nesting < 0) fail('procedure', `Unbalanced arguments for PROC${m[1]}.`);
+                        if (at === text.length || text[at] === ',' && nesting === 0) {
+                            if (text.length) args.push(text.slice(start, at).trim());
+                            start = at + 1;
+                        }
+                    }
+                    if (nesting || args.some(arg => !arg) || args.length !== procedure.parameters.size) fail('procedure', `PROC${m[1]} expects ${procedure.parameters.size} numeric argument(s).`);
+                    // Every argument is sampled left-to-right before the call.
+                    // This also keeps a Boolean materialization from moving
+                    // ahead of an earlier electrical read in another argument.
+                    const snapshots = args.map(arg => {
+                        const value = numberText(expression(arg), depth);
+                        let name;
+                        do { name = `cb_call_${temporary++}`; }
+                        while (variables.has(name) || stmts.some(statement => new RegExp(`\\b${name.slice(3)}\\b`).test(statement.text)));
+                        variables.add(name); emit(`set ${name} to ${value}`, depth);
+                        return `(${name})`;
+                    });
+                    emit(`${procedure.name}${snapshots.length ? ` ${snapshots.join(' ')}` : ''}`, depth);
                 } else if (t === 'CLG') emit('clear', depth);
                 else if ((m = /^(MOVE|DRAW) (-?\d+),(-?\d+)$/.exec(t))) {
                     const x = Number(m[2]), y = Number(m[3]);
@@ -938,6 +1022,10 @@ function readPortableBasic(stmts, stats) {
         if (device) header.push(`DEVICE ${device.toUpperCase()}`);
         for (const pin of pinIds.values()) header.push(`PIN ${pin.name} = ${pin.where} ${pin.direction.toUpperCase()}${pin.activeLow ? ' ACTIVE LOW' : ''}`);
         for (const name of variables) header.push(`GLOBAL ${name}`);
+        for (const procedure of procedures.values()) {
+            if (procedure.body === null) fail('procedure', `Procedure ${procedure.name} was not completely converted.`);
+            header.push('', `DEFINE ${procedure.name}${[...procedure.parameters.values()].map(param => ` (${param})`).join('')}:`, ...procedure.body);
+        }
         header.push('', 'WHEN flag clicked:');
         return {ok: true, mode: 'crispbasic', pseudocode: `${header.join('\n')}\n${out.join('\n')}\n`,
             reasons: [], warnings: ['Portable source round trip requires CrispBASIC execution; To blocks is not qualified.'], diagnostics, stats, capabilities};
