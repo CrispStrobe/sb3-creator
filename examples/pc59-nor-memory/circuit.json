@@ -195,7 +195,7 @@
   {
    "from": "set",
    "fromTerminal": "b",
-   "to": "g1",
+   "to": "g2",
    "toTerminal": "in0"
   },
   {
@@ -219,7 +219,7 @@
   {
    "from": "reset",
    "fromTerminal": "b",
-   "to": "g2",
+   "to": "g1",
    "toTerminal": "in0"
   },
   {
@@ -315,7 +315,7 @@
    "ref": "bbw:bb1:gen_1",
    "boardId": "bb1",
    "a": "g43",
-   "b": "b27",
+   "b": "b32",
    "color": "green"
   },
   {
@@ -343,7 +343,7 @@
    "ref": "bbw:bb1:gen_5",
    "boardId": "bb1",
    "a": "g47",
-   "b": "b32",
+   "b": "b27",
    "color": "yellow"
   },
   {

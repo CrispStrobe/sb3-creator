@@ -38,6 +38,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import SB3Creator from '../src/utils/sb3Creator.js';
+import {assembleCardiac} from '../src/utils/cardiacProgram.js';
 import { allowsRetargeting, isRetargetableExample } from '../scripts/lib/authored-transform.mjs';
 
 const EXAMPLES = join(import.meta.dirname, '..', 'examples');
@@ -228,16 +229,21 @@ describe('index metadata agrees with the files and the compiler', () => {
             + 'the eight found in the 2026-08-23 sweep had all become false.');
     });
 
-    // `target` names the machine a circuit example runs on (the CP1 lessons
-    // carry the machine part's kind). scripts/lib/example-enrolment.mjs enrols
-    // on it, so it is a claim about the circuit: the entry's own circuit file
-    // must seat a part of exactly that kind.
-    test('target names a machine the entry\'s circuit actually seats', () => {
+    // A circuit target must seat its named part. A standalone CARDIAC target
+    // instead carries source for its own verified assembler and machine entry.
+    test('target names the seated machine or a valid standalone CARDIAC program', () => {
         const wrong = [];
         for (const entry of index) {
             if (entry.target === undefined) continue;
             const rel = entry.files?.circuit;
             if (typeof entry.target !== 'string' || !entry.target) { wrong.push(`${entry.id}: target is not a kind`); continue; }
+            if (!rel && entry.target === 'cardiac' && typeof entry.files?.cardiac === 'string') {
+                try {
+                    const assembly = assembleCardiac(readFileSync(join(EXAMPLES, entry.files.cardiac), 'utf8'));
+                    if (!assembly.ok || !assembly.words.length || assembly.entry === null) wrong.push(`${entry.id}: no assembled CARDIAC entry`);
+                } catch { wrong.push(`${entry.id}: CARDIAC source is unavailable`); }
+                continue;
+            }
             if (!rel || !existsSync(join(EXAMPLES, rel))) { wrong.push(`${entry.id}: target ${entry.target} but no circuit file`); continue; }
             const parts = JSON.parse(readFileSync(join(EXAMPLES, rel), 'utf8')).parts || [];
             if (!parts.some(p => p.kind === entry.target))

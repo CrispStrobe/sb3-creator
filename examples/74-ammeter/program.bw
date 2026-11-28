@@ -12,14 +12,16 @@ PIN shunt = A0 ANALOG
 STAGE:
   WHEN flag clicked:
     FOREVER:
-      # voltage across the 10-ohm shunt, in millivolts
-      set mv to read shunt * 5000 / 1023
-      # I = V / R: mV across 10 ohms -> tenths of a milliamp
-      set ma to mv / 10
+      # One millivolt across the 10-ohm shunt is one tenth of a milliamp.
+      set tenths to floor of ((read shunt * 5000 + 511) / 1023)
+      set digit to tenths mod 10
+      set whole to (tenths - digit) / 10
       lcd clear 1
       lcd set cursor 0 0 on 1
       lcd print "AMMETER" on 1
       lcd set cursor 1 0 on 1
-      lcd print (ma) on 1
+      lcd print (whole) on 1
+      lcd print "." on 1
+      lcd print (digit) on 1
       lcd print " mA" on 1
       wait 0.2 seconds

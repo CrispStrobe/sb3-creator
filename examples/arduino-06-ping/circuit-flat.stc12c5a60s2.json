@@ -67,7 +67,7 @@
       "netId": "bb1:n-col-t22",
       "from": {
         "part": "board",
-        "terminal": "P3.2"
+        "terminal": "P1.1"
       },
       "to": {
         "part": "us",

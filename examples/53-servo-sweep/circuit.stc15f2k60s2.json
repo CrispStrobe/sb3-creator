@@ -35,7 +35,7 @@
    "kind": "stc15_mcu",
    "params": {},
    "terminals": [
-    "p1.0"
+    "P1.3"
    ],
    "seat": {
     "boardId": "bb1",
@@ -109,7 +109,7 @@
  "wires": [
   {
    "from": "MCU",
-   "fromTerminal": "p1.0",
+   "fromTerminal": "P1.3",
    "to": "SERVO_servo",
    "toTerminal": "signal"
   },

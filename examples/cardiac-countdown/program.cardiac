@@ -1,0 +1,14 @@
+; Original Brickwright CARDIAC example: zero is not negative.
+ORG 01
+ENTRY start
+start: INP remaining
+again: CLA remaining
+       TAC done
+       OUT remaining
+       SUB one
+       STO remaining
+       JMP again
+done:  HRS
+ORG 80
+remaining: DAT 0
+one:       DAT 1

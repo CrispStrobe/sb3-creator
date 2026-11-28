@@ -247,18 +247,6 @@
       }
     },
     {
-      "id": "wire_24",
-      "netId": "net_13",
-      "from": {
-        "part": "timer_555_3",
-        "terminal": "control"
-      },
-      "to": {
-        "part": "gnd_2",
-        "terminal": "gnd"
-      }
-    },
-    {
       "id": "wire_26",
       "netId": "net_25",
       "from": {
@@ -293,8 +281,7 @@
         "part": "gnd_2",
         "terminal": "gnd"
       }
-    }
-    ,
+    },
     {
       "id": "wire_30",
       "netId": "net_21",

@@ -84,7 +84,7 @@
    "y": 115
   },
   {
-   "id": "R_PD_btn",
+   "id": "R_PU_btn",
    "kind": "resistor",
    "params": {
     "ohms": 4700
@@ -166,13 +166,13 @@
   {
    "from": "board",
    "fromTerminal": "pa1",
-   "to": "R_PD_btn",
+   "to": "R_PU_btn",
    "toTerminal": "a"
   },
   {
-   "from": "R_PD_btn",
-   "toTerminal": "gnd",
-   "to": "gnd1",
+   "from": "R_PU_btn",
+   "toTerminal": "vcc",
+   "to": "vcc1",
    "fromTerminal": "b"
   }
  ],

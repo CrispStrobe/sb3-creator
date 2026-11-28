@@ -64,6 +64,32 @@
    "x": 60,
    "y": -120,
    "rotation": 0
+  },
+  {
+   "id": "echoSeries",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1000
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 678,
+   "y": 171
+  },
+  {
+   "id": "echoGround",
+   "kind": "resistor",
+   "params": {
+    "ohms": 1800
+   },
+   "terminals": [
+    "a",
+    "b"
+   ],
+   "x": 680,
+   "y": 110
   }
  ],
  "wires": [
@@ -106,10 +132,28 @@
    "toTerminal": "trig"
   },
   {
-   "from": "board",
-   "fromTerminal": "pa1",
-   "to": "us",
-   "toTerminal": "echo"
+   "from": "us",
+   "fromTerminal": "echo",
+   "to": "echoSeries",
+   "toTerminal": "a"
+  },
+  {
+   "from": "echoSeries",
+   "fromTerminal": "b",
+   "to": "board",
+   "toTerminal": "pa1"
+  },
+  {
+   "from": "echoSeries",
+   "fromTerminal": "b",
+   "to": "echoGround",
+   "toTerminal": "a"
+  },
+  {
+   "from": "echoGround",
+   "fromTerminal": "b",
+   "to": "gnd1",
+   "toTerminal": "gnd"
   },
   {
    "from": "board",

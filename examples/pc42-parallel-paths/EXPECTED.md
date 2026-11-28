@@ -17,4 +17,6 @@ wiring (pos→R→LED→GND, neg→GND).
 ```assert
 # Supply: 9V source
 net src.pos V 9.00 +-0.01
+current led1 mA -14.9 +-1.0
+current led2 mA -7.0 +-0.6
 ```

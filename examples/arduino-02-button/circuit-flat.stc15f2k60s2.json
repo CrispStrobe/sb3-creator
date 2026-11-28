@@ -56,7 +56,7 @@
       "id": "r2",
       "kind": "resistor",
       "params": {
-        "ohms": 10000
+        "ohms": 2200
       },
       "terminals": [
         "a",

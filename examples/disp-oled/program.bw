@@ -10,11 +10,11 @@ STAGE:
   WHEN flag clicked:
     oled clear 1
     oled print "OLED DEMO" on 1
-    oled set cursor 0 2 on 1
+    oled set cursor 2 0 on 1
     oled print "Brickwright" on 1
     set count to 0
     FOREVER:
-      oled set cursor 0 4 on 1
+      oled set cursor 4 0 on 1
       oled print "Count: " on 1
       oled print count on 1
       oled print "  " on 1

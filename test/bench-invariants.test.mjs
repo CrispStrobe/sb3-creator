@@ -317,7 +317,9 @@ describe('bench invariants: every device bench, canonical loader', { skip: gate.
           const protectedBy = bparts.filter(p => p.kind === 'diode').find(diode =>
             low?.terminals.some(t => t.part === diode.id && t.terminal === 'anode') &&
             high?.terminals.some(t => t.part === diode.id && t.terminal === 'cathode'));
-          if (!protectedBy) problems.push(`${rel}: ${load.id} has no correctly oriented flyback diode`);
+          const bridge = load.kind === 'dc_motor' ? circ.board._motorBridge(load)?.bridge : null;
+          const hasBridgeClamps = bridge && bridge.params?.clampDiodes !== false;
+          if (!protectedBy && !hasBridgeClamps) problems.push(`${rel}: ${load.id} has no correctly oriented flyback diode`);
         }
       }
 

@@ -29,7 +29,7 @@ the reading for the current mode every 50 ms.
 |---|---|
 | mode V, source pot 60% | `2.83` (pin 0.708 V × 4, dp lit) |
 | mode V, source pot 90% | `4.39` |
-| mode A | `097` (LM358 out 92.9 mV → mA via ×50/47) |
+| mode A, load pot 50% | `092` (LM358 out 88.58 mV → mA via ×50/47) |
 | mode T, NTC control 0 | `-19` (R=100 kΩ, −19.2 °C truth; minus = segment g) |
 | mode T, control 0.25 | `1.0` (1.16 °C truth) |
 | mode T, control 0.5 | `25.0` (R=10 kΩ = 25.00 °C truth) |
@@ -37,28 +37,23 @@ the reading for the current mode every 50 ms.
 | mode T, control 1.0 | `87.9` (87.72 °C truth) |
 | 3rd press | wraps back to mode V |
 
-Mode A's digits are derived, not recorded. The A row used to say `067`,
-and that was the LM358 defect showing through firmware, emulator, MNA
-and seven-segment decode: bw-board's damped integrator realised gain
-31.06 instead of the 1 + 100 k/2.2 k = 46.4545 the stage is built for,
-so the amplifier output was 62.10 mV and the ADC read 13 counts. The
-document was self-inconsistent about it — it stated ×46.5 AND recorded
-`067` for a current that measures 99.96 mA. bw-board `999eb66` (D18)
-made the op-amp halt on the input error rather than on its own output
-step, and the stage now realises 46.4545455545 at every input:
+The MODE-button regression test observes `092` on bw-board `d21d6d8b`.
+The LM358 model includes finite open-loop gain and input bias current.
+The feedback resistors turn the inverting input bias into an output
+offset of about −4.25 mV (hand-derived from the bias current and those resistors). The small-signal gain is about 46.433.
 
     load1 at 50 %  = 50 Ω in series with the 0.02 Ω shunt
-    I      = 5 / 50.02                  = 99.9600 mA   (measured 99.96002)
-    Vshunt = I × 0.02                   =  1.99920 mV  (measured 1.9992003)
-    Vout   = Vshunt × (1 + 100k/2.2k)   = 92.8719 mV   (measured 92.87194)
-    raw    = round(92.8719 / 5000 × 1023) = 19         (19.0016 before rounding)
-    mV     = 19 × 5000 / 1023           = 92           (integer division)
-    mA     = 92 × 50 / 47               = 97           → `0 9 7`
+    I      = 5 / 50.02                   = 99.9600 mA
+    Vshunt = I × 0.02                    =  1.99920 mV
+    Vout   ≈ 46.433 × Vshunt − 4.25 mV   ≈ 88.58 mV measured
+    raw    = round(88.58 / 5000 × 1023)  = 18
+    mV     = 18 × 5000 / 1023            = 87 (integer division)
+    mA     = 87 × 50 / 47                = 92 → `0 9 2`
 
-The residual 97 against a true 99.96 mA is the firmware's own 50/47
-scale (1.06383 against the exact 1/(46.4545 × 0.02) = 1.07639) plus the
-two integer truncations — the program approximating, not the engine.
-Modes V and T are untouched by D18.
+The difference from 99.96 mA includes the amplifier offset, ADC
+quantisation, and the firmware's approximate 50/47 scale and integer
+truncation. The earlier D18 model without input bias gave `097`.
+An older solver that stopped settling early gave `067`.
 
 Mode T is real °C now (stage two, 2026-08-17): an 11-segment
 piecewise-linear map of the B-equation (B = 3950, 10 kΩ at 25 °C)
@@ -84,6 +79,6 @@ suite that touches either.
 ```assert
 # Supply rail: VCC = 5.0V
 net vcc1.vcc V 5.00 +-0.01
-# Pot at 50%: wiper = 5.0 × 0.5 = 2.500V
-net vsrc1.wiper V 2.50 +-0.05
+# The source pot is preset to 60%. The divider loads its wiper to 2.83 V.
+net vsrc1.wiper V 2.83 +-0.05
 ```

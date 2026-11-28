@@ -67,7 +67,8 @@
         "b"
       ],
       "x": 400,
-      "y": 255
+      "y": 255,
+      "declName": "pot"
     },
     {
       "id": "led1",
@@ -80,7 +81,8 @@
         "cathode"
       ],
       "x": 568,
-      "y": 255
+      "y": 255,
+      "declName": "led"
     },
     {
       "id": "r1",
@@ -93,7 +95,8 @@
         "b"
       ],
       "x": 484,
-      "y": 255
+      "y": 255,
+      "declName": "r1"
     },
     {
       "id": "vcc1",
@@ -136,7 +139,7 @@
       "netId": "bb1:n-col-t33",
       "from": {
         "part": "board",
-        "terminal": "gp25"
+        "terminal": "gp15"
       },
       "to": {
         "part": "r1",

@@ -13,8 +13,8 @@ Each digit stays for one second.
 3. Count by 2: use `change digit by 2` and wrap at `digit > 9`.
 
 ## What is going on
-`show digit N on 1` drives the 7-segment display with the digit N (0–9).
-The MCU sets the right combination of segments (a–g) for each numeral.
+The program looks up the segment pattern for each digit (0–9) in `font`.
+The MCU writes the seven bits to outputs a–g.
 The display is common-cathode; each segment is a separate GPIO pin.
 
 ## Why it matters

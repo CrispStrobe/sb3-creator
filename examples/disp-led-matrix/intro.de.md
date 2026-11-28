@@ -8,8 +8,8 @@ Eine 8×8-LED-Matrix (MAX7219) mit einem wandernden Leuchtbalken.
 
 ## Probier das
 1. Starte das Programm — ein vertikaler Balken wandert über die Matrix.
-2. Ändere die `set pixel`-Zeilen für eigene Muster.
+2. Ändere den Musterwert 255, um andere LEDs in der Spalte einzuschalten.
 
 ## Was passiert hier
-Der MAX7219 steuert die Matrix über SPI. `clear matrix` löscht, `set pixel`
-schaltet einzelne LEDs ein. Das Multiplexing übernimmt der Chip.
+Das Programm sendet über DIN, CLK und CS je eine Adresse und ein
+Musterbyte an den MAX7219. Der Chip übernimmt das Multiplexing.

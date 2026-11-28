@@ -5,20 +5,24 @@ PIN clock = P1.1 OUTPUT
 PIN latch = P1.2 OUTPUT
 
 # Count 0-255 on 8 LEDs via 74HC595 shift register
+# Write electrical pin levels so the serial protocol keeps its polarity on every board.
 WHEN flag clicked:
+  set latch to 0
+  set clock to 0
+  set data to 0
   set counter to 0
   FOREVER:
     set val to counter
     REPEAT 8:
       IF (val bitand 128) > 0 THEN:
-        turn on data
+        set data to 1
       ELSE:
-        turn off data
-      turn on clock
-      turn off clock
+        set data to 0
+      set clock to 1
+      set clock to 0
       set val to (val shiftleft 1) bitand 255
-    turn on latch
-    turn off latch
+    set latch to 1
+    set latch to 0
     change counter by 1
     IF counter > 255 THEN:
       set counter to 0

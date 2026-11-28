@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "mode": "play",
+  "widgets": [
+    {
+      "name": "LCD",
+      "type": "lcd",
+      "config": {
+        "rows": 2,
+        "cols": 16
+      },
+      "layout": {
+        "x": 10,
+        "y": 10,
+        "w": 300,
+        "h": 90
+      },
+      "binding": {
+        "target": "part",
+        "partId": "lcd"
+      }
+    }
+  ]
+}

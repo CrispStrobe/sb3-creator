@@ -6,9 +6,9 @@ PIN led1 = P1.1 OUTPUT ACTIVE LOW
 # Click a relay on and off every 2 seconds; LED mirrors the relay state
 WHEN flag clicked:
   FOREVER:
-    turn on relay_ctrl
+    set relay_ctrl to 1
     turn on led1
     wait 2 seconds
-    turn off relay_ctrl
+    set relay_ctrl to 0
     turn off led1
     wait 2 seconds

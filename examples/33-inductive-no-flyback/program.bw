@@ -6,7 +6,7 @@ PIN motor_ctrl = P1.0 OUTPUT
 # This example shows the WRONG way (no diode) and the RIGHT way (with diode).
 WHEN flag clicked:
   FOREVER:
-    turn on motor_ctrl
+    set motor_ctrl to 1
     wait 1 seconds
-    turn off motor_ctrl
+    set motor_ctrl to 0
     wait 1 seconds

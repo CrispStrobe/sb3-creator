@@ -11,7 +11,7 @@
 - Released again: within a few milliseconds the output is back near 4.57 V and the LED is dark.
 
 ## Measured on the engine
-bw-board f48ea7ce, `test/lab-circuits-r7b.test.mjs` (10 ms idle, 5 ms key held, 8 ms released): idle output 4.527 V with the LED dark; held 6.21 V, LED 2.63 mA, the drain's RF 14.9 times the gate's; released 4.56 V, LED dark again. Re-measured 2026-11-26: the transmitter's swing is lower after bw-board #760's band changes (3.5 V of RF at its tank; on b094eb22 the held key gave 7.16 V and 4.51 mA).
+bw-board 792f8dfb, `test/lab-circuits-r7b.test.mjs` (10 ms idle, 5 ms key held, 8 ms released): idle output 4.527 V with the LED dark; held 6.37 V, LED 2.96 mA, the drain's RF 13.3 times the gate's, the transmitter's rod carrying its 3.0 mA collector current; released 4.56 V, LED dark again. Re-measured 2026-11-26: the transmitter's swing is lower after bw-board #760's band changes (5.8 V of RF at its tank; on b094eb22 the held key gave 7.16 V and 4.51 mA).
 
 ## What this verifies
 1. A carrier alone, detected and DC-amplified, can switch something: the simplest radio remote control.
@@ -26,9 +26,9 @@ net zener_27.cathode V 3.35 +-0.1
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@de8083c` and `bw-circuit-ui@ee2b412` — the revisions pinned in
+> `bw-board@d21d6d8` and `bw-circuit-ui@d9e0982` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
-> **16 of this page's 33** numeric claims against that engine
+> **16 of this page's 34** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;
 > `node scripts/expected-claim-census.mjs lab-rf-remote` prints them one by one.
 <!-- engine-provenance -->

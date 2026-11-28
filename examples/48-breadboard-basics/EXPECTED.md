@@ -46,4 +46,5 @@ is connected internally.
 ```assert
 # Battery: 9.0V (default for battery part)
 net bat1.pos V 9.00 +-0.01
+current led1 mA -7.0 +-0.7
 ```

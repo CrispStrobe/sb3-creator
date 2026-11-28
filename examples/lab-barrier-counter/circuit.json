@@ -23,7 +23,8 @@
       "id": "vsource_2",
       "kind": "vsource",
       "params": {
-        "volts": 5
+        "volts": 5,
+        "riseSec": 0.00001
       },
       "x": 167,
       "y": 213,
@@ -506,28 +507,7 @@
       ]
     },
     {
-      "id": "capacitor_25",
-      "kind": "capacitor",
-      "params": {
-        "farads": 1e-9
-      },
-      "x": 877,
-      "y": 495,
-      "rotation": 0,
-      "seat": {
-        "boardId": "breadboard_1",
-        "leadMap": {
-          "a": "j57",
-          "b": "j58"
-        }
-      },
-      "terminals": [
-        "a",
-        "b"
-      ]
-    },
-    {
-      "id": "74hc93_26",
+      "id": "74hc93_25",
       "kind": "74hc93",
       "params": {},
       "x": 156,
@@ -570,7 +550,7 @@
       ]
     },
     {
-      "id": "button_27",
+      "id": "button_26",
       "kind": "button",
       "params": {},
       "x": 240,
@@ -589,7 +569,7 @@
       ]
     },
     {
-      "id": "resistor_28",
+      "id": "resistor_27",
       "kind": "resistor",
       "params": {
         "ohms": 10000
@@ -610,7 +590,7 @@
       ]
     },
     {
-      "id": "resistor_29",
+      "id": "resistor_28",
       "kind": "resistor",
       "params": {
         "ohms": 470
@@ -631,7 +611,7 @@
       ]
     },
     {
-      "id": "led_30",
+      "id": "led_29",
       "kind": "led",
       "params": {
         "color": "red"
@@ -652,7 +632,7 @@
       ]
     },
     {
-      "id": "resistor_31",
+      "id": "resistor_30",
       "kind": "resistor",
       "params": {
         "ohms": 470
@@ -673,7 +653,7 @@
       ]
     },
     {
-      "id": "led_32",
+      "id": "led_31",
       "kind": "led",
       "params": {
         "color": "red"
@@ -694,7 +674,7 @@
       ]
     },
     {
-      "id": "resistor_33",
+      "id": "resistor_32",
       "kind": "resistor",
       "params": {
         "ohms": 470
@@ -715,7 +695,7 @@
       ]
     },
     {
-      "id": "led_34",
+      "id": "led_33",
       "kind": "led",
       "params": {
         "color": "red"
@@ -736,7 +716,7 @@
       ]
     },
     {
-      "id": "diode_35",
+      "id": "diode_34",
       "kind": "diode",
       "params": {
         "part": "1N4148"
@@ -757,7 +737,7 @@
       ]
     },
     {
-      "id": "diode_36",
+      "id": "diode_35",
       "kind": "diode",
       "params": {
         "part": "1N4148"
@@ -778,7 +758,7 @@
       ]
     },
     {
-      "id": "resistor_37",
+      "id": "resistor_36",
       "kind": "resistor",
       "params": {
         "ohms": 4700
@@ -799,7 +779,7 @@
       ]
     },
     {
-      "id": "diode_38",
+      "id": "diode_37",
       "kind": "diode",
       "params": {
         "part": "1N4148"
@@ -820,7 +800,7 @@
       ]
     },
     {
-      "id": "resistor_39",
+      "id": "resistor_38",
       "kind": "resistor",
       "params": {
         "ohms": 1000
@@ -841,7 +821,7 @@
       ]
     },
     {
-      "id": "resistor_40",
+      "id": "resistor_39",
       "kind": "resistor",
       "params": {
         "ohms": 10000
@@ -862,7 +842,7 @@
       ]
     },
     {
-      "id": "npn_41",
+      "id": "npn_40",
       "kind": "npn",
       "params": {
         "beta": 100
@@ -885,7 +865,7 @@
       ]
     },
     {
-      "id": "relay_dpdt_42",
+      "id": "relay_dpdt_41",
       "kind": "relay_dpdt",
       "params": {
         "coilR": 200
@@ -918,7 +898,7 @@
       ]
     },
     {
-      "id": "diode_43",
+      "id": "diode_42",
       "kind": "diode",
       "params": {
         "part": "1N4148"
@@ -939,7 +919,7 @@
       ]
     },
     {
-      "id": "resistor_44",
+      "id": "resistor_43",
       "kind": "resistor",
       "params": {
         "ohms": 220
@@ -960,7 +940,7 @@
       ]
     },
     {
-      "id": "led_45",
+      "id": "led_44",
       "kind": "led",
       "params": {
         "color": "green"
@@ -981,7 +961,7 @@
       ]
     },
     {
-      "id": "light_path_46",
+      "id": "light_path_45",
       "kind": "light_path",
       "params": {
         "from": "ir_transmitter_9",
@@ -1040,11 +1020,11 @@
       "color": "white"
     },
     {
-      "id": "w_43",
-      "netId": "net_43",
+      "id": "w_42",
+      "netId": "net_42",
       "from": {
         "board": "breadboard_1",
-        "hole": "g57"
+        "hole": "e55"
       },
       "to": {
         "board": "breadboard_1_2",
@@ -1053,8 +1033,8 @@
       "color": "blue"
     },
     {
-      "id": "w_87",
-      "netId": "net_87",
+      "id": "w_85",
+      "netId": "net_85",
       "from": {
         "board": "breadboard_1",
         "hole": "t-63"
@@ -1066,8 +1046,8 @@
       "color": "black"
     },
     {
-      "id": "w_88",
-      "netId": "net_88",
+      "id": "w_86",
+      "netId": "net_86",
       "from": {
         "part": "vsource_2",
         "terminal": "neg"
@@ -1347,308 +1327,294 @@
       "color": "white"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_42",
-      "boardId": "breadboard_1",
-      "a": "e55",
-      "b": "f57",
-      "color": "blue"
-    },
-    {
-      "ref": "bbw:breadboard_1_2:bbw_44",
+      "ref": "bbw:breadboard_1_2:bbw_43",
       "boardId": "breadboard_1_2",
       "a": "c3",
       "b": "e52",
       "color": "blue"
     },
     {
-      "ref": "bbw:breadboard_1_2:bbw_45",
+      "ref": "bbw:breadboard_1_2:bbw_44",
       "boardId": "breadboard_1_2",
       "a": "g3",
       "b": "d5",
       "color": "green"
     },
     {
-      "ref": "bbw:breadboard_1_2:bbw_46",
+      "ref": "bbw:breadboard_1_2:bbw_45",
       "boardId": "breadboard_1_2",
       "a": "c5",
       "b": "f14",
       "color": "green"
     },
     {
-      "ref": "bbw:breadboard_1_2:bbw_47",
+      "ref": "bbw:breadboard_1_2:bbw_46",
       "boardId": "breadboard_1_2",
       "a": "g14",
       "b": "e33",
       "color": "green"
     },
     {
-      "ref": "bbw:breadboard_1_2:bbw_48",
+      "ref": "bbw:breadboard_1_2:bbw_47",
       "boardId": "breadboard_1_2",
       "a": "d8",
       "b": "f20",
       "color": "yellow"
     },
     {
-      "ref": "bbw:breadboard_1_2:bbw_49",
+      "ref": "bbw:breadboard_1_2:bbw_48",
       "boardId": "breadboard_1_2",
       "a": "d9",
       "b": "f26",
       "color": "orange"
     },
     {
-      "ref": "bbw:breadboard_1_2:bbw_50",
+      "ref": "bbw:breadboard_1_2:bbw_49",
       "boardId": "breadboard_1_2",
       "a": "g26",
       "b": "f34",
       "color": "orange"
     },
     {
-      "ref": "bbw:breadboard_1_2:bbw_51",
+      "ref": "bbw:breadboard_1_2:bbw_50",
       "boardId": "breadboard_1_2",
       "a": "e31",
       "b": "f32",
       "color": "purple"
     },
     {
-      "ref": "bbw:breadboard_1_2:bbw_52",
+      "ref": "bbw:breadboard_1_2:bbw_51",
       "boardId": "breadboard_1_2",
       "a": "g32",
       "b": "f36",
       "color": "purple"
     },
     {
-      "ref": "bbw:breadboard_1_2:bbw_53",
+      "ref": "bbw:breadboard_1_2:bbw_52",
       "boardId": "breadboard_1_2",
       "a": "g36",
       "b": "e39",
       "color": "purple"
     },
     {
-      "ref": "bbw:breadboard_1_2:bbw_54",
+      "ref": "bbw:breadboard_1_2:bbw_53",
       "boardId": "breadboard_1_2",
       "a": "f38",
       "b": "f40",
       "color": "white"
     },
     {
-      "ref": "bbw:breadboard_1_2:bbw_55",
+      "ref": "bbw:breadboard_1_2:bbw_54",
       "boardId": "breadboard_1_2",
       "a": "e41",
       "b": "f44",
       "color": "blue"
     },
     {
-      "ref": "bbw:breadboard_1_2:bbw_56",
+      "ref": "bbw:breadboard_1_2:bbw_55",
       "boardId": "breadboard_1_2",
       "a": "g44",
       "b": "f47",
       "color": "blue"
     },
     {
-      "ref": "bbw:breadboard_1_2:bbw_57",
+      "ref": "bbw:breadboard_1_2:bbw_56",
       "boardId": "breadboard_1_2",
       "a": "g4",
       "b": "g5",
       "color": "green"
     },
     {
-      "ref": "bbw:breadboard_1_2:bbw_58",
+      "ref": "bbw:breadboard_1_2:bbw_57",
       "boardId": "breadboard_1_2",
       "a": "h5",
       "b": "g12",
       "color": "green"
     },
     {
-      "ref": "bbw:breadboard_1_2:bbw_59",
+      "ref": "bbw:breadboard_1_2:bbw_58",
       "boardId": "breadboard_1_2",
       "a": "h12",
       "b": "e14",
       "color": "green"
     },
     {
-      "ref": "bbw:breadboard_1_2:bbw_60",
+      "ref": "bbw:breadboard_1_2:bbw_59",
       "boardId": "breadboard_1_2",
       "a": "f18",
       "b": "e20",
       "color": "yellow"
     },
     {
-      "ref": "bbw:breadboard_1_2:bbw_61",
+      "ref": "bbw:breadboard_1_2:bbw_60",
       "boardId": "breadboard_1_2",
       "a": "f24",
       "b": "e24",
       "color": "orange"
     },
     {
-      "ref": "bbw:breadboard_1_2:bbw_62",
+      "ref": "bbw:breadboard_1_2:bbw_61",
       "boardId": "breadboard_1_2",
       "a": "e28",
       "b": "f30",
       "color": "purple"
     },
     {
-      "ref": "bbw:breadboard_1_2:bbw_63",
+      "ref": "bbw:breadboard_1_2:bbw_62",
       "boardId": "breadboard_1_2",
       "a": "f48",
       "b": "e48",
       "color": "white"
     },
     {
-      "ref": "bbw:breadboard_1_2:bbw_64",
+      "ref": "bbw:breadboard_1_2:bbw_63",
       "boardId": "breadboard_1_2",
       "a": "d48",
       "b": "f50",
       "color": "white"
     },
     {
-      "ref": "bbw:breadboard_1_2:bbw_65",
+      "ref": "bbw:breadboard_1_2:bbw_64",
       "boardId": "breadboard_1_2",
       "a": "e54",
       "b": "f54",
       "color": "blue"
     },
     {
-      "ref": "bbw:breadboard_1_2:bbw_66",
+      "ref": "bbw:breadboard_1_2:bbw_65",
       "boardId": "breadboard_1_2",
       "a": "f58",
       "b": "e58",
       "color": "green"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_67",
+      "ref": "bbw:breadboard_1:bbw_66",
       "boardId": "breadboard_1",
       "a": "i3",
       "b": "b-3",
       "color": "black"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_68",
+      "ref": "bbw:breadboard_1:bbw_67",
       "boardId": "breadboard_1",
       "a": "b15",
       "b": "t-15",
       "color": "black"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_69",
+      "ref": "bbw:breadboard_1:bbw_68",
       "boardId": "breadboard_1",
       "a": "i15",
       "b": "b-15",
       "color": "black"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_70",
+      "ref": "bbw:breadboard_1:bbw_69",
       "boardId": "breadboard_1",
       "a": "i18",
       "b": "b-18",
       "color": "black"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_71",
+      "ref": "bbw:breadboard_1:bbw_70",
       "boardId": "breadboard_1",
       "a": "i23",
       "b": "b-23",
       "color": "black"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_72",
+      "ref": "bbw:breadboard_1:bbw_71",
       "boardId": "breadboard_1",
       "a": "b29",
       "b": "t-29",
       "color": "black"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_73",
+      "ref": "bbw:breadboard_1:bbw_72",
       "boardId": "breadboard_1",
       "a": "i33",
       "b": "b-33",
       "color": "black"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_74",
+      "ref": "bbw:breadboard_1:bbw_73",
       "boardId": "breadboard_1",
       "a": "b37",
       "b": "t-37",
       "color": "black"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_75",
+      "ref": "bbw:breadboard_1:bbw_74",
       "boardId": "breadboard_1",
       "a": "b39",
       "b": "t-39",
       "color": "black"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_76",
+      "ref": "bbw:breadboard_1:bbw_75",
       "boardId": "breadboard_1",
       "a": "i47",
       "b": "b-47",
       "color": "black"
     },
     {
-      "ref": "bbw:breadboard_1:bbw_77",
-      "boardId": "breadboard_1",
-      "a": "i58",
-      "b": "b-58",
-      "color": "black"
-    },
-    {
-      "ref": "bbw:breadboard_1:bbw_78",
+      "ref": "bbw:breadboard_1:bbw_76",
       "boardId": "breadboard_1",
       "a": "b59",
       "b": "t-59",
       "color": "black"
     },
     {
-      "ref": "bbw:breadboard_1_2:bbw_79",
+      "ref": "bbw:breadboard_1_2:bbw_77",
       "boardId": "breadboard_1_2",
       "a": "b7",
       "b": "t-7",
       "color": "black"
     },
     {
-      "ref": "bbw:breadboard_1_2:bbw_80",
+      "ref": "bbw:breadboard_1_2:bbw_78",
       "boardId": "breadboard_1_2",
       "a": "b18",
       "b": "t-18",
       "color": "black"
     },
     {
-      "ref": "bbw:breadboard_1_2:bbw_81",
+      "ref": "bbw:breadboard_1_2:bbw_79",
       "boardId": "breadboard_1_2",
       "a": "b21",
       "b": "t-21",
       "color": "black"
     },
     {
-      "ref": "bbw:breadboard_1_2:bbw_82",
+      "ref": "bbw:breadboard_1_2:bbw_80",
       "boardId": "breadboard_1_2",
       "a": "b25",
       "b": "t-25",
       "color": "black"
     },
     {
-      "ref": "bbw:breadboard_1_2:bbw_83",
+      "ref": "bbw:breadboard_1_2:bbw_81",
       "boardId": "breadboard_1_2",
       "a": "b29",
       "b": "t-29",
       "color": "black"
     },
     {
-      "ref": "bbw:breadboard_1_2:bbw_84",
+      "ref": "bbw:breadboard_1_2:bbw_82",
       "boardId": "breadboard_1_2",
       "a": "b45",
       "b": "t-45",
       "color": "black"
     },
     {
-      "ref": "bbw:breadboard_1_2:bbw_85",
+      "ref": "bbw:breadboard_1_2:bbw_83",
       "boardId": "breadboard_1_2",
       "a": "i46",
       "b": "b-46",
       "color": "black"
     },
     {
-      "ref": "bbw:breadboard_1_2:bbw_86",
+      "ref": "bbw:breadboard_1_2:bbw_84",
       "boardId": "breadboard_1_2",
       "a": "b59",
       "b": "t-59",

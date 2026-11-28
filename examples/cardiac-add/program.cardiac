@@ -1,0 +1,14 @@
+; Original Brickwright CARDIAC example: input, compute, store, output.
+ORG 01
+ENTRY start
+start: INP left
+       INP right
+       CLA left
+       ADD right
+       STO total
+       OUT total
+       HRS
+ORG 80
+left:  DAT 0
+right: DAT 0
+total: DAT 0

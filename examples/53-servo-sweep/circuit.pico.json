@@ -35,7 +35,7 @@
    "kind": "pi_pico",
    "params": {},
    "terminals": [
-    "gp25"
+    "gp16"
    ],
    "seat": {
     "boardId": "bb1",
@@ -109,7 +109,7 @@
  "wires": [
   {
    "from": "MCU",
-   "fromTerminal": "gp25",
+   "fromTerminal": "gp16",
    "to": "SERVO_servo",
    "toTerminal": "signal"
   },

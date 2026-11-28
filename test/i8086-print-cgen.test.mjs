@@ -374,11 +374,14 @@ test('a variable-list provenance cycle is refused rather than treated as a self-
     assert.doesNotMatch(code, /bw_print_num/);
 });
 
+// arduino-06-ping left this list on 2026-11-27: the reconciled lesson reads a
+// real HC-SR04 (`print distance from us`) instead of printing the raw echo
+// pin, and the HC-SR04 driver is timed C that this board has no route for.
+// That is a named refusal, asserted below, not narrowed print provenance.
 const MEASURED_NUMERIC = [
     'arduino-01-digital-read-serial',
     'arduino-02-digital-input-pullup',
     'arduino-02-state-change',
-    'arduino-06-ping'
 ];
 
 test('state-change retarget preserves not-equal as a real block graph and semantic i8086 C', async () => {
@@ -430,7 +433,17 @@ test('i8086 refuses a comparison operand that falls through to a commented zero'
     assert.match((creator._cWarnings || []).join(' | '), /operand\(s\) a ! completely/);
 });
 
-test('project-wide provenance preserves all four honest measured numeric print candidates', async () => {
+test('the HC-SR04 ping lesson is refused on i8086 by name, not narrowed', async () => {
+    const source = await readFile(new URL('../examples/arduino-06-ping/program.bw', import.meta.url), 'utf8');
+    const retargeted = SB3Creator.retargetPseudocode(source, 'stc12c5a60s2');
+    assert.notEqual(retargeted && retargeted.ok, false, 'arduino-06-ping: retarget refused');
+    const text = typeof retargeted === 'string' ? retargeted :
+        retargeted.pseudocode || retargeted.text || retargeted.source || retargeted.code;
+    assert.throws(() => emit(text.replace(/^DEVICE .*$/m, 'DEVICE i8086')),
+        /HCSR04 is not available on i8086/);
+});
+
+test('project-wide provenance preserves all three honest measured numeric print candidates', async () => {
     for (const name of MEASURED_NUMERIC) {
         const source = await readFile(new URL(`../examples/${name}/program.bw`, import.meta.url), 'utf8');
         const retargeted = SB3Creator.retargetPseudocode(source, 'stc12c5a60s2');

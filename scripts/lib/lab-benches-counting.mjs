@@ -227,11 +227,14 @@ export const BENCHES = resolveRefs({
     // of the beam an object blocks (0 .. 1).
     'lab-barrier-counter': {
         vcc: 5, supply: SUP,
-        parts: { bat: BAT5, osc: ['timer_555', {}], ra: R(1000), rb: R(6800), ct: C(100e-9), cv: C(10e-9),
+        // The battery rises over 10 us when switched on (bw-board riseSec):
+        // Q2, on at the operating point, comes up with the rail, so the
+        // counter's clock never pulses at power-on.
+        parts: { bat: ['vsource', { volts: 5, riseSec: 10e-6 }], osc: ['timer_555', {}], ra: R(1000), rb: R(6800), ct: C(100e-9), cv: C(10e-9),
             re: R(47), ir: ['ir_transmitter', {}], pt: ['phototransistor', {}], rpc: R(22000),
             cp: C(10e-9), dp1: ['diode', { part: '1N4148' }], dp2: ['diode', { part: '1N4148' }],
             ch: C(220e-9), rh: R(470000), rb1: R(10000), q1: NPN, rc1: R(10000), rb2: R(10000), q2: NPN, rc2: R(10000), rfb: R(1000000),
-            rpd: R(100000), cclk: C(1e-9), cnt: ['74hc93', {}],
+            rpd: R(100000), cnt: ['74hc93', {}],
             clr: ['button', {}], rcl: R(10000),
             r0: R(470), l0: LED('red'), r1: R(470), l1: LED('red'), r2: R(470), l2: LED('red'),
             db: ['diode', { part: '1N4148' }], dc: ['diode', { part: '1N4148' }], rd: R(4700),
@@ -247,14 +250,14 @@ export const BENCHES = resolveRefs({
             ['osc.output', 're.a'], ['re.b', 'ir.anode'],
             ['pt.collector', 'rpc.b', 'cp.a'], ['cp.b', 'dp2.cathode', 'dp1.anode'], ['dp1.cathode', 'ch.a', 'rh.a', 'rb1.a'],
             ['rb1.b', 'q1.base', 'rfb.a'], ['q1.collector', 'rc1.b', 'rb2.a'], ['rb2.b', 'q2.base'],
-            ['q2.collector', 'rc2.b', 'rfb.b', 'k.com1'], ['k.nc1', 'rpd.a', 'cclk.a', 'cnt.clk_a'],
+            ['q2.collector', 'rc2.b', 'rfb.b', 'k.com1'], ['k.nc1', 'rpd.a', 'cnt.clk_a'],
             ['cnt.qa', 'cnt.clk_b', 'db.cathode', 'r0.a'], ['cnt.qb', 'r1.a'], ['cnt.qc', 'dc.cathode', 'r2.a'],
             ['db.anode', 'dc.anode', 'rd.b', 'ds.anode'], ['ds.cathode', 'rb3.a'], ['rb3.b', 'rbq.a', 'q3.base'],
             ['clr.b', 'rcl.a', 'cnt.r0_1', 'cnt.r0_2'],
             ['r0.b', 'l0.anode'], ['r1.b', 'l1.anode'], ['r2.b', 'l2.anode'],
             ['q3.collector', 'k.coil_b', 'df.anode'], ['k.no2', 'rl.a'], ['rl.b', 'lamp.anode'],
             ['bat.neg', 'osc.gnd', 'ct.b', 'cv.b', 'ir.cathode', 'pt.emitter', 'dp2.anode', 'ch.b', 'rh.b',
-                'q1.emitter', 'q2.emitter', 'rpd.b', 'cclk.b', 'cnt.gnd', 'rcl.b',
+                'q1.emitter', 'q2.emitter', 'rpd.b', 'cnt.gnd', 'rcl.b',
                 'l0.cathode', 'l1.cathode', 'l2.cathode', 'rbq.b', 'q3.emitter', 'lamp.cathode'],
         ],
         open: ['cnt.qd', 'cnt.nc1', 'cnt.nc2', 'cnt.nc3', 'cnt.nc4', 'k.no1', 'k.nc2'],

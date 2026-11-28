@@ -5,11 +5,11 @@ prereqs: [pc82-mini-roulette]
 teaches: [tilt-sensor, shake-trigger, 555-timer, CD4017, game]
 ---
 ## What you see
-A wheel of fortune: shake the device (tilt sensor) and the LEDs start racing. The shaking motion triggers the 555 timer that drives the chaser. When the sensor settles, the wheel slows and stops at a position. Six LED segments, reset after q6.
+A wheel of fortune: shake the device (tilt sensor) and the LEDs start racing. The shaking motion triggers the 555 timer that drives the chaser. When the sensor settles, the wheel stops after a short delay and keeps its last position. Six LED segments, reset after q6.
 
 ## Try this
 1. Activate the tilt sensor — the LEDs start running.
-2. Sensor settles → the chase slows and stops.
+2. Sensor settles → the chase stops after a short delay.
 3. The stop position is unpredictable — depends on shake duration and RC decay.
 
 ## What is going on

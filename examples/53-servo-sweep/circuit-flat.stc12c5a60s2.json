@@ -26,7 +26,7 @@
       "kind": "mcu",
       "params": {},
       "terminals": [
-        "P1.1"
+        "P1.3"
       ],
       "x": 64,
       "y": 349
@@ -50,7 +50,7 @@
       "netId": "bb1:n-col-b4",
       "from": {
         "part": "MCU",
-        "terminal": "P1.1"
+        "terminal": "P1.3"
       },
       "to": {
         "part": "SERVO_servo",

@@ -84,7 +84,10 @@
     {
       "id": "MOTOR_motor",
       "kind": "dc_motor",
-      "params": {},
+      "params": {
+        "J": 0.00001,
+        "friction": 0.0002
+      },
       "terminals": [
         "a",
         "b"
@@ -104,6 +107,20 @@
       ],
       "x": 638,
       "y": 255
+    },
+    {
+      "id": "R_motorReset",
+      "kind": "resistor",
+      "params": {
+        "ohms": 100000
+      },
+      "terminals": [
+        "a",
+        "b"
+      ],
+      "x": 568,
+      "y": 404,
+      "rotation": 0
     }
   ],
   "wires": [
@@ -157,6 +174,18 @@
     },
     {
       "id": "w_flat_4",
+      "netId": "bb1:n-col-t31",
+      "from": {
+        "part": "Q_motor",
+        "terminal": "base"
+      },
+      "to": {
+        "part": "R_motorReset",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "w_flat_5",
       "netId": "bb1:n-col-t35",
       "from": {
         "part": "D_motor",
@@ -168,7 +197,7 @@
       }
     },
     {
-      "id": "w_flat_5",
+      "id": "w_flat_6",
       "netId": "bb1:n-col-t35",
       "from": {
         "part": "D_motor",
@@ -180,18 +209,6 @@
       }
     },
     {
-      "id": "w_flat_6",
-      "netId": "bb1:rail-b-",
-      "from": {
-        "part": "BTN_btn",
-        "terminal": "b"
-      },
-      "to": {
-        "part": "GND",
-        "terminal": "gnd"
-      }
-    },
-    {
       "id": "w_flat_7",
       "netId": "bb1:rail-b-",
       "from": {
@@ -199,7 +216,7 @@
         "terminal": "b"
       },
       "to": {
-        "part": "MCU",
+        "part": "GND",
         "terminal": "gnd"
       }
     },
@@ -212,11 +229,23 @@
       },
       "to": {
         "part": "MCU",
-        "terminal": "gnd2"
+        "terminal": "gnd"
       }
     },
     {
       "id": "w_flat_9",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "BTN_btn",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "MCU",
+        "terminal": "gnd2"
+      }
+    },
+    {
+      "id": "w_flat_10",
       "netId": "bb1:rail-b-",
       "from": {
         "part": "BTN_btn",
@@ -228,7 +257,19 @@
       }
     },
     {
-      "id": "w_flat_10",
+      "id": "w_flat_11",
+      "netId": "bb1:rail-b-",
+      "from": {
+        "part": "BTN_btn",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "R_motorReset",
+        "terminal": "b"
+      }
+    },
+    {
+      "id": "w_flat_12",
       "netId": "bb1:rail-t+",
       "from": {
         "part": "D_motor",
@@ -240,7 +281,7 @@
       }
     },
     {
-      "id": "w_flat_11",
+      "id": "w_flat_13",
       "netId": "bb1:rail-t+",
       "from": {
         "part": "D_motor",
@@ -252,7 +293,7 @@
       }
     },
     {
-      "id": "w_flat_12",
+      "id": "w_flat_14",
       "netId": "bb1:rail-t+",
       "from": {
         "part": "D_motor",
@@ -264,7 +305,7 @@
       }
     },
     {
-      "id": "w_flat_13",
+      "id": "w_flat_15",
       "netId": "bb1:rail-t+",
       "from": {
         "part": "D_motor",
@@ -276,7 +317,7 @@
       }
     },
     {
-      "id": "w_flat_14",
+      "id": "w_flat_16",
       "netId": "bb1:rail-t+",
       "from": {
         "part": "D_motor",

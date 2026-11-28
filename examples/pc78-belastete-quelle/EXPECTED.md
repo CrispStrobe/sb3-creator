@@ -26,11 +26,13 @@ Battery: EMF = 9 V, r_internal = 2 Ω. Light load path: 1 kΩ + 470 Ω + green L
 ```assert
 # Battery r_internal=2R: terminal V under dual load
 net battery_1.pos V 8.96 +-0.20
+current led_4 mA -4.71 +-0.6
+current led_5 mA -12.01 +-0.9
 ```
 
 <!-- engine-provenance -->
 > **Engine provenance.** The measured numbers on this page were last held against
-> `bw-board@de8083c` and `bw-circuit-ui@ee2b412` — the revisions pinned in
+> `bw-board@d21d6d8` and `bw-circuit-ui@d9e0982` — the revisions pinned in
 > `test/fixtures/siblings.json`. `test/expected-quantities-hold.test.mjs` compares
 > **14 of this page's 16** numeric claims against that engine
 > (0 of them disagreeing) and declines the rest with a stated reason;

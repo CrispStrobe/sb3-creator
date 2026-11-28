@@ -97,7 +97,7 @@
       "id": "capacitor_13",
       "kind": "capacitor",
       "params": {
-        "farads": 0.00001
+        "farads": 1e-05
       },
       "terminals": [
         "a",
@@ -306,6 +306,282 @@
       "x": 700,
       "y": 200,
       "rotation": 0
+    },
+    {
+      "id": "fill_1_1",
+      "kind": "diode",
+      "params": {
+        "vf": 0.35,
+        "is": 1e-07,
+        "n": 1.15,
+        "rs": 0.5
+      },
+      "x": 485,
+      "y": 375
+    },
+    {
+      "id": "fill_2_1",
+      "kind": "diode",
+      "params": {
+        "vf": 0.35,
+        "is": 1e-07,
+        "n": 1.15,
+        "rs": 0.5
+      },
+      "x": 530,
+      "y": 375
+    },
+    {
+      "id": "fill_2_2",
+      "kind": "diode",
+      "params": {
+        "vf": 0.35,
+        "is": 1e-07,
+        "n": 1.15,
+        "rs": 0.5
+      },
+      "x": 530,
+      "y": 430
+    },
+    {
+      "id": "fill_3_1",
+      "kind": "diode",
+      "params": {
+        "vf": 0.35,
+        "is": 1e-07,
+        "n": 1.15,
+        "rs": 0.5
+      },
+      "x": 575,
+      "y": 375
+    },
+    {
+      "id": "fill_3_2",
+      "kind": "diode",
+      "params": {
+        "vf": 0.35,
+        "is": 1e-07,
+        "n": 1.15,
+        "rs": 0.5
+      },
+      "x": 575,
+      "y": 430
+    },
+    {
+      "id": "fill_3_3",
+      "kind": "diode",
+      "params": {
+        "vf": 0.35,
+        "is": 1e-07,
+        "n": 1.15,
+        "rs": 0.5
+      },
+      "x": 575,
+      "y": 485
+    },
+    {
+      "id": "fill_4_1",
+      "kind": "diode",
+      "params": {
+        "vf": 0.35,
+        "is": 1e-07,
+        "n": 1.15,
+        "rs": 0.5
+      },
+      "x": 620,
+      "y": 375
+    },
+    {
+      "id": "fill_4_2",
+      "kind": "diode",
+      "params": {
+        "vf": 0.35,
+        "is": 1e-07,
+        "n": 1.15,
+        "rs": 0.5
+      },
+      "x": 620,
+      "y": 430
+    },
+    {
+      "id": "fill_4_3",
+      "kind": "diode",
+      "params": {
+        "vf": 0.35,
+        "is": 1e-07,
+        "n": 1.15,
+        "rs": 0.5
+      },
+      "x": 620,
+      "y": 485
+    },
+    {
+      "id": "fill_4_4",
+      "kind": "diode",
+      "params": {
+        "vf": 0.35,
+        "is": 1e-07,
+        "n": 1.15,
+        "rs": 0.5
+      },
+      "x": 620,
+      "y": 540
+    },
+    {
+      "id": "fill_5_1",
+      "kind": "diode",
+      "params": {
+        "vf": 0.35,
+        "is": 1e-07,
+        "n": 1.15,
+        "rs": 0.5
+      },
+      "x": 665,
+      "y": 375
+    },
+    {
+      "id": "fill_5_2",
+      "kind": "diode",
+      "params": {
+        "vf": 0.35,
+        "is": 1e-07,
+        "n": 1.15,
+        "rs": 0.5
+      },
+      "x": 665,
+      "y": 430
+    },
+    {
+      "id": "fill_5_3",
+      "kind": "diode",
+      "params": {
+        "vf": 0.35,
+        "is": 1e-07,
+        "n": 1.15,
+        "rs": 0.5
+      },
+      "x": 665,
+      "y": 485
+    },
+    {
+      "id": "fill_5_4",
+      "kind": "diode",
+      "params": {
+        "vf": 0.35,
+        "is": 1e-07,
+        "n": 1.15,
+        "rs": 0.5
+      },
+      "x": 665,
+      "y": 540
+    },
+    {
+      "id": "fill_5_5",
+      "kind": "diode",
+      "params": {
+        "vf": 0.35,
+        "is": 1e-07,
+        "n": 1.15,
+        "rs": 0.5
+      },
+      "x": 665,
+      "y": 595
+    },
+    {
+      "id": "fill_6_1",
+      "kind": "diode",
+      "params": {
+        "vf": 0.35,
+        "is": 1e-07,
+        "n": 1.15,
+        "rs": 0.5
+      },
+      "x": 710,
+      "y": 375
+    },
+    {
+      "id": "fill_6_2",
+      "kind": "diode",
+      "params": {
+        "vf": 0.35,
+        "is": 1e-07,
+        "n": 1.15,
+        "rs": 0.5
+      },
+      "x": 710,
+      "y": 430
+    },
+    {
+      "id": "fill_6_3",
+      "kind": "diode",
+      "params": {
+        "vf": 0.35,
+        "is": 1e-07,
+        "n": 1.15,
+        "rs": 0.5
+      },
+      "x": 710,
+      "y": 485
+    },
+    {
+      "id": "fill_6_4",
+      "kind": "diode",
+      "params": {
+        "vf": 0.35,
+        "is": 1e-07,
+        "n": 1.15,
+        "rs": 0.5
+      },
+      "x": 710,
+      "y": 540
+    },
+    {
+      "id": "fill_6_5",
+      "kind": "diode",
+      "params": {
+        "vf": 0.35,
+        "is": 1e-07,
+        "n": 1.15,
+        "rs": 0.5
+      },
+      "x": 710,
+      "y": 595
+    },
+    {
+      "id": "fill_6_6",
+      "kind": "diode",
+      "params": {
+        "vf": 0.35,
+        "is": 1e-07,
+        "n": 1.15,
+        "rs": 0.5
+      },
+      "x": 710,
+      "y": 650
+    },
+    {
+      "id": "wrap_reset",
+      "kind": "diode",
+      "params": {
+        "vf": 0.35,
+        "is": 1e-07,
+        "n": 1.15,
+        "rs": 0.5
+      },
+      "x": 385,
+      "y": 230
+    },
+    {
+      "id": "tilt_reset",
+      "kind": "diode",
+      "params": {
+        "vf": 0.35,
+        "is": 1e-07,
+        "n": 1.15,
+        "rs": 0.5
+      },
+      "x": 385,
+      "y": 280
     }
   ],
   "wires": [
@@ -342,18 +618,6 @@
       },
       "to": {
         "part": "timer_555_3",
-        "terminal": "gnd"
-      }
-    },
-    {
-      "id": "wire_10",
-      "netId": "net_8",
-      "from": {
-        "part": "timer_555_3",
-        "terminal": "control"
-      },
-      "to": {
-        "part": "gnd_2",
         "terminal": "gnd"
       }
     },
@@ -610,103 +874,6 @@
       }
     },
     {
-      "id": "wire_fix_1040",
-      "netId": "net_8",
-      "from": {
-        "part": "decade_counter_4",
-        "terminal": "rst"
-      },
-      "to": {
-        "part": "gnd_2",
-        "terminal": "gnd"
-      }
-    },
-    {
-      "id": "wire_fix_1041",
-      "netId": "net_tilt",
-      "from": {
-        "part": "tilt_sensor_21",
-        "terminal": "b"
-      },
-      "to": {
-        "part": "resistor_23",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "wire_fix_1042",
-      "netId": "net_q0",
-      "from": {
-        "part": "decade_counter_4",
-        "terminal": "q0"
-      },
-      "to": {
-        "part": "resistor_25",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "wire_fix_1043",
-      "netId": "net_q1",
-      "from": {
-        "part": "decade_counter_4",
-        "terminal": "q1"
-      },
-      "to": {
-        "part": "resistor_30",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "wire_fix_1044",
-      "netId": "net_q2",
-      "from": {
-        "part": "decade_counter_4",
-        "terminal": "q2"
-      },
-      "to": {
-        "part": "resistor_35",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "wire_fix_1045",
-      "netId": "net_q3",
-      "from": {
-        "part": "decade_counter_4",
-        "terminal": "q3"
-      },
-      "to": {
-        "part": "resistor_40",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "wire_fix_1046",
-      "netId": "net_q4",
-      "from": {
-        "part": "decade_counter_4",
-        "terminal": "q4"
-      },
-      "to": {
-        "part": "resistor_45",
-        "terminal": "a"
-      }
-    },
-    {
-      "id": "wire_fix_1047",
-      "netId": "net_q5",
-      "from": {
-        "part": "decade_counter_4",
-        "terminal": "q5"
-      },
-      "to": {
-        "part": "resistor_50",
-        "terminal": "a"
-      }
-    }
-    ,
-    {
       "id": "wire_fix_1048",
       "netId": "net_18",
       "from": {
@@ -728,6 +895,570 @@
       "to": {
         "part": "gnd_2",
         "terminal": "gnd"
+      }
+    },
+    {
+      "id": "wire_fill_1_1_a",
+      "netId": "net_q1",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q1"
+      },
+      "to": {
+        "part": "fill_1_1",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "wire_fill_1_1_k",
+      "netId": "net_light_1",
+      "from": {
+        "part": "fill_1_1",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "resistor_25",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fill_2_1_a",
+      "netId": "net_q2",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q2"
+      },
+      "to": {
+        "part": "fill_2_1",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "wire_fill_2_1_k",
+      "netId": "net_light_1",
+      "from": {
+        "part": "fill_2_1",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "resistor_25",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fill_2_2_a",
+      "netId": "net_q2",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q2"
+      },
+      "to": {
+        "part": "fill_2_2",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "wire_fill_2_2_k",
+      "netId": "net_light_2",
+      "from": {
+        "part": "fill_2_2",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "resistor_30",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fill_3_1_a",
+      "netId": "net_q3",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q3"
+      },
+      "to": {
+        "part": "fill_3_1",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "wire_fill_3_1_k",
+      "netId": "net_light_1",
+      "from": {
+        "part": "fill_3_1",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "resistor_25",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fill_3_2_a",
+      "netId": "net_q3",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q3"
+      },
+      "to": {
+        "part": "fill_3_2",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "wire_fill_3_2_k",
+      "netId": "net_light_2",
+      "from": {
+        "part": "fill_3_2",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "resistor_30",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fill_3_3_a",
+      "netId": "net_q3",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q3"
+      },
+      "to": {
+        "part": "fill_3_3",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "wire_fill_3_3_k",
+      "netId": "net_light_3",
+      "from": {
+        "part": "fill_3_3",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "resistor_35",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fill_4_1_a",
+      "netId": "net_q4",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q4"
+      },
+      "to": {
+        "part": "fill_4_1",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "wire_fill_4_1_k",
+      "netId": "net_light_1",
+      "from": {
+        "part": "fill_4_1",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "resistor_25",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fill_4_2_a",
+      "netId": "net_q4",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q4"
+      },
+      "to": {
+        "part": "fill_4_2",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "wire_fill_4_2_k",
+      "netId": "net_light_2",
+      "from": {
+        "part": "fill_4_2",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "resistor_30",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fill_4_3_a",
+      "netId": "net_q4",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q4"
+      },
+      "to": {
+        "part": "fill_4_3",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "wire_fill_4_3_k",
+      "netId": "net_light_3",
+      "from": {
+        "part": "fill_4_3",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "resistor_35",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fill_4_4_a",
+      "netId": "net_q4",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q4"
+      },
+      "to": {
+        "part": "fill_4_4",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "wire_fill_4_4_k",
+      "netId": "net_light_4",
+      "from": {
+        "part": "fill_4_4",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "resistor_40",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fill_5_1_a",
+      "netId": "net_q5",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q5"
+      },
+      "to": {
+        "part": "fill_5_1",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "wire_fill_5_1_k",
+      "netId": "net_light_1",
+      "from": {
+        "part": "fill_5_1",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "resistor_25",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fill_5_2_a",
+      "netId": "net_q5",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q5"
+      },
+      "to": {
+        "part": "fill_5_2",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "wire_fill_5_2_k",
+      "netId": "net_light_2",
+      "from": {
+        "part": "fill_5_2",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "resistor_30",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fill_5_3_a",
+      "netId": "net_q5",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q5"
+      },
+      "to": {
+        "part": "fill_5_3",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "wire_fill_5_3_k",
+      "netId": "net_light_3",
+      "from": {
+        "part": "fill_5_3",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "resistor_35",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fill_5_4_a",
+      "netId": "net_q5",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q5"
+      },
+      "to": {
+        "part": "fill_5_4",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "wire_fill_5_4_k",
+      "netId": "net_light_4",
+      "from": {
+        "part": "fill_5_4",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "resistor_40",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fill_5_5_a",
+      "netId": "net_q5",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q5"
+      },
+      "to": {
+        "part": "fill_5_5",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "wire_fill_5_5_k",
+      "netId": "net_light_5",
+      "from": {
+        "part": "fill_5_5",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "resistor_45",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fill_6_1_a",
+      "netId": "net_q6",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q6"
+      },
+      "to": {
+        "part": "fill_6_1",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "wire_fill_6_1_k",
+      "netId": "net_light_1",
+      "from": {
+        "part": "fill_6_1",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "resistor_25",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fill_6_2_a",
+      "netId": "net_q6",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q6"
+      },
+      "to": {
+        "part": "fill_6_2",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "wire_fill_6_2_k",
+      "netId": "net_light_2",
+      "from": {
+        "part": "fill_6_2",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "resistor_30",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fill_6_3_a",
+      "netId": "net_q6",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q6"
+      },
+      "to": {
+        "part": "fill_6_3",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "wire_fill_6_3_k",
+      "netId": "net_light_3",
+      "from": {
+        "part": "fill_6_3",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "resistor_35",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fill_6_4_a",
+      "netId": "net_q6",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q6"
+      },
+      "to": {
+        "part": "fill_6_4",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "wire_fill_6_4_k",
+      "netId": "net_light_4",
+      "from": {
+        "part": "fill_6_4",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "resistor_40",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fill_6_5_a",
+      "netId": "net_q6",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q6"
+      },
+      "to": {
+        "part": "fill_6_5",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "wire_fill_6_5_k",
+      "netId": "net_light_5",
+      "from": {
+        "part": "fill_6_5",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "resistor_45",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_fill_6_6_a",
+      "netId": "net_q6",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q6"
+      },
+      "to": {
+        "part": "fill_6_6",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "wire_fill_6_6_k",
+      "netId": "net_light_6",
+      "from": {
+        "part": "fill_6_6",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "resistor_50",
+        "terminal": "a"
+      }
+    },
+    {
+      "id": "wire_wrap_a",
+      "netId": "net_rst_wrap",
+      "from": {
+        "part": "decade_counter_4",
+        "terminal": "q7"
+      },
+      "to": {
+        "part": "wrap_reset",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "wire_wrap_k",
+      "netId": "net_reset",
+      "from": {
+        "part": "wrap_reset",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "decade_counter_4",
+        "terminal": "rst"
+      }
+    },
+    {
+      "id": "wire_tilt_a",
+      "netId": "net_rst_tilt",
+      "from": {
+        "part": "tilt_sensor_21",
+        "terminal": "b"
+      },
+      "to": {
+        "part": "tilt_reset",
+        "terminal": "anode"
+      }
+    },
+    {
+      "id": "wire_tilt_k",
+      "netId": "net_reset",
+      "from": {
+        "part": "tilt_reset",
+        "terminal": "cathode"
+      },
+      "to": {
+        "part": "decade_counter_4",
+        "terminal": "rst"
+      }
+    },
+    {
+      "id": "wire_reset_pull",
+      "netId": "net_reset",
+      "from": {
+        "part": "resistor_23",
+        "terminal": "a"
+      },
+      "to": {
+        "part": "decade_counter_4",
+        "terminal": "rst"
       }
     }
   ],

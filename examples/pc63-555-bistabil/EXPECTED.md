@@ -3,6 +3,9 @@
 ## Circuit
 VCC (5 V) → 555 timer (bistable mode). Set button grounds trigger (pin 2). Reset button drives threshold (pin 6) to VCC. Output → 1 kΩ → green LED → GND.
 
+
+The timer’s control pin uses a 10 nF bypass capacitor to ground.
+
 ## Observable behaviour
 - **No buttons pressed:** output holds last state. LED stays on or off.
 - **Set pressed:** output goes HIGH (≈ VCC − 1 V ≈ 4 V). LED current ≈ (4 − 2) / 1000 = 2 mA. LED ON.
