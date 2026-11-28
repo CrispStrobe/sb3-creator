@@ -319,7 +319,7 @@ test('polling requires explicit time advancement', () => {
 });
 
 test('unsupported device, pin location, mode, aliases and write direction are clear refusals', () => {
-    declined(generate('DEVICE MICROBIT\nPIN led = P0 OUTPUT\nWHEN flag clicked:\n  turn on led'), 'device');
+    declined(generate('DEVICE Z80\nPIN led = OUT0 OUTPUT\nWHEN flag clicked:\n  turn on led'), 'device');
     for (const [device, where] of [['PICO', 'GP23'], ['PICO', 'GP24']]) {
         declined(generate(`DEVICE ${device}\nPIN led = ${where} OUTPUT\nWHEN flag clicked:\n  turn on led`), 'pin-map');
     }

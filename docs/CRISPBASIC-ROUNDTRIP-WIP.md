@@ -16,5 +16,13 @@ Repeat-until and numbered IF/ELSE guards now normalize the operand to BBC's
 -1/0 Boolean representation before negation. Legacy generator bytes do not
 change. Focused regression cases cover structured and numbered branches.
 
-Further implementation and qualification remain on this feature branch.
+The second saved increment adds the strict explicit reverse mode, a durable
+source/project runtime requirement, deliberate bidirectional CLI entry points,
+and shared forward/reverse pin maps for eight additional machine families.
+The focused producer suite passes 367 tests with no skips. Real C/WASM
+original-versus-regenerated differential runs in the direct consumer pass six
+fixtures: structured/numbered GPIO polling and canvas, authored numeric truth,
+and authored MOVE/DRAW/GCOL. Text/VDU bytes and full GPIO traces are identical.
+The consumer owns the permanent runtime gate and the exact producer adoption;
+these local observations do not replace that integration qualification.
 Neither this lane nor its direct consumer adoption merges a default branch.

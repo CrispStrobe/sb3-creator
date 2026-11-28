@@ -61,6 +61,14 @@ Logical IDs follow the existing Brickwright Circuit adapter:
 | Arduino Mega | D0..D53 → 0..53; A0..A15 → 54..69 |
 | Pico | GP0..GP22, GP25..GP28 → their GPIO numbers |
 | Recognized STC12 / STC15 / STC89 devices | P0.0..P7.7 → `8*port + bit` |
+| micro:bit / breakout | P0, P1, P2, P8, P12, P16 → their pin numbers; the actual board validates exposed pads |
+| Calliope mini | P0..P3 → 0..3 |
+| Circuit Playground Express (`CPX`) | A0..A7 → 0..7 (no Arduino analog offset) |
+| ATtiny85 | PB0..PB4 → 8..12; PB5 RESET is excluded |
+| ATtiny88 DIP | PB0..PB7, PC0..PC5/PC7, PD0..PD7 → `8*port + bit`; RESET and package-only PA pads excluded |
+| STM32F030 | PA0..PA7, PA9, PA10, PB1 → `16*port + bit` |
+| ESP8266 | GP0..GP5, GP12..GP15 → GPIO number; flash-bus pads excluded |
+| Eater6502 default VIA | PA0..PA7 → 0..7; PB0..PB7 → 8..15; custom CHIP/MAP layouts refuse |
 
 These are logical conversion maps. The active host validates which terminals
 the actual board provides; a successful conversion is not evidence that every
@@ -109,21 +117,85 @@ turn into successful comment stubs in the explicit mode. Legacy generation
 retains its existing behavior. This boundary does not claim complete Scratch
 language, graphics or concurrency equivalence.
 
-`basicToPseudocode` deliberately refuses live portable pin/time calls (including
-`PROCdigitalToggle`), their definitions and named adjacent unsupported operations.
-Its return value is
-`{ok:false,pseudocode:'',reasons,warnings,diagnostics,stats}`. A diagnostic names
-the operation, physical source line and numbered BASIC line if present. All
-callers must honor that result before parsing, saving or replacing a project.
-The producer CLI exits unsuccessfully and preserves an existing output file.
+The ordinary `basicToPseudocode(source)` path continues to refuse live portable
+pin/time calls, definitions, dynamic EVAL and adjacent unsupported APIs. Existing
+Blocks conversions therefore keep their fail-before-mutation contract.
 
-This is a qualified refusal boundary, not a portable-library round trip.
-Ordinary supported BASIC still converts. REM consumes its full physical line,
-including colons, and quoted operation names remain data. Hardware comments
-never become executable portable calls.
-Compact BBC keyword syntax and PROC/FN abbreviations cannot bypass the refusal.
-Live `EVAL` also refuses because computed source has no qualified reverse meaning;
-quoted mentions of it remain data.
+An explicit source conversion is now available:
+
+```js
+const result = basicToPseudocode(source, {mode: 'crispbasic'});
+if (!result.ok) showErrors(result.diagnostics);
+else {
+    // Store the complete source, including its requirement marker.
+    savePseudocode(result.pseudocode);
+    // Recompile only with {profile:'bbc', mode:'crispbasic'}.
+    // result.capabilities.blocks is false: do not replace a generic VM project.
+}
+```
+
+Accepted output begins with `# @crispbasic-portable 1`. The small dependency-free
+`crispBasicMode.js` module provides `isCrispBasicPseudocode`, marker validation,
+project validation and the shared logical-pin map. The parser retains the
+requirement as `project.crispbasicSource`; decompilation and JSON serialization
+retain it. Generic Python, JavaScript, C, MicroPython and SB3 generators refuse
+marked projects; BASIC generation requires explicit CrispBASIC mode. Unknown,
+malformed or duplicate marker versions refuse before parser reset. Consumers
+must also guard their own direct block-install and runtime paths before mutation.
+
+The reverse result exposes:
+
+```js
+capabilities: {
+    pseudocode: true, blocks: false, requiredRuntime: 'crispbasic',
+    simulationABI: 2, freshRun: true,
+    clock: 'explicit-integer-milliseconds'
+}
+```
+
+This is a portable **source round trip**, not equivalence to ordinary Scratch VM
+execution or a native-machine compiler. It requires a fresh portable host and the
+same pin model. The strict subset includes static matching pin-mode preludes,
+electrical writes proven to produce 0/1, atomic latch toggles, solved reads with
+ACTIVE LOW compensation, literal integer millisecond delays, FNmillis, lowercase
+numeric scalars, literal-count FOR loops whose counters are private, structured
+IF/ELSE and WHILE, FOREVER, and the generator's recognized numbered control-flow
+shapes. A delay remains explicit simulated time; FNmillis is recovered as rounded
+timer milliseconds without rewinding the host. Runtime request/work budgets still
+apply, and translation may add bookkeeping instructions or clock observations.
+
+BBC comparison values are -1/0. When their numeric values are needed, the reader
+emits explicit conditional assignments; it never smuggles a comparison into a
+value position where the canonical parser would turn it into text. Predicates
+remain inside loop conditions, so pin inputs are reread each iteration. Boolean
+operands are qualified before BBC bitwise NOT/AND/OR is mapped. Digital reads are
+not duplicated by normalization. Pin mode declarations must match executable
+prelude calls in order; metadata alone grants no support.
+
+Canvas conversion includes clear, palette colours 1..8 via the known pen helper,
+pen up/down, integer go-to and set-x/set-y positions, and direct MOVE/DRAW on the
+renderer transform's four-unit coordinate grid. Generated canvas commands retain
+the same VDU bytes. Fractional/overflow coordinates, arbitrary graphics modes,
+unknown plotting and altered helper bodies refuse. This does not preserve a
+complete Scratch sprite/costume/animation system.
+
+Computed pin IDs, dynamic modes, arbitrary non-0/1 writes, computed delays without
+an integer/range proof, integer/string variable types, random/input statements,
+observed FOR counters, arbitrary GOTO and unqualified expressions fail the whole
+conversion with physical and numbered source diagnostics. No partial pseudocode
+is returned. Numbered input must be complete, unique and in increasing order.
+REM consumes its physical line including colons; quoted API names remain data.
+
+The producer CLI exposes both directions deliberately:
+
+```sh
+node bin/bw.mjs transpile program.bw --to crispbasic -o program.bas
+node bin/bw.mjs read program.bas --crispbasic -o program-portable.bw
+node bin/bw.mjs transpile program-portable.bw --to crispbasic --numbered -o numbered.bas
+```
+
+The CLI refuses other output runtimes, native compilation, retargeting and flashing
+for marked portable source. A refusal preserves an existing output file.
 
 ## Qualification
 
@@ -132,6 +204,9 @@ latch-toggle generation and source maps for both polarities and source forms,
 milliseconds, timer reset, block diagnostics, refusal and unchanged legacy
 output. `test/crispbasic-reader.test.mjs` exercises the reverse boundary and CLI
 preservation; existing BASIC sweep, line-map and trace suites remain required.
-`.github/workflows/crispbasic.yml` runs that bounded producer suite on the exact
-feature-branch commit. Brickwright separately qualifies generated source in
+`test/crispbasic-roundtrip.test.mjs` additionally covers strict portable
+round trips, generated and authored canvas, new digital targets, negative
+semantic cases, marker persistence, API guards and bidirectional CLI behavior.
+`.github/workflows/crispbasic.yml` runs the bounded producer suite on every
+`feature/crispbasic-*` branch's exact commit. Brickwright separately qualifies generated source in
 the actual C/WASM interpreter, the electrical solver and its production UI.

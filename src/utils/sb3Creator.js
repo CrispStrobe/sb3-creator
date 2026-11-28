@@ -1,3 +1,4 @@
+import {CRISPBASIC_PSEUDOCODE_MARKER, validateCrispBasicPseudocode, validateCrispBasicProject, crispBasicModeError, hasCrispBasicPinMap, crispBasicLogicalPin} from './crispBasicMode.js';
 import {validateProcedureParameterConstraints} from './procedureParameterConstraints.js';
 import JSZip from 'jszip';
 // Auto-generated hardware-extension registry (scripts/gen-runtime-registry.mjs). Covers all
@@ -8575,7 +8576,9 @@ class SB3Creator {
     }
 
     parse(pseudocode) {
+        const portableSource = validateCrispBasicPseudocode(pseudocode);
         this.reset();
+        if (portableSource) this.project.crispbasicSource = {schemaVersion: 1, requiredRuntime: 'crispbasic'};
         if (!pseudocode.trim()) {
             throw new ParseError("Pseudocode is empty");
         }
@@ -9302,6 +9305,7 @@ class SB3Creator {
     }
 
     async generateSB3() {
+        if (validateCrispBasicProject(this.project)) throw crispBasicModeError('Blocks/SB3 execution');
         if (!this.project) {
             throw new ValidationError('No project to generate');
         }
@@ -9620,9 +9624,10 @@ class SB3Creator {
 
     // Decompile a whole project back into pseudocode.
     decompile(project = this.project) {
+        const portableSource = validateCrispBasicProject(project);
         try{validateProcedureParameterConstraints(project);}catch(error){throw new ParseError('Procedure parameter constraint: '+error.message);}
         project = this.refreshCallableSourceBindings(project);
-        const out = [];
+        const out = portableSource ? [CRISPBASIC_PSEUDOCODE_MARKER] : [];
         const stage = project.targets.find(t => t.isStage);
         // STC12 / 8051 device declarations first — they are read before any script.
         // A project that lived through scratch-vm's serializer has lost the
@@ -9634,7 +9639,8 @@ class SB3Creator {
         const boards = SB3Creator.readBoards(project);
         if (boards) {
             if (!project.boards) project.boards = boards;
-            return this.decompileBoards(project, boards);
+            const source = this.decompileBoards(project, boards);
+            return portableSource ? CRISPBASIC_PSEUDOCODE_MARKER + '\n' + source : source;
         }
         if (project.stc) this.decompileStcDeclarations(project.stc, out);
         for (const v of Object.values(stage.variables || {})) out.push(`GLOBAL ${this.declarationText(v)}`);
@@ -10941,6 +10947,7 @@ class SB3Creator {
     }
 
     generatePython(project = this.project, opts = {}) {
+        if (validateCrispBasicProject(project)) throw crispBasicModeError('generatePython');
         this._driverPins = (project.stc && project.stc.pins) || null;
         this._driverStc = project.stc || null;  // PORT/PART tables for the stc12 driver
         this._nativePinExpr = null;   // MicroPython-only; must not leak in here
@@ -11291,6 +11298,7 @@ class SB3Creator {
     }
 
     generateJavaScript(project = this.project, opts = {}) {
+        if (validateCrispBasicProject(project)) throw crispBasicModeError('generateJavaScript');
         this._driverPins = (project.stc && project.stc.pins) || null;
         this._driverStc = project.stc || null;  // PORT/PART tables for the stc12 driver
         this._nativePinExpr = null;   // MicroPython-only; must not leak in here
@@ -14584,6 +14592,7 @@ class SB3Creator {
     static C_ARRAYS_UNIMPLEMENTED = new Set([]);
 
     generateHostC(project = this.project, opts = {}) {
+        if (validateCrispBasicProject(project)) throw crispBasicModeError('generateHostC');
         this._cNames = new Map();
         this._hcWarnings = [];
         this._hcUses = { answer: false };
@@ -14752,6 +14761,7 @@ class SB3Creator {
      * @returns {{ok: boolean, py?: string, reasons: string[], warnings: string[]}}
      */
     generateMicroPython(project = this.project, opts = {}) {
+        if (validateCrispBasicProject(project)) throw crispBasicModeError('generateMicroPython');
         // Debug build: instrument each block with a position marker over serial
         // — the micro:bit analogue of the 8051's <task>_state lever (read
         // position, do not VM-step; DEBUG-CONTROL-MODEL.md §2, MICROBIT-NATIVE.md
@@ -16325,6 +16335,10 @@ class SB3Creator {
             reasons.push(`CrispBASIC: ${message}${diagnostic.blockId ? ` (block ${diagnostic.blockId})` : ''}`);
         };
         const refused = () => ({ok: false, reasons: [...new Set(reasons)], warnings, diagnostics});
+        if (validateCrispBasicProject(project) && !crisp) {
+            refuse('runtime-mode', crispBasicModeError('legacy BASIC generation').message);
+            return refused();
+        }
         if (opts.mode !== undefined && opts.mode !== 'legacy' && !crisp) {
             refuse('mode', `unknown generator mode "${opts.mode}"; use legacy or crispbasic`);
             return refused();
@@ -16373,8 +16387,7 @@ class SB3Creator {
         const crispPins = new Map();
         if (crisp) {
             const device = String(stc.device || '').toLowerCase();
-            const stcDevice = /^stc(?:12|15|89)/.test(device) && !!devPart;
-            const supported = ['arduino-uno', 'arduino-nano', 'arduino-mega', 'pico'].includes(device) || stcDevice;
+            const supported = hasCrispBasicPinMap(device);
             if ((device || pins.size) && !supported) {
                 refuse('device', `DEVICE ${device || '(missing)'} has no portable digital pin map`, null, {device});
             }
@@ -16385,22 +16398,13 @@ class SB3Creator {
                 refuse('peripheral', `PART ${part.name} (${part.type || part.kind || 'peripheral'}) is unsupported by the digital library`);
             }
             if (stc.ledcube) refuse('peripheral', 'LED cube operations are unsupported by the digital library');
+            if (stc.machine) refuse('machine', 'Custom MAP/CHIP memory and peripheral layouts are not represented by the portable GPIO host');
             const usedIds = new Set();
             const usedNames = new Set();
             for (const p of stc.pins || []) {
                 const key = String(p.name).toLowerCase();
                 const where = String(p.where || `P${p.port}.${p.bit}`).toUpperCase();
-                let id = null, match;
-                if (supported && /^arduino-/.test(device) && (match = where.match(/^([DA])(\d+)$/))) {
-                    const n = Number(match[2]), mega = device === 'arduino-mega';
-                    if (match[1] === 'D' && n <= (mega ? 53 : 13)) id = n;
-                    if (match[1] === 'A' && n <= (mega ? 15 : 5)) id = n + (mega ? 54 : 14);
-                } else if (device === 'pico' && (match = where.match(/^GP(\d+)$/))) {
-                    const n = Number(match[1]);
-                    if (n <= 22 || (n >= 25 && n <= 28)) id = n;
-                } else if (stcDevice && (match = where.match(/^P([0-7])\.([0-7])$/))) {
-                    id = Number(match[1]) * 8 + Number(match[2]);
-                }
+                const id = supported ? crispBasicLogicalPin(device, where) : null;
                 if (id === null) refuse('pin-map', `PIN ${p.name} (${where}) has no supported ${device || 'device'} logical ID`, null, {pin: p.name});
                 if (!['input', 'output'].includes(p.direction) || p.openDrain || p.pull === 'down') {
                     refuse('pin-mode', `PIN ${p.name} mode ${p.direction}${p.openDrain ? ' open-drain' : ''}${p.pull === 'down' ? ' pull-down' : ''} is unsupported; use digital INPUT or OUTPUT`, null, {pin: p.name});
@@ -17320,6 +17324,7 @@ class SB3Creator {
     _basUnq(s) { return String(s).replace(/^"|"$/g, ''); }
 
     generateC(project = this.project, opts = {}) {
+        if (validateCrispBasicProject(project)) throw crispBasicModeError('generateC');
         // Which C? The project decides. Declared pins mean the chip and bare
         // metal; anything else is a Scratch program, and emitting 8051 register
         // writes for it produced the 390 "no C equivalent" warnings this split
