@@ -52,6 +52,7 @@ function state (vm, withSize) {
 }
 
 const VM_KEYS = { space: ' ' };
+const WARP_STEPS = 10000; // bwgame.js WARP_STEPS
 
 window.ORACLE = {
     async run (base64, trace, seed = 1, withSize = false) {
@@ -90,6 +91,27 @@ window.ORACLE = {
                 try { return orig.call(this, args, util); } finally { Math.random = saved; }
             };
         }
+        // Warp ("run without screen refresh"): scratch-vm gives the frame up once a
+        // thread's warpTimer passes Sequencer.WARP_TIME (500 ms). The virtual clock does
+        // not move inside a frame, so here that timer counts its checks instead, with the
+        // exported runtime's deterministic budget (bwgame WARP_STEPS loop iterations).
+        // The sequencer checks it once per warped loop iteration and resets it per frame.
+        const seq = vm.runtime.sequencer;
+        const stepThread = seq.stepThread.bind(seq);
+        seq.stepThread = thread => {
+            if (!Object.prototype.hasOwnProperty.call(thread, '_bwWarp')) {
+                let timer = thread.warpTimer;
+                thread._bwWarp = true;
+                Object.defineProperty(thread, 'warpTimer', {
+                    get: () => timer,
+                    set: t => {
+                        let checks = 0;
+                        timer = t && { start () { checks = 0; }, timeElapsed: () => (++checks >= WARP_STEPS ? Infinity : 0) };
+                    }
+                });
+            }
+            return stepThread(thread);
+        };
         vm.runtime.currentStepTime = 1000 / 30;
         vm.runtime.sequencer.timer = { start () { this.n = 0; }, timeElapsed () { return this.n++ === 0 ? 0 : Infinity; } };
 

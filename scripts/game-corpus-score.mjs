@@ -19,7 +19,7 @@ import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { loadSb3, exportGame } from '../src/game/export.js';
 import { loadJsGame, loadExportedJsGame, runVm, runJs } from '../test/helpers/game-differential.mjs';
-import { rasterizeWithChromium } from '../src/game/raster.js';
+import { rasterizeWithChromium } from '../src/game/raster-chromium.js';
 
 const args = process.argv.slice(2);
 const opt = (name, dflt) => { const i = args.indexOf(name); if (i < 0) return dflt; const v = args[i + 1]; args.splice(i, 2); return v; };

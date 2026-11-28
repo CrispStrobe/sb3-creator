@@ -17537,5 +17537,39 @@
       "intro": "lab-relay-hysteresis/intro.md",
       "introDE": "lab-relay-hysteresis/intro.de.md"
     }
+  },
+  {
+    "id": "lab-led-amp-switch",
+    "title": {
+      "en": "An LED switches a light: sensor LED on the amplifier chip",
+      "de": "Eine LED schaltet ein Licht: Sensor-LED am Verstärkerchip"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 3,
+    "files": {
+      "program": "lab-led-amp-switch/program.bw",
+      "circuit": "lab-led-amp-switch/circuit.json",
+      "expected": "lab-led-amp-switch/EXPECTED.md",
+      "intro": "lab-led-amp-switch/intro.md",
+      "introDE": "lab-led-amp-switch/intro.de.md"
+    }
+  },
+  {
+    "id": "lab-voice-motor",
+    "title": {
+      "en": "Sound starts the motor: amplifier chip, op-amp and PNP switch",
+      "de": "Geräusch startet den Motor: Verstärkerchip, Operationsverstärker und PNP-Schalter"
+    },
+    "kind": "circuit",
+    "category": "pure-circuit",
+    "difficulty": 4,
+    "files": {
+      "program": "lab-voice-motor/program.bw",
+      "circuit": "lab-voice-motor/circuit.json",
+      "expected": "lab-voice-motor/EXPECTED.md",
+      "intro": "lab-voice-motor/intro.md",
+      "introDE": "lab-voice-motor/intro.de.md"
+    }
   }
 ]

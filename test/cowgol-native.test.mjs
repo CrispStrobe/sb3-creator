@@ -250,3 +250,14 @@ test('classic Nano has an explicit board profile with bounded digital pins and w
     assert.equal(generate('DEVICE NANO\nCLOCK 8000000\nWHEN flag clicked:\n  say 1\n', 'arduino-nano').ok, false);
     assert.equal(generate(source, 'atmega328p').ok, false, 'Nano cannot silently inherit the larger Uno flash region');
 });
+
+test('native emitters preserve the portable CrispBASIC runtime requirement after main reconciliation', () => {
+    const creator = build('# @crispbasic-portable 1\nWHEN flag clicked:\n  say 42\n');
+    const before = JSON.stringify(creator.project);
+    for (const options of [{}, ...targets.map(target => ({target}))]) {
+        assert.throws(() => creator.generateCowgol(undefined, options),
+            error => error.code === 'crispbasic-runtime-required');
+    }
+    assert.throws(() => creator.generateRiscvC(), error => error.code === 'crispbasic-runtime-required');
+    assert.equal(JSON.stringify(creator.project), before);
+});

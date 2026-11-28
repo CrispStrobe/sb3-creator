@@ -41,7 +41,7 @@
       "kind": "ferrite_coil",
       "params": {
         "rodHeightM": 0,
-        "couplingRatio": 0.02
+        "couplingRatio": 0.2
       },
       "x": 142,
       "y": 345,
@@ -270,7 +270,7 @@
       "params": {
         "rodHeightM": 0,
         "linkTo": "ferrite_coil_4",
-        "distanceM": 0.5
+        "distanceM": 0.22
       },
       "x": 464,
       "y": 345,

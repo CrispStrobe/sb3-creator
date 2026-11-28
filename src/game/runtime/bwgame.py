@@ -30,6 +30,9 @@ CONTRACT = 'bwgame-v1'
 STAGE_W = 480
 STAGE_H = 360
 FPS = 30
+# scratch-vm Sequencer.WARP_TIME, and the deterministic stand-in for it (loop iterations).
+WARP_TIME_MS = 500
+WARP_STEPS = 10000
 
 _INF = float('inf')
 _NAN = float('nan')
@@ -1930,7 +1933,10 @@ class Game:
         while not bool_(cond()):
             yield WAIT
 
+    # Run without screen refresh; like scratch-vm, give the frame up after WARP_TIME
+    # (real time in live play, WARP_STEPS loop iterations when deterministic).
     def warp(self, gen):
+        steps, start = 0, time.perf_counter()
         while True:
             try:
                 v = next(gen)
@@ -1938,6 +1944,13 @@ class Game:
                 return e.value
             if v is WAIT:
                 yield WAIT
+                steps, start = 0, time.perf_counter()
+                continue
+            steps += 1
+            if (steps >= WARP_STEPS) if self.deterministic else \
+                    (steps % 64 == 0 and (time.perf_counter() - start) * 1000 > WARP_TIME_MS):
+                yield WAIT
+                steps, start = 0, time.perf_counter()
 
     def wait_threads(self, threads):
         yield WAIT
@@ -1977,16 +1990,17 @@ class Game:
                     continue
                 if not match(sc):
                     continue
-                existing = None
-                for th in self.threads:
-                    if th.target is t and th.script is sc and not th.done:
-                        existing = th
-                        break
-                if existing is not None:
-                    if not restart:
-                        continue
-                    existing.gen = sc.fn(t)
-                    started.append(existing)
+                # scratch-vm startHats: restarting replaces ANY thread of this script still
+                # in the list (finished this tick included) in its own slot, so a slot
+                # already passed runs next tick; otherwise a running thread wins.
+                at = next((k for k, th in enumerate(self.threads) if th.target is t and th.script is sc), -1)
+                if at >= 0 and restart:
+                    th = Thread(t, sc, sc.fn(t))
+                    self.threads[at].done = True
+                    self.threads[at] = th
+                    started.append(th)
+                    continue
+                if any(th.target is t and th.script is sc and not th.done for th in self.threads):
                     continue
                 th = Thread(t, sc, sc.fn(t))
                 self.threads.append(th)
