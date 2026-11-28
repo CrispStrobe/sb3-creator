@@ -7,7 +7,7 @@ import path from 'node:path';
 import {execFileSync, spawnSync} from 'node:child_process';
 import {pathToFileURL} from 'node:url';
 import SB3Creator from '../src/utils/sb3Creator.js';
-import {boundaryCase, overflowCases, controlCase} from './fixtures/cowgol/native-cases.mjs';
+import {boundaryCase, boundaryPrograms, overflowCases, controlCase} from './fixtures/cowgol/native-cases.mjs';
 
 const service = process.env.COWGOL_STC_COMPILER;
 const bundle = process.env.COWGOL_BUNDLE;
@@ -16,8 +16,8 @@ const avrRunner = process.env.COWGOL_AVR_RUNNER;
 const avrRoot = process.env.AVR8JS_ROOT;
 const required = process.env.REQUIRE_COWGOL_NATIVE_MACHINES === '1';
 const boardPin = 'd21d6d8b819263eb08231134b7556efa82289a90';
-const targets = ['z80-cpm', 'i8080-cpm', 'dos', 'eater6502', 'riscv32', 'atmega328p', 'arduino-nano'];
-const isAvr = target => ['atmega328p', 'arduino-nano'].includes(target);
+const targets = ['z80-cpm', 'i8080-cpm', 'dos', 'eater6502', 'riscv32', 'atmega328p', 'arduino-nano', 'atmega168p'];
+const isAvr = target => ['atmega328p', 'arduino-nano', 'atmega168p'].includes(target);
 const binaryExtension = target => target === 'dos' ? 'exe' : target === 'eater6502' ? 'bin' :
     target === 'riscv32' ? 'elf' : isAvr(target) ? 'hex' : 'com';
 const usesBoard = target => target === 'eater6502' || target === 'riscv32';
@@ -63,16 +63,16 @@ if sys.argv[3] == "riscv32" and os.environ.get("COWGOL_RISCV_GCC_STAGE"):
     import app
     app.RISCV_GCC_STAGE = os.environ["COWGOL_RISCV_GCC_STAGE"]
     app.RISCV_GCC_STAGE_BIN = str(pathlib.Path(app.RISCV_GCC_STAGE) / "bin")
-if sys.argv[3] in ("atmega328p", "arduino-nano") and os.environ.get("COWGOL_AVR_GCC_ROOT"):
+if sys.argv[3] in ("atmega328p", "arduino-nano", "atmega168p") and os.environ.get("COWGOL_AVR_GCC_ROOT"):
     import app
     app.stage_avr = lambda: str(pathlib.Path(os.environ["COWGOL_AVR_GCC_ROOT"]) / "bin")
-elif sys.argv[3] in ("atmega328p", "arduino-nano") and os.environ.get("COWGOL_AVR_STAGE"):
+elif sys.argv[3] in ("atmega328p", "arduino-nano", "atmega168p") and os.environ.get("COWGOL_AVR_STAGE"):
     import app
     app.AVR_STAGE = os.environ["COWGOL_AVR_STAGE"]
     app.AVR_STAGE_BIN = str(pathlib.Path(app.AVR_STAGE) / "bin")
     app._AVR_STAMP = str(pathlib.Path(app.AVR_STAGE) / ".bundle-fingerprint")
 request = SimpleNamespace(code=pathlib.Path(sys.argv[2]).read_text(), language="cowgol",
-    target=sys.argv[3], format="elf" if sys.argv[3] == "riscv32" else "hex" if sys.argv[3] in ("atmega328p", "arduino-nano") else "bin",
+    target=sys.argv[3], format="elf" if sys.argv[3] == "riscv32" else "hex" if sys.argv[3] in ("atmega328p", "arduino-nano", "atmega168p") else "bin",
     options=[], defines={}, disassemble=False, symbols=False)
 result = cowgol_build.build_cowgol(request)
 if not result.get("success"):
@@ -86,9 +86,14 @@ print(json.dumps({key: result.get(key) for key in ("target", "toolchain", "compi
         if (isAvr(target)) {
             const layout = compiled.memory_layout;
             assert.equal(compiled.toolchain, `cowgol-${target}`);
-            assert.equal(layout.flash_limit, target === 'arduino-nano' ? 30720 : 32256);
-            assert.ok(layout.flash_end <= layout.flash_limit, 'image must retain the selected board bootloader area');
-            assert.equal(layout.stack_start, 0x700);
+            const chip168 = target === 'atmega168p';
+            const expectedMcu = chip168 ? 'atmega168p' : 'atmega328p';
+            assert.equal(layout.mcu, expectedMcu);
+            assert.equal(layout.flash_limit, chip168 ? 16384 : target === 'arduino-nano' ? 30720 : 32256);
+            assert.ok(layout.flash_end <= layout.flash_limit, 'image must respect the exact chip and bootloader boundary');
+            assert.equal(layout.stack_start, chip168 ? 0x300 : 0x700);
+            assert.equal(layout.ram_end, chip168 ? 0x500 : 0x900);
+            assert.equal(layout.heap_end - layout.heap_start, chip168 ? 128 : 512);
             assert.ok(layout.bss_end <= layout.stack_start);
             const layoutFile = `${binary}.layout.json`;
             fs.writeFileSync(layoutFile, JSON.stringify(layout));
@@ -96,6 +101,9 @@ print(json.dumps({key: result.get(key) for key in ("target", "toolchain", "compi
                 [avrRunner, binary, layoutFile, JSON.stringify(options)], {encoding: 'utf8', timeout: 20000}));
             assert.ok(observed.runs.length);
             for (const run of observed.runs) {
+                assert.equal(run.mcu, expectedMcu);
+                assert.equal(run.flashSize, chip168 ? 16384 : 32768);
+                assert.equal(run.sramSize, chip168 ? 1024 : 2048);
                 assert.equal(run.stopped, true, 'generated AVR program must halt within its cycle budget');
                 assert.equal(run.status, overflow ? 1 : 0, run.text);
                 assert.equal(run.flashUnchanged, true);
@@ -136,9 +144,14 @@ print(json.dumps({key: result.get(key) for key in ("target", "toolchain", "compi
 
 for (const target of targets) {
     test(`${target}: generated int32 boundary arithmetic executes on the native CPU`, gate(target), async t => {
-        const run = await machine(t, target), fixture = boundaryCase();
-        const result = run(fixture.source);
-        assert.equal(result.output, fixture.output);
+        const run = await machine(t, target);
+        // Every operand/sign case still executes. The 1 KiB chip uses one
+        // operation per image, keeping compiler temporaries within real SRAM.
+        const fixtures = target === 'atmega168p' ? boundaryPrograms(1) : [boundaryCase()];
+        for (const fixture of fixtures) {
+            const result = run(fixture.source);
+            assert.equal(result.output, fixture.output);
+        }
     });
     test(`${target}: generated overflow checks stop before wrapping or later output`, gate(target), async t => {
         const run = await machine(t, target);
@@ -168,7 +181,7 @@ WHEN flag clicked:
     assert.deepEqual(observed.via, {ora: 0, orb: 0x80, ddra: 0, ddrb: 0x80});
 });
 
-for (const [target, device] of [['atmega328p', 'UNO'], ['arduino-nano', 'NANO']]) {
+for (const [target, device] of [['atmega328p', 'UNO'], ['arduino-nano', 'NANO'], ['atmega168p', 'ATMEGA168P']]) {
     test(`${target} generated GPIO preserves active-low input, output latch and cold initialization`, gate(target), async t => {
         const source = `DEVICE ${device}
 PIN led = D13 OUTPUT ACTIVE LOW

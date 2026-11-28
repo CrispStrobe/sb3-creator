@@ -183,7 +183,7 @@ short-circuit conditions, loop re-evaluation and GPIO/polarity callback traces.
 These host executions qualify generator/language behavior; native machine
 execution is additionally exercised by `test/cowgol-native-machine.test.mjs`.
 That suite compiles actual Z80 CP/M, 8080-compatible CP/M, DOS, Eater, RISC-V and
-ATmega328P/Uno and classic Nano images through the pinned service and runs them on cpmemu, emu2,
+ATmega328P/Uno, classic Nano and bare ATmega168P images through the pinned service and runs them on cpmemu, emu2,
 Brickwright's exact 6502 and RV32 machines, and avr8js 0.21.1. It reuses the host
 suite's mathematical boundary oracle and all
 overflow cases, checks lazy conditions and loops, and requires no ROM writes
@@ -195,8 +195,13 @@ the older checked RISC-V C generator. AVR executes the actual returned HEX,
 checks generated arithmetic and refusal paths, verifies active-low GPIO and
 pull-ups, and cold-boots twice from nonzero SRAM. Its GPIO trace measures the
 generated 0, 1 and 7 ms pulse intervals at the real emulated CPU cycle count for
-both distinct AVR board targets;
+all three distinct AVR profiles;
 every execution must keep flash intact and remain within the reserved stack.
+The ATmega168P oracle allocates exactly 16 KiB flash and 1 KiB SRAM and reports
+that chip identity. The full signed boundary corpus runs one arithmetic
+operation per program on this smaller chip; all operand/sign combinations
+remain checked against the same independent BigInt results without enlarging
+its static-memory or stack allowance.
 `test/cowgol-surfaces.test.mjs` builds the embedded bundle, checks native source
 equivalence in a bare VM, and exercises CLI refusal without overwriting files.
 

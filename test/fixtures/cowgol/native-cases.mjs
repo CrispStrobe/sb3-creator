@@ -1,6 +1,6 @@
 // Shared semantic cases for the host compiler and the actual native CPUs.
 // Expected arithmetic is calculated with BigInt, independently of the emitter.
-export function boundaryCase() {
+export function boundaryPrograms(maxOperations = Infinity) {
     const pairs = [
         [0, 0], [1, -1], [-1, 1], [-1, -1], [2147483647, 0], [-2147483648, 0],
         [-2147483648, 1], [1, -2147483648], [-2147483648, -1], [-1, -2147483648],
@@ -8,15 +8,25 @@ export function boundaryCase() {
         [-46340, 46340], [-46340, -46340], [1073741824, -2], [-2, 1073741824],
         [715827882, 3], [-715827882, 3], [3, -715827882], [3, 715827882]
     ];
-    let statements = '', output = '';
+    const operations = [];
     for (const [a, b] of pairs) for (const op of ['+', '-', '*']) {
         const value = op === '+' ? BigInt(a) + BigInt(b) : op === '-' ? BigInt(a) - BigInt(b) : BigInt(a) * BigInt(b);
         if (value < -2147483648n || value > 2147483647n) continue;
-        statements += `  set left to ${a}\n  set right to ${b}\n  say (left ${op} right)\n`;
-        output += `${value}\n`;
+        operations.push({statements: `  set left to ${a}\n  set right to ${b}\n  say (left ${op} right)\n`,
+            output: `${value}\n`});
     }
-    return {source: `GLOBAL left = 0\nGLOBAL right = 0\nWHEN flag clicked:\n${statements}`, output};
+    const programs = [];
+    for (let offset = 0; offset < operations.length; offset += maxOperations) {
+        const part = operations.slice(offset, offset + maxOperations);
+        programs.push({source: `GLOBAL left = 0\nGLOBAL right = 0\nWHEN flag clicked:\n${part.map(item => item.statements).join('')}`,
+            output: part.map(item => item.output).join('')});
+    }
+    return programs;
 }
+
+// Small-memory machines run the same operand cases as separate bounded programs.
+// The ordinary host and larger CPUs retain the original combined source.
+export const boundaryCase = () => boundaryPrograms()[0];
 
 export const OVERFLOW_MESSAGE = 'Cowgol Blocks: signed int32 overflow\n';
 export const overflowCases = [
